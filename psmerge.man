@@ -6,9 +6,7 @@ psmerge \- filter to merge several PostScript files into one
 [
 .B \-o\fIout.ps\fB
 ]
-[
 .I file.ps ...
-]
 .SH DESCRIPTION
 .I Psmerge
 merges PostScript documents into a single document. It only works in the
