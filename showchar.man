@@ -1,0 +1,26 @@
+.TH SHOWCHAR 1 "PSUtils Release @RELEASE@ Patchlevel @PATCHLEVEL@"
+.SH NAME
+showchar \- show character with information
+.SH SYNOPSIS
+.B showchar
+[
+.B fontname
+] [
+.B charname
+]
+.SH DESCRIPTION
+This manual page was written for the Debian GNU/Linux distribution
+because the original program does not have a manual page.
+.PP
+.B showchar
+outputs PostScript to draw a character with metric info.
+.SH AUTHOR
+Copyright (C) Angus J. C. Duggan 1991-1995
+.PP
+This manual page was written by Uwe Hermann <uh1763@hermann-uwe.de>,
+for the Debian GNU/Linux system (but may be used by others).
+.SH TRADEMARKS
+.B PostScript
+is a trademark of Adobe Systems Incorporated.
+.SH "SEE ALSO"
+@MAN@

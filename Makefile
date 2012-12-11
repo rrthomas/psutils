@@ -53,7 +53,8 @@ MANPAGES = psbook.$(MANEXT) psselect.$(MANEXT) pstops.$(MANEXT) epsffit.$(MANEXT
 	psresize.$(MANEXT) psmerge.$(MANEXT) fixscribeps.$(MANEXT) getafm.$(MANEXT) \
 	fixdlsrps.$(MANEXT) fixfmps.$(MANEXT) fixpsditps.$(MANEXT) \
 	fixpspps.$(MANEXT) fixtpps.$(MANEXT) fixwfwps.$(MANEXT) fixwpps.$(MANEXT) \
-	fixwwps.$(MANEXT) extractres.$(MANEXT) includeres.$(MANEXT)
+	fixwwps.$(MANEXT) extractres.$(MANEXT) includeres.$(MANEXT) \
+	showchar.$(MANEXT)
 
 all: $(BIN) $(PERLSCRIPTS) $(MANPAGES) $(SHELLSCRIPTS)
 
@@ -203,6 +204,9 @@ includeres.$(MANEXT): includeres.man
 	$(PERL) maketext "MAN=$(MANPAGES)" INCLUDE=$(INCLUDEDIR) $? > $@
 
 getafm.$(MANEXT): getafm.man
+	$(PERL) maketext "MAN=$(MANPAGES)" $? > $@
+
+showchar.$(MANEXT): showchar.man
 	$(PERL) maketext "MAN=$(MANPAGES)" $? > $@
 
 clean:
