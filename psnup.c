@@ -88,7 +88,7 @@ main(int argc, char *argv[])
    double iwidth, iheight ;			/* input paper size */
    double tolerance = 100000;			/* layout tolerance */
    Paper *paper = NULL;
-   long sizeheaders[20];			/* headers to remove */
+   off_t sizeheaders[20];			/* headers to remove */
    int opt;
 
 #ifdef HAVE_LIBPAPER

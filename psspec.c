@@ -143,7 +143,7 @@ void pstops(int modulo, int pps, int nobind, PageSpec *specs, double draw) {
   pstops_write(modulo, pps, nobind, specs, draw, NULL);
 }
 
-void pstops_write(int modulo, int pps, int nobind, PageSpec *specs, double draw, long *ignorelist)
+void pstops_write(int modulo, int pps, int nobind, PageSpec *specs, double draw, off_t *ignorelist)
 {
    int thispg, maxpage;
    int pageindex = 0;

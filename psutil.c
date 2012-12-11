@@ -5,7 +5,10 @@
  * utilities for PS programs
  */
 
+
 /*
+ *  Daniele Giacomini appunti2@gmail.com 2010-09-02
+ *    Changed to using ftello() and fseeko()
  *  AJCD 6/4/93
  *    Changed to using ftell() and fseek() only (no length calculations)
  *  Hunter Goatley    31-MAY-1993 23:33
@@ -13,6 +16,9 @@
  *  Hunter Goatley     2-MAR-1993 14:41
  *    Added VMS support.
  */
+
+#define _FILE_OFFSET_BITS 64
+
 #include "psutil.h"
 #include "pserror.h"
 #include "patchlev.h"
@@ -20,6 +26,7 @@
 #include <string.h>
 #include <sys/types.h>
 #include <sys/stat.h>
+#include <stdio.h>
 
 #define iscomment(x,y) (strncmp(x,y,strlen(y)) == 0)
 
@@ -33,14 +40,14 @@ extern int pageno;
 
 static char buffer[BUFSIZ];
 static long bytes = 0;
-static long pagescmt = 0;
-static long headerpos = 0;
-static long endsetup = 0;
-static long beginprocset = 0;		/* start of pstops procset */
-static long endprocset = 0;
+static off_t pagescmt = 0;
+static off_t headerpos = 0;
+static off_t endsetup = 0;
+static off_t beginprocset = 0;		/* start of pstops procset */
+static off_t endprocset = 0;
 static int outputpage = 0;
 static int maxpages = 100;
-static long *pageptr;
+static off_t *pageptr;
 
 /* list of paper sizes supported */
 static Paper papersizes[] = {
@@ -94,15 +101,15 @@ FILE *seekable(FILE *fp)
 #if defined(WINNT)
   struct _stat fs ;
 #else
-  long fpos;
+  off_t fpos;
 #endif
 
 #if defined(WINNT)
   if (_fstat(fileno(fp), &fs) == 0 && (fs.st_mode&_S_IFREG) != 0)
     return (fp);
 #else
-  if ((fpos = ftell(fp)) >= 0)
-    if (!fseek(fp, 0L, SEEK_END) && !fseek(fp, fpos, SEEK_SET))
+  if ((fpos = ftello(fp)) >= 0)
+    if (!fseeko(fp, (off_t) 0, SEEK_END) && !fseeko(fp, fpos, SEEK_SET))
       return (fp);
 #endif
 
@@ -127,7 +134,7 @@ FILE *seekable(FILE *fp)
 
   /* discard the input file, and rewind the temporary */
   (void) fclose(fp);
-  if (fseek(ft, 0L, SEEK_SET) != 0)
+  if (fseeko(ft, (off_t) 0, SEEK_SET) != 0)
     return (NULL) ;
 
   return (ft);
@@ -137,10 +144,10 @@ FILE *seekable(FILE *fp)
 
 /* copy input file from current position upto new position to output file,
  * ignoring the lines starting at something ignorelist points to */
-static int fcopy(long upto, long *ignorelist)
+static int fcopy(off_t upto, off_t *ignorelist)
 {
-  long here = ftell(infile);
-  long bytes_left;
+  off_t here = ftello(infile);
+  off_t bytes_left;
 
   if (ignorelist != NULL) {
     while (*ignorelist > 0 && *ignorelist < here)
@@ -151,7 +158,7 @@ static int fcopy(long upto, long *ignorelist)
       if (!r || fgets(buffer, BUFSIZ, infile) == NULL)
 	return 0;
       ignorelist++;
-      here = ftell(infile);
+      here = ftello(infile);
       while (*ignorelist > 0 && *ignorelist < here)
 	ignorelist++;
     }
@@ -172,27 +179,27 @@ static int fcopy(long upto, long *ignorelist)
 }
 
 /* build array of pointers to start/end of pages */
-void scanpages(long *sizeheaders)
+void scanpages(off_t *sizeheaders)
 {
    register char *comment = buffer+2;
    register int nesting = 0;
-   register long int record;
+   register off_t record;
 
    if (sizeheaders)
      *sizeheaders = 0;
 
-   if ((pageptr = (long *)malloc(sizeof(long)*maxpages)) == NULL)
+   if ((pageptr = (off_t *)malloc(sizeof(off_t)*maxpages)) == NULL)
       message(FATAL, "out of memory\n");
    pages = 0;
-   fseek(infile, 0L, SEEK_SET);
-   while (record = ftell(infile), fgets(buffer, BUFSIZ, infile) != NULL)
+   fseeko(infile, (off_t) 0, SEEK_SET);
+   while (record = ftello(infile), fgets(buffer, BUFSIZ, infile) != NULL)
       if (*buffer == '%') {
 	 if (buffer[1] == '%') {
 	    if (nesting == 0 && iscomment(comment, "Page:")) {
 	       if (pages >= maxpages-1) {
 		  maxpages *= 2;
-		  if ((pageptr = (long *)realloc((char *)pageptr,
-					     sizeof(long)*maxpages)) == NULL)
+		  if ((pageptr = (off_t *)realloc((char *)pageptr,
+					     sizeof(off_t)*maxpages)) == NULL)
 		     message(FATAL, "out of memory\n");
 	       }
 	       pageptr[pages++] = record;
@@ -219,7 +226,7 @@ void scanpages(long *sizeheaders)
 	    } else if (headerpos == 0 && iscomment(comment, "Pages:"))
 	       pagescmt = record;
 	    else if (headerpos == 0 && iscomment(comment, "EndComments"))
-	       headerpos = ftell(infile);
+	       headerpos = ftello(infile);
 	    else if (iscomment(comment, "BeginDocument") ||
 		     iscomment(comment, "BeginBinary") ||
 		     iscomment(comment, "BeginFile"))
@@ -231,23 +238,23 @@ void scanpages(long *sizeheaders)
 	    else if (nesting == 0 && iscomment(comment, "EndSetup"))
 	       endsetup = record;
 	    else if (nesting == 0 && iscomment(comment, "BeginProlog"))
-	       headerpos = ftell(infile);
+	       headerpos = ftello(infile);
 	    else if (nesting == 0 &&
 		       iscomment(comment, "BeginProcSet: PStoPS"))
 	       beginprocset = record;
 	    else if (beginprocset && !endprocset &&
 		     iscomment(comment, "EndProcSet"))
-	       endprocset = ftell(infile);
+	       endprocset = ftello(infile);
 	    else if (nesting == 0 && (iscomment(comment, "Trailer") ||
 				      iscomment(comment, "EOF"))) {
-	       fseek(infile, record, SEEK_SET);
+	       fseeko(infile, record, SEEK_SET);
 	       break;
 	    }
 	 } else if (headerpos == 0 && buffer[1] != '!')
 	    headerpos = record;
       } else if (headerpos == 0)
 	 headerpos = record;
-   pageptr[pages] = ftell(infile);
+   pageptr[pages] = ftello(infile);
    if (endsetup == 0 || endsetup > pageptr[0])
       endsetup = pageptr[0];
 }
@@ -255,7 +262,7 @@ void scanpages(long *sizeheaders)
 /* seek a particular page */
 void seekpage(int p)
 {
-   fseek(infile, pageptr[p], SEEK_SET);
+   fseeko(infile, pageptr[p], SEEK_SET);
    if (fgets(buffer, BUFSIZ, infile) != NULL &&
        iscomment(buffer, "%%Page:")) {
       char *start, *end;
@@ -332,14 +339,14 @@ void writepage(int p)
 }
 
 /* write from start of file to end of header comments */
-void writeheader(int p, long *ignore)
+void writeheader(int p, off_t *ignore)
 {
    writeheadermedia(p, ignore, -1, -1);
 }
 
-void writeheadermedia(int p, long *ignore, double width, double height)
+void writeheadermedia(int p, off_t *ignore, double width, double height)
 {
-   fseek(infile, 0L, SEEK_SET);
+    fseeko(infile, (off_t) 0, SEEK_SET);
    if (pagescmt) {
       if (!fcopy(pagescmt, ignore) || fgets(buffer, BUFSIZ, infile) == NULL)
 	 message(FATAL, "I/O error in header\n");
@@ -362,7 +369,7 @@ int writepartprolog(void)
    if (beginprocset && !fcopy(beginprocset, NULL))
       message(FATAL, "I/O error in prologue\n");
    if (endprocset)
-      fseek(infile, endprocset, SEEK_SET);
+      fseeko(infile, endprocset, SEEK_SET);
    writeprolog();
    return !beginprocset;
 }
@@ -384,7 +391,7 @@ void writesetup(void)
 /* write trailer */
 void writetrailer(void)
 {
-   fseek(infile, pageptr[pages], SEEK_SET);
+   fseeko(infile, pageptr[pages], SEEK_SET);
    while (fgets(buffer, BUFSIZ, infile) != NULL) {
       writestring(buffer);
    }

@@ -29,4 +29,4 @@ extern double singledimen(char *str, void (*errorfn)(void),
 extern void pstops(int modulo, int pps, int nobind, PageSpec *specs,
 		   double draw);
 extern void pstops_write(int modulo, int pps, int nobind, PageSpec *specs,
-                         double draw, long *ignorelist);
+                         double draw, off_t *ignorelist);

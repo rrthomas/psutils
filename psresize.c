@@ -61,7 +61,7 @@ main(int argc, char *argv[])
    int rotate;
    double inwidth = -1;
    double inheight = -1;
-   long sizeheaders[20];			/* headers to remove */
+   off_t sizeheaders[20];			/* headers to remove */
    Paper *paper = NULL;
    PageSpec *specs;
    int opt;
