@@ -93,10 +93,13 @@ double singledimen(char *str, void (*errorfn)(void), void (*usagefn)(void))
 
 static char *prologue[] = { /* PStoPS procset */
 #ifndef SHOWPAGE_LOAD
+   /* Wrap these up with our own versions.  We have to  */
    "userdict begin",
-   "[/showpage/erasepage/copypage]{dup where{pop dup load",	/* prevent */
-   " type/operatortype eq{1 array cvx dup 0 3 index cvx put",	/* binding */
-   " bind def}{pop}ifelse}{pop}ifelse}forall",			/* in prolog */
+   "[/showpage/erasepage/copypage]{dup where{pop dup load",
+   " type/operatortype eq{ /PStoPSenablepage cvx 1 index"
+   " load 1 array astore cvx {} bind /ifelse cvx 4 array"
+   " astore cvx def}{pop}ifelse}{pop}ifelse}forall"
+   " /PStoPSenablepage true def",
 #else
    "userdict begin",
    "[/showpage/copypage/erasepage]{dup 10 string cvs dup",
@@ -228,7 +231,7 @@ void pstops(int modulo, int pps, int nobind, PageSpec *specs, double draw)
 	 }
 	 if (add_next) {
 #ifndef SHOWPAGE_LOAD
-	    writestring("/showpage{}def/copypage{}def/erasepage{}def\n");
+	    writestring("/PStoPSenablepage false def\n");
 #else
 	    writestring("/PStoPSshowpage{}store/PStoPScopypage{}store/PStoPSerasepage{}store\n");
 #endif
