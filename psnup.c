@@ -265,9 +265,9 @@ main(int argc, char *argv[])
    scanpages(sizeheaders);
 
    /* set default values of input height & width */
-   if ( iwidth > 0 )
+   if ( iwidth > 0 && width == -1 )
      width = iwidth ;
-   if ( iheight > 0 )
+   if ( iheight > 0 && height == -1 )
      height = iheight ;
 
    /* Finding the best layout is an optimisation problem. We try all of the
