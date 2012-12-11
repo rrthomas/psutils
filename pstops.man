@@ -43,7 +43,7 @@ follow the syntax:
 .I = spec[+specs][,specs]
 .TP
 .I spec
-.I = [-]pageno[L][R][U][@scale][(xoff,yoff)]
+.I = [-]pageno[L][R][U][H][V][@scale][(xoff,yoff)]
 .RE
 .sp
 .I modulo
@@ -74,8 +74,9 @@ to convert to centimetres or inches, or the flag
 or
 .B "h"
 to specify as a multiple of the width or height.
-The optional parameters \fIL\fR, \fIR\fR, and \fIU\fR rotate the page left,
-right, or upside-down.
+The optional parameters \fIL\fR, \fIR\fR, \fIU\fR, \fIH\fR and \fIV\fR
+rotate the page left, right, or upside-down, and flip (mirror) page
+horizontally or vertically.
 The optional
 .I scale
 parameter scales the page by the fraction specified.

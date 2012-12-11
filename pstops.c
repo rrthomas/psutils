@@ -42,7 +42,7 @@ static void argerror(void)
 {
    fprintf(stderr, "%s: page specification error:\n", program);
    fprintf(stderr, "  <pagespecs> = [modulo:]<spec>\n");
-   fprintf(stderr, "  <spec>      = [-]pageno[@scale][L|R|U][(xoff,yoff)][,spec|+spec]\n");
+   fprintf(stderr, "  <spec>      = [-]pageno[@scale][L|R|U|H|V][(xoff,yoff)][,spec|+spec]\n");
    fprintf(stderr, "                modulo>=1, 0<=pageno<modulo\n");
    fflush(stderr);
    exit(1);
@@ -86,6 +86,14 @@ static PageSpec *parsespecs(char *str)
 	 case 'u': case 'U':
 	    tail->rotate += 180;
 	    tail->flags |= ROTATE;
+	    break;
+	 case 'h': case 'H':
+	    tail->hflip += 1;
+	    tail->flags |= HFLIP;
+	    break;
+	 case 'v': case 'V':
+	    tail->vflip += 1;
+	    tail->flags |= VFLIP;
 	    break;
 	 case '(':
 	    tail->xoff += parsedimen(&str, argerror);

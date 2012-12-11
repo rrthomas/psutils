@@ -8,12 +8,14 @@
 /* pagespec flags */
 #define ADD_NEXT (0x01)
 #define ROTATE   (0x02)
-#define SCALE    (0x04)
-#define OFFSET   (0x08)
-#define GSAVE    (ROTATE|SCALE|OFFSET)
+#define HFLIP    (0x04)
+#define VFLIP    (0x08)
+#define SCALE    (0x10)
+#define OFFSET   (0x20)
+#define GSAVE    (ROTATE|HFLIP|VFLIP|SCALE|OFFSET)
 
 typedef struct pagespec {
-   int reversed, pageno, flags, rotate;
+   int reversed, pageno, flags, rotate, hflip, vflip;
    double xoff, yoff, scale;
    struct pagespec *next;
 } PageSpec ;

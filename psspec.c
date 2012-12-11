@@ -22,6 +22,8 @@ PageSpec *newspec(void)
    if (temp == NULL)
       message(FATAL, "out of memory\n");
    temp->reversed = temp->pageno = temp->flags = temp->rotate = 0;
+   temp->hflip = 0;
+   temp->vflip = 0;
    temp->scale = 1;
    temp->xoff = temp->yoff = 0;
    temp->next = NULL;
@@ -213,6 +215,14 @@ void pstops_write(int modulo, int pps, int nobind, PageSpec *specs, double draw,
 	    }
 	    if (ps->flags & ROTATE) {
 	       sprintf(buffer, "%d rotate\n", ps->rotate);
+	       writestring(buffer);
+	    }
+	    if ((ps->flags & HFLIP) && (ps->hflip%2)) {
+	       sprintf(buffer, "[ -1 0 0 1 %f 0 ] concat\n", width*ps->scale);
+	       writestring(buffer);
+	    }
+	    if ((ps->flags & VFLIP) && (ps->vflip%2)) {
+	       sprintf(buffer, "[ 1 0 0 -1 0 %f ] concat\n", height*ps->scale);
 	       writestring(buffer);
 	    }
 	    if (ps->flags & SCALE) {
