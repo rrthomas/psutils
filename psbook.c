@@ -8,6 +8,8 @@
  *       psbook [-q] [-s<signature>] [infile [outfile]]
  */
 
+#include <unistd.h>
+
 #include "psutil.h"
 #include "pserror.h"
 #include "patchlev.h"
@@ -32,36 +34,54 @@ static void usage(void)
 }
 
 
-void main(int argc, char *argv[])
+int
+main(int argc, char *argv[])
 {
    int signature = 0;
    int currentpg, maxpage;
+   int opt;
+
+   verbose = 1;
+   program = *argv;
+
+   while((opt = getopt(argc, argv, "vqs:")) != EOF) {
+     switch(opt) {
+     case 's':	/* signature size */
+       signature = atoi(optarg);
+       if (signature < 1 || signature % 4) usage();
+       break;
+     case 'q':	/* quiet */
+       verbose = 0;
+       break;
+     case 'v':	/* version */
+     default:
+       usage();
+       break;
+     }
+   }
 
    infile = stdin;
    outfile = stdout;
-   verbose = 1;
-   for (program = *argv++; --argc; argv++) {
-      if (argv[0][0] == '-') {
-	 switch (argv[0][1]) {
-	 case 's':	/* signature size */
-	    signature = atoi(*argv+2);
-	    if (signature < 1 || signature % 4) usage();
-	    break;
-	 case 'q':	/* quiet */
-	    verbose = 0;
-	    break;
-	 case 'v':	/* version */
-	 default:
-	    usage();
-	 }
-      } else if (infile == stdin) {
-	 if ((infile = fopen(*argv, OPEN_READ)) == NULL)
-	    message(FATAL, "can't open input file %s\n", *argv);
-      } else if (outfile == stdout) {
-	 if ((outfile = fopen(*argv, OPEN_WRITE)) == NULL)
-	    message(FATAL, "can't open output file %s\n", *argv);
-      } else usage();
+
+   /* Be defensive */
+   if((argc - optind) < 0 || (argc - optind) > 2) usage();
+
+   if (optind != argc) {
+     /* User specified an input file */
+     if ((infile = fopen(argv[optind], OPEN_READ)) == NULL)
+       message(FATAL, "can't open input file %s\n", argv[optind]);
+     optind++;
    }
+
+   if (optind != argc) {
+     /* User specified an output file */
+     if ((outfile = fopen(argv[optind], OPEN_WRITE)) == NULL)
+       message(FATAL, "can't open output file %s\n", argv[optind]);
+     optind++;
+   }
+
+   if(optind != argc) usage();
+
 #if defined(MSDOS) || defined(WINNT)
    if ( infile == stdin ) {
       int fd = fileno(stdin) ;

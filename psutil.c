@@ -44,10 +44,16 @@ static long *pageptr;
 
 /* list of paper sizes supported */
 static Paper papersizes[] = {
+   { "a0", 2382, 3369 },	/* 84cm * 118.8cm */
+   { "a1", 1684, 2382 },	/* 59.4cm * 84cm */
+   { "a2", 1191, 1684 },	/* 42cm * 59.4cm */
    { "a3", 842, 1191 },		/* 29.7cm * 42cm */
    { "a4", 595, 842 },		/* 21cm * 29.7cm */
    { "a5", 421, 595 },		/* 14.85cm * 21cm */
    { "b5", 516, 729 },		/* 18.2cm * 25.72cm */
+   { "A0", 2382, 3369 },	/* 84cm * 118.8cm */
+   { "A1", 1684, 2382 },	/* 59.4cm * 84cm */
+   { "A2", 1191, 1684 },	/* 42cm * 59.4cm */
    { "A3", 842, 1191 },		/* 29.7cm * 42cm */
    { "A4", 595, 842 },		/* 21cm * 29.7cm */
    { "A5", 421, 595 },		/* 14.85cm * 21cm */
@@ -65,7 +71,7 @@ static Paper papersizes[] = {
 };
 
 /* return pointer to paper size struct or NULL */
-Paper* findpaper(char *name)
+Paper* findpaper(const char *name)
 {
    Paper *pp;
    for (pp = papersizes; PaperName(pp); pp++) {
@@ -132,15 +138,20 @@ FILE *seekable(FILE *fp)
 /* copy input file from current position upto new position to output file */
 static int fcopy(long upto)
 {
-   long here = ftell(infile);
-   while (here < upto) {
-      if ((fgets(buffer, BUFSIZ, infile) == NULL) ||
-	  (fputs(buffer, outfile) == EOF))
-	 return(0);
-      here = ftell(infile);
-      bytes += strlen(buffer);
-   }
-   return (1);
+  long here = ftell(infile);
+  long bytes_left = upto - here;
+
+  while (bytes_left > 0) {
+    size_t rw_result;
+    const size_t numtocopy = (bytes_left > BUFSIZ) ? BUFSIZ : bytes_left;
+    rw_result = fread(buffer, 1, numtocopy, infile);
+    if (rw_result < numtocopy) return (0);
+    rw_result = fwrite(buffer, 1, numtocopy, outfile);
+    if (rw_result < numtocopy) return (0);
+    bytes_left -= numtocopy;
+    bytes += numtocopy;
+  }
+  return (1);
 }
 
 /* build array of pointers to start/end of pages */

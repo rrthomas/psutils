@@ -23,7 +23,7 @@ PAPER=a4
 
 # Makefile for PSUtils under Unix
 
-#OS = UNIX
+OS = UNIX
 prefix=/usr
 
 BINDIR = $(prefix)/bin
@@ -40,7 +40,8 @@ MANEXT = 1
 MANDIR = $(prefix)/man/man$(MANEXT)
 
 CC = gcc
-CFLAGS = -DPAPER=\"$(PAPER)\" -DUNIX -O -Wall
+#CFLAGS = -DAMPER=\"$(PAPER)\" -DUNIX -O -Wall
+CFLAGS = -DLIBPAPER -DUNIX -O2 -g -Wall -Werror
 
 BIN = psbook psselect pstops epsffit psnup \
 	psresize
@@ -68,12 +69,13 @@ epsffit: epsffit.o pserror.o
 	$(CC) $(CCFLAGS) -o epsffit pserror.o epsffit.o
 
 psnup: psnup.o psutil.o psspec.o pserror.o
-	$(CC) $(CCFLAGS) -o psnup psutil.o psspec.o pserror.o psnup.o
+	$(CC) $(CCFLAGS) -o psnup psutil.o psspec.o pserror.o psnup.o -lpaper
 
 psnup.o: psutil.h patchlev.h psspec.h pserror.h psnup.c
 
 psresize: psresize.o psutil.o pserror.o psspec.o
-	$(CC) $(CCFLAGS) -o psresize psutil.o psspec.o pserror.o psresize.o
+	$(CC) $(CCFLAGS) -o psresize psutil.o psspec.o pserror.o psresize.o \
+          -lpaper
 
 psresize.o: psutil.h patchlev.h psspec.h pserror.h psresize.c
 
@@ -88,7 +90,7 @@ psselect: psselect.o psutil.o pserror.o
 psselect.o: psutil.h patchlev.h pserror.h psselect.c
 
 pstops: pstops.o psutil.o psspec.o pserror.o
-	$(CC) $(CCFLAGS) -o pstops psutil.o psspec.o pserror.o pstops.o
+	$(CC) $(CCFLAGS) -o pstops psutil.o psspec.o pserror.o pstops.o -lpaper
 
 pstops.o: psutil.h patchlev.h psspec.h pserror.h pstops.c
 

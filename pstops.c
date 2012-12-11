@@ -8,10 +8,17 @@
  *       pstops [-q] [-b] [-d] [-w<dim>] [-h<dim>] [-ppaper] <pagespecs> [infile [outfile]]
  */
 
+#include <unistd.h>
+#include <string.h>
+
 #include "psutil.h"
 #include "psspec.h"
 #include "pserror.h"
 #include "patchlev.h"
+
+#ifdef HAVE_LIBPAPER
+#include <paper.h>
+#endif
 
 char *program ;
 int pages ;
@@ -47,8 +54,8 @@ static int pagesperspec = 1;
 static PageSpec *parsespecs(char *str)
 {
    PageSpec *head, *tail;
-   int other = 0;
-   int num = -1;
+   unsigned long spec_count = 0;
+   long num = -1;
 
    head = tail = newspec();
    while (*str) {
@@ -57,7 +64,7 @@ static PageSpec *parsespecs(char *str)
       } else {
 	 switch (*str++) {
 	 case ':':
-	    if (other || head != tail || num < 1) argerror();
+	    if (spec_count || head != tail || num < 1) argerror();
 	    modulo = num;
 	    num = -1;
 	    break;
@@ -65,10 +72,9 @@ static PageSpec *parsespecs(char *str)
 	    tail->reversed = !tail->reversed;
 	    break;
 	 case '@':
-	    if (num < 0) argerror();
-	    tail->scale *= parsedouble(&str, argerror);
-	    tail->flags |= SCALE;
-	    break;
+            tail->scale *= parsedouble(&str, argerror);
+            tail->flags |= SCALE;
+           break;
 	 case 'l': case 'L':
 	    tail->rotate += 90;
 	    tail->flags |= ROTATE;
@@ -102,7 +108,7 @@ static PageSpec *parsespecs(char *str)
 	 default:
 	    argerror();
 	 }
-	 other = 1;
+	 spec_count++;
       }
    }
    if (num >= modulo)
@@ -112,71 +118,124 @@ static PageSpec *parsespecs(char *str)
    return (head);
 }
 
-void main(int argc, char *argv[])
+int
+main(int argc, char *argv[])
 {
    PageSpec *specs = NULL;
    int nobinding = 0;
    double draw = 0;
-   Paper *paper;
+   Paper *paper = NULL;
+   int opt;
 
-#ifdef PAPER
+#ifdef HAVE_LIBPAPER
+   paperinit();
+   {
+     const char *default_size = systempapername();
+     if (!default_size) default_size = defaultpapername ();
+     if (default_size) paper = findpaper(default_size);
+     if (paper) {
+       width = (double)PaperWidth(paper);
+       height = (double)PaperHeight(paper);
+     }
+   }
+   paperdone();
+#elif defined(PAPER)
    if ( (paper = findpaper(PAPER)) != (Paper *)0 ) {
       width = (double)PaperWidth(paper);
       height = (double)PaperHeight(paper);
    }
 #endif
 
+   verbose = 1;
+
+   program = *argv;
+
+   while((opt = getopt(argc, argv, "qd::bw:h:p:v0123456789")) != EOF) {
+     switch(opt) {
+     case 'q':	/* quiet */
+       verbose = 0;
+       break;
+     case 'd':	/* draw borders */
+       if(optarg)
+         draw = singledimen(optarg, argerror, usage);
+       else
+         draw = 1;
+       break;
+     case 'b':	/* no bind operator */
+       nobinding = 1;
+       break;
+     case 'w':	/* page width */
+       width = singledimen(optarg, argerror, usage);
+       break;
+     case 'h':	/* page height */
+       height = singledimen(optarg, argerror, usage);
+       break;
+     case 'p':	/* paper type */
+       if ( (paper = findpaper(optarg)) != (Paper *)0 ) {
+         width = (double)PaperWidth(paper);
+         height = (double)PaperHeight(paper);
+       } else
+         message(FATAL, "paper size '%s' not recognised\n", optarg);
+       break;
+     case 'v':	/* version */
+       usage();
+     case '0':
+     case '1':
+     case '2':
+     case '3':
+     case '4':
+     case '5':
+     case '6':
+     case '7':
+     case '8':
+     case '9':
+       if (specs == NULL) {
+         char *spec_txt = alloca((optarg ? strlen(optarg) : 0) + 3);
+         if(!spec_txt) message(FATAL, "no memory for spec allocation\n");
+         spec_txt[0] = '-';
+         spec_txt[1] = opt;
+         spec_txt[2] = 0;
+         if (optarg) strcat(spec_txt, optarg);
+         specs = parsespecs(spec_txt);
+       } else {
+         usage();
+       }
+       break;
+     default:
+       usage();
+       break;
+     }
+   }
+
+   if (specs == NULL) {
+     if(optind == argc) usage();
+     specs = parsespecs(argv[optind]);
+     optind++;
+   }
+
    infile = stdin;
    outfile = stdout;
-   verbose = 1;
-   for (program = *argv++; --argc; argv++) {
-      if (argv[0][0] == '-') {
-	 switch (argv[0][1]) {
-	 case 'q':	/* quiet */
-	    verbose = 0;
-	    break;
-	 case 'd':	/* draw borders */
-	    if (argv[0][2])
-	       draw = singledimen(*argv+2, argerror, usage);
-	    else
-	       draw = 1;
-	    break;
-	 case 'b':	/* no bind operator */
-	    nobinding = 1;
-	    break;
-	 case 'w':	/* page width */
-	    width = singledimen(*argv+2, argerror, usage);
-	    break;
-	 case 'h':	/* page height */
-	    height = singledimen(*argv+2, argerror, usage);
-	    break;
-	 case 'p':	/* paper type */
-	    if ( (paper = findpaper(*argv+2)) != (Paper *)0 ) {
-	       width = (double)PaperWidth(paper);
-	       height = (double)PaperHeight(paper);
-	    } else
-	      message(FATAL, "paper size '%s' not recognised\n", *argv+2);
-	    break;
-	 case 'v':	/* version */
-	    usage();
-	 default:
-	    if (specs == NULL)
-	       specs = parsespecs(*argv);
-	    else
-	       usage();
-	 }
-      } else if (specs == NULL)
-	 specs = parsespecs(*argv);
-      else if (infile == stdin) {
-	 if ((infile = fopen(*argv, OPEN_READ)) == NULL)
-	    message(FATAL, "can't open input file %s\n", *argv);
-      } else if (outfile == stdout) {
-	 if ((outfile = fopen(*argv, OPEN_WRITE)) == NULL)
-	    message(FATAL, "can't open output file %s\n", *argv);
-      } else usage();
+
+   /* Be defensive */
+   if((argc - optind) < 0 || (argc - optind) > 2) usage();
+
+   if (optind != argc) {
+     /* User specified an input file */
+     if ((infile = fopen(argv[optind], OPEN_READ)) == NULL)
+       message(FATAL, "can't open input file %s\n", argv[optind]);
+     optind++;
    }
-   if (specs == NULL)
-      usage();
+
+   if (optind != argc) {
+     /* User specified an output file */
+     if ((outfile = fopen(argv[optind], OPEN_WRITE)) == NULL)
+       message(FATAL, "can't open output file %s\n", argv[optind]);
+     optind++;
+   }
+
+   if (optind != argc) usage();
+   if (specs == NULL) usage();
+
 #if defined(MSDOS) || defined(WINNT)
    if ( infile == stdin ) {
       int fd = fileno(stdin) ;

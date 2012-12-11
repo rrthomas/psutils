@@ -61,11 +61,12 @@ to centimeters or inches.
 The 
 .I \-p
 option can be used as an alternative, to set the paper size to
-.B a3, a4, a5, b5, letter, legal, tabloid, statement, executive, folio, quarto
-or
+.B a0, a1, a2, a3, a4, a5, b5, letter, legal, tabloid, statement,
+executive, folio, quarto or
 .B 10x14.
-The default paper size is
-.B @PAPER@.
+The default paper size is normally
+.B @PAPER@,
+but on a Debian system, /etc/papersize is consulted.
 The
 .I \-W, \-H,
 and

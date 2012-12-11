@@ -11,12 +11,13 @@
 #include "psutil.h"
 #include "pserror.h"
 #include "patchlev.h"
+#include <unistd.h>
 
 char *program ;
 int pages ;
 int verbose ;
-FILE *infile ;
-FILE *outfile ;
+FILE *infile;
+FILE *outfile;
 char pagelabel[BUFSIZ] ;
 int pageno ;
 
@@ -52,6 +53,9 @@ static PageRange *addrange(char *str, PageRange *rp)
 {
    int first=0;
    int sign;
+
+   if(!str) return NULL;
+
    sign = (*str == '_' && ++str) ? -1 : 1;
    if (isdigit(*str)) {
       first = sign*atoi(str);
@@ -91,48 +95,70 @@ static PageRange *addrange(char *str, PageRange *rp)
 }
 
 
-void main(int argc, char *argv[])
+int
+main(int argc, char *argv[])
 {
+   int opt;
    int currentpg, maxpage = 0;
    int even = 0, odd = 0, reverse = 0;
    int pass, all;
    PageRange *pagerange = NULL;
 
+   verbose = 1;
+   program = *argv;
+
+   while((opt = getopt(argc, argv, "eorqvp:")) != EOF) {
+     switch(opt) {
+     case 'e':	/* even pages */
+       even = 1;
+       break;
+     case 'o':	/* odd pages */
+       odd = 1;
+       break;
+     case 'r':	/* reverse */
+       reverse = 1;
+       break;
+     case 'p':	/* page spec */
+       pagerange = addrange(optarg, pagerange);
+       break;
+     case 'q':	/* quiet */
+       verbose = 0;
+       break;
+     case 'v':	/* version */
+     default:
+       usage();
+       break;
+     }
+   }
+
    infile = stdin;
    outfile = stdout;
-   verbose = 1;
-   for (program = *argv++; --argc; argv++) {
-      if (argv[0][0] == '-') {
-	 switch (argv[0][1]) {
-	 case 'e':	/* even pages */
-	    even = 1;
-	    break;
-	 case 'o':	/* odd pages */
-	    odd = 1;
-	    break;
-	 case 'r':	/* reverse */
-	    reverse = 1;
-	    break;
-	 case 'p':	/* page spec */
-	    pagerange = addrange(*argv+2, pagerange);
-	    break;
-	 case 'q':	/* quiet */
-	    verbose = 0;
-	    break;
-	 case 'v':	/* version */
-	 default:
-	    usage();
-	 }
-      } else if (pagerange == NULL && !reverse && !even && !odd) {
-	 pagerange = addrange(*argv, NULL);
-      } else if (infile == stdin) {
-	 if ((infile = fopen(*argv, OPEN_READ)) == NULL)
-	    message(FATAL, "can't open input file %s\n", *argv);
-      } else if (outfile == stdout) {
-	 if ((outfile = fopen(*argv, OPEN_WRITE)) == NULL)
-	    message(FATAL, "can't open output file %s\n", *argv);
-      } else usage();
+
+   /* If we haven't gotten a page range yet, we better get one now */
+   if (pagerange == NULL && !reverse && !even && !odd) {
+     pagerange = addrange(argv[optind], NULL);
+     optind++;
    }
+
+   /* Be defensive */
+   if((argc - optind) < 0 || (argc - optind) > 2) usage();
+
+   if (optind != argc) {
+     /* User specified an input file */
+     if ((infile = fopen(argv[optind], OPEN_READ)) == NULL)
+       message(FATAL, "can't open input file %s\n", argv[optind]);
+     optind++;
+   }
+
+   if (optind != argc) {
+     /* User specified an output file */
+     if ((outfile = fopen(argv[optind], OPEN_WRITE)) == NULL)
+       message(FATAL, "can't open output file %s\n", argv[optind]);
+     optind++;
+   }
+
+   if(optind != argc) usage();
+
 #if defined(MSDOS) || defined(WINNT)
    if ( infile == stdin ) {
       int fd = fileno(stdin) ;
@@ -145,6 +171,7 @@ void main(int argc, char *argv[])
          message(FATAL, "can't reset stdout to binary mode\n");
     }
 #endif
+
    if ((infile=seekable(infile))==NULL)
       message(FATAL, "can't seek input\n");
 

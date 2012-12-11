@@ -1,6 +1,6 @@
 .TH PSRESIZE 1 "PSUtils Release @RELEASE@ Patchlevel @PATCHLEVEL@"
 .SH NAME
-psresize \- multiple pages per sheet
+psresize \- rescales and centers a document for new output paper size
 .SH SYNOPSIS
 .B psresize
 [
@@ -42,8 +42,8 @@ to centimeters or inches.
 The 
 .I \-p
 option can be used as an alternative, to set the output paper size to
-.B a3, a4, a5, b5, letter, legal, tabloid, statement, executive, folio, quarto
-or
+.B a0, a1, a2, a3, a4, a5, b5, letter, legal, tabloid, statement,
+executive, folio, quarto or
 .B 10x14.
 The default output paper size is
 .B @PAPER@.

@@ -8,6 +8,7 @@
  *               -c centres the image in the bounding box given
  *               -r rotates the image by 90 degrees anti-clockwise
  *               -a alters the aspect ratio to fit the bounding box
+ *               -m rotate to maximise the size within specified bounding
  *               -s adds a showpage at the end of the image
  *
  * Added filename spec (from Larry Weissman) 5 Feb 93
@@ -20,6 +21,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <ctype.h>
+#include <unistd.h>
 
 #include "pserror.h"
 #include "patchlev.h"
@@ -34,66 +36,76 @@ static void usage(void)
 {
    fprintf(stderr, "%s release %d patchlevel %d\n", program, RELEASE, PATCHLEVEL);
    fprintf(stderr, "Copyright (C) Angus J. C. Duggan, 1991-1995. See file LICENSE for details.\n");
-   fprintf(stderr, "Usage: %s [-c] [-r] [-a] [-s] llx lly urx ury [infile [outfile]]\n",
+   fprintf(stderr, "Usage: %s [-c] [-r] [-a] [-m] [-s] llx lly urx ury [infile [outfile]]\n",
 	   program);
    exit(1);
 }
 
-void main(int argc, char **argv)
+int
+main(int argc, char **argv)
 {
    int bbfound = 0;              /* %%BoundingBox: found */
-   int urx, ury, llx, lly;
+   int urx = 0, ury = 0, llx = 0, lly = 0;
    int furx, fury, fllx, flly;
    int showpage = 0, centre = 0, rotate = 0, aspect = 0, maximise = 0;
    char buf[BUFSIZ];
-   FILE *input;
-   FILE *output;
+   FILE *input = stdin;
+   FILE *output = stdout;
+   int opt;
 
-   program = *argv++; argc--;
+   program = *argv;
 
-   while (argc > 0 && argv[0][0] == '-') {
-      switch (argv[0][1]) {
-      case 'c': centre = 1; break;
-      case 's': showpage = 1; break;
-      case 'r': rotate = 1; break;
-      case 'a': aspect = 1; break;
-      case 'm': maximise = 1; break;
-      case 'v':
-      default:  usage();
-      }
-      argc--;
-      argv++;
+   while((opt = getopt(argc, argv, "csramv")) != EOF) {
+     switch(opt) {
+     case 'c': centre = 1; break;
+     case 's': showpage = 1; break;
+     case 'r': rotate = 1; break;
+     case 'a': aspect = 1; break;
+     case 'm': maximise = 1; break;
+     case 'v':
+     default:
+       usage();
+       break;
+     }
    }
 
-   if (argc < 4 || argc > 6) usage();
-   fllx = atoi(argv[0]);
-   flly = atoi(argv[1]);
-   furx = atoi(argv[2]);
-   fury = atoi(argv[3]);
+   if ((argc - optind) < 4 || (argc - optind) > 6) usage();
 
-   if (argc > 4) {
-      if(!(input = fopen(argv[4], OPEN_READ)))
-	 message(FATAL, "can't open input file %s\n", argv[4]);
-   } else {
+   fllx = atoi(argv[optind++]);
+   flly = atoi(argv[optind++]);
+   furx = atoi(argv[optind++]);
+   fury = atoi(argv[optind++]);
+
+   /* Be defensive */
+   if((argc - optind) < 0 || (argc - optind) > 2) usage();
+
+   if ((argc - optind) > 0) {
+      if(!(input = fopen(argv[optind], OPEN_READ)))
+	 message(FATAL, "can't open input file %s\n", argv[optind]);
+      optind++;
+   }
 #if defined(MSDOS) || defined(WINNT)
+   else {
       int fd = fileno(stdin) ;
       if ( setmode(fd, O_BINARY) < 0 )
          message(FATAL, "can't reset stdin to binary mode\n");
-#endif
       input = stdin ;
     }
+#endif
 
-   if (argc > 5) {
-      if(!(output = fopen(argv[5], OPEN_WRITE)))
-	 message(FATAL, "can't open output file %s\n", argv[5]);
-   } else {
+   if ((argc - optind) > 0) {
+      if(!(output = fopen(argv[optind], OPEN_WRITE)))
+	 message(FATAL, "can't open output file %s\n", argv[optind]);
+      optind++;
+   }
 #if defined(MSDOS) || defined(WINNT)
+   else {
       int fd = fileno(stdout) ;
       if ( setmode(fd, O_BINARY) < 0 )
          message(FATAL, "can't reset stdout to binary mode\n");
-#endif
       output = stdout ;
     }
+#endif
 
    while (fgets(buf, BUFSIZ, input)) {
       if (buf[0] == '%' && (buf[1] == '%' || buf[1] == '!')) {

@@ -23,10 +23,17 @@
  * 		-d<wid>	to draw the page boundaries
  */
 
+#include <unistd.h>
+#include <string.h>
+
 #include "psutil.h"
 #include "psspec.h"
 #include "pserror.h"
 #include "patchlev.h"
+
+#ifdef HAVE_LIBPAPER
+#include <paper.h>
+#endif
 
 char *program ;
 int pages ;
@@ -66,21 +73,36 @@ static int nextdiv(int n, int m)
    return (0);
 }
 
-void main(int argc, char *argv[])
+int
+main(int argc, char *argv[])
 {
-   int horiz, vert, rotate, column, flip, leftright, topbottom;
+   int horiz = 0, vert = 0, rotate = 0, column = 0;
+   int flip = 0, leftright = 0, topbottom = 0;
    int nup = 1;
    double draw = 0;				/* draw page borders */
-   double scale;				/* page scale */
+   double scale = 1.0;				/* page scale */
    double uscale = 0;				/* user supplied scale */
    double ppwid, pphgt;				/* paper dimensions */
    double margin, border;			/* paper & page margins */
    double vshift, hshift;			/* page centring shifts */
    double iwidth, iheight ;			/* input paper size */
    double tolerance = 100000;			/* layout tolerance */
-   Paper *paper;
+   Paper *paper = NULL;
+   int opt;
 
-#ifdef PAPER
+#ifdef HAVE_LIBPAPER
+   paperinit();
+   {
+     const char *default_size = systempapername();
+     if (!default_size) default_size = defaultpapername ();
+     if (default_size) paper = findpaper(default_size);
+     if (paper) {
+       width = (double)PaperWidth(paper);
+       height = (double)PaperHeight(paper);
+     }
+   }
+   paperdone();
+#elif defined(PAPER)
    if ( (paper = findpaper(PAPER)) != (Paper *)0 ) {
       width = (double)PaperWidth(paper);
       height = (double)PaperHeight(paper);
@@ -91,105 +113,129 @@ void main(int argc, char *argv[])
    leftright = topbottom = 1;
    iwidth = iheight = -1 ;
 
+   verbose = 1;
+   program = *argv;
+
+   while((opt =
+          getopt(argc, argv,
+                 "qd::lrfcw:W:h:H:m:b:t:s:p:P:n:1::2::3::4::5::6::7::8::9::"))
+         != EOF) {
+     switch(opt) {
+     case 'q':	/* quiet */
+       verbose = 0;
+       break;
+     case 'd':	/* draw borders */
+       if (optarg)
+         draw = singledimen(optarg, argerror, usage);
+       else
+         draw = 1;
+       break;
+     case 'l':	/* landscape (rotated left) */
+       column = !column;
+       topbottom = !topbottom;
+       break;
+     case 'r':	/* seascape (rotated right) */
+       column = !column;
+       leftright = !leftright;
+       break;
+     case 'f':	/* flipped */
+       flip = 1;
+       break;
+     case 'c':	/* column major layout */
+       column = !column;
+       break;
+     case 'w':	/* page width */
+       width = singledimen(optarg, argerror, usage);
+       break;
+     case 'W':	/* input page width */
+       iwidth = singledimen(optarg, argerror, usage);
+       break;
+     case 'h':	/* page height */
+       height = singledimen(optarg, argerror, usage);
+       break;
+     case 'H':	/* input page height */
+       iheight = singledimen(optarg, argerror, usage);
+       break;
+     case 'm':	/* margins around whole page */
+       margin = singledimen(optarg, argerror, usage);
+       break;
+     case 'b':	/* border around individual pages */
+       border = singledimen(optarg, argerror, usage);
+       break;
+     case 't':	/* layout tolerance */
+       tolerance = atof(optarg);
+       break;
+     case 's':	/* override scale */
+       uscale = atof(optarg);
+       break;
+     case 'p':	/* output (and by default input) paper type */
+       if ( (paper = findpaper(optarg)) != (Paper *)0 ) {
+         width = (double)PaperWidth(paper);
+         height = (double)PaperHeight(paper);
+       } else
+         message(FATAL, "paper size '%s' not recognised\n", optarg);
+       break;
+     case 'P':	/* paper type */
+       if ( (paper = findpaper(optarg)) != (Paper *)0 ) {
+         iwidth = (double)PaperWidth(paper);
+         iheight = (double)PaperHeight(paper);
+       } else
+         message(FATAL, "paper size '%s' not recognised\n", optarg);
+       break;
+     case 'n':	/* n-up, for compatibility with other psnups */
+       if ((nup = atoi(optarg)) < 1)
+         message(FATAL, "-n %d too small\n", nup);
+       break;
+     case '1':
+     case '2':
+     case '3':
+     case '4':
+     case '5':
+     case '6':
+     case '7':
+     case '8':
+     case '9':
+       if(optarg) {
+         char *valuestr = (char *) malloc(strlen(optarg) + 2);
+         valuestr[0] = opt;
+         strcpy(&(valuestr[1]), optarg);
+
+         /* really should check that valuestr is only digits here...*/
+         if ((nup = atoi(valuestr)) < 1)
+           message(FATAL, "-n %d too small\n", nup);
+         free(valuestr);
+       } else {
+         nup = (opt - '0');
+       }
+       break;
+     case 'v':	/* version */
+     default:
+       usage();
+     }
+   }
+
    infile = stdin;
    outfile = stdout;
-   verbose = 1;
-   for (program = *argv++; --argc; argv++) {
-      if (argv[0][0] == '-') {
-	 switch (argv[0][1]) {
-	 case 'q':	/* quiet */
-	    verbose = 0;
-	    break;
-	 case 'd':	/* draw borders */
-	    if (argv[0][2])
-	       draw = singledimen(*argv+2, argerror, usage);
-	    else
-	       draw = 1;
-	    break;
-	 case 'l':	/* landscape (rotated left) */
-	    column = !column;
-	    topbottom = !topbottom;
-	    break;
-	 case 'r':	/* seascape (rotated right) */
-	    column = !column;
-	    leftright = !leftright;
-	    break;
-	 case 'f':	/* flipped */
-	    flip = 1;
-	    break;
-	 case 'c':	/* column major layout */
-	    column = !column;
-	    break;
-	 case 'w':	/* page width */
-	    width = singledimen(*argv+2, argerror, usage);
-	    break;
-	 case 'W':	/* input page width */
-	    iwidth = singledimen(*argv+2, argerror, usage);
-	    break;
-	 case 'h':	/* page height */
-	    height = singledimen(*argv+2, argerror, usage);
-	    break;
-	 case 'H':	/* input page height */
-	    iheight = singledimen(*argv+2, argerror, usage);
-	    break;
-	 case 'm':	/* margins around whole page */
-	    margin = singledimen(*argv+2, argerror, usage);
-	    break;
-	 case 'b':	/* border around individual pages */
-	    border = singledimen(*argv+2, argerror, usage);
-	    break;
-	 case 't':	/* layout tolerance */
-	    tolerance = atof(*argv+2);
-	    break;
-	 case 's':	/* override scale */
-	    uscale = atof(*argv+2);
-	    break;
-	 case 'p':	/* output (and by default input) paper type */
-	    if ( (paper = findpaper(*argv+2)) != (Paper *)0 ) {
-	       width = (double)PaperWidth(paper);
-	       height = (double)PaperHeight(paper);
-	    } else
-	       message(FATAL, "paper size '%s' not recognised\n", *argv+2);
-	    break;
-	 case 'P':	/* paper type */
-	    if ( (paper = findpaper(*argv+2)) != (Paper *)0 ) {
-	       iwidth = (double)PaperWidth(paper);
-	       iheight = (double)PaperHeight(paper);
-	    } else
-	       message(FATAL, "paper size '%s' not recognised\n", *argv+2);
-	    break;
-	 case 'n':	/* n-up, for compatibility with other psnups */
-	    if (argc >= 2) {
-	       argv++;
-	       argc--;
-	       if ((nup = atoi(*argv)) < 1)
-		  message(FATAL, "-n %d too small\n", nup);
-	    } else
-	       message(FATAL, "argument expected for -n\n");
-	    break;
-	 case '1':
-	 case '2':
-	 case '3':
-	 case '4':
-	 case '5':
-	 case '6':
-	 case '7':
-	 case '8':
-	 case '9':
-	    nup = atoi(*argv+1);
-	    break;
-	 case 'v':	/* version */
-	 default:
-	    usage();
-	 }
-      } else if (infile == stdin) {
-	 if ((infile = fopen(*argv, OPEN_READ)) == NULL)
-	    message(FATAL, "can't open input file %s\n", *argv);
-      } else if (outfile == stdout) {
-	 if ((outfile = fopen(*argv, OPEN_WRITE)) == NULL)
-	    message(FATAL, "can't open output file %s\n", *argv);
-      } else usage();
+
+   /* Be defensive */
+   if((argc - optind) < 0 || (argc - optind) > 2) usage();
+
+   if (optind != argc) {
+     /* User specified an input file */
+     if ((infile = fopen(argv[optind], OPEN_READ)) == NULL)
+       message(FATAL, "can't open input file %s\n", argv[optind]);
+     optind++;
    }
+
+   if (optind != argc) {
+     /* User specified an output file */
+     if ((outfile = fopen(argv[optind], OPEN_WRITE)) == NULL)
+       message(FATAL, "can't open output file %s\n", argv[optind]);
+     optind++;
+   }
+
+   if (optind != argc) usage();
+
 #if defined(MSDOS) || defined(WINNT)
    if ( infile == stdin ) {
       int fd = fileno(stdin) ;

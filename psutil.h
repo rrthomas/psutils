@@ -25,7 +25,7 @@ typedef struct papersize {
 #define PaperHeight(p) ((p)->height)
 
 /* Definitions for functions found in psutil.c */
-extern Paper *findpaper(char *name);
+extern Paper *findpaper(const char *name);
 extern FILE *seekable(FILE *fp);
 extern void writepage(int p);
 extern void seekpage(int p);

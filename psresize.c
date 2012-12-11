@@ -15,10 +15,16 @@
  *              -Ppaper sets the input paper size (width and height) by name
  */
 
+#include <unistd.h>
+
 #include "psutil.h"
 #include "psspec.h"
 #include "pserror.h"
 #include "patchlev.h"
+
+#ifdef HAVE_LIBPAPER
+#include <paper.h>
+#endif
 
 char *program ;
 int pages ;
@@ -46,7 +52,8 @@ static void argerror(void)
 #define MIN(x,y) ((x) > (y) ? (y) : (x))
 #define MAX(x,y) ((x) > (y) ? (x) : (y))
 
-void main(int argc, char *argv[])
+int
+main(int argc, char *argv[])
 {
    double scale, rscale;			/* page scale */
    double waste, rwaste;			/* amount wasted */
@@ -54,10 +61,23 @@ void main(int argc, char *argv[])
    int rotate;
    double inwidth = -1;
    double inheight = -1;
-   Paper *paper;
+   Paper *paper = NULL;
    PageSpec *specs;
+   int opt;
 
-#ifdef PAPER
+#ifdef HAVE_LIBPAPER
+   paperinit();
+   {
+     const char *default_size = systempapername();
+     if (!default_size) default_size = defaultpapername ();
+     if (default_size) paper = findpaper(default_size);
+     if (paper) {
+       inwidth = width = (double)PaperWidth(paper);
+       inheight = height = (double)PaperHeight(paper);
+     }
+   }
+   paperdone();
+#elif defined(PAPER)
    if ( (paper = findpaper(PAPER)) != (Paper *)0 ) {
       inwidth = width = (double)PaperWidth(paper);
       inheight = height = (double)PaperHeight(paper);
@@ -67,53 +87,72 @@ void main(int argc, char *argv[])
    vshift = hshift = 0;
    rotate = 0;
 
+   verbose = 1;
+
+
+   program = *argv;
+
+   while((opt = getopt(argc, argv,
+                       "qw:h:p:W:H:P:")) != EOF) {
+     switch(opt) {
+
+     case 'q':	/* quiet */
+       verbose = 0;
+       break;
+     case 'w':	/* page width */
+       width = singledimen(optarg, argerror, usage);
+       break;
+     case 'h':	/* page height */
+       height = singledimen(optarg, argerror, usage);
+       break;
+     case 'p':	/* paper type */
+       if ( (paper = findpaper(optarg)) != (Paper *)0 ) {
+         width = (double)PaperWidth(paper);
+         height = (double)PaperHeight(paper);
+       } else
+         message(FATAL, "paper size '%s' not recognised\n", optarg);
+       break;
+     case 'W':	/* input page width */
+       inwidth = singledimen(optarg, argerror, usage);
+       break;
+     case 'H':	/* input page height */
+       inheight = singledimen(optarg, argerror, usage);
+       break;
+     case 'P':	/* input paper type */
+       if ( (paper = findpaper(optarg)) != (Paper *)0 ) {
+         inwidth = (double)PaperWidth(paper);
+         inheight = (double)PaperHeight(paper);
+       } else
+         message(FATAL, "paper size '%s' not recognised\n", optarg);
+       break;
+     case 'v':	/* version */
+     default:
+       usage();
+     }
+   }
+
    infile = stdin;
    outfile = stdout;
-   verbose = 1;
-   for (program = *argv++; --argc; argv++) {
-      if (argv[0][0] == '-') {
-	 switch (argv[0][1]) {
-	 case 'q':	/* quiet */
-	    verbose = 0;
-	    break;
-	 case 'w':	/* page width */
-	    width = singledimen(*argv+2, argerror, usage);
-	    break;
-	 case 'h':	/* page height */
-	    height = singledimen(*argv+2, argerror, usage);
-	    break;
-	 case 'p':	/* paper type */
-	    if ( (paper = findpaper(*argv+2)) != (Paper *)0 ) {
-	       width = (double)PaperWidth(paper);
-	       height = (double)PaperHeight(paper);
-	    } else
-	       message(FATAL, "paper size '%s' not recognised\n", *argv+2);
-	    break;
-	 case 'W':	/* input page width */
-	    inwidth = singledimen(*argv+2, argerror, usage);
-	    break;
-	 case 'H':	/* input page height */
-	    inheight = singledimen(*argv+2, argerror, usage);
-	    break;
-	 case 'P':	/* input paper type */
-	    if ( (paper = findpaper(*argv+2)) != (Paper *)0 ) {
-	       inwidth = (double)PaperWidth(paper);
-	       inheight = (double)PaperHeight(paper);
-	    } else
-	       message(FATAL, "paper size '%s' not recognised\n", *argv+2);
-	    break;
-	 case 'v':	/* version */
-	 default:
-	    usage();
-	 }
-      } else if (infile == stdin) {
-	 if ((infile = fopen(*argv, OPEN_READ)) == NULL)
-	    message(FATAL, "can't open input file %s\n", *argv);
-      } else if (outfile == stdout) {
-	 if ((outfile = fopen(*argv, OPEN_WRITE)) == NULL)
-	    message(FATAL, "can't open output file %s\n", *argv);
-      } else usage();
+
+   /* Be defensive */
+   if((argc - optind) < 0 || (argc - optind) > 2) usage();
+
+   if (optind != argc) {
+     /* User specified an input file */
+     if ((infile = fopen(argv[optind], OPEN_READ)) == NULL)
+       message(FATAL, "can't open input file %s\n", argv[optind]);
+     optind++;
    }
+
+   if (optind != argc) {
+     /* User specified an output file */
+     if ((outfile = fopen(argv[optind], OPEN_WRITE)) == NULL)
+       message(FATAL, "can't open output file %s\n", argv[optind]);
+     optind++;
+   }
+
+   if (optind != argc) usage();
+
 #if defined(MSDOS) || defined(WINNT)
    if ( infile == stdin ) {
       int fd = fileno(stdin) ;
