@@ -45,15 +45,14 @@ CFLAGS = -DPAPER=\"$(PAPER)\" -DUNIX -O -Wall
 BIN = psbook psselect pstops epsffit psnup \
 	psresize
 SHELLSCRIPTS = getafm showchar
-PERLSCRIPTS = fixfmps fixmacps fixpsditps fixpspps \
+PERLSCRIPTS = fixfmps fixpsditps fixpspps \
 	fixtpps fixwfwps fixwpps fixscribeps fixwwps \
 	fixdlsrps extractres includeres psmerge
 MANPAGES = psbook.$(MANEXT) psselect.$(MANEXT) pstops.$(MANEXT) epsffit.$(MANEXT) psnup.$(MANEXT) \
 	psresize.$(MANEXT) psmerge.$(MANEXT) fixscribeps.$(MANEXT) getafm.$(MANEXT) \
-	fixdlsrps.$(MANEXT) fixfmps.$(MANEXT) fixmacps.$(MANEXT) fixpsditps.$(MANEXT) \
+	fixdlsrps.$(MANEXT) fixfmps.$(MANEXT) fixpsditps.$(MANEXT) \
 	fixpspps.$(MANEXT) fixtpps.$(MANEXT) fixwfwps.$(MANEXT) fixwpps.$(MANEXT) \
 	fixwwps.$(MANEXT) extractres.$(MANEXT) includeres.$(MANEXT)
-INCLUDES = md68_0.ps md71_0.ps
 
 all: $(BIN) $(PERLSCRIPTS) $(MANPAGES) $(SHELLSCRIPTS)
 
@@ -105,10 +104,6 @@ psmerge: psmerge.pl
 
 fixfmps: fixfmps.pl
 	$(PERL) maketext OS=$(OS) PERL=$(PERL) $? > $@
-	$(CHMOD) $(BINMODE) $@
-
-fixmacps: fixmacps.pl
-	$(PERL) maketext OS=$(OS) PERL=$(PERL) INCLUDE=$(INCLUDEDIR) $? > $@
 	$(CHMOD) $(BINMODE) $@
 
 fixpsditps: fixpsditps.pl
@@ -175,9 +170,6 @@ psmerge.$(MANEXT): psmerge.man
 fixfmps.$(MANEXT): fixfmps.man
 	$(PERL) maketext "MAN=$(MANPAGES)" $? > $@
 
-fixmacps.$(MANEXT): fixmacps.man
-	$(PERL) maketext "MAN=$(MANPAGES)" INCLUDE=$(INCLUDEDIR) $? > $@
-
 fixpsditps.$(MANEXT): fixpsditps.man
 	$(PERL) maketext "MAN=$(MANPAGES)" $? > $@
 
@@ -217,7 +209,7 @@ clean:
 veryclean realclean: clean
 	rm -f $(BIN) $(PERLSCRIPTS) $(MANPAGES)
 
-install: install.bin install.script install.man install.include
+install: install.bin install.script install.man
 
 install.bin: $(BIN)
 	-mkdir $(BINDIR)
@@ -231,13 +223,6 @@ install.script: $(PERLSCRIPTS) $(SHELLSCRIPTS)
 	@for i in $(PERLSCRIPTS) $(SHELLSCRIPTS); do \
 		echo Installing $$i; \
 		$(INSTALL) $$i $(SCRIPTDIR); \
-	done
-
-install.include: $(INCLUDES)
-	-mkdir $(INCLUDEDIR)
-	@for i in $(INCLUDES); do \
-		echo Installing $$i; \
-		$(INSTALLMAN) $$i $(INCLUDEDIR); \
 	done
 
 install.man: $(MANPAGES)
