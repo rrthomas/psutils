@@ -175,7 +175,7 @@ main(int argc, char *argv[])
    if ((infile=seekable(infile))==NULL)
       message(FATAL, "can't seek input\n");
 
-   scanpages();
+   scanpages(NULL);
 
    /* select all pages or all in range if odd or even not set */
    all = !(odd || even);
@@ -224,7 +224,7 @@ main(int argc, char *argv[])
    for (pass = 0; pass < 2; pass++) {
       PageRange *r;
       if (pass) {                           /* write header on second pass */
-	 writeheader(maxpage);
+	 writeheader(maxpage, NULL);
 	 writeprolog();
 	 writesetup();
       }

@@ -61,6 +61,7 @@ main(int argc, char *argv[])
    int rotate;
    double inwidth = -1;
    double inheight = -1;
+   long sizeheaders[20];			/* headers to remove */
    Paper *paper = NULL;
    PageSpec *specs;
    int opt;
@@ -171,6 +172,8 @@ main(int argc, char *argv[])
    if (width <= 0 || height <= 0)
       message(FATAL, "output page width and height must be set\n");
 
+   scanpages(sizeheaders);
+
    if (inwidth <= 0 || inheight <= 0)
       message(FATAL, "input page width and height must be set\n");
 
@@ -212,7 +215,7 @@ main(int argc, char *argv[])
    specs->yoff = vshift;
    specs->flags |= OFFSET;
       
-   pstops(1, 1, 0, specs, 0.0);		/* do page rearrangement */
+   pstops_write(1, 1, 0, specs, 0.0, sizeheaders); /* do page rearrangement */
 
    exit(0);
 }

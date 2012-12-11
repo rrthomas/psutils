@@ -135,11 +135,28 @@ FILE *seekable(FILE *fp)
 }
 
 
-/* copy input file from current position upto new position to output file */
-static int fcopy(long upto)
+/* copy input file from current position upto new position to output file,
+ * ignoring the lines starting at something ignorelist points to */
+static int fcopy(long upto, long *ignorelist)
 {
   long here = ftell(infile);
-  long bytes_left = upto - here;
+  long bytes_left;
+
+  if (ignorelist != NULL) {
+    while (*ignorelist > 0 && *ignorelist < here)
+      ignorelist++;
+
+    while (*ignorelist > 0 && *ignorelist < upto) {
+      int r = fcopy(*ignorelist, NULL);
+      if (!r || fgets(buffer, BUFSIZ, infile) == NULL)
+	return 0;
+      ignorelist++;
+      here = ftell(infile);
+      while (*ignorelist > 0 && *ignorelist < here)
+	ignorelist++;
+    }
+  }
+  bytes_left = upto - here;
 
   while (bytes_left > 0) {
     size_t rw_result;
@@ -155,11 +172,14 @@ static int fcopy(long upto)
 }
 
 /* build array of pointers to start/end of pages */
-void scanpages(void)
+void scanpages(long *sizeheaders)
 {
    register char *comment = buffer+2;
    register int nesting = 0;
    register long int record;
+
+   if (sizeheaders)
+     *sizeheaders = 0;
 
    if ((pageptr = (long *)malloc(sizeof(long)*maxpages)) == NULL)
       message(FATAL, "out of memory\n");
@@ -176,6 +196,26 @@ void scanpages(void)
 		     message(FATAL, "out of memory\n");
 	       }
 	       pageptr[pages++] = record;
+	    } else if (headerpos == 0 && iscomment(comment, "BoundingBox:")) {
+	       if (sizeheaders) {
+		  *(sizeheaders++) = record;
+		  *sizeheaders = 0;
+	       }
+	    } else if (headerpos == 0 && iscomment(comment, "HiResBoundingBox:")) {
+	       if (sizeheaders) {
+		  *(sizeheaders++) = record;
+		  *sizeheaders = 0;
+	       }
+	    } else if (headerpos == 0 && iscomment(comment,"DocumentPaperSizes:")) {
+	       if (sizeheaders) {
+		  *(sizeheaders++) = record;
+		  *sizeheaders = 0;
+	       }
+	    } else if (headerpos == 0 && iscomment(comment,"DocumentMedia:")) {
+	       if (sizeheaders) {
+		  *(sizeheaders++) = record;
+		  *sizeheaders = 0;
+	       }
 	    } else if (headerpos == 0 && iscomment(comment, "Pages:"))
 	       pagescmt = record;
 	    else if (headerpos == 0 && iscomment(comment, "EndComments"))
@@ -279,7 +319,7 @@ void writepagesetup(void)
 /* write the body of a page */
 void writepagebody(int p)
 {
-   if (!fcopy(pageptr[p+1]))
+   if (!fcopy(pageptr[p+1], NULL))
       message(FATAL, "I/O error writing page %d\n", outputpage);
 }
 
@@ -292,23 +332,34 @@ void writepage(int p)
 }
 
 /* write from start of file to end of header comments */
-void writeheader(int p)
+void writeheader(int p, long *ignore)
+{
+   writeheadermedia(p, ignore, -1, -1);
+}
+
+void writeheadermedia(int p, long *ignore, double width, double height)
 {
    fseek(infile, 0L, SEEK_SET);
    if (pagescmt) {
-      if (!fcopy(pagescmt) || fgets(buffer, BUFSIZ, infile) == NULL)
+      if (!fcopy(pagescmt, ignore) || fgets(buffer, BUFSIZ, infile) == NULL)
 	 message(FATAL, "I/O error in header\n");
+      if (width > -1 && height > -1) {
+         sprintf(buffer, "%%%%DocumentMedia: plain %d %d 0 () ()\n", (int) width, (int) height);
+         writestring(buffer);
+         sprintf(buffer, "%%%%BoundingBox: 0 0 %d %d\n", (int) width, (int) height);
+         writestring(buffer);
+      }
       sprintf(buffer, "%%%%Pages: %d 0\n", p);
       writestring(buffer);
    }
-   if (!fcopy(headerpos))
+   if (!fcopy(headerpos, ignore))
       message(FATAL, "I/O error in header\n");
 }
 
 /* write prologue to end of setup section excluding PStoPS procset */
 int writepartprolog(void)
 {
-   if (beginprocset && !fcopy(beginprocset))
+   if (beginprocset && !fcopy(beginprocset, NULL))
       message(FATAL, "I/O error in prologue\n");
    if (endprocset)
       fseek(infile, endprocset, SEEK_SET);
@@ -319,14 +370,14 @@ int writepartprolog(void)
 /* write prologue up to end of setup section */
 void writeprolog(void)
 {
-   if (!fcopy(endsetup))
+   if (!fcopy(endsetup, NULL))
       message(FATAL, "I/O error in prologue\n");
 }
 
 /* write from end of setup to start of pages */
 void writesetup(void)
 {
-   if (!fcopy(pageptr[0]))
+   if (!fcopy(pageptr[0], NULL))
       message(FATAL, "I/O error in prologue\n");
 }
 

@@ -137,18 +137,22 @@ static char *prologue[] = { /* PStoPS procset */
    NULL
    };
 
-void pstops(int modulo, int pps, int nobind, PageSpec *specs, double draw)
+void pstops(int modulo, int pps, int nobind, PageSpec *specs, double draw) {
+
+  scanpages(NULL);
+  pstops_write(modulo, pps, nobind, specs, draw, NULL);
+}
+
+void pstops_write(int modulo, int pps, int nobind, PageSpec *specs, double draw, long *ignorelist)
 {
    int thispg, maxpage;
    int pageindex = 0;
    char **pro;
 
-   scanpages();
-
    maxpage = ((pages+modulo-1)/modulo)*modulo;
 
    /* rearrange pages: doesn't cope properly with loaded definitions */
-   writeheader((maxpage/modulo)*pps);
+   writeheadermedia((maxpage/modulo)*pps, ignorelist, width, height);
 #ifndef SHOWPAGE_LOAD
    writestring("%%BeginProcSet: PStoPS");
 #else

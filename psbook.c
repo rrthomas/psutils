@@ -97,7 +97,7 @@ main(int argc, char *argv[])
    if ((infile=seekable(infile))==NULL)
       message(FATAL, "can't seek input\n");
 
-   scanpages();
+   scanpages(NULL);
 
    if (!signature)
       signature = maxpage = pages+(4-pages%4)%4;
@@ -105,7 +105,7 @@ main(int argc, char *argv[])
       maxpage = pages+(signature-pages%signature)%signature;
 
    /* rearrange pages */
-   writeheader(maxpage);
+   writeheader(maxpage, NULL);
    writeprolog();
    writesetup();
    for (currentpg = 0; currentpg < maxpage; currentpg++) {

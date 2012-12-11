@@ -32,13 +32,14 @@ extern void seekpage(int p);
 extern void writepageheader(char *label, int p);
 extern void writepagesetup(void);
 extern void writepagebody(int p);
-extern void writeheader(int p);
+extern void writeheader(int p, long *ignorelist);
+extern void writeheadermedia(int p, long *ignorelist, double width, double height);
 extern int writepartprolog(void);
 extern void writeprolog(void);
 extern void writesetup(void);
 extern void writetrailer(void);
 extern void writeemptypage(void);
-extern void scanpages(void);
+extern void scanpages(long *sizeheaders);
 extern void writestring(char *s);
 
 /* These variables are imported from the client program (e.g. psbook, psnup,

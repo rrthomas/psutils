@@ -88,6 +88,7 @@ main(int argc, char *argv[])
    double iwidth, iheight ;			/* input paper size */
    double tolerance = 100000;			/* layout tolerance */
    Paper *paper = NULL;
+   long sizeheaders[20];			/* headers to remove */
    int opt;
 
 #ifdef HAVE_LIBPAPER
@@ -261,6 +262,8 @@ main(int argc, char *argv[])
    if (ppwid <= 0 || pphgt <= 0)
       message(FATAL, "paper margins are too large\n");
 
+   scanpages(sizeheaders);
+
    /* set default values of input height & width */
    if ( iwidth > 0 )
      width = iwidth ;
@@ -374,7 +377,7 @@ main(int argc, char *argv[])
 	 }
       }
       
-      pstops(nup, 1, 0, specs, draw);		/* do page rearrangement */
+      pstops_write(nup, 1, 0, specs, draw, sizeheaders); /* do page rearrangement */
    }
 
    exit(0);
