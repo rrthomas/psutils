@@ -22,9 +22,7 @@
 #include "pserror.h"
 #include "patchlev.h"
 
-#ifdef HAVE_LIBPAPER
 #include <paper.h>
-#endif
 
 char *program ;
 int pages ;
@@ -62,34 +60,16 @@ main(int argc, char *argv[])
    double inwidth = -1;
    double inheight = -1;
    off_t sizeheaders[20];			/* headers to remove */
-   Paper *paper = NULL;
    PageSpec *specs;
    int opt;
+   const struct paper *paper = NULL;
 
-#ifdef HAVE_LIBPAPER
-   paperinit();
-   {
-     const char *default_size = systempapername();
-     if (!default_size) default_size = defaultpapername ();
-     if (default_size) paper = findpaper(default_size);
-     if (paper) {
-       inwidth = width = (double)PaperWidth(paper);
-       inheight = height = (double)PaperHeight(paper);
-     }
-   }
-   paperdone();
-#elif defined(PAPER)
-   if ( (paper = findpaper(PAPER)) != (Paper *)0 ) {
-      inwidth = width = (double)PaperWidth(paper);
-      inheight = height = (double)PaperHeight(paper);
-   }
-#endif
+   set_paper_size(NULL);
 
    vshift = hshift = 0;
    rotate = 0;
 
    verbose = 1;
-
 
    program = *argv;
 
@@ -107,9 +87,9 @@ main(int argc, char *argv[])
        height = singledimen(optarg, argerror, usage);
        break;
      case 'p':	/* paper type */
-       if ( (paper = findpaper(optarg)) != (Paper *)0 ) {
-         width = (double)PaperWidth(paper);
-         height = (double)PaperHeight(paper);
+       if ( (paper = paperinfo(optarg)) != NULL ) {
+         width = paperpswidth(paper);
+         height = paperpsheight(paper);
        } else
          message(FATAL, "paper size '%s' not recognised\n", optarg);
        break;
@@ -120,9 +100,9 @@ main(int argc, char *argv[])
        inheight = singledimen(optarg, argerror, usage);
        break;
      case 'P':	/* input paper type */
-       if ( (paper = findpaper(optarg)) != (Paper *)0 ) {
-         inwidth = (double)PaperWidth(paper);
-         inheight = (double)PaperHeight(paper);
+       if ( (paper = paperinfo(optarg)) != NULL ) {
+         inwidth = paperpswidth(paper);
+         inheight = paperpsheight(paper);
        } else
          message(FATAL, "paper size '%s' not recognised\n", optarg);
        break;

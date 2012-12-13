@@ -16,9 +16,7 @@
 #include "pserror.h"
 #include "patchlev.h"
 
-#ifdef HAVE_LIBPAPER
 #include <paper.h>
-#endif
 
 char *program ;
 int pages ;
@@ -132,27 +130,10 @@ main(int argc, char *argv[])
    PageSpec *specs = NULL;
    int nobinding = 0;
    double draw = 0;
-   Paper *paper = NULL;
+   const struct paper *paper = NULL;
    int opt;
 
-#ifdef HAVE_LIBPAPER
-   paperinit();
-   {
-     const char *default_size = systempapername();
-     if (!default_size) default_size = defaultpapername ();
-     if (default_size) paper = findpaper(default_size);
-     if (paper) {
-       width = (double)PaperWidth(paper);
-       height = (double)PaperHeight(paper);
-     }
-   }
-   paperdone();
-#elif defined(PAPER)
-   if ( (paper = findpaper(PAPER)) != (Paper *)0 ) {
-      width = (double)PaperWidth(paper);
-      height = (double)PaperHeight(paper);
-   }
-#endif
+   set_paper_size(NULL);
 
    verbose = 1;
 
@@ -179,9 +160,9 @@ main(int argc, char *argv[])
        height = singledimen(optarg, argerror, usage);
        break;
      case 'p':	/* paper type */
-       if ( (paper = findpaper(optarg)) != (Paper *)0 ) {
-         width = (double)PaperWidth(paper);
-         height = (double)PaperHeight(paper);
+       if ( (paper = paperinfo(optarg)) != NULL ) {
+         width = paperpswidth(paper);
+         height = paperpsheight(paper);
        } else
          message(FATAL, "paper size '%s' not recognised\n", optarg);
        break;

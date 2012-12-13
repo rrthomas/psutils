@@ -58,25 +58,9 @@ or
 .BR in .
 The 
 .I \-p
-option can be used instead, to set the paper size to
-.BR a0 ,
-.BR a1 ,
-.BR a2 ,
-.BR a3 ,
-.BR a4 ,
-.BR a5 ,
-.BR b5 ,
-.BR letter ,
-.BR legal ,
-.BR tabloid ,
-.BR statement ,
-.BR executive ,
-.BR folio ,
-.BR quarto
-or
-.BR 10x14 .
-The default paper size is set by papersize(5), or if libpaper is not used, to
-.BR @PAPER@ .
+option can be used instead, to set the paper size; otherwise a default value is used.
+See
+.BR papersize (5).
 The
 .I \-W, \-H,
 and

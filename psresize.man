@@ -41,12 +41,9 @@ PostScript's points (1/72 of an inch)
 to centimeters or inches.
 The 
 .I \-p
-option can be used as an alternative, to set the output paper size to
-.B a0, a1, a2, a3, a4, a5, b5, letter, legal, tabloid, statement,
-executive, folio, quarto or
-.B 10x14.
-The default output paper size is
-.B @PAPER@.
+option can be used instead, to set the paper size; otherwise a default value is used.
+See
+.BR papersize (5).
 .PP
 The
 .I \-W
@@ -55,9 +52,9 @@ option gives the input paper width, and the
 option gives the input paper height.
 The 
 .I \-P
-option can be used as an alternative, to set the input paper size.
-The default input paper size is
-.B @PAPER@.
+option can be used instead, to set the paper size; otherwise a default value is used.
+See
+.BR papersize (5).
 .PP
 .I Psresize
 normally prints the page numbers of the pages output; the
@@ -72,7 +69,7 @@ psresize -PA4 -pletter in.ps out.ps
 .SH AUTHOR
 Copyright (C) Angus J. C. Duggan 1991-1995
 .SH "SEE ALSO"
-@MAN@
+@MAN@, papersize(5)
 .SH TRADEMARKS
 .B PostScript
 is a trademark of Adobe Systems Incorporated.

@@ -113,12 +113,6 @@ dimension specifier. These dimensions are also used (after scaling) to set the
 clipping path for each page.
 The 
 .I \-p
-option can be used as an alternative, to set the paper size to
-.B a0, a1, a2, a3, a4, a5, b5, letter, legal, tabloid, statement,
-executive, folio, quarto or
-.B 10x14.
-The default paper size is
-.B @PAPER@.
 .PP
 The
 .I \-b

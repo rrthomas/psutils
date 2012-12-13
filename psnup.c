@@ -31,9 +31,7 @@
 #include "pserror.h"
 #include "patchlev.h"
 
-#ifdef HAVE_LIBPAPER
 #include <paper.h>
-#endif
 
 char *program ;
 int pages ;
@@ -87,28 +85,11 @@ main(int argc, char *argv[])
    double vshift, hshift;			/* page centring shifts */
    double iwidth, iheight ;			/* input paper size */
    double tolerance = 100000;			/* layout tolerance */
-   Paper *paper = NULL;
    off_t sizeheaders[20];			/* headers to remove */
    int opt;
+   const struct paper *paper = NULL;
 
-#ifdef HAVE_LIBPAPER
-   paperinit();
-   {
-     const char *default_size = systempapername();
-     if (!default_size) default_size = defaultpapername ();
-     if (default_size) paper = findpaper(default_size);
-     if (paper) {
-       width = (double)PaperWidth(paper);
-       height = (double)PaperHeight(paper);
-     }
-   }
-   paperdone();
-#elif defined(PAPER)
-   if ( (paper = findpaper(PAPER)) != (Paper *)0 ) {
-      width = (double)PaperWidth(paper);
-      height = (double)PaperHeight(paper);
-   }
-#endif
+   set_paper_size(NULL);
 
    margin = border = vshift = hshift = column = flip = 0;
    leftright = topbottom = 1;
@@ -170,16 +151,16 @@ main(int argc, char *argv[])
        uscale = atof(optarg);
        break;
      case 'p':	/* output (and by default input) paper type */
-       if ( (paper = findpaper(optarg)) != (Paper *)0 ) {
-         width = (double)PaperWidth(paper);
-         height = (double)PaperHeight(paper);
+       if ( (paper = paperinfo(optarg)) != NULL ) {
+         width = paperpswidth(paper);
+         height = paperpsheight(paper);
        } else
          message(FATAL, "paper size '%s' not recognised\n", optarg);
        break;
      case 'P':	/* paper type */
-       if ( (paper = findpaper(optarg)) != (Paper *)0 ) {
-         iwidth = (double)PaperWidth(paper);
-         iheight = (double)PaperHeight(paper);
+       if ( (paper = paperinfo(optarg)) != NULL ) {
+         iwidth = paperpswidth(paper);
+         iheight = paperpsheight(paper);
        } else
          message(FATAL, "paper size '%s' not recognised\n", optarg);
        break;

@@ -11,18 +11,9 @@
 
 #include "config.h"
 
-/* paper size structure; configurability and proper paper resources will have
-   to wait until version 2 */
-typedef struct papersize {
-   char *name;		/* name of paper size */
-   int width, height;	/* width, height in points */
-} Paper ;
-#define PaperName(p) ((p)->name)
-#define PaperWidth(p) ((p)->width)
-#define PaperHeight(p) ((p)->height)
-
 /* Definitions for functions found in psutil.c */
-extern Paper *findpaper(const char *name);
+extern void set_paper_size(const char *paper_name);
+const struct paper *get_paper (const char *paper_name);
 extern FILE *seekable(FILE *fp);
 extern void writepage(int p);
 extern void seekpage(int p);

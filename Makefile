@@ -19,8 +19,6 @@
 # psnup puts multiple logical pages on one physical page
 # psresize scales and moves pages to fit on different paper sizes
 
-PAPER=a4
-
 # Makefile for PSUtils under Unix
 
 OS = UNIX
@@ -40,8 +38,7 @@ MANEXT = 1
 MANDIR = $(prefix)/man/man$(MANEXT)
 
 CC = gcc
-#CFLAGS = -DAMPER=\"$(PAPER)\" -DUNIX -O -Wall
-CFLAGS = -DLIBPAPER -DUNIX -O2 -g -Wall -Werror
+CFLAGS = -DUNIX -O2 -g -Wall -Werror
 
 BIN = psbook psselect pstops epsffit psnup \
 	psresize
@@ -67,7 +64,7 @@ pserror.o: psutil.h patchlev.h pserror.h pserror.c
 epsffit.o: epsffit.c pserror.h patchlev.h
 
 epsffit: epsffit.o pserror.o
-	$(CC) $(CCFLAGS) -o epsffit pserror.o epsffit.o
+	$(CC) $(CCFLAGS) -o epsffit pserror.o epsffit.o -lpaper
 
 psnup: psnup.o psutil.o psspec.o pserror.o
 	$(CC) $(CCFLAGS) -o psnup psutil.o psspec.o pserror.o psnup.o -lpaper
@@ -80,13 +77,13 @@ psresize: psresize.o psutil.o pserror.o psspec.o
 
 psresize.o: psutil.h patchlev.h psspec.h pserror.h psresize.c
 
-psbook: psbook.o psutil.o pserror.o
-	$(CC) $(CCFLAGS) -o psbook psutil.o pserror.o psbook.o
+psbook: psbook.o psutil.o pserror.o psspec.o
+	$(CC) $(CCFLAGS) -o psbook psutil.o pserror.o psspec.o psbook.o -lpaper
 
 psbook.o: psutil.h patchlev.h pserror.h psbook.c
 
-psselect: psselect.o psutil.o pserror.o
-	$(CC) $(CCFLAGS) -o psselect psutil.o pserror.o psselect.o
+psselect: psselect.o psutil.o pserror.o psspec.o
+	$(CC) $(CCFLAGS) -o psselect psutil.o pserror.o psspec.o psselect.o -lpaper
 
 psselect.o: psutil.h patchlev.h pserror.h psselect.c
 
@@ -153,10 +150,10 @@ epsffit.$(MANEXT): epsffit.man
 	$(PERL) maketext MAN="$(MANPAGES)" $? > $@
 
 psnup.$(MANEXT): psnup.man
-	$(PERL) maketext MAN="$(MANPAGES)" PAPER=$(PAPER) $? > $@
+	$(PERL) maketext MAN="$(MANPAGES)" $? > $@
 
 psresize.$(MANEXT): psresize.man
-	$(PERL) maketext MAN="$(MANPAGES)" PAPER=$(PAPER) $? > $@
+	$(PERL) maketext MAN="$(MANPAGES)" $? > $@
 
 psbook.$(MANEXT): psbook.man
 	$(PERL) maketext "MAN=$(MANPAGES)" $? > $@
@@ -165,7 +162,7 @@ psselect.$(MANEXT): psselect.man
 	$(PERL) maketext "MAN=$(MANPAGES)" $? > $@
 
 pstops.$(MANEXT): pstops.man
-	$(PERL) maketext "MAN=$(MANPAGES)" PAPER=$(PAPER) $? > $@
+	$(PERL) maketext "MAN=$(MANPAGES)" $? > $@
 
 psmerge.$(MANEXT): psmerge.man
 	$(PERL) maketext "MAN=$(MANPAGES)" $? > $@

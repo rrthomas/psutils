@@ -21,12 +21,15 @@
 
 #include "psutil.h"
 #include "pserror.h"
+#include "psspec.h"
 #include "patchlev.h"
 
 #include <string.h>
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <stdio.h>
+
+#include <paper.h>
 
 #define iscomment(x,y) (strncmp(x,y,strlen(y)) == 0)
 
@@ -49,44 +52,30 @@ static int outputpage = 0;
 static int maxpages = 100;
 static off_t *pageptr;
 
-/* list of paper sizes supported */
-static Paper papersizes[] = {
-   { "a0", 2382, 3369 },	/* 84cm * 118.8cm */
-   { "a1", 1684, 2382 },	/* 59.4cm * 84cm */
-   { "a2", 1191, 1684 },	/* 42cm * 59.4cm */
-   { "a3", 842, 1191 },		/* 29.7cm * 42cm */
-   { "a4", 595, 842 },		/* 21cm * 29.7cm */
-   { "a5", 421, 595 },		/* 14.85cm * 21cm */
-   { "b5", 516, 729 },		/* 18.2cm * 25.72cm */
-   { "A0", 2382, 3369 },	/* 84cm * 118.8cm */
-   { "A1", 1684, 2382 },	/* 59.4cm * 84cm */
-   { "A2", 1191, 1684 },	/* 42cm * 59.4cm */
-   { "A3", 842, 1191 },		/* 29.7cm * 42cm */
-   { "A4", 595, 842 },		/* 21cm * 29.7cm */
-   { "A5", 421, 595 },		/* 14.85cm * 21cm */
-   { "B5", 516, 729 },		/* 18.2cm * 25.72cm */
-   { "letter", 612, 792 },	/* 8.5in * 11in */
-   { "legal", 612, 1008 },	/* 8.5in * 14in */
-   { "ledger", 1224, 792 },	/* 17in * 11in */
-   { "tabloid", 792, 1224 },	/* 11in * 17in */
-   { "statement", 396, 612 },	/* 5.5in * 8.5in */
-   { "executive", 540, 720 },	/* 7.6in * 10in */
-   { "folio", 612, 936 },	/* 8.5in * 13in */
-   { "quarto", 610, 780 },	/* 8.5in * 10.83in */
-   { "10x14", 720, 1008 },	/* 10in * 14in */
-   { NULL, 0, 0 }
-};
-
-/* return pointer to paper size struct or NULL */
-Paper* findpaper(const char *name)
+static void maybe_init_libpaper(void)
 {
-   Paper *pp;
-   for (pp = papersizes; PaperName(pp); pp++) {
-      if (strcmp(PaperName(pp), name) == 0) {
-	 return pp;
-      }
-   }
-   return (Paper *)NULL;
+  static int libpaper_initted = 0;
+  if (!libpaper_initted) {
+    paperinit();
+    libpaper_initted = 1;
+  }
+}
+
+void set_paper_size(const char *paper_name)
+{
+  const struct paper *paper = get_paper(paper_name);
+  if (paper) {
+    width = paperpswidth(paper);
+    height = paperpsheight(paper);
+  }
+}
+
+const struct paper *get_paper(const char *paper_name)
+{
+  const char *default_paper;
+  maybe_init_libpaper();
+  default_paper = systempapername();
+  return paperinfo(default_paper);
 }
 
 /* Make a file seekable, using temporary files if necessary */
