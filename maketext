@@ -13,31 +13,10 @@ while(<H>) {
 }
 close(H);
 
-$os = "" ;
-
-%perlstart = ("UNIX", "\#!PERL\neval 'exec perl -S \$0 \"\$\@\"'\n\tif \$running_under_some_shell;\n",
-	      "DOS", "\@rem = '-*- Perl -*-\n\@echo off\nPERL -S %0.cmd %1 %2 %3 %4 %5 %6 %7 %8 %9\ngoto endofperl\n';\n",
-	      "WINNT", "\@rem = '-*- Perl -*-\n\@echo off\nPERL -S %0.cmd %1 %2 %3 %4 %5 %6 %7 %8 %9\ngoto endofperl\n';\n",
-	      "OS2", "extproc PERL -x\n\#! PERL\n",
-	      "", "PSUTILS MAKEFILE CONFIGURATION ERROR") ;
-%perlend = ("UNIX", "",
-	    "DOS", "__END__\n:endofperl\n",
-	    "WINNT", "__END__\n:endofperl\n",
-	    "OS2", "\# End of Script",
-	    "", "PSUTILS MAKEFILE CONFIGURATION ERROR");
-
 foreach (@ARGV) {
    if (/MAN=(.*)/) {		# name.ext name.ext -> name(ext), name(ext)
       local(@man) = split(' ', $1);
       $change{"MAN"} = join(", ", grep(s/\.(.)/($1)/, @man));
-   } elsif (/OS=(.*)/) {	# set operating system name
-      $os = $1 ;
-   } elsif (/PERL=(.*)/) {	# substitute name for value
-      local($perl) = $1 ;
-      $change{"PERL"} = $perlstart{$os} ;
-      $change{"END"} = $perlend{$os} ;
-      $change{"PERL"} =~ s/PERL/$perl/g ;
-      $change{"END"} =~ s/PERL/$perl/g ;
    } elsif (/(.*)=(.*)/) {	# substitute name for value
       $change{$1} = $2;
    } else {			# open file and substitute

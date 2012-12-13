@@ -1,27 +1,8 @@
-# Makefile for PS utilities release 1 patchlevel 17
+# Makefile for PS utilities
 #
 # Copyright (C) Angus J. C. Duggan 1991-1996
 # See file LICENSE for details.
-#
-# updated AJCD 3/1/96
-#
-# Multiple makefiles for different OSes are generated from a single master
-# now.
-#
-# There are so many incompatible makes around that putting all of the
-# non-standard targets explicitly seems to be the only way of ensuring
-# portability.
 
-# epsffit fits an epsf file to a given bounding box
-# psbook rearranges pages into signatures
-# psselect selects page ranges
-# pstops performs general page rearrangement and merging
-# psnup puts multiple logical pages on one physical page
-# psresize scales and moves pages to fit on different paper sizes
-
-# Makefile for PSUtils under Unix
-
-OS = UNIX
 prefix=/usr
 
 BINDIR = $(prefix)/bin
@@ -37,8 +18,7 @@ INSTALLMAN = install -c -m $(MANMODE)
 MANEXT = 1
 MANDIR = $(prefix)/man/man$(MANEXT)
 
-CC = gcc
-CFLAGS = -DUNIX -O2 -g -Wall -Werror
+CFLAGS = -O2 -g -Wall -Werror
 
 BIN = psbook psselect pstops epsffit psnup \
 	psresize
@@ -99,51 +79,51 @@ showchar:	showchar.sh
 	cp $? $@
 
 psmerge: psmerge.pl
-	$(PERL) maketext OS=$(OS) PERL=$(PERL) $? > $@
+	cp $? $@
 	$(CHMOD) $(BINMODE) $@
 
 fixfmps: fixfmps.pl
-	$(PERL) maketext OS=$(OS) PERL=$(PERL) $? > $@
+	cp $? $@
 	$(CHMOD) $(BINMODE) $@
 
 fixpsditps: fixpsditps.pl
-	$(PERL) maketext OS=$(OS) PERL=$(PERL) $? > $@
+	cp $? $@
 	$(CHMOD) $(BINMODE) $@
 
 fixpspps: fixpspps.pl
-	$(PERL) maketext OS=$(OS) PERL=$(PERL) $? > $@
+	cp $? $@
 	$(CHMOD) $(BINMODE) $@
 
 fixscribeps: fixscribeps.pl
-	$(PERL) maketext OS=$(OS) PERL=$(PERL) $? > $@
+	cp $? $@
 	$(CHMOD) $(BINMODE) $@
 
 fixtpps: fixtpps.pl
-	$(PERL) maketext OS=$(OS) PERL=$(PERL) $? > $@
+	cp $? $@
 	$(CHMOD) $(BINMODE) $@
 
 fixwfwps: fixwfwps.pl
-	$(PERL) maketext OS=$(OS) PERL=$(PERL) $? > $@
+	cp $? $@
 	$(CHMOD) $(BINMODE) $@
 
 fixwpps: fixwpps.pl
-	$(PERL) maketext OS=$(OS) PERL=$(PERL) $? > $@
+	cp $? $@
 	$(CHMOD) $(BINMODE) $@
 
 fixwwps: fixwwps.pl
-	$(PERL) maketext OS=$(OS) PERL=$(PERL) $? > $@
+	cp $? $@
 	$(CHMOD) $(BINMODE) $@
 
 fixdlsrps: fixdlsrps.pl
-	$(PERL) maketext OS=$(OS) PERL=$(PERL) $? > $@
+	cp $? $@
 	$(CHMOD) $(BINMODE) $@
 
 extractres: extractres.pl
-	$(PERL) maketext OS=$(OS) PERL=$(PERL) $? > $@
+	cp $? $@
 	$(CHMOD) $(BINMODE) $@
 
 includeres: includeres.pl
-	$(PERL) maketext OS=$(OS) PERL=$(PERL) INCLUDE=$(INCLUDEDIR) $? > $@
+	$(PERL) maketext INCLUDE=$(INCLUDEDIR) $? > $@
 	$(CHMOD) $(BINMODE) $@
 
 epsffit.$(MANEXT): epsffit.man
@@ -234,4 +214,3 @@ install.man: $(MANPAGES)
 		echo Installing manual page for $$i; \
 		$(INSTALLMAN) $$i $(MANDIR)/$$i; \
 	done
-

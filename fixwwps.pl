@@ -1,4 +1,4 @@
-@PERL@
+#!/usr/bin/env perl
 # fixwwps: get semi-conforming PostScript out of Windows Write file
 #
 # Copyright (C) Angus J. C. Duggan 1991-1995
@@ -17,4 +17,3 @@ while (<>) {
       print $_;
    }
 }
-@END@

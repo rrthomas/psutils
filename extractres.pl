@@ -1,4 +1,4 @@
-@PERL@
+#!/usr/bin/env perl
 # extractres: extract resources from PostScript file
 #
 # Copyright (C) Angus J. C. Duggan 1991-1995
@@ -93,4 +93,3 @@ while (<BODY>) {		# print it all
 close(BODY);
 
 unlink($body);			# dispose of body file
-@END@

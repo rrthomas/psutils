@@ -1,4 +1,4 @@
-@PERL@
+#!/usr/bin/env perl
 # fixwpps: get semi-conforming PostScript out of WordPerfect 5.0 file
 #
 # Copyright (C) Angus J. C. Duggan 1991-1995
@@ -28,4 +28,3 @@ while (<>) {
       print $_;
    }
 }
-@END@

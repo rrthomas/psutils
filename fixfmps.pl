@@ -1,4 +1,4 @@
-@PERL@
+#!/usr/bin/env perl
 # fixfmps: get conforming PostScript out of FrameMaker version 2 file
 # move all FMDEFINEFONTs to start of pages
 #
@@ -18,4 +18,3 @@ while (<>) {
       print $_;
    }
 }
-@END@

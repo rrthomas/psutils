@@ -1,4 +1,4 @@
-@PERL@
+#!/usr/bin/env perl
 # fixscribeps: get conforming PostScript out of Scribe
 #
 # Copyright (C) Angus J. C. Duggan 1991-1995
@@ -16,4 +16,3 @@ while (<>) {
       print $_;
    }
 }
-@END@

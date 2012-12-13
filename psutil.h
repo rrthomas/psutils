@@ -9,8 +9,6 @@
 #include <stdlib.h>
 #include <ctype.h>
 
-#include "config.h"
-
 /* Definitions for functions found in psutil.c */
 extern void set_paper_size(const char *paper_name);
 const struct paper *get_paper (const char *paper_name);

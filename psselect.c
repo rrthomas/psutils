@@ -145,32 +145,19 @@ main(int argc, char *argv[])
 
    if (optind != argc) {
      /* User specified an input file */
-     if ((infile = fopen(argv[optind], OPEN_READ)) == NULL)
+     if ((infile = fopen(argv[optind], "rb")) == NULL)
        message(FATAL, "can't open input file %s\n", argv[optind]);
      optind++;
    }
 
    if (optind != argc) {
      /* User specified an output file */
-     if ((outfile = fopen(argv[optind], OPEN_WRITE)) == NULL)
+     if ((outfile = fopen(argv[optind], "wb")) == NULL)
        message(FATAL, "can't open output file %s\n", argv[optind]);
      optind++;
    }
 
    if(optind != argc) usage();
-
-#if defined(MSDOS) || defined(WINNT)
-   if ( infile == stdin ) {
-      int fd = fileno(stdin) ;
-      if ( setmode(fd, O_BINARY) < 0 )
-         message(FATAL, "can't open input file %s\n", argv[4]);
-    }
-   if ( outfile == stdout ) {
-      int fd = fileno(stdout) ;
-      if ( setmode(fd, O_BINARY) < 0 )
-         message(FATAL, "can't reset stdout to binary mode\n");
-    }
-#endif
 
    if ((infile=seekable(infile))==NULL)
       message(FATAL, "can't seek input\n");

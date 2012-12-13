@@ -81,31 +81,16 @@ const struct paper *get_paper(const char *paper_name)
 /* Make a file seekable, using temporary files if necessary */
 FILE *seekable(FILE *fp)
 {
-#ifndef MSDOS
   FILE *ft;
   long r, w ;
-#endif
   char *p;
   char buffer[BUFSIZ] ;
-#if defined(WINNT)
-  struct _stat fs ;
-#else
   off_t fpos;
-#endif
 
-#if defined(WINNT)
-  if (_fstat(fileno(fp), &fs) == 0 && (fs.st_mode&_S_IFREG) != 0)
-    return (fp);
-#else
   if ((fpos = ftello(fp)) >= 0)
     if (!fseeko(fp, (off_t) 0, SEEK_END) && !fseeko(fp, fpos, SEEK_SET))
       return (fp);
-#endif
 
-#if defined(MSDOS)
-  message(FATAL, "input is not seekable\n");
-  return (NULL) ;
-#else
   if ((ft = tmpfile()) == NULL)
     return (NULL);
 
@@ -127,7 +112,6 @@ FILE *seekable(FILE *fp)
     return (NULL) ;
 
   return (ft);
-#endif
 }
 
 

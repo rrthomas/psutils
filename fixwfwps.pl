@@ -1,4 +1,4 @@
-@PERL@
+#!/usr/bin/env perl
 # fixwfwps: fix Word for windows PostScript for printing.
 #
 # Copyright (C) Angus J. C. Duggan 1991-1995
@@ -30,4 +30,3 @@ while (<>) {
       }
    }
 }
-@END@

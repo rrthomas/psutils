@@ -1,4 +1,4 @@
-@PERL@
+#!/usr/bin/env perl
 # includeres: include resources in PostScript file
 #
 # Copyright (C) Angus J. C. Duggan 1991-1995
@@ -43,4 +43,3 @@ while (<>) {
       print $_;
    }
 }
-@END@

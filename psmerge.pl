@@ -1,4 +1,4 @@
-@PERL@
+#!/usr/bin/env perl
 # psmerge: merge PostScript files produced by same application and setup
 # usage: psmerge [-oout.ps] file1.ps file2.ps ...
 #
@@ -119,5 +119,3 @@ sub usage
    print STDERR "Usage: $prog [-oout] file...\n";
    exit 1;
 }
-
-@END@

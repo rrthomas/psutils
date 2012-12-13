@@ -1,4 +1,4 @@
-@PERL@
+#!/usr/bin/env perl
 # fixdlsrps: fix DviLaser/PS document to work with PSUtils
 #
 # Copyright (C) Angus J. C. Duggan 1991-1995
@@ -51,4 +51,3 @@ print @fonts;
 print @body;
 
 exit 0;
-@END@

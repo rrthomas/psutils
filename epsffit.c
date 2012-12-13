@@ -25,7 +25,6 @@
 
 #include "pserror.h"
 #include "patchlev.h"
-#include "config.h"
 
 #define MIN(x,y) ((x) > (y) ? (y) : (x))
 #define MAX(x,y) ((x) > (y) ? (x) : (y))
@@ -80,32 +79,16 @@ main(int argc, char **argv)
    if((argc - optind) < 0 || (argc - optind) > 2) usage();
 
    if ((argc - optind) > 0) {
-      if(!(input = fopen(argv[optind], OPEN_READ)))
+      if(!(input = fopen(argv[optind], "rb")))
 	 message(FATAL, "can't open input file %s\n", argv[optind]);
       optind++;
    }
-#if defined(MSDOS) || defined(WINNT)
-   else {
-      int fd = fileno(stdin) ;
-      if ( setmode(fd, O_BINARY) < 0 )
-         message(FATAL, "can't reset stdin to binary mode\n");
-      input = stdin ;
-    }
-#endif
 
    if ((argc - optind) > 0) {
-      if(!(output = fopen(argv[optind], OPEN_WRITE)))
+      if(!(output = fopen(argv[optind], "wb")))
 	 message(FATAL, "can't open output file %s\n", argv[optind]);
       optind++;
    }
-#if defined(MSDOS) || defined(WINNT)
-   else {
-      int fd = fileno(stdout) ;
-      if ( setmode(fd, O_BINARY) < 0 )
-         message(FATAL, "can't reset stdout to binary mode\n");
-      output = stdout ;
-    }
-#endif
 
    while (fgets(buf, BUFSIZ, input)) {
       if (buf[0] == '%' && (buf[1] == '%' || buf[1] == '!')) {

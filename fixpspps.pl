@@ -1,4 +1,4 @@
-@PERL@
+#!/usr/bin/env perl
 # mangle PostScript produced by PSPrint to make it almost conforming
 #
 # Copyright (C) Angus J. C. Duggan 1991-1995
@@ -55,4 +55,3 @@ while (<>) {
 }
 print (@body);
 print ("\@end\n");
-@END@
