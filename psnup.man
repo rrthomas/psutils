@@ -50,23 +50,33 @@ The
 .I \-w
 option gives the paper width, and the
 .I \-h
-option gives the paper height,
-normally specified in
-.B "cm"
+option gives the paper height, specified in
+.BR pt ,
+.BR mm ,
+.BR cm ,
 or
-.B "in"
-to convert 
-PostScript's points (1/72 of an inch)
-to centimeters or inches.
+.BR in .
 The 
 .I \-p
-option can be used as an alternative, to set the paper size to
-.B a0, a1, a2, a3, a4, a5, b5, letter, legal, tabloid, statement,
-executive, folio, quarto or
-.B 10x14.
-The default paper size is normally
-.B @PAPER@,
-but on a Debian system, /etc/papersize is consulted.
+option can be used instead, to set the paper size to
+.BR a0 ,
+.BR a1 ,
+.BR a2 ,
+.BR a3 ,
+.BR a4 ,
+.BR a5 ,
+.BR b5 ,
+.BR letter ,
+.BR legal ,
+.BR tabloid ,
+.BR statement ,
+.BR executive ,
+.BR folio ,
+.BR quarto
+or
+.BR 10x14 .
+The default paper size is set by papersize(5), or if libpaper is not used, to
+.BR @PAPER@ .
 The
 .I \-W, \-H,
 and
@@ -152,7 +162,7 @@ on the second output page.
 .SH AUTHOR
 Copyright (C) Angus J. C. Duggan 1991-1995
 .SH "SEE ALSO"
-@MAN@
+@MAN@, papersize(5)
 .SH TRADEMARKS
 .B PostScript
 is a trademark of Adobe Systems Incorporated.
