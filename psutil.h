@@ -11,9 +11,6 @@
 
 #include "config.h"
 
-/* types for describing document; this is a step towards version 2 */
-typedef long Fileptr ;
-
 /* paper size structure; configurability and proper paper resources will have
    to wait until version 2 */
 typedef struct papersize {
