@@ -17,6 +17,8 @@
  * outputs PostScript.
  */
 
+#include "config.h"
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -24,7 +26,6 @@
 #include <unistd.h>
 
 #include "pserror.h"
-#include "patchlev.h"
 
 #define MIN(x,y) ((x) > (y) ? (y) : (x))
 #define MAX(x,y) ((x) > (y) ? (x) : (y))
@@ -33,7 +34,7 @@ char *program;
 
 static void usage(void)
 {
-   fprintf(stderr, "%s release %d patchlevel %d\n", program, RELEASE, PATCHLEVEL);
+   fprintf(stderr, "%s %s\n", program, PACKAGE_VERSION);
    fprintf(stderr, "Copyright (C) Angus J. C. Duggan, 1991-1995. See file LICENSE for details.\n");
    fprintf(stderr, "Usage: %s [-c] [-r] [-a] [-m] [-s] llx lly urx ury [infile [outfile]]\n",
 	   program);

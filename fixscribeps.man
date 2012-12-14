@@ -1,4 +1,4 @@
-.TH FIXSCRIBEPS 1 "PSUtils Release @RELEASE@ Patchlevel @PATCHLEVEL@"
+.TH FIXSCRIBEPS 1 "PSUtils @VERSION@"
 .SH NAME
 fixscribeps \- filter to fix Scribe documents so PSUtils work
 .SH SYNOPSIS

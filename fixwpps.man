@@ -1,4 +1,4 @@
-.TH FIXWPPS 1 "PSUtils Release @RELEASE@ Patchlevel @PATCHLEVEL@"
+.TH FIXWPPS 1 "PSUtils @VERSION@"
 .SH NAME
 fixwpps \- filter to fix WP documents so PSUtils work
 .SH SYNOPSIS

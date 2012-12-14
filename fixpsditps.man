@@ -1,4 +1,4 @@
-.TH FIXPSDITPS 1 "PSUtils Release @RELEASE@ Patchlevel @PATCHLEVEL@"
+.TH FIXPSDITPS 1 "PSUtils @VERSION@"
 .SH NAME
 fixpsditps \- filter to fix Transcript psdit documents so PSUtils work
 .SH SYNOPSIS

@@ -9,7 +9,6 @@ extern char *program ;	/* Defined by main program, giving program name */
 
 #include "psutil.h"
 #include "pserror.h"
-#include "patchlev.h"
 
 #include <string.h>
 

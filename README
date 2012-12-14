@@ -48,9 +48,9 @@ showchar (sh)   show character with metrics
 
 INSTALLATION
 
-Edit Makefile to put in required paths for BINDIR, SCRIPTDIR, MANDIR,
-INCLUDEDIR, and PERL. Alter values of MANEXT to put the manual pages
-in a different section if desired, "make", and "make install".
+./configure && make && make install
+
+Run ./configure --help for options.
 
 BUGS
 

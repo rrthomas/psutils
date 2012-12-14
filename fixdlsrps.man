@@ -1,4 +1,4 @@
-.TH FIXDLSRPS 1 "PSUtils Release @RELEASE@ Patchlevel @PATCHLEVEL@"
+.TH FIXDLSRPS 1 "PSUtils @VERSION@"
 .SH NAME
 fixdlsrps \- filter to fix DviLaser/PS documents to work with PSUtils
 .SH SYNOPSIS

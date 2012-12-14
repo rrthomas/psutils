@@ -1,4 +1,4 @@
-.TH EPSFFIT 1 "PSUtils Release @RELEASE@ Patchlevel @PATCHLEVEL@"
+.TH EPSFFIT 1 "PSUtils @VERSION@"
 .SH NAME
 epsffit \- fit encapsulated PostScript file (EPSF) into constrained size
 .SH SYNOPSIS

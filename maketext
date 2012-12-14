@@ -6,13 +6,6 @@ eval '(exit $?0)' && eval 'exec perl -S $0 ${1+"$@"}'
 
 %change = ();			# names -> substitutions
 
-# get release and patchlevel for all scripts
-open(H, "patchlev.h") || die "can't open patchlev.h";
-while(<H>) {
-   $change{$1} = $2 if /^\#define\s*(\S*)\s*(\S*)/;
-}
-close(H);
-
 foreach (@ARGV) {
    if (/MAN=(.*)/) {		# name.ext name.ext -> name(ext), name(ext)
       local(@man) = split(' ', $1);

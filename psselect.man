@@ -1,4 +1,4 @@
-.TH PSSELECT 1 "PSUtils Release @RELEASE@ Patchlevel @PATCHLEVEL@"
+.TH PSSELECT 1 "PSUtils @VERSION@"
 .SH NAME
 psselect \- select pages from a PostScript file
 .SH SYNOPSIS

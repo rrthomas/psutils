@@ -1,4 +1,4 @@
-.TH INCLUDERES 1 "PSUtils Release @RELEASE@ Patchlevel @PATCHLEVEL@"
+.TH INCLUDERES 1 "PSUtils @VERSION@"
 .SH NAME
 includeres \- filter to include resources in a PostScript document
 .SH SYNOPSIS
@@ -27,7 +27,7 @@ or
 .I pstops
 safely.
 .SH FILES
-@INCLUDE@ - system resource directory.
+@pkgdatadir@ - system resource directory.
 .SH AUTHOR
 Copyright (C) Angus J. C. Duggan 1991-1995
 .SH "SEE ALSO"

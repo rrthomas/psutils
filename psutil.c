@@ -22,7 +22,6 @@
 #include "psutil.h"
 #include "pserror.h"
 #include "psspec.h"
-#include "patchlev.h"
 
 #include <string.h>
 #include <sys/types.h>

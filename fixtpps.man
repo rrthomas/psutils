@@ -1,4 +1,4 @@
-.TH FIXTPPS 1 "PSUtils Release @RELEASE@ Patchlevel @PATCHLEVEL@"
+.TH FIXTPPS 1 "PSUtils @VERSION@"
 .SH NAME
 fixtpps \- filter to fix Tpscript documents to work with PSUtils
 .SH SYNOPSIS

@@ -1,4 +1,4 @@
-.TH FIXPSPPS 1 "PSUtils Release @RELEASE@ Patchlevel @PATCHLEVEL@"
+.TH FIXPSPPS 1 "PSUtils @VERSION@"
 .SH NAME
 fixpspps \- filter to fix PSPrint PostScript so PSUtils work
 .SH SYNOPSIS

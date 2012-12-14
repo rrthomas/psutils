@@ -1,4 +1,4 @@
-.TH FIXWFWPS 1 "PSUtils Release @RELEASE@ Patchlevel @PATCHLEVEL@"
+.TH FIXWFWPS 1 "PSUtils @VERSION@"
 .SH NAME
 fixwfwps \- filter to fix Word for Windows documents so PSUtils work
 .SH SYNOPSIS

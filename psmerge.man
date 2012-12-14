@@ -1,4 +1,4 @@
-.TH PSMERGE 1 "PSUtils Release @RELEASE@ Patchlevel @PATCHLEVEL@"
+.TH PSMERGE 1 "PSUtils @VERSION@"
 .SH NAME
 psmerge \- filter to merge several PostScript files into one
 .SH SYNOPSIS

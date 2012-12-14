@@ -1,4 +1,4 @@
-.TH PSTOPS 1 "PSUtils Release @RELEASE@ Patchlevel @PATCHLEVEL@"
+.TH PSTOPS 1 "PSUtils @VERSION@"
 .SH NAME
 pstops \- shuffle pages in a PostScript file
 .SH SYNOPSIS

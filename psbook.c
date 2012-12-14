@@ -4,15 +4,17 @@
  *
  * rearrange pages in conforming PS file for printing in signatures
  *
+ * FIXME: Remove this usage (and all others)
  * Usage:
  *       psbook [-q] [-s<signature>] [infile [outfile]]
  */
+
+#include "config.h"
 
 #include <unistd.h>
 
 #include "psutil.h"
 #include "pserror.h"
-#include "patchlev.h"
 
 char *program ;
 int pages ;
@@ -24,7 +26,7 @@ int pageno ;
 
 static void usage(void)
 {
-   fprintf(stderr, "%s release %d patchlevel %d\n", program, RELEASE, PATCHLEVEL);
+   fprintf(stderr, "%s %s\n", program, PACKAGE_VERSION);
    fprintf(stderr, "Copyright (C) Angus J. C. Duggan, 1991-1995. See file LICENSE for details.\n");
    fprintf(stderr, "Usage: %s [-q] [-s<signature>] [infile [outfile]]\n",
 	   program);

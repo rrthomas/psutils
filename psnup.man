@@ -1,4 +1,4 @@
-.TH PSNUP 1 "PSUtils Release @RELEASE@ Patchlevel @PATCHLEVEL@"
+.TH PSNUP 1 "PSUtils @VERSION@"
 .SH NAME
 psnup \- multiple pages per sheet
 .SH SYNOPSIS

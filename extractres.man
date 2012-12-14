@@ -1,4 +1,4 @@
-.TH EXTRACTRES 1 "PSUtils Release @RELEASE@ Patchlevel @PATCHLEVEL@"
+.TH EXTRACTRES 1 "PSUtils @VERSION@"
 .SH NAME
 extractres \- filter to extract resources from a PostScript document
 .SH SYNOPSIS

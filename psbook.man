@@ -1,4 +1,4 @@
-.TH PSBOOK 1 "PSUtils Release @RELEASE@ Patchlevel @PATCHLEVEL@"
+.TH PSBOOK 1 "PSUtils @VERSION@"
 .SH NAME
 psbook \- rearrange pages in PostScript file into signatures
 .SH SYNOPSIS

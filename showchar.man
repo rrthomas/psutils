@@ -1,4 +1,4 @@
-.TH SHOWCHAR 1 "PSUtils Release @RELEASE@ Patchlevel @PATCHLEVEL@"
+.TH SHOWCHAR 1 "PSUtils @VERSION@"
 .SH NAME
 showchar \- show character with information
 .SH SYNOPSIS

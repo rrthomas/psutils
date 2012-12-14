@@ -15,12 +15,13 @@
  *              -Ppaper sets the input paper size (width and height) by name
  */
 
+#include "config.h"
+
 #include <unistd.h>
 
 #include "psutil.h"
 #include "psspec.h"
 #include "pserror.h"
-#include "patchlev.h"
 
 #include <paper.h>
 
@@ -34,7 +35,7 @@ int pageno ;
 
 static void usage(void)
 {
-   fprintf(stderr, "%s release %d patchlevel %d\n", program, RELEASE, PATCHLEVEL);
+   fprintf(stderr, "%s %s\n", program, PACKAGE_VERSION);
    fprintf(stderr, "Copyright (C) Angus J. C. Duggan, 1991-1995. See file LICENSE for details.\n");
    fprintf(stderr, "Usage: %s [-q] [-wwidth] [-hheight] [-ppaper] [-Wwidth] [-Hheight] [-Ppaper] [infile [outfile]]\n",
 	   program);

@@ -1,4 +1,4 @@
-.TH FIXFMPS 1 "PSUtils Release @RELEASE@ Patchlevel @PATCHLEVEL@"
+.TH FIXFMPS 1 "PSUtils @VERSION@"
 .SH NAME
 fixfmps \- filter to fix Framemaker documents so PSUtils work
 .SH SYNOPSIS

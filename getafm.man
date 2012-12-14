@@ -1,4 +1,4 @@
-.TH GETAFM 1 "PSUtils Release @RELEASE@ Patchlevel @PATCHLEVEL@"
+.TH GETAFM 1 "PSUtils @VERSION@"
 .SH NAME
 getafm \- create an AFM file for a PostScript font.
 .SH SYNOPSIS

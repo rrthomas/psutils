@@ -1,4 +1,4 @@
-.TH FIXWWPS 1 "PSUtils Release @RELEASE@ Patchlevel @PATCHLEVEL@"
+.TH FIXWWPS 1 "PSUtils @VERSION@"
 .SH NAME
 fixwwps \- filter to fix Windows Write documents so PSUtils work
 .SH SYNOPSIS
