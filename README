@@ -23,28 +23,25 @@ pstops          performs general page rearrangement and selection
 psnup           put multiple pages per physical sheet of paper
 psresize        alter document paper size
 epsffit         fits an EPSF file to a given bounding box
+getafm          outputs PostScript to retrieve AFM file from printer
+showchar        outputs PostScript to draw a character with metric info
+fixdlsrps       filter to fix DviLaser/PS output so that PSUtils works
+fixfmps         filter to fix framemaker documents so that psselect etc. work
+fixpsditps      filter to fix Transcript psdit documents to work with PSUtils
+fixpspps        filter to fix PSPrint PostScript so that psselect etc. work
+fixscribeps     filter to fix Scribe PostScript so that psselect etc. work
+fixtpps         filter to fix Troff Tpscript documents
+fixwfwps        filter to fix Word for Windows documents for PSUtils
+fixwpps         filter to fix WordPerfect documents for PSUtils
+fixwwps         filter to fix Windows Write documents for PSUtils
+extractres      filter to extract resources from PostScript files
+includeres      filter to include resources into PostScript files
+psmerge         hack script to merge multiple PostScript files
+showchar        show character with metrics
 
 psselect in modeled after Chris Torek's dviselect program, and pstops is
 modeled after Tom Rokicki's dvidvi program. psbook is modeled on my own
 dvibook program, which borrows heavily from Chris Torek's dviselect.
-
-SCRIPTS
-
-getafm   (sh)   outputs PostScript to retrieve AFM file from printer
-showchar (sh)   outputs PostScript to draw a character with metric info
-fixdlsrps (perl) filter to fix DviLaser/PS output so that PSUtils works
-fixfmps  (perl) filter to fix framemaker documents so that psselect etc. work
-fixpsditps (perl) filter to fix Transcript psdit documents to work with PSUtils
-fixpspps (perl) filter to fix PSPrint PostScript so that psselect etc. work
-fixscribeps (perl) filter to fix Scribe PostScript so that psselect etc. work
-fixtpps  (perl) filter to fix Troff Tpscript documents
-fixwfwps (perl) filter to fix Word for Windows documents for PSUtils
-fixwpps  (perl) filter to fix WordPerfect documents for PSUtils
-fixwwps  (perl) filter to fix Windows Write documents for PSUtils
-extractres (perl) filter to extract resources from PostScript files
-includeres (perl) filter to include resources into PostScript files
-psmerge  (perl) hack script to merge multiple PostScript files
-showchar (sh)   show character with metrics
 
 INSTALLATION
 
@@ -76,6 +73,7 @@ ACKNOWLEDGEMENTS
 Bug fixes and suggestions for improvements to PSUtils have come from many
 people, including:
 
+        Reuben Thomas           rrt@sc3d.org
         Brian Colfer            brianc@labmed.ucsf.edu
         Charles A. Finnell      finnell@org.mitre.lear
         Conrad Kimball          cek@com.boeing.sdc
