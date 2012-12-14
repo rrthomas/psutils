@@ -30,6 +30,3 @@ man_MANS = psutils.1 psbook.1 psselect.1 pstops.1 epsffit.1 \
 	fixpspps.1 fixtpps.1 fixwfwps.1 fixwpps.1 \
 	fixwwps.1 extractres.1 includeres.1 \
 	showchar.1
-
-automake_edit = sed \
-	-e 's|@pkgdatadir[@]|$(pkgdatadir)|g'
