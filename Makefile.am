@@ -33,5 +33,3 @@ man_MANS = psutils.1 psbook.1 psselect.1 pstops.1 epsffit.1 \
 
 automake_edit = sed \
 	-e 's|@pkgdatadir[@]|$(pkgdatadir)|g'
-
-CLEANFILES = $(man_MANS)
