@@ -1,4 +1,4 @@
-.TH PSRESIZE 1 "PSUtils @VERSION@"
+.TH PSRESIZE 1 "PSUtils"
 .SH NAME
 psresize \- rescales and centers a document for new output paper size
 .SH SYNOPSIS
@@ -32,12 +32,13 @@ The
 .I \-w
 option gives the output paper width, and the
 .I \-h
-option gives the output paper height, specified in
-.BR pt ,
-.BR mm ,
-.BR cm ,
+option gives the output paper height, normally specified in
+.B "cm"
 or
-.BR in .
+.B "in"
+to convert 
+PostScript's points (1/72 of an inch)
+to centimeters or inches.
 The 
 .I \-p
 option can be used instead, to set the paper size; otherwise a default value is used.
@@ -68,7 +69,7 @@ psresize -PA4 -pletter in.ps out.ps
 .SH AUTHOR
 Copyright (C) Angus J. C. Duggan 1991-1995
 .SH "SEE ALSO"
-@MAN@, papersize(5)
+psutils(1)
 .SH TRADEMARKS
 .B PostScript
 is a trademark of Adobe Systems Incorporated.

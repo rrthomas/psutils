@@ -1,24 +1,24 @@
-.TH FIXPSPPS 1 "PSUtils @VERSION@"
+.TH FIXTPPS 1 "PSUtils"
 .SH NAME
-fixpspps \- filter to fix PSPrint PostScript so PSUtils work
+fixtpps \- filter to fix Tpscript documents to work with PSUtils
 .SH SYNOPSIS
-.B fixpspps 
+.B fixtpps 
 < 
-.I PSPrint.ps
+.I Tpscript.ps
 >
 .I Fixed.ps
 .SH DESCRIPTION
-.I Fixpspps
+.I Fixtpps
 is a 
 .I perl 
-filter which "fixes" PostScript from PSPrint so
+filter which "fixes" PostScript generated from the Troff Tpscript driver so
 that it works correctly with Angus Duggan's
 .B psutils
 package.
 .SH AUTHOR
 Copyright (C) Angus J. C. Duggan 1991-1995
 .SH "SEE ALSO"
-@MAN@
+psutils(1)
 .SH TRADEMARKS
 .B PostScript
 is a trademark of Adobe Systems Incorporated.

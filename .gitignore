@@ -1,5 +1,4 @@
 *.o
-*.1
 *~
 psutils*.tar.gz
 /.deps/
@@ -20,6 +19,7 @@ psutils*.tar.gz
 /stamp-h1
 /epsffit
 /includeres
+/includeres.1
 /includeres.man
 /psbook
 /psnup

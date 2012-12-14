@@ -20,17 +20,13 @@ bin_SCRIPTS = getafm showchar \
 
 EXTRA_DIST = m4/gnulib-cache.m4 \
 	psutil.h psspec.h pserror.h \
-	maketext \
 	includeres.in \
-	epsffit.man extractres.man fixdlsrps.man fixfmps.man \
-	fixpsditps.man fixpspps.man fixscribeps.man fixtpps.man \
-	fixwfwps.man fixwpps.man fixwwps.man getafm.man \
-	includeres.man.in psbook.man psmerge.man psnup.man \
-	psresize.man psselect.man pstops.man showchar.man \
-	$(bin_SCRIPTS)
+	includeres.1.in	\
+	$(bin_SCRIPTS) \
+	$(man_MANS)
 
-man_MANS = psbook.1 psselect.1 pstops.1 epsffit.1 psnup.1 \
-	psresize.1 psmerge.1 fixscribeps.1 getafm.1 \
+man_MANS = psutils.1 psbook.1 psselect.1 pstops.1 epsffit.1 \
+	psnup.1 psresize.1 psmerge.1 fixscribeps.1 getafm.1 \
 	fixdlsrps.1 fixfmps.1 fixpsditps.1 \
 	fixpspps.1 fixtpps.1 fixwfwps.1 fixwpps.1 \
 	fixwwps.1 extractres.1 includeres.1 \
@@ -45,16 +41,13 @@ $(top_builddir)/includeres: Makefile includeres.in
 	mv $@.tmp $@
 	chmod +x $@
 
-$(top_builddir)/includeres.man: Makefile includeres.man.in
+$(top_builddir)/includeres.1: Makefile includeres.1.in
 	rm -f $@ $@.tmp
 	$(automake_edit) '$(top_srcdir)/$@.in' >$@.tmp
 	mv $@.tmp $@
 
 CLEANFILES = $(man_MANS)
 
-DISTCLEANFILES = includeres includeres.man
+DISTCLEANFILES = includeres includeres.1
 
 LDADD = libpsutils.a
-
-.man.1:
-	$(PERL) $(srcdir)/maketext VERSION=$(PACKAGE_VERSION) MAN="$(man_MANS)" $? > $@
