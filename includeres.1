@@ -1,4 +1,4 @@
-.TH INCLUDERES 1 "PSUtils @VERSION@"
+.TH INCLUDERES 1 "PSUtils"
 .SH NAME
 includeres \- filter to include resources in a PostScript document
 .SH SYNOPSIS
@@ -9,11 +9,10 @@ includeres \- filter to include resources in a PostScript document
 .I output.ps
 .SH DESCRIPTION
 .I Includeres
-includes resources (fonts, procsets, patterns, files, etc) in place of
+includes resources (fonts, procsets, patterns, files, etc.) in place of
 .I %%IncludeResource
-comments in a PostScript document. The resources are searched for in the
-current directory and the system default directory under the resource name,
-and with an appropriate extension.
+comments in a PostScript document. The resources are searched for
+under the resource name, and with an appropriate extension.
 The pipeline
 .sp
 .ce
@@ -26,8 +25,6 @@ re-arrangement filters such as
 or 
 .I pstops
 safely.
-.SH FILES
-@pkgdatadir@ - system resource directory.
 .SH AUTHOR
 Copyright (C) Angus J. C. Duggan 1991-1995
 .SH "SEE ALSO"

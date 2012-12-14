@@ -12,6 +12,7 @@ libpsutils_a_SOURCES = psutil.c psspec.c pserror.c
 libpsutils_a_LIBADD = $(LIBPAPER)
 
 bin_PROGRAMS = psbook psselect pstops epsffit psnup psresize
+LDADD = libpsutils.a
 
 bin_SCRIPTS = getafm showchar \
 	fixfmps fixpsditps fixpspps \
@@ -20,8 +21,6 @@ bin_SCRIPTS = getafm showchar \
 
 EXTRA_DIST = m4/gnulib-cache.m4 \
 	psutil.h psspec.h pserror.h \
-	includeres.in \
-	includeres.1.in	\
 	$(bin_SCRIPTS) \
 	$(man_MANS)
 
@@ -35,19 +34,4 @@ man_MANS = psutils.1 psbook.1 psselect.1 pstops.1 epsffit.1 \
 automake_edit = sed \
 	-e 's|@pkgdatadir[@]|$(pkgdatadir)|g'
 
-$(top_builddir)/includeres: Makefile includeres.in
-	rm -f $@ $@.tmp
-	$(automake_edit) '$(top_srcdir)/$@.in' >$@.tmp
-	mv $@.tmp $@
-	chmod +x $@
-
-$(top_builddir)/includeres.1: Makefile includeres.1.in
-	rm -f $@ $@.tmp
-	$(automake_edit) '$(top_srcdir)/$@.in' >$@.tmp
-	mv $@.tmp $@
-
 CLEANFILES = $(man_MANS)
-
-DISTCLEANFILES = includeres includeres.1
-
-LDADD = libpsutils.a
