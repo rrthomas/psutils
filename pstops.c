@@ -3,9 +3,6 @@
  * See file LICENSE for details.
  *
  * rearrange pages in conforming PS file for printing in signatures
- *
- * Usage:
- *       pstops [-q] [-b] [-d] [-w<dim>] [-h<dim>] [-ppaper] <pagespecs> [infile [outfile]]
  */
 
 #include "config.h"

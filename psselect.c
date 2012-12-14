@@ -3,9 +3,6 @@
  * See file LICENSE for details.
  *
  * rearrange pages in conforming PS file for printing in signatures
- *
- * Usage:
- *       psselect [-q] [-e] [-o] [-r] [-p<pages>] [infile [outfile]]
  */
 
 #include "config.h"

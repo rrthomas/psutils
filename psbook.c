@@ -3,10 +3,6 @@
  * See file LICENSE for details.
  *
  * rearrange pages in conforming PS file for printing in signatures
- *
- * FIXME: Remove this usage (and all others)
- * Usage:
- *       psbook [-q] [-s<signature>] [infile [outfile]]
  */
 
 #include "config.h"

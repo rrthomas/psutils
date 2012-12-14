@@ -3,13 +3,6 @@
  * See file LICENSE for details.
  *
  * fit epsf file into constrained size
- * Usage:
- *       epsffit [-c] [-r] [-a] [-s] llx lly urx ury [infile [outfile]]
- *               -c centres the image in the bounding box given
- *               -r rotates the image by 90 degrees anti-clockwise
- *               -a alters the aspect ratio to fit the bounding box
- *               -m rotate to maximise the size within specified bounding
- *               -s adds a showpage at the end of the image
  *
  * Added filename spec (from Larry Weissman) 5 Feb 93
  * Accepts double %%BoundingBox input, outputs proper BB, 4 Jun 93. (I don't

@@ -3,24 +3,6 @@
  * See file LICENSE for details.
  *
  * put multiple pages onto one physical sheet of paper
- *
- * Usage:
- *      psnup [-q] [-w<dim>] [-h<dim>] [-ppaper] [-b<dim>] [-m<dim>]
- *            [-l] [-c] [-f] [-sscale] [-d<wid>] [-nup] [in [out]]
- *              -w<dim> sets the paper width
- *              -h<dim> sets the paper height
- *              -ppaper sets the paper size (width and height) by name
- *              -W<dim> sets the input paper width, if different from output
- *              -H<dim> sets the input paper height, if different from output
- *              -Ppaper sets the input paper size, if different from output
- *              -m<dim> sets the margin around the paper
- *              -b<dim> sets the border around each page
- *              -sscale alters the scale at which the pages are displayed
- *              -l      used if pages are in landscape orientation (rot left)
- *              -r      used if pages are in seascape orientation (rot right)
- * 		-c	for column-major layout
- *		-f	for flipped (wider than tall) pages
- * 		-d<wid>	to draw the page boundaries
  */
 
 #include "config.h"

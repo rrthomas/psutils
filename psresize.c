@@ -3,16 +3,6 @@
  * See file LICENSE for details.
  *
  * alter pagesize of document
- *
- * Usage:
- *      psresize [-q] [-w<dim>] [-h<dim>] [-ppaper] [-W<dim>] [-H<dim>]
- *            [-Ppaper] [in [out]]
- *              -w<dim> sets the output paper width
- *              -h<dim> sets the output paper height
- *              -ppaper sets the output paper size (width and height) by name
- *              -W<dim> sets the input paper width
- *              -H<dim> sets the input paper height
- *              -Ppaper sets the input paper size (width and height) by name
  */
 
 #include "config.h"
