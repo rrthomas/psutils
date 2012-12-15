@@ -16,11 +16,11 @@ LDADD = libpsutils.a
 
 bin_PROGRAMS = psbook psselect pstops epsffit psnup psresize
 
-bin_SCRIPTS = psmerge getafm extractres includeres showchar
+bin_SCRIPTS = psmerge extractres includeres
 
 man_MANS = psutils.1 \
 	psbook.1 psselect.1 pstops.1 epsffit.1 psnup.1 psresize.1 \
-	psmerge.1 getafm.1 extractres.1 includeres.1 showchar.1
+	psmerge.1 extractres.1 includeres.1
 
 EXTRA_DIST = m4/gnulib-cache.m4 \
 	psutil.h psspec.h pserror.h \

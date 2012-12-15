@@ -3,15 +3,13 @@
 The constituent files of this package listed below are copyright (C) 1991-1995
 Angus J. C. Duggan.
 
-LICENSE          Makefile         README
-epsffit.c        epsffit.man      extractres.man   extractres
-getafm           getafm.man       includeres.man   includeres.pl
-maketext         psbook.c         psbook.man
+LICENSE          Makefile         README           epsffit.c
+epsffit.man      extractres.man   extractres       includeres.man
+includeres.pl    maketext         psbook.c         psbook.man
 pserror.c        pserror.h        psmerge.man      psmerge
 psnup.c          psnup.man	  psresize.c       psresize.man
 psselect.c       psselect.man	  psspec.c         psspec.h
 pstops.c         pstops.man       psutil.c         psutil.h
-showchar
 
 They may be copied and used for any purpose (including distribution as part of
 a for-profit product), provided:

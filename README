@@ -23,12 +23,9 @@ pstops          performs general page rearrangement and selection
 psnup           put multiple pages per physical sheet of paper
 psresize        alter document paper size
 epsffit         fits an EPSF file to a given bounding box
-getafm          outputs PostScript to retrieve AFM file from printer
-showchar        outputs PostScript to draw a character with metric info
 extractres      filter to extract resources from PostScript files
 includeres      filter to include resources into PostScript files
 psmerge         hack script to merge multiple PostScript files
-showchar        show character with metrics
 
 psselect in modeled after Chris Torek's dviselect program, and pstops is
 modeled after Tom Rokicki's dvidvi program. psbook is modeled on my own
