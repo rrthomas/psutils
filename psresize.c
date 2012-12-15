@@ -1,8 +1,9 @@
 /* psresize.c
- * Copyright (C) Angus J. C. Duggan 1991-1995
- * See file LICENSE for details.
+ * Alter page size of document
  *
- * alter pagesize of document
+ * (c) Reuben Thomas 2012
+ * (c) Angus J. C. Duggan 1991-1997
+ * See file LICENSE for details.
  */
 
 #include "config.h"
@@ -26,8 +27,8 @@ int pageno ;
 static void usage(void)
 {
    fprintf(stderr, "%s %s\n", program, PACKAGE_VERSION);
-   fprintf(stderr, "Copyright (C) Angus J. C. Duggan, 1991-1995. See file LICENSE for details.\n");
-   fprintf(stderr, "Usage: %s [-q] [-wwidth] [-hheight] [-ppaper] [-Wwidth] [-Hheight] [-Ppaper] [infile [outfile]]\n",
+   fprintf(stderr, COPYRIGHT_STRING);
+   fprintf(stderr, "Usage: %s [-q] [-wWIDTH] [-hHEIGHT] [-pPAPER] [-WWIDTH] [-HHEIGHT] [-PPAPER] [INFILE [OUTFILE]]\n",
 	   program);
    fflush(stderr);
    exit(1);
@@ -37,9 +38,6 @@ static void argerror(void)
 {
    message(FATAL, "bad dimension\n");
 }
-
-#define MIN(x,y) ((x) > (y) ? (y) : (x))
-#define MAX(x,y) ((x) > (y) ? (x) : (y))
 
 int
 main(int argc, char *argv[])

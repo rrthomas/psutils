@@ -1,5 +1,6 @@
 /* psbook.c
- * Copyright (C) Angus J. C. Duggan 1991-1995
+ * (c) Reuben Thomas 2012
+ * (c) Angus J. C. Duggan 1991-1997
  * See file LICENSE for details.
  *
  * rearrange pages in conforming PS file for printing in signatures
@@ -23,7 +24,7 @@ int pageno ;
 static void usage(void)
 {
    fprintf(stderr, "%s %s\n", program, PACKAGE_VERSION);
-   fprintf(stderr, "Copyright (C) Angus J. C. Duggan, 1991-1995. See file LICENSE for details.\n");
+   fprintf(stderr, COPYRIGHT_STRING);
    fprintf(stderr, "Usage: %s [-q] [-s<signature>] [infile [outfile]]\n",
 	   program);
    fprintf(stderr, "       <signature> must be positive and divisible by 4\n");

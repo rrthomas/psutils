@@ -1,20 +1,9 @@
 /* psutil.c
- * Copyright (C) Angus J. C. Duggan 1991-1995
- * See file LICENSE for details.
+ * PSUtils utility functions
  *
- * utilities for PS programs
- */
-
-
-/*
- *  Daniele Giacomini appunti2@gmail.com 2010-09-02
- *    Changed to using ftello() and fseeko()
- *  AJCD 6/4/93
- *    Changed to using ftell() and fseek() only (no length calculations)
- *  Hunter Goatley    31-MAY-1993 23:33
- *    Fixed VMS support.
- *  Hunter Goatley     2-MAR-1993 14:41
- *    Added VMS support.
+ * (c) Reuben Thomas 2012
+ * (c) Angus J. C. Duggan 1991-1997
+ * See file LICENSE for details.
  */
 
 #define _FILE_OFFSET_BITS 64

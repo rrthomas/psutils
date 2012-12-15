@@ -1,8 +1,9 @@
 /* psspec.c
- * Copyright (C) Angus J. C. Duggan 1991-1995
- * See file LICENSE for details.
+ * Page spec routines for page rearrangement
  *
- * page spec routines for page rearrangement
+ * (c) Reuben Thomas 2012
+ * (c) Angus J. C. Duggan 1991-1997
+ * See file LICENSE for details.
  */
 
 #include "psutil.h"

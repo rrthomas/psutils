@@ -1,8 +1,9 @@
 /* pserror.c
- * Copyright (C) Angus J. C. Duggan 1991-1995
- * See file LICENSE for details.
- *
  * Warnings and errors for PS programs
+ *
+ * (c) Reuben Thomas 2012
+ * (c) Angus J. C. Duggan 1991-1997
+ * See file LICENSE for details.
  */
 
 #include "psutil.h"

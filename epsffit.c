@@ -1,8 +1,9 @@
 /* epsffit.c
- * Copyright (C) Angus J. C. Duggan 1991-1995
- * See file LICENSE for details.
+ * Fit EPSF file into constrained size
  *
- * fit epsf file into constrained size
+ * (c) Reuben Thomas 2012
+ * (c) Angus J. C. Duggan 1991-1997
+ * See file LICENSE for details.
  *
  * Added filename spec (from Larry Weissman) 5 Feb 93
  * Accepts double %%BoundingBox input, outputs proper BB, 4 Jun 93. (I don't
@@ -19,17 +20,15 @@
 #include <unistd.h>
 
 #include "pserror.h"
-
-#define MIN(x,y) ((x) > (y) ? (y) : (x))
-#define MAX(x,y) ((x) > (y) ? (x) : (y))
+#include "psutil.h"
 
 char *program;
 
 static void usage(void)
 {
    fprintf(stderr, "%s %s\n", program, PACKAGE_VERSION);
-   fprintf(stderr, "Copyright (C) Angus J. C. Duggan, 1991-1995. See file LICENSE for details.\n");
-   fprintf(stderr, "Usage: %s [-c] [-r] [-a] [-m] [-s] llx lly urx ury [infile [outfile]]\n",
+   fprintf(stderr, COPYRIGHT_STRING);
+   fprintf(stderr, "Usage: %s [-c] [-r] [-a] [-m] [-s] LLX LLY URX URY [INFILE [OUTFILE]]\n",
 	   program);
    exit(1);
 }

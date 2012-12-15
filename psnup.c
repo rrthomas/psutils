@@ -1,8 +1,9 @@
 /* psnup.c
- * Copyright (C) Angus J. C. Duggan 1991-1995
- * See file LICENSE for details.
+ * Put multiple pages on to one page
  *
- * put multiple pages onto one physical sheet of paper
+ * (c) Reuben Thomas 2012
+ * (c) Angus J. C. Duggan 1991-1997
+ * See file LICENSE for details.
  */
 
 #include "config.h"
@@ -27,8 +28,8 @@ int pageno ;
 static void usage(void)
 {
    fprintf(stderr, "%s %s\n", program, PACKAGE_VERSION);
-   fprintf(stderr, "Copyright (C) Angus J. C. Duggan, 1991-1995. See file LICENSE for details.\n");
-   fprintf(stderr, "Usage: %s [-q] [-wwidth] [-hheight] [-ppaper] [-Wwidth] [-Hheight] [-Ppaper] [-l] [-r] [-c] [-f] [-mmargin] [-bborder] [-dlwidth] [-sscale] [-nup] [infile [outfile]]\n",
+   fprintf(stderr, COPYRIGHT_STRING);
+   fprintf(stderr, "Usage: %s [-q] [-wWIDTH] [-hHEIGHT] [-pPAPER] [-WWIDTH] [-HHEIGHT] [-PPAPER] [-l] [-r] [-c] [-f] [-mMARGIN] [-bBORDER] [-dLWIDTH] [-sSCALE] [-NUP] [INFILE [OUTFILE]]\n",
 	   program);
    fflush(stderr);
    exit(1);
@@ -38,9 +39,6 @@ static void argerror(void)
 {
    message(FATAL, "bad dimension\n");
 }
-
-#define MIN(x,y) ((x) > (y) ? (y) : (x))
-#define MAX(x,y) ((x) > (y) ? (x) : (y))
 
 /* return next larger exact divisor of number, or 0 if none. There is probably
  * a much more efficient method of doing this, but the numbers involved are

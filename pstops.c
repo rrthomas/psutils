@@ -1,8 +1,9 @@
 /* pstops.c
- * Copyright (C) Angus J. C. Duggan 1991-1995
- * See file LICENSE for details.
+ * Rearrange pages in conforming PS file
  *
- * rearrange pages in conforming PS file for printing in signatures
+ * (c) Reuben Thomas 2012
+ * (c) Angus J. C. Duggan 1991-1997
+ * See file LICENSE for details.
  */
 
 #include "config.h"
@@ -27,8 +28,8 @@ int pageno ;
 static void usage(void)
 {
    fprintf(stderr, "%s %s\n", program, PACKAGE_VERSION);
-   fprintf(stderr, "Copyright (C) Angus J. C. Duggan, 1991-1995. See file LICENSE for details.\n");
-   fprintf(stderr, "Usage: %s [-q] [-b] [-wwidth] [-hheight] [-dlwidth] [-ppaper] <pagespecs> [infile [outfile]]\n",
+   fprintf(stderr, COPYRIGHT_STRING);
+   fprintf(stderr, "Usage: %s [-q] [-b] [-wWIDTH] [-hHEIGHT] [-dLWIDTH] [-pPAPER] PAGESPECS [INFILE [OUTFILE]]\n",
 	   program);
    fflush(stderr);
    exit(1);
@@ -37,9 +38,9 @@ static void usage(void)
 static void argerror(void)
 {
    fprintf(stderr, "%s: page specification error:\n", program);
-   fprintf(stderr, "  <pagespecs> = [modulo:]<spec>\n");
-   fprintf(stderr, "  <spec>      = [-]pageno[@scale][L|R|U|H|V][(xoff,yoff)][,spec|+spec]\n");
-   fprintf(stderr, "                modulo>=1, 0<=pageno<modulo\n");
+   fprintf(stderr, "  pagespecs = [modulo:]spec\n");
+   fprintf(stderr, "  spec      = [-]pageno[@scale][L|R|U|H|V][(xoff,yoff)][,spec|+spec]\n");
+   fprintf(stderr, "                modulo >= 1, 0 <= pageno < modulo\n");
    fflush(stderr);
    exit(1);
 }

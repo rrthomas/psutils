@@ -37,3 +37,7 @@ extern FILE *infile;
 extern FILE *outfile;
 extern char pagelabel[BUFSIZ];
 extern int pageno;
+
+/* Useful macros */
+#define MIN(x,y) ((x) > (y) ? (y) : (x))
+#define COPYRIGHT_STRING "Copyright Reuben Thomas <rrt@sc3d.org> 2012\nCopyright (C) Angus J. C. Duggan, 1991-1995.\nSee file LICENSE for details.\n"

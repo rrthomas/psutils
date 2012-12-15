@@ -1,8 +1,9 @@
 /* psselect.c
- * Copyright (C) Angus J. C. Duggan 1991-1995
- * See file LICENSE for details.
+ * Rearrange pages in conforming PS file for printing in signatures
  *
- * rearrange pages in conforming PS file for printing in signatures
+ * (c) Reuben Thomas 2012
+ * (c) Angus J. C. Duggan 1991-1997
+ * See file LICENSE for details.
  */
 
 #include "config.h"
@@ -22,9 +23,8 @@ int pageno ;
 static void usage(void)
 {
    fprintf(stderr, "%s %s\n", program, PACKAGE_VERSION);
-   fprintf(stderr, "Copyright (C) Angus J. C. Duggan, 1991-1995. See file LICENSE for details.\n");
-   fprintf(stderr,
-	   "Usage: %s [-q] [-e] [-o] [-r] [-p<pages>] [infile [outfile]]\n",
+   fprintf(stderr, COPYRIGHT_STRING);
+   fprintf(stderr, "Usage: %s [-q] [-e] [-o] [-r] [-pPAGES] [INFILE [OUTFILE]]\n",
 	   program);
    fflush(stderr);
    exit(1);
