@@ -4,40 +4,41 @@
 # Copyright (C) Angus J. C. Duggan 1991-1995
 # See file LICENSE for details.
 
-$prog = ($0 =~ s=.*/==);
+use strict;
+use warnings;
 
-%extn = ("font", ".pfa", "file", ".ps", "procset", ".ps", # resource extns
-	 "pattern", ".pat", "form", ".frm", "encoding", ".enc");
-%type = ("%%BeginFile:", "file", "%%BeginProcSet:", "procset",
-	 "%%BeginFont:", "font"); # resource types
+# Resource extensions
+my %extn = ("font" => ".pfa", "file" => ".ps", "procset" => ".ps",
+            "pattern" => ".pat", "form" => ".frm", "encoding" => ".enc");
+# Resource types
+my %type = ("%%BeginFile:" => "file", "%%BeginProcSet:" => "procset",
+            "%%BeginFont:" => "font");
 
 sub filename {			# make filename for resource in @_
-   local($name);
-   foreach (@_) {		# sanitise name
-      s/[!()\$\#*&\\\|\`\'\"\~\{\}\[\]\<\>\?]//g;
-      $name .= $_;
-   }
-   $name =~ s@.*/@@;		# drop directories
-   die "Filename not found for resource ", join(" ", @_), "\n"
-      if $name =~ /^$/;
-   $name;
+  my($name);
+  foreach (@_) {		# sanitise name
+    s/[!()\$\#*&\\\|\`\'\"\~\{\}\[\]\<\>\?]//g;
+    $name .= $_;
+  }
+  $name =~ s@.*/@@;		# drop directories
+  die "Filename not found for resource ", join(" ", @_), "\n"
+    if $name =~ /^$/;
+  $name;
 }
 
 while (<>) {
-   if (/^%%IncludeResource:/ || /^%%IncludeFont:/ || /^%%IncludeProcSet:/) {
-      local($comment, @res) = split(/\s+/);
-      local($type) = defined($type{$comment}) ? $type{$comment} : shift(@res);
-      local($name) = &filename(@res);
-      if (open(RES, $name) || open(RES, "$name$extn{$type}")) {
-	 while (<RES>) {
-	    print $_;
-	 }
-	 close(RES);
-      } else {
-	 print "%%IncludeResource: ", join(" ", $type, @res), "\n";
-	 print STDERR "Resource $name not found\n";
-      }
-   } else {
-      print $_;
-   }
+  if (/^%%IncludeResource:/ || /^%%IncludeFont:/ || /^%%IncludeProcSet:/) {
+    my ($comment, @res) = split(/\s+/);
+    my $type = defined($type{$comment}) ? $type{$comment} : shift(@res);
+    my $name = filename(@res);
+    if (open(RES, $name) || open(RES, "$name$extn{$type}")) {
+      print do { local $/; <RES> };
+      close(RES);
+    } else {
+      print "%%IncludeResource: ", join(" ", $type, @res), "\n";
+      print STDERR "Resource $name not found\n";
+    }
+  } else {
+    print $_;
+  }
 }
