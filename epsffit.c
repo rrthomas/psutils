@@ -21,14 +21,7 @@
 
 #include "psutil.h"
 
-static void usage(void)
-{
-   fprintf(stderr, "%s %s\n", program, PACKAGE_VERSION);
-   fprintf(stderr, COPYRIGHT_STRING);
-   fprintf(stderr, "Usage: %s [-c] [-r] [-a] [-m] [-s] LLX LLY URX URY [INFILE [OUTFILE]]\n",
-	   program);
-   exit(1);
-}
+const char *syntax = "[-c] [-r] [-a] [-m] [-s] LLX LLY URX URY [INFILE [OUTFILE]]\n";
 
 int
 main(int argc, char **argv)

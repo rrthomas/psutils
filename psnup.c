@@ -15,15 +15,7 @@
 #include "psutil.h"
 #include "psspec.h"
 
-static void usage(void)
-{
-   fprintf(stderr, "%s %s\n", program, PACKAGE_VERSION);
-   fprintf(stderr, COPYRIGHT_STRING);
-   fprintf(stderr, "Usage: %s [-q] [-wWIDTH] [-hHEIGHT] [-pPAPER] [-WWIDTH] [-HHEIGHT] [-PPAPER] [-l] [-r] [-c] [-f] [-mMARGIN] [-bBORDER] [-dLWIDTH] [-sSCALE] [-NUP] [INFILE [OUTFILE]]\n",
-	   program);
-   fflush(stderr);
-   exit(1);
-}
+const char *syntax = "[-q] [-wWIDTH] [-hHEIGHT] [-pPAPER] [-WWIDTH] [-HHEIGHT] [-PPAPER] [-l] [-r] [-c] [-f] [-mMARGIN] [-bBORDER] [-dLWIDTH] [-sSCALE] [-NUP] [INFILE [OUTFILE]]\n";
 
 static void argerror(void)
 {
@@ -79,7 +71,7 @@ main(int argc, char *argv[])
        break;
      case 'd':	/* draw borders */
        if (optarg)
-         draw = singledimen(optarg, argerror, usage);
+         draw = singledimen(optarg, argerror);
        else
          draw = 1;
        break;
@@ -98,22 +90,22 @@ main(int argc, char *argv[])
        column = !column;
        break;
      case 'w':	/* page width */
-       width = singledimen(optarg, argerror, usage);
+       width = singledimen(optarg, argerror);
        break;
      case 'W':	/* input page width */
-       iwidth = singledimen(optarg, argerror, usage);
+       iwidth = singledimen(optarg, argerror);
        break;
      case 'h':	/* page height */
-       height = singledimen(optarg, argerror, usage);
+       height = singledimen(optarg, argerror);
        break;
      case 'H':	/* input page height */
-       iheight = singledimen(optarg, argerror, usage);
+       iheight = singledimen(optarg, argerror);
        break;
      case 'm':	/* margins around whole page */
-       margin = singledimen(optarg, argerror, usage);
+       margin = singledimen(optarg, argerror);
        break;
      case 'b':	/* border around individual pages */
-       border = singledimen(optarg, argerror, usage);
+       border = singledimen(optarg, argerror);
        break;
      case 't':	/* layout tolerance */
        tolerance = atof(optarg);

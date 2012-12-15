@@ -12,17 +12,7 @@
 
 #include "psutil.h"
 
-static void usage(void)
-{
-   fprintf(stderr, "%s %s\n", program, PACKAGE_VERSION);
-   fprintf(stderr, COPYRIGHT_STRING);
-   fprintf(stderr, "Usage: %s [-q] [-sSIGNATURE] [INFILE [OUTFILE]]\n",
-	   program);
-   fprintf(stderr, "       SIGNATURE must be positive and divisible by 4\n");
-   fflush(stderr);
-   exit(1);
-}
-
+const char *syntax = "[-q] [-sSIGNATURE] [INFILE [OUTFILE]]\n       SIGNATURE must be positive and divisible by 4\n";
 
 int
 main(int argc, char *argv[])

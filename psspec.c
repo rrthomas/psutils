@@ -85,10 +85,10 @@ double parsedimen(char **sp, void (*errorfn)(void))
    return (num);
 }
 
-double singledimen(char *str, void (*errorfn)(void), void (*usagefn)(void))
+double singledimen(char *str, void (*errorfn)(void))
 {
    double num = parsedimen(&str, errorfn);
-   if (*str) (*usagefn)();
+   if (*str) usage();
    return (num);
 }
 

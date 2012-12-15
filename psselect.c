@@ -12,15 +12,7 @@
 
 #include "psutil.h"
 
-static void usage(void)
-{
-   fprintf(stderr, "%s %s\n", program, PACKAGE_VERSION);
-   fprintf(stderr, COPYRIGHT_STRING);
-   fprintf(stderr, "Usage: %s [-q] [-e] [-o] [-r] [-pPAGES] [INFILE [OUTFILE]]\n",
-	   program);
-   fflush(stderr);
-   exit(1);
-}
+const char *syntax = "[-q] [-e] [-o] [-r] [-pPAGES] [INFILE [OUTFILE]]\n";
 
 typedef struct pgrange {
    int first, last;

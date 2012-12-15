@@ -6,6 +6,8 @@
  * See file LICENSE for details.
  */
 
+#include "config.h"
+
 #define _FILE_OFFSET_BITS 64
 
 #include "psutil.h"
@@ -37,6 +39,15 @@ static off_t endprocset = 0;
 static int outputpage = 0;
 static int maxpages = 100;
 static off_t *pageptr;
+
+_Noreturn void usage(void)
+{
+   fprintf(stderr, "%s %s\n", program, PACKAGE_VERSION);
+   fprintf(stderr, COPYRIGHT_STRING);
+   fprintf(stderr, "Usage: %s %s", program, syntax);
+   fflush(stderr);
+   exit(1);
+}
 
 /* Message function: for messages, warnings, and errors sent to stderr.
    If called with the flag MESSAGE_EXIT set, the routine does not return. */

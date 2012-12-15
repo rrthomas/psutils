@@ -14,15 +14,7 @@
 #include "psutil.h"
 #include "psspec.h"
 
-static void usage(void)
-{
-   fprintf(stderr, "%s %s\n", program, PACKAGE_VERSION);
-   fprintf(stderr, COPYRIGHT_STRING);
-   fprintf(stderr, "Usage: %s [-q] [-wWIDTH] [-hHEIGHT] [-pPAPER] [-WWIDTH] [-HHEIGHT] [-PPAPER] [INFILE [OUTFILE]]\n",
-	   program);
-   fflush(stderr);
-   exit(1);
-}
+const char *syntax = "[-q] [-wWIDTH] [-hHEIGHT] [-pPAPER] [-WWIDTH] [-HHEIGHT] [-PPAPER] [INFILE [OUTFILE]]\n";
 
 static void argerror(void)
 {
@@ -60,10 +52,10 @@ main(int argc, char *argv[])
        verbose = 0;
        break;
      case 'w':	/* page width */
-       width = singledimen(optarg, argerror, usage);
+       width = singledimen(optarg, argerror);
        break;
      case 'h':	/* page height */
-       height = singledimen(optarg, argerror, usage);
+       height = singledimen(optarg, argerror);
        break;
      case 'p':	/* paper type */
        if ( (paper = paperinfo(optarg)) != NULL ) {
@@ -73,10 +65,10 @@ main(int argc, char *argv[])
          message(FATAL, "paper size '%s' not recognised\n", optarg);
        break;
      case 'W':	/* input page width */
-       inwidth = singledimen(optarg, argerror, usage);
+       inwidth = singledimen(optarg, argerror);
        break;
      case 'H':	/* input page height */
-       inheight = singledimen(optarg, argerror, usage);
+       inheight = singledimen(optarg, argerror);
        break;
      case 'P':	/* input paper type */
        if ( (paper = paperinfo(optarg)) != NULL ) {

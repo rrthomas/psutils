@@ -15,23 +15,7 @@
 #include "psutil.h"
 #include "psspec.h"
 
-char *program ;
-int pages ;
-int verbose ;
-FILE *infile ;
-FILE *outfile ;
-char pagelabel[BUFSIZ] ;
-int pageno ;
-
-static void usage(void)
-{
-   fprintf(stderr, "%s %s\n", program, PACKAGE_VERSION);
-   fprintf(stderr, COPYRIGHT_STRING);
-   fprintf(stderr, "Usage: %s [-q] [-b] [-wWIDTH] [-hHEIGHT] [-dLWIDTH] [-pPAPER] PAGESPECS [INFILE [OUTFILE]]\n",
-	   program);
-   fflush(stderr);
-   exit(1);
-}
+const char *syntax = "[-q] [-b] [-wWIDTH] [-hHEIGHT] [-dLWIDTH] [-pPAPER] PAGESPECS [INFILE [OUTFILE]]\n";
 
 static void argerror(void)
 {
@@ -143,7 +127,7 @@ main(int argc, char *argv[])
        break;
      case 'd':	/* draw borders */
        if(optarg)
-         draw = singledimen(optarg, argerror, usage);
+         draw = singledimen(optarg, argerror);
        else
          draw = 1;
        break;
@@ -151,10 +135,10 @@ main(int argc, char *argv[])
        nobinding = 1;
        break;
      case 'w':	/* page width */
-       width = singledimen(optarg, argerror, usage);
+       width = singledimen(optarg, argerror);
        break;
      case 'h':	/* page height */
-       height = singledimen(optarg, argerror, usage);
+       height = singledimen(optarg, argerror);
        break;
      case 'p':	/* paper type */
        if ( (paper = paperinfo(optarg)) != NULL ) {
@@ -220,8 +204,7 @@ main(int argc, char *argv[])
      optind++;
    }
 
-   if (optind != argc) usage();
-   if (specs == NULL) usage();
+   if (optind != argc || specs == NULL) usage();
 
    if ((infile=seekable(infile))==NULL)
       message(FATAL, "can't seek input\n");

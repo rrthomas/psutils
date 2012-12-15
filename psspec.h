@@ -26,8 +26,7 @@ extern PageSpec *newspec(void);
 extern int parseint(char **sp, void (*errorfn)(void));
 extern double parsedouble(char **sp, void (*errorfn)(void));
 extern double parsedimen(char **sp, void (*errorfn)(void));
-extern double singledimen(char *str, void (*errorfn)(void),
-			  void (*usagefn)(void));
+extern double singledimen(char *str, void (*errorfn)(void));
 extern void pstops(int modulo, int pps, int nobind, PageSpec *specs,
 		   double draw);
 extern void pstops_write(int modulo, int pps, int nobind, PageSpec *specs,

@@ -21,6 +21,7 @@
 #define LOG		0
 
 /* Definitions for functions found in psutil.c */
+extern void usage(void);
 extern void message(int flags, const char *format, ...);
 extern void set_paper_size(const char *paper_name);
 const struct paper *get_paper(const char *paper_name);
@@ -49,6 +50,9 @@ extern FILE *outfile;
 extern char pagelabel[BUFSIZ];
 extern int pageno;
 
+/* Variables imported from the client program */
+extern const char *syntax;
+
 /* Useful macros */
 #define MIN(x,y) ((x) > (y) ? (y) : (x))
-#define COPYRIGHT_STRING "Copyright Reuben Thomas <rrt@sc3d.org> 2012\nCopyright (C) Angus J. C. Duggan, 1991-1997\nSee file LICENSE for details.\n"
+#define COPYRIGHT_STRING "(c) Reuben Thomas <rrt@sc3d.org> 2012\n(c) Angus J. C. Duggan 1991-1997\nSee file LICENSE for details.\n"
