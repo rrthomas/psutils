@@ -11,7 +11,7 @@
 
 /* Definitions for functions found in psutil.c */
 extern void set_paper_size(const char *paper_name);
-const struct paper *get_paper (const char *paper_name);
+const struct paper *get_paper(const char *paper_name);
 extern FILE *seekable(FILE *fp);
 extern void writepage(int p);
 extern void seekpage(int p);
@@ -26,7 +26,7 @@ extern void writesetup(void);
 extern void writetrailer(void);
 extern void writeemptypage(void);
 extern void scanpages(off_t *sizeheaders);
-extern void writestring(char *s);
+extern void writestring(const char *s);
 
 /* These variables are imported from the client program (e.g. psbook, psnup,
    etc.) */

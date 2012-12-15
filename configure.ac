@@ -28,7 +28,6 @@ if test "$gl_gcc_warnings" = yes; then
 
   # Set up the list of undesired warnings.
   nw=
-  nw="$nw -Wsystem-headers"   # Don’t let system headers trigger warnings
   nw="$nw -Wundef"            # All compiler preprocessors support #if UNDEF
   nw="$nw -Wtraditional"      # All compilers nowadays support ANSI C
   nw="$nw -Wstrict-overflow"  # Use a lower level (see below).
@@ -40,7 +39,10 @@ if test "$gl_gcc_warnings" = yes; then
   nw="$nw -Wc++-compat"       # Don't care.
   nw="$nw -Woverlength-strings" # Don't care.
   nw="$nw -Wmissing-format-attribute" # Don't care.
+  nw="$nw -Wshadow"           # Don't care.
   nw="$nw -Wunreachable-code" # Seems buggy.
+  nw="$nw -Wsystem-headers"   # glibc headers fail as of glibc 2.15, gcc 4.7
+  nw="$nw -Wall"
   nw="$nw -Wunused-macros"    # those macros might come in handy later
 
   gl_MANYWARN_ALL_GCC([warnings])

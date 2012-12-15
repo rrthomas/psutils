@@ -24,7 +24,7 @@ FILE *outfile ;
 char pagelabel[BUFSIZ] ;
 int pageno ;
 
-void usage(void)
+static void usage(void)
 {
    fprintf(stderr, "%s %s\n", program, PACKAGE_VERSION);
    fprintf(stderr, "Copyright (C) Angus J. C. Duggan, 1991-1995. See file LICENSE for details.\n");
@@ -177,13 +177,14 @@ main(int argc, char *argv[])
      case '8':
      case '9':
        if (specs == NULL) {
-         char *spec_txt = alloca((optarg ? strlen(optarg) : 0) + 3);
+         char *spec_txt = malloc((optarg ? strlen(optarg) : 0) + 3);
          if(!spec_txt) message(FATAL, "no memory for spec allocation\n");
          spec_txt[0] = '-';
          spec_txt[1] = opt;
          spec_txt[2] = 0;
          if (optarg) strcat(spec_txt, optarg);
          specs = parsespecs(spec_txt);
+         free(spec_txt);
        } else {
          usage();
        }

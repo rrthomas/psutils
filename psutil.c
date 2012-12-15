@@ -71,10 +71,12 @@ void set_paper_size(const char *paper_name)
 
 const struct paper *get_paper(const char *paper_name)
 {
-  const char *default_paper;
   maybe_init_libpaper();
-  default_paper = systempapername();
-  return paperinfo(default_paper);
+  if (paper_name == NULL)
+    paper_name = systempapername();
+  if (paper_name)
+    return paperinfo(paper_name);
+  return NULL;
 }
 
 /* Make a file seekable, using temporary files if necessary */
@@ -251,6 +253,8 @@ void seekpage(int p)
 	    case ')':
 	       paren--;
 	       break;
+            default:
+               break;
 	    }
       } else
 	 for (end = start; !isspace(*end); end++);
@@ -263,7 +267,7 @@ void seekpage(int p)
 
 /* Output routines. These all update the global variable bytes with the number
  * of bytes written */
-void writestring(char *s)
+void writestring(const char *s)
 {
    fputs(s, outfile);
    bytes += strlen(s);

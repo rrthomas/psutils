@@ -105,6 +105,8 @@ main(int argc, char *argv[])
       case 2:
 	 actualpg += (currentpg%signature)/2;
 	 break;
+      default: /* Avoid a compiler warning */
+         break;
       }
       if (actualpg < pages)
 	 writepage(actualpg);

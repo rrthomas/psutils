@@ -7,6 +7,8 @@ SUBDIRS = lib
 
 ACLOCAL_AMFLAGS = -I m4
 
+AM_CFLAGS = $(WERROR_CFLAGS) $(WARN_CFLAGS)
+
 noinst_LIBRARIES = libpsutils.a
 libpsutils_a_SOURCES = psutil.c psspec.c pserror.c
 libpsutils_a_LIBADD = $(LIBPAPER)

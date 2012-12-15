@@ -45,7 +45,7 @@ static void argerror(void)
 /* return next larger exact divisor of number, or 0 if none. There is probably
  * a much more efficient method of doing this, but the numbers involved are
  * small, so it's not a big loss. */
-static int nextdiv(int n, int m)
+_GL_ATTRIBUTE_CONST static int nextdiv(int n, int m)
 {
    while (++n <= m) {
       if (m%n == 0)

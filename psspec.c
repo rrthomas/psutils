@@ -92,7 +92,7 @@ double singledimen(char *str, void (*errorfn)(void), void (*usagefn)(void))
    return (num);
 }
 
-static char *prologue[] = { /* PStoPS procset */
+static const char *prologue[] = { /* PStoPS procset */
 #ifndef SHOWPAGE_LOAD
    /* Wrap these up with our own versions.  We have to  */
    "userdict begin",
@@ -148,7 +148,7 @@ void pstops_write(int modulo, int pps, int nobind, PageSpec *specs, double draw,
 {
    int thispg, maxpage;
    int pageindex = 0;
-   char **pro;
+   const char **pro;
 
    maxpage = ((pages+modulo-1)/modulo)*modulo;
 

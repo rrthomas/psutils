@@ -77,16 +77,16 @@ static PageRange *addrange(char *str, PageRange *rp)
       if (isdigit(*str)) {
 	 int last = sign*atoi(str);
 	 while (isdigit(*str)) str++;
-	 switch (*str) {
-	 case '\0':
+	 if (*str == '\0')
 	   return (makerange(first, last, rp));
-	 case ',':
+	 if (*str == ',')
 	   return (addrange(str+1, makerange(first, last, rp)));
-	 }
       } else if (*str == '\0')
 	 return (makerange(first, -1, rp));
       else if (*str == ',')
 	 return (addrange(str+1, makerange(first, -1, rp)));
+   default: /* Avoid a compiler warning */
+     break;
    }
    message(FATAL, "invalid page range\n");
    return (PageRange *)0 ;
