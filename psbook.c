@@ -11,7 +11,6 @@
 #include <unistd.h>
 
 #include "psutil.h"
-#include "pserror.h"
 
 static void usage(void)
 {

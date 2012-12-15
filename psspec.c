@@ -8,7 +8,6 @@
 
 #include "psutil.h"
 #include "psspec.h"
-#include "pserror.h"
 
 #include <string.h>
 

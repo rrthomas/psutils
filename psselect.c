@@ -8,9 +8,9 @@
 
 #include "config.h"
 
-#include "psutil.h"
-#include "pserror.h"
 #include <unistd.h>
+
+#include "psutil.h"
 
 static void usage(void)
 {

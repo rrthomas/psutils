@@ -19,7 +19,6 @@
 #include <ctype.h>
 #include <unistd.h>
 
-#include "pserror.h"
 #include "psutil.h"
 
 static void usage(void)

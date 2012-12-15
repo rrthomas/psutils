@@ -9,12 +9,10 @@
 #include "config.h"
 
 #include <unistd.h>
+#include <paper.h>
 
 #include "psutil.h"
 #include "psspec.h"
-#include "pserror.h"
-
-#include <paper.h>
 
 static void usage(void)
 {

@@ -10,12 +10,10 @@
 
 #include <unistd.h>
 #include <string.h>
+#include <paper.h>
 
 #include "psutil.h"
 #include "psspec.h"
-#include "pserror.h"
-
-#include <paper.h>
 
 char *program ;
 int pages ;

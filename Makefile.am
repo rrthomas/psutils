@@ -10,7 +10,7 @@ ACLOCAL_AMFLAGS = -I m4
 AM_CFLAGS = $(WERROR_CFLAGS) $(WARN_CFLAGS)
 
 noinst_LIBRARIES = libpsutils.a
-libpsutils_a_SOURCES = psutil.c psspec.c pserror.c
+libpsutils_a_SOURCES = psutil.c psspec.c
 libpsutils_a_LIBADD = $(LIBPAPER)
 LDADD = libpsutils.a
 
@@ -23,6 +23,6 @@ man_MANS = psutils.1 \
 	psmerge.1 psjoin.1 extractres.1 includeres.1
 
 EXTRA_DIST = m4/gnulib-cache.m4 \
-	psutil.h psspec.h pserror.h \
+	psutil.h psspec.h \
 	$(bin_SCRIPTS) \
 	$(man_MANS)
