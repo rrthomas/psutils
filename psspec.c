@@ -93,7 +93,6 @@ double singledimen(char *str, void (*errorfn)(void), void (*usagefn)(void))
 }
 
 static const char *prologue[] = { /* PStoPS procset */
-#ifndef SHOWPAGE_LOAD
    /* Wrap these up with our own versions.  We have to  */
    "userdict begin",
    "[/showpage/erasepage/copypage]{dup where{pop dup load",
@@ -101,14 +100,6 @@ static const char *prologue[] = { /* PStoPS procset */
    " load 1 array astore cvx {} bind /ifelse cvx 4 array"
    " astore cvx def}{pop}ifelse}{pop}ifelse}forall"
    " /PStoPSenablepage true def",
-#else
-   "userdict begin",
-   "[/showpage/copypage/erasepage]{dup 10 string cvs dup",
-   " length 6 add string dup 0 (PStoPS) putinterval dup",
-   " 6 4 -1 roll putinterval 2 copy cvn dup where",
-   " {pop pop pop}{exch load def}ifelse cvx cvn 1 array cvx",
-   " dup 0 4 -1 roll put def}forall",
-#endif
    "[/letter/legal/executivepage/a4/a4small/b5/com10envelope",	/* nullify */
    " /monarchenvelope/c5envelope/dlenvelope/lettersmall/note",	/* paper */
    " /folio/quarto/a5]{dup where{dup wcheck{exch{}put}",	/* operators */
@@ -154,11 +145,7 @@ void pstops_write(int modulo, int pps, int nobind, PageSpec *specs, double draw,
 
    /* rearrange pages: doesn't cope properly with loaded definitions */
    writeheadermedia((maxpage/modulo)*pps, ignorelist, width, height);
-#ifndef SHOWPAGE_LOAD
    writestring("%%BeginProcSet: PStoPS");
-#else
-   writestring("%%BeginProcSet: PStoPS-spload");
-#endif
    if (nobind)
       writestring("-nobind");
    writestring(" 1 15\n");
@@ -242,13 +229,8 @@ void pstops_write(int modulo, int pps, int nobind, PageSpec *specs, double draw,
 	       }
 	    }
 	 }
-	 if (add_next) {
-#ifndef SHOWPAGE_LOAD
+	 if (add_next)
 	    writestring("/PStoPSenablepage false def\n");
-#else
-	    writestring("/PStoPSshowpage{}store/PStoPScopypage{}store/PStoPSerasepage{}store\n");
-#endif
-	 }
 	 if (actualpg < pages) {
 	    writepagesetup();
 	    writestring("PStoPSxform concat\n");
