@@ -49,6 +49,11 @@ _Noreturn void usage(void)
    exit(1);
 }
 
+void argerror(void)
+{
+   message(FATAL, argerr_message);
+}
+
 /* Message function: for messages, warnings, and errors sent to stderr.
    If called with the flag MESSAGE_EXIT set, the routine does not return. */
 void message(int flags, const char *format, ...)

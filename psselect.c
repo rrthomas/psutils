@@ -14,6 +14,8 @@
 
 const char *syntax = "[-q] [-e] [-o] [-r] [-pPAGES] [INFILE [OUTFILE]]\n";
 
+const char *argerr_message = "";
+
 typedef struct pgrange {
    int first, last;
    struct pgrange *next;

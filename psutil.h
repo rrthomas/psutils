@@ -23,6 +23,7 @@
 /* Definitions for functions found in psutil.c */
 extern void usage(void);
 extern void message(int flags, const char *format, ...);
+extern void argerror(void);
 extern void set_paper_size(const char *paper_name);
 const struct paper *get_paper(const char *paper_name);
 extern FILE *seekable(FILE *fp);
@@ -52,6 +53,7 @@ extern int pageno;
 
 /* Variables imported from the client program */
 extern const char *syntax;
+extern const char *argerr_message;
 
 /* Useful macros */
 #define MIN(x,y) ((x) > (y) ? (y) : (x))

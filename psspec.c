@@ -30,33 +30,33 @@ PageSpec *newspec(void)
 }
 
 /* dimension parsing routines */
-int parseint(char **sp, void (*errorfn)(void))
+int parseint(char **sp)
 {
    char *s = *sp;
    int num = atoi(s);
 
    while (isdigit(*s))
       s++;
-   if (*sp == s) (*errorfn)() ;
+   if (*sp == s) argerror();
    *sp = s;
    return (num);
 }
 
-double parsedouble(char **sp, void (*errorfn)(void))
+double parsedouble(char **sp)
 {
    char *s = *sp;
    double num = atof(s);
 
    while (isdigit(*s) || *s == '-' || *s == '.')
       s++;
-   if (*sp == s) (*errorfn)() ;
+   if (*sp == s) argerror();
    *sp = s;
    return (num);
 }
 
-double parsedimen(char **sp, void (*errorfn)(void))
+double parsedimen(char **sp)
 {
-   double num = parsedouble(sp, errorfn);
+   double num = parsedouble(sp);
    char *s = *sp;
 
    if (strncmp(s, "pt", 2) == 0) {
@@ -85,9 +85,9 @@ double parsedimen(char **sp, void (*errorfn)(void))
    return (num);
 }
 
-double singledimen(char *str, void (*errorfn)(void))
+double singledimen(char *str)
 {
-   double num = parsedimen(&str, errorfn);
+   double num = parsedimen(&str);
    if (*str) usage();
    return (num);
 }

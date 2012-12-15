@@ -17,15 +17,10 @@
 
 const char *syntax = "[-q] [-b] [-wWIDTH] [-hHEIGHT] [-dLWIDTH] [-pPAPER] PAGESPECS [INFILE [OUTFILE]]\n";
 
-static void argerror(void)
-{
-   fprintf(stderr, "%s: page specification error:\n", program);
-   fprintf(stderr, "  pagespecs = [modulo:]spec\n");
-   fprintf(stderr, "  spec      = [-]pageno[@scale][L|R|U|H|V][(xoff,yoff)][,spec|+spec]\n");
-   fprintf(stderr, "                modulo >= 1, 0 <= pageno < modulo\n");
-   fflush(stderr);
-   exit(1);
-}
+const char *argerr_message = "%page specification error:\n"
+  "  pagespecs = [modulo:]spec\n"
+  "  spec      = [-]pageno[@scale][L|R|U|H|V][(xoff,yoff)][,spec|+spec]\n"
+  "                modulo >= 1, 0 <= pageno < modulo\n";
 
 static int modulo = 1;
 static int pagesperspec = 1;
@@ -39,7 +34,7 @@ static PageSpec *parsespecs(char *str)
    head = tail = newspec();
    while (*str) {
       if (isdigit(*str)) {
-	 num = parseint(&str, argerror);
+	 num = parseint(&str);
       } else {
 	 switch (*str++) {
 	 case ':':
@@ -51,7 +46,7 @@ static PageSpec *parsespecs(char *str)
 	    tail->reversed = !tail->reversed;
 	    break;
 	 case '@':
-            tail->scale *= parsedouble(&str, argerror);
+            tail->scale *= parsedouble(&str);
             tail->flags |= SCALE;
            break;
 	 case 'l': case 'L':
@@ -75,9 +70,9 @@ static PageSpec *parsespecs(char *str)
 	    tail->flags |= VFLIP;
 	    break;
 	 case '(':
-	    tail->xoff += parsedimen(&str, argerror);
+	    tail->xoff += parsedimen(&str);
 	    if (*str++ != ',') argerror();
-	    tail->yoff += parsedimen(&str, argerror);
+	    tail->yoff += parsedimen(&str);
 	    if (*str++ != ')') argerror();
 	    tail->flags |= OFFSET;
 	    break;
@@ -127,7 +122,7 @@ main(int argc, char *argv[])
        break;
      case 'd':	/* draw borders */
        if(optarg)
-         draw = singledimen(optarg, argerror);
+         draw = singledimen(optarg);
        else
          draw = 1;
        break;
@@ -135,10 +130,10 @@ main(int argc, char *argv[])
        nobinding = 1;
        break;
      case 'w':	/* page width */
-       width = singledimen(optarg, argerror);
+       width = singledimen(optarg);
        break;
      case 'h':	/* page height */
-       height = singledimen(optarg, argerror);
+       height = singledimen(optarg);
        break;
      case 'p':	/* paper type */
        if ( (paper = paperinfo(optarg)) != NULL ) {

@@ -17,10 +17,7 @@
 
 const char *syntax = "[-q] [-wWIDTH] [-hHEIGHT] [-pPAPER] [-WWIDTH] [-HHEIGHT] [-PPAPER] [-l] [-r] [-c] [-f] [-mMARGIN] [-bBORDER] [-dLWIDTH] [-sSCALE] [-NUP] [INFILE [OUTFILE]]\n";
 
-static void argerror(void)
-{
-   message(FATAL, "bad dimension\n");
-}
+const char *argerr_message = "bad dimension\n";
 
 /* return next larger exact divisor of number, or 0 if none. There is probably
  * a much more efficient method of doing this, but the numbers involved are
@@ -71,7 +68,7 @@ main(int argc, char *argv[])
        break;
      case 'd':	/* draw borders */
        if (optarg)
-         draw = singledimen(optarg, argerror);
+         draw = singledimen(optarg);
        else
          draw = 1;
        break;
@@ -90,22 +87,22 @@ main(int argc, char *argv[])
        column = !column;
        break;
      case 'w':	/* page width */
-       width = singledimen(optarg, argerror);
+       width = singledimen(optarg);
        break;
      case 'W':	/* input page width */
-       iwidth = singledimen(optarg, argerror);
+       iwidth = singledimen(optarg);
        break;
      case 'h':	/* page height */
-       height = singledimen(optarg, argerror);
+       height = singledimen(optarg);
        break;
      case 'H':	/* input page height */
-       iheight = singledimen(optarg, argerror);
+       iheight = singledimen(optarg);
        break;
      case 'm':	/* margins around whole page */
-       margin = singledimen(optarg, argerror);
+       margin = singledimen(optarg);
        break;
      case 'b':	/* border around individual pages */
-       border = singledimen(optarg, argerror);
+       border = singledimen(optarg);
        break;
      case 't':	/* layout tolerance */
        tolerance = atof(optarg);

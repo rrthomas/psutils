@@ -23,6 +23,8 @@
 
 const char *syntax = "[-c] [-r] [-a] [-m] [-s] LLX LLY URX URY [INFILE [OUTFILE]]\n";
 
+const char *argerr_message = "";
+
 int
 main(int argc, char **argv)
 {

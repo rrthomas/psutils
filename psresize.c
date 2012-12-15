@@ -16,10 +16,7 @@
 
 const char *syntax = "[-q] [-wWIDTH] [-hHEIGHT] [-pPAPER] [-WWIDTH] [-HHEIGHT] [-PPAPER] [INFILE [OUTFILE]]\n";
 
-static void argerror(void)
-{
-   message(FATAL, "bad dimension\n");
-}
+const char *argerr_message = "bad dimension\n";
 
 int
 main(int argc, char *argv[])
@@ -52,10 +49,10 @@ main(int argc, char *argv[])
        verbose = 0;
        break;
      case 'w':	/* page width */
-       width = singledimen(optarg, argerror);
+       width = singledimen(optarg);
        break;
      case 'h':	/* page height */
-       height = singledimen(optarg, argerror);
+       height = singledimen(optarg);
        break;
      case 'p':	/* paper type */
        if ( (paper = paperinfo(optarg)) != NULL ) {
@@ -65,10 +62,10 @@ main(int argc, char *argv[])
          message(FATAL, "paper size '%s' not recognised\n", optarg);
        break;
      case 'W':	/* input page width */
-       inwidth = singledimen(optarg, argerror);
+       inwidth = singledimen(optarg);
        break;
      case 'H':	/* input page height */
-       inheight = singledimen(optarg, argerror);
+       inheight = singledimen(optarg);
        break;
      case 'P':	/* input paper type */
        if ( (paper = paperinfo(optarg)) != NULL ) {

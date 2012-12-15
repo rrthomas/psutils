@@ -14,6 +14,8 @@
 
 const char *syntax = "[-q] [-sSIGNATURE] [INFILE [OUTFILE]]\n       SIGNATURE must be positive and divisible by 4\n";
 
+const char *argerr_message = "";
+
 int
 main(int argc, char *argv[])
 {
