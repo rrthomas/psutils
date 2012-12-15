@@ -21,13 +21,13 @@
 
 #define iscomment(x,y) (strncmp(x,y,strlen(y)) == 0)
 
-extern char *program ;
-extern int pages;
-extern int verbose;
-extern FILE *infile;
-extern FILE *outfile;
-extern char pagelabel[BUFSIZ];
-extern int pageno;
+char *program;
+int pages;
+int verbose;
+FILE *infile;
+FILE *outfile;
+char pagelabel[BUFSIZ];
+int pageno;
 
 static char buffer[BUFSIZ];
 static long bytes = 0;

@@ -28,8 +28,7 @@ extern void writeemptypage(void);
 extern void scanpages(off_t *sizeheaders);
 extern void writestring(const char *s);
 
-/* These variables are imported from the client program (e.g. psbook, psnup,
-   etc.) */
+/* These variables are exported to the client program */
 extern char *program ;
 extern int pages;
 extern int verbose;
@@ -40,4 +39,4 @@ extern int pageno;
 
 /* Useful macros */
 #define MIN(x,y) ((x) > (y) ? (y) : (x))
-#define COPYRIGHT_STRING "Copyright Reuben Thomas <rrt@sc3d.org> 2012\nCopyright (C) Angus J. C. Duggan, 1991-1995.\nSee file LICENSE for details.\n"
+#define COPYRIGHT_STRING "Copyright Reuben Thomas <rrt@sc3d.org> 2012\nCopyright (C) Angus J. C. Duggan, 1991-1997\nSee file LICENSE for details.\n"

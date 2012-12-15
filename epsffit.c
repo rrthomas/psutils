@@ -22,8 +22,6 @@
 #include "pserror.h"
 #include "psutil.h"
 
-char *program;
-
 static void usage(void)
 {
    fprintf(stderr, "%s %s\n", program, PACKAGE_VERSION);

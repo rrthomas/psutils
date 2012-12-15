@@ -13,14 +13,6 @@
 #include "psutil.h"
 #include "pserror.h"
 
-char *program ;
-int pages ;
-int verbose ;
-FILE *infile ;
-FILE *outfile ;
-char pagelabel[BUFSIZ] ;
-int pageno ;
-
 static void usage(void)
 {
    fprintf(stderr, "%s %s\n", program, PACKAGE_VERSION);
