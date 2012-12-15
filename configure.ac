@@ -69,12 +69,6 @@ AC_PROG_RANLIB
 AC_CHECK_LIB([paper], [paperinfo], [],
   [AC_MSG_FAILURE([cannot find libpaper library])])
 
-dnl Perl
-AX_WITH_PROG([PERL], [perl])
-if test -z "$PERL"; then
-  AC_MSG_FAILURE([cannot find perl])
-fi
-
 dnl Generate output files
 AC_CONFIG_MACRO_DIR(m4)
 AC_CONFIG_HEADER(config.h)
