@@ -3,33 +3,35 @@ PostScript Utilities
 Web site: https://github.com/rrthomas/psutils
 Maintainer: Reuben Thomas <rrt@sc3d.org>
 
-This archive contains some utilities for manipulating PostScript
-documents, originally written by Angus Duggan (up to version 1.17).
-Page selection and rearrangement are supported, including arrangement
-into signatures for booklet printing, and page merging for n-up
-printing.
+PSUtils is a suite of utilities for manipulating PostScript documents
+produced according to the Document Structuring Conventions (some older
+software may need to be configured to produce DSC-conformant
+PostScript; if PSUtils doesn't work, check your documentation). It is
+possible to select and rearrange pages, including arrangement into
+signatures for booklet printing, and page merging for n-up printing.
 
-ENVIRONMENT
-
-These utilities should work in any POSIX environment with libpaper.
+PSUtils should work in any POSIX environment with libpaper; psmerge
+needs Ghostscript.
 
 libpaper: http://packages.qa.debian.org/libp/libpaper.html
+Ghostscript: http://www.ghostscript.com/
+
 
 PROGRAMS
 
-psbook          rearranges pages into signatures
-psselect        selects pages and page ranges
-pstops          performs general page rearrangement and selection
-psnup           put multiple pages per physical sheet of paper
+psbook          rearrange pages into signatures
+psselect        select pages and page ranges
+pstops          perform general page rearrangement and selection
+psnup           put multiple pages on to one page
 psresize        alter document paper size
-epsffit         fits an EPSF file to a given bounding box
+epsffit         fit an EPSF file to a given bounding box
 extractres      filter to extract resources from PostScript files
 includeres      filter to include resources into PostScript files
-psmerge         hack script to merge multiple PostScript files
+psmerge         merge multiple PostScript files
 
-psselect in modeled after Chris Torek's dviselect program, and pstops is
-modeled after Tom Rokicki's dvidvi program. psbook is modeled on my own
-dvibook program, which borrows heavily from Chris Torek's dviselect.
+psselect in modeled on Chris Torek's dviselect, as is psbook, via my
+own dvibook; pstops is modeled on Tom Rokicki's dvidvi.
+
 
 INSTALLATION
 
@@ -37,26 +39,20 @@ INSTALLATION
 
 Run ./configure --help for options.
 
+
 BUGS
 
 The utilities don't check for PS-Adobe-?.? conformance; they assume documents
-conform. Utilities need an extra save/restore around whole document on a
-SPARCPrinter with NeWSPrint 1.0, because of bugs in the xnews server.
+conform.
 
-Bug fixes and suggestions to the bug tracker or maintainer (see the
-top of this file).
+Please send bug reports, patches and suggestions to the bug tracker or
+maintainer (see the top of this file).
 
-WINDOWS USERS
-
-*Please* make sure that you have selected "Generate DSC Comments" in your
-printer driver setup. These utilities need DSC comments to tell where page
-boundaries are.
-
-DVIPS USERS
-
-You must generate with DSC comments for PSUtils to work.
 
 ACKNOWLEDGEMENTS
+
+PSUtils was written by Angus Duggan, who maintained it up to release 1
+patchlevel 17.
 
 Bug fixes and suggestions for improvements to PSUtils have come from many
 people, including:
@@ -65,7 +61,7 @@ people, including:
         Brian Colfer            brianc@labmed.ucsf.edu
         Charles A. Finnell      finnell@org.mitre.lear
         Conrad Kimball          cek@com.boeing.sdc
-        J.W.Hawtin              
+        J. W. Hawtin
         Jochen Schwarze         schwarze@de.isa
         Ken Carpenter           khc@edu.ksu.eece
         Kristian Jorg           etxkrjg@se.ericsson.solsta
@@ -90,4 +86,4 @@ people, including:
 	Yves Arrouye		arrouye@marin.fdn.fr
 	Stanislav Brabec	utx@penguin.cz
 
-(Apologies to anyone who I have left out, it was not intentional.)
+(Apologies to anyone left out; it was not intentional.)
