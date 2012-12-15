@@ -5,11 +5,6 @@ Angus J. C. Duggan.
 
 LICENSE          Makefile         README
 epsffit.c        epsffit.man      extractres.man   extractres
-fixdlsrps.man    fixdlsrps        fixfmps.man      fixfmps
-fixmacps.man     fixmacps         fixpsditps.man   fixpsditps
-fixpspps.man     fixpspps         fixscribeps.man  fixscribeps
-fixtpps.man      fixtpps          fixwfwps.man     fixwfwps
-fixwpps.man      fixwpps          fixwwps.man      fixwwps
 getafm           getafm.man       includeres.man   includeres.pl
 maketext         psbook.c         psbook.man
 pserror.c        pserror.h        psmerge.man      psmerge
