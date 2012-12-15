@@ -25,15 +25,6 @@ psresize        alter document paper size
 epsffit         fits an EPSF file to a given bounding box
 getafm          outputs PostScript to retrieve AFM file from printer
 showchar        outputs PostScript to draw a character with metric info
-fixdlsrps       filter to fix DviLaser/PS output so that PSUtils works
-fixfmps         filter to fix framemaker documents so that psselect etc. work
-fixpsditps      filter to fix Transcript psdit documents to work with PSUtils
-fixpspps        filter to fix PSPrint PostScript so that psselect etc. work
-fixscribeps     filter to fix Scribe PostScript so that psselect etc. work
-fixtpps         filter to fix Troff Tpscript documents
-fixwfwps        filter to fix Word for Windows documents for PSUtils
-fixwpps         filter to fix WordPerfect documents for PSUtils
-fixwwps         filter to fix Windows Write documents for PSUtils
 extractres      filter to extract resources from PostScript files
 includeres      filter to include resources into PostScript files
 psmerge         hack script to merge multiple PostScript files
