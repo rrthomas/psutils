@@ -12,10 +12,11 @@
 #define VFLIP    (0x08)
 #define SCALE    (0x10)
 #define OFFSET   (0x20)
+#define REVERSED (0x40)
 #define GSAVE    (ROTATE|HFLIP|VFLIP|SCALE|OFFSET)
 
 typedef struct pagespec {
-   int reversed, pageno, flags, rotate, hflip, vflip;
+   int pageno, flags, rotate;
    double xoff, yoff, scale;
    struct pagespec *next;
 } PageSpec ;

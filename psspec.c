@@ -20,9 +20,7 @@ PageSpec *newspec(void)
    PageSpec *temp = (PageSpec *)malloc(sizeof(PageSpec));
    if (temp == NULL)
       message(FATAL, "out of memory\n");
-   temp->reversed = temp->pageno = temp->flags = temp->rotate = 0;
-   temp->hflip = 0;
-   temp->vflip = 0;
+   temp->pageno = temp->flags = temp->rotate = 0;
    temp->scale = 1;
    temp->xoff = temp->yoff = 0;
    temp->next = NULL;
@@ -169,7 +167,7 @@ void pstops_write(int modulo, int pps, int nobind, PageSpec *specs, double draw,
       for (ps = specs; ps != NULL; ps = ps->next) {
 	 int actualpg;
 	 int add_next = ((ps->flags & ADD_NEXT) != 0);
-	 if (ps->reversed)
+	 if (ps->flags & REVERSED)
 	    actualpg = maxpage-thispg-modulo+ps->pageno;
 	 else
 	    actualpg = thispg+ps->pageno;
@@ -181,7 +179,7 @@ void pstops_write(int modulo, int pps, int nobind, PageSpec *specs, double draw,
 	    char sep = '(';
 	    do {
 	       *eob++ = sep;
-	       if (np->reversed)
+	       if (np->flags & REVERSED)
 		  sprintf(eob, "%d", maxpage-thispg-modulo+np->pageno);
 	       else
 		  sprintf(eob, "%d", thispg+np->pageno);
@@ -203,11 +201,11 @@ void pstops_write(int modulo, int pps, int nobind, PageSpec *specs, double draw,
 	       sprintf(buffer, "%d rotate\n", ps->rotate);
 	       writestring(buffer);
 	    }
-	    if ((ps->flags & HFLIP) && (ps->hflip%2)) {
+	    if (ps->flags & HFLIP) {
 	       sprintf(buffer, "[ -1 0 0 1 %f 0 ] concat\n", width*ps->scale);
 	       writestring(buffer);
 	    }
-	    if ((ps->flags & VFLIP) && (ps->vflip%2)) {
+	    if (ps->flags & VFLIP) {
 	       sprintf(buffer, "[ 1 0 0 -1 0 %f ] concat\n", height*ps->scale);
 	       writestring(buffer);
 	    }

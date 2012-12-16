@@ -43,12 +43,12 @@ static PageSpec *parsespecs(char *str)
 	    num = -1;
 	    break;
 	 case '-':
-	    tail->reversed = !tail->reversed;
+	    tail->flags ^= REVERSED;
 	    break;
 	 case '@':
-            tail->scale *= parsedouble(&str);
-            tail->flags |= SCALE;
-           break;
+	    tail->scale *= parsedouble(&str);
+	    tail->flags |= SCALE;
+	    break;
 	 case 'l': case 'L':
 	    tail->rotate += 90;
 	    tail->flags |= ROTATE;
@@ -62,12 +62,10 @@ static PageSpec *parsespecs(char *str)
 	    tail->flags |= ROTATE;
 	    break;
 	 case 'h': case 'H':
-	    tail->hflip += 1;
-	    tail->flags |= HFLIP;
+	    tail->flags ^= HFLIP;
 	    break;
 	 case 'v': case 'V':
-	    tail->vflip += 1;
-	    tail->flags |= VFLIP;
+	    tail->flags ^= VFLIP;
 	    break;
 	 case '(':
 	    tail->xoff += parsedimen(&str);
