@@ -1,8 +1,9 @@
 /* psutil.h
- * Copyright (C) Angus J. C. Duggan 1991-1995
- * See file LICENSE for details.
+ * PSUtils utility functions
  *
- * utilities for PS programs
+ * (c) Reuben Thomas 2012
+ * (c) Angus J. C. Duggan 1991-1997
+ * See file LICENSE for details.
  */
 #define _FILE_OFFSET_BITS 64
 #include <stdio.h>

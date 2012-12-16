@@ -1,8 +1,9 @@
 /* psspec.h
- * Copyright (C) Angus J. C. Duggan 1991-1995
- * See file LICENSE for details.
+ * Page spec routines for page rearrangement
  *
- * routines for page rearrangement specs
+ * (c) Reuben Thomas 2012
+ * (c) Angus J. C. Duggan 1991-1997
+ * See file LICENSE for details.
  */
 
 /* pagespec flags */
