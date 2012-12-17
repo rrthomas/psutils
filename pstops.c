@@ -204,5 +204,5 @@ main(int argc, char *argv[])
 
    pstops(modulo, pagesperspec, nobinding, specs, draw);
 
-   exit(0);
+   return 0;
 }

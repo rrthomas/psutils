@@ -153,6 +153,6 @@ main(int argc, char *argv[])
       
    pstops_write(1, 1, 0, specs, 0.0, sizeheaders); /* do page rearrangement */
 
-   exit(0);
+   return 0;
 }
 

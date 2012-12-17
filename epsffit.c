@@ -165,5 +165,5 @@ main(int argc, char **argv)
    } else
       message(FATAL, "no %%%%BoundingBox:\n");
 
-   exit(0);
+   return 0;
 }

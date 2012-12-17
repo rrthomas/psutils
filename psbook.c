@@ -99,5 +99,5 @@ main(int argc, char *argv[])
    }
    writetrailer();
 
-   exit(0);
+   return 0;
 }

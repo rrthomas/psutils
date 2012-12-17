@@ -309,6 +309,6 @@ main(int argc, char *argv[])
       pstops_write(nup, 1, 0, specs, draw, sizeheaders); /* do page rearrangement */
    }
 
-   exit(0);
+   return 0;
 }
 
