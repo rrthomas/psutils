@@ -35,7 +35,7 @@ while (@ARGV && $ARGV[0] =~ /^-[a-z]/i) {
 	print STDERR "Option:\n";
 	print STDERR "  -a: align first page of each documents to odd page\n";
 	print STDERR "  -s: try to close unclosed save operators\n";
-	print STDERR "  -p: not strip prolog/trailer of the input files\n";
+	print STDERR "  -p: do not strip prolog/trailer of the input files\n";
 	print STDERR "  -h: display this\n";
 	exit 0;
     } else {
