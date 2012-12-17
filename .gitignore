@@ -18,6 +18,7 @@ psutils*.tar.gz
 /m4
 /stamp-h1
 /epsffit
+/includeres
 /psbook
 /psnup
 /psresize
