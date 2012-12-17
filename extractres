@@ -1,7 +1,8 @@
 #!/usr/bin/env perl
 # extractres: extract resources from PostScript file
 #
-# Copyright (C) Angus J. C. Duggan 1991-1995
+# (c) Reuben Thomas 2012
+# (c) Angus J. C. Duggan 1991-1997
 # See file LICENSE for details.
 
 use strict;

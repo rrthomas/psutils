@@ -1,7 +1,8 @@
 #!/usr/bin/env perl
 # psmerge: use Ghostscript to merge PostScript files produced by same application and setup
 #
-# Copyright (C) Angus J. C. Duggan 1991-1995
+# (c) Reuben Thomas 2012
+# (c) Angus J. C. Duggan 1991-1997
 # See file LICENSE for details.
 
 use strict;
