@@ -297,7 +297,7 @@ void writestring(const char *s)
 }
 
 /* write page comment */
-void writepageheader(char *label, int page)
+void writepageheader(const char *label, int page)
 {
    if (verbose)
       message(LOG, "[%d] ", page);

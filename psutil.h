@@ -30,7 +30,7 @@ const struct paper *get_paper(const char *paper_name);
 extern FILE *seekable(FILE *fp);
 extern void writepage(int p);
 extern void seekpage(int p);
-extern void writepageheader(char *label, int p);
+extern void writepageheader(const char *label, int p);
 extern void writepagesetup(void);
 extern void writepagebody(int p);
 extern void writeheader(int p, off_t *ignorelist);
