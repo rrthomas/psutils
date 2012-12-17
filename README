@@ -10,8 +10,7 @@ PostScript; if PSUtils doesn't work, check your documentation). It is
 possible to select and rearrange pages, including arrangement into
 signatures for booklet printing, and page merging for n-up printing.
 
-PSUtils should work in any POSIX environment with libpaper; psmerge
-needs Ghostscript.
+PSUtils should work in any POSIX environment with libpaper.
 
 libpaper: http://packages.qa.debian.org/libp/libpaper.html
 Ghostscript: http://www.ghostscript.com/
@@ -27,7 +26,7 @@ psresize        alter document paper size
 epsffit         fit an EPSF file to a given bounding box
 extractres      filter to extract resources from PostScript files
 includeres      filter to include resources into PostScript files
-psmerge         merge multiple PostScript files
+psjoin          concatenate multiple PostScript files
 
 psselect in modeled on Chris Torek's dviselect, as is psbook, via my
 own dvibook; pstops is modeled on Tom Rokicki's dvidvi.
