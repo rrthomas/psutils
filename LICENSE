@@ -1,17 +1,9 @@
                         PS Utilities Package
 
-The constituent files of this package listed below are copyright (C) 1991-1995
-Angus J. C. Duggan.
+PSUtils is copyright (C) 1991-1997 Angus J. C. Duggan, and (c) 2012
+Reuben Thomas <rrt@sc3d.org>
 
-LICENSE          Makefile         README           epsffit.c
-epsffit.man      extractres.man   extractres       includeres.man
-includeres.pl    maketext         psbook.c         psbook.man
-pserror.c        pserror.h        psmerge.man      psmerge
-psnup.c          psnup.man	  psresize.c       psresize.man
-psselect.c       psselect.man	  psspec.c         psspec.h
-pstops.c         pstops.man       psutil.c         psutil.h
-
-They may be copied and used for any purpose (including distribution as part of
+It may be copied and used for any purpose (including distribution as part of
 a for-profit product), provided:
 
 1) The original attribution of the programs is clearly displayed in the product
