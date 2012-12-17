@@ -1,5 +1,6 @@
 #!/usr/bin/env perl
 # extractres: extract resources from PostScript file
+# includeres: add resources to a PostScript file
 #
 # (c) Reuben Thomas 2012
 # (c) Angus J. C. Duggan 1991-1997
