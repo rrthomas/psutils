@@ -57,7 +57,6 @@ patchlevel 17.
 Bug fixes and suggestions for improvements to PSUtils have come from many
 people, including:
 
-        Reuben Thomas           rrt@sc3d.org
         Brian Colfer            brianc@labmed.ucsf.edu
         Charles A. Finnell      finnell@org.mitre.lear
         Conrad Kimball          cek@com.boeing.sdc
@@ -85,5 +84,6 @@ people, including:
 	Dale Scheetz		dwarf@polaris.net
 	Yves Arrouye		arrouye@marin.fdn.fr
 	Stanislav Brabec	utx@penguin.cz
+        Reuben Thomas           rrt@sc3d.org
 
 (Apologies to anyone left out; it was not intentional.)
