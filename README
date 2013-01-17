@@ -28,8 +28,8 @@ extractres      filter to extract resources from PostScript files
 includeres      filter to include resources into PostScript files
 psjoin          concatenate multiple PostScript files
 
-psselect in modeled on Chris Torek's dviselect, as is psbook, via my
-own dvibook; pstops is modeled on Tom Rokicki's dvidvi.
+psselect in modeled on Chris Torek's dviselect, as is psbook, via
+Angus Duggan's dvibook; pstops is modeled on Tom Rokicki's dvidvi.
 
 
 INSTALLATION
