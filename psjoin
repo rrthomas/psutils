@@ -4,48 +4,60 @@
 #
 # version 0.2, 2002-07-18
 # version 0.3, 2003-11-30
+# version 0.31, 2013-10-20
 #
-# by Tom Sato <VEF00200@nifty.ne.jp>, http://homepage3.nifty.com/tsato/
+# versions up to 0.3 by Tom Sato <VEF00200@nifty.ne.jp>, http://homepage3.nifty.com/tsato/
+# versions from 0.31 by Reuben Thomas <rrt@sc3d.org>
 
 use strict;
 use warnings;
+
+use Getopt::Long;
+
+my $version = 0.31;
+
+sub usage {
+    my ($exit_code) = @_;
+    print STDERR <<END;
+Usage: psjoin [OPTION...] FILENAME...
+Concatenate PostScript files
+
+  --even, -a    force each file to take an even number of pages
+  --save, -s    try to close unclosed save operators
+  --strip, -p   do not strip prolog or trailer from input files
+  --help, -h    print this help, then exit
+  --version,-V  print version information and exit
+END
+    exit $exit_code;
+}
 
 my $force_even = 0;
 my $force_save = 0;
 my $dont_strip = 0;
 my $save = "save %psjoin\n";
 my $restore = "restore %psjoin\n";
-while (@ARGV && $ARGV[0] =~ /^-[a-z]/i) {
-    if ($ARGV[0] eq "-a") {
-	$force_even = 1;
-	shift;
-    } elsif ($ARGV[0] eq "-s") {
-	$force_save = 1;
-	$save = "/#psjoin-save# save def %psjoin\n";
-	$restore = "#psjoin-save# restore %psjoin\n";
-	shift;
-    } elsif ($ARGV[0] eq "-p") {
-	$dont_strip = 1;
-	shift;
-    } elsif ($ARGV[0] eq "-h") {
-	print STDERR "psjoin - concatenate PostScript files (version 0.3)\n";
-	print STDERR "by Tom Sato <VEF00200\@nifty.ne.jp>,";
-	print STDERR " http://member.nifty.ne.jp/tsato/\n\n";
-	print STDERR "Usage: psjoin [ options... ] filenames...\n\n";
-	print STDERR "Option:\n";
-	print STDERR "  -a: align first page of each documents to odd page\n";
-	print STDERR "  -s: try to close unclosed save operators\n";
-	print STDERR "  -p: do not strip prolog/trailer of the input files\n";
-	print STDERR "  -h: display this\n";
-	exit 0;
-    } else {
-	print STDERR "$0: unknown option: $ARGV[0]\n";
-	print STDERR "(\"$0 -h\" for short description)\n";
-	exit 2;
-    }
-}
-shift if @ARGV && $ARGV[0] eq "--";
+my ($help_flag, $version_flag);
 
+GetOptions(
+  "even|a" => \$force_even,
+  "save|s" => \$force_save,
+  "strip|p" => \$dont_strip,
+  "help|h" => \$help_flag,
+  "version|V" => \$version_flag,
+ ) or usage(1);
+
+if ($help_flag) {
+    usage(0);
+} elsif ($version_flag) {
+    print "psjoin (version $version)\n";
+    print "(c) Tom Sato <VEF00200\@nifty.ne.jp> and Reuben Thomas <rrt\@sc3d.org>\n";
+    exit 0;
+}
+
+if ($force_save) {
+    $save = "/#psjoin-save# save def %psjoin\n";
+    $restore = "#psjoin-save# restore %psjoin\n";
+}
 my (@prolog, $prolog_inx, @trailer, @comments, @pages);
 if ($dont_strip) {
     $prolog_inx = 9999;
@@ -113,14 +125,15 @@ if ($dont_strip) {
     }
 }
 
-print "%!PS-Adobe-3.0\n";
-print "%%Title: @ARGV\n";
-print "%%Creator: psjoin 0.2\n";
-print "%%Pages: (atend)\n";
+print <<END;
+%!PS-Adobe-3.0
+%%Title: @ARGV
+%%Creator: psjoin $version
+%%Pages: (atend)
+END
 print $comments[$prolog_inx];
 
-print "\n";
-print $prolog[$prolog_inx];
+print "\n$prolog[$prolog_inx]";
 for (my $i = 0; $i <= $#ARGV; $i++) {
     $prolog[$i] =~ s/^%%/% %%/;
     $prolog[$i] =~ s/\n%%/\n% %%/g;
@@ -130,10 +143,9 @@ for (my $i = 0; $i <= $#ARGV; $i++) {
 
 my $total_pages = 0;
 for (my $i = 0; $i <= $#ARGV; $i++) {
-    print "\n";
-    print "% [ psjoin: file = $ARGV[$i] ]\n";
+    print "\n% [ psjoin: file = $ARGV[$i] ]\n";
     if ($prolog[$i] ne $prolog[$prolog_inx]) {
-        print "% [ psjoin: Prolog/Trailer will be inserted to every page ]\n";
+        print "% [ psjoin: Prolog/Trailer will be inserted in each page ]\n";
     } else {
         print "% [ psjoin: common Prolog/Trailer will be used ]\n";
     }
@@ -191,22 +203,18 @@ for (my $i = 0; $i <= $#ARGV; $i++) {
     if ($force_even && $pages % 2 != 0) {
 	$pages++;
 	$total_pages++;
-	print "\n";
-	print "%%Page: ($i-E) $total_pages\n";
-	print "% [ psjoin: empty page inserted to force even pages ]\n";
-	print "showpage\n";
+        print <<END;
+
+%%Page: ($i-E) $total_pages
+% [ psjoin: empty page inserted to force even pages ]
+showpage
+END
     }
 
-    if ($saved) {
-        print $trailer[$i];
-        print $restore;
-    } elsif ($force_save) {
-        print $restore;
-    }
+    print $trailer[$i] if $saved;
+    print $restore if $saved || $force_save;
 }
 
-print "\n";
-print "%%Trailer\n";
+print "\n%%Trailer\n";
 print $trailer[$prolog_inx];
-print "%%Pages: $total_pages\n";
-print "%%EOF\n";
+print "\n%%Pages: $total_pages\n%%EOF";
