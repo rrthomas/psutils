@@ -11,6 +11,7 @@ dnl Check for programs
 AC_PROG_CC
 gl_EARLY
 AC_PROG_LN_S
+AM_PROG_AR
 
 AC_USE_SYSTEM_EXTENSIONS
 AC_ARG_ENABLE([gcc-warnings],
