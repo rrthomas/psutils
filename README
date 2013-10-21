@@ -10,7 +10,8 @@ PostScript; if PSUtils doesn't work, check your documentation). It is
 possible to select and rearrange pages, including arrangement into
 signatures for booklet printing, and page merging for n-up printing.
 
-PSUtils should work in any POSIX environment with libpaper.
+PSUtils should work in any POSIX environment with libpaper (support on
+non-POSIX systems may be provided by gnulib).
 
 libpaper: http://packages.qa.debian.org/libp/libpaper.html
 Ghostscript: http://www.ghostscript.com/
