@@ -215,7 +215,6 @@ void pstops_write(int modulo, int pps, int nobind, PageSpec *specs, double draw,
 	    }
 	    writestring("userdict/PStoPSmatrix matrix currentmatrix put\n");
 	    if (width > 0 && height > 0) {
-	       char buffer[BUFSIZ];
 	       writestring("userdict/PStoPSclip{0 0 moveto\n");
 	       sprintf(buffer, " %f 0 rlineto 0 %f rlineto -%f 0 rlineto\n",
 		       width, height, width);
