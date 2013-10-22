@@ -23,6 +23,7 @@ man_MANS = psutils.1 \
 	psjoin.1 extractres.1 includeres.1
 
 EXTRA_DIST = m4/gnulib-cache.m4 \
+	LICENSE \
 	psutil.h psspec.h \
 	$(bin_SCRIPTS) \
 	$(man_MANS)
