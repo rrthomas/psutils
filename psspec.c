@@ -6,6 +6,8 @@
  * See file LICENSE for details.
  */
 
+#include "config.h"
+
 #include "psutil.h"
 #include "psspec.h"
 
