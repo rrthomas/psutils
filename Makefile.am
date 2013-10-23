@@ -31,7 +31,7 @@ EXTRA_DIST = m4/gnulib-cache.m4 \
 all: includeres
 
 includeres: extractres
-	$(RM) $@ && $(LN_S) extractres $@
+	$(RM) $@ && $(LN_S) $(srcdir)/extractres $@
 
 install-exec-hook:
 	cd $(DESTDIR)$(bindir); $(RM) includeres; $(LN_S) extractres includeres
