@@ -25,3 +25,4 @@ psutils*.tar.gz
 /psselect
 /pstops
 /libpsutils.a
+/TAGS
