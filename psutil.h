@@ -1,7 +1,7 @@
 /* psutil.h
  * PSUtils utility functions
  *
- * (c) Reuben Thomas 2012
+ * (c) Reuben Thomas 2012-2013
  * (c) Angus J. C. Duggan 1991-1997
  * See file LICENSE for details.
  */
@@ -25,8 +25,7 @@
 extern void usage(void);
 extern void message(int flags, const char *format, ...);
 extern void argerror(void);
-extern void set_paper_size(const char *paper_name);
-const struct paper *get_paper(const char *paper_name);
+extern int get_paper_size(const char *paper_name, double *width, double *height);
 extern FILE *seekable(FILE *fp);
 extern void writepage(int p);
 extern void seekpage(int p);

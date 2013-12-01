@@ -1,7 +1,7 @@
 /* psresize.c
  * Alter page size of document
  *
- * (c) Reuben Thomas 2012
+ * (c) Reuben Thomas 2012-2013
  * (c) Angus J. C. Duggan 1991-1997
  * See file LICENSE for details.
  */
@@ -9,7 +9,6 @@
 #include "config.h"
 
 #include <unistd.h>
-#include <paper.h>
 
 #include "psutil.h"
 #include "psspec.h"
@@ -32,7 +31,7 @@ main(int argc, char *argv[])
    int opt;
    const struct paper *paper = NULL;
 
-   set_paper_size(NULL);
+   get_paper_size(NULL, &width, &height);
 
    vshift = hshift = 0;
    rotate = 0;
@@ -55,10 +54,7 @@ main(int argc, char *argv[])
        height = singledimen(optarg);
        break;
      case 'p':	/* paper type */
-       if ( (paper = paperinfo(optarg)) != NULL ) {
-         width = paperpswidth(paper);
-         height = paperpsheight(paper);
-       } else
+       if (!get_paper_size(optarg, &width, &height))
          message(FATAL, "paper size '%s' not recognised\n", optarg);
        break;
      case 'W':	/* input page width */
@@ -68,10 +64,7 @@ main(int argc, char *argv[])
        inheight = singledimen(optarg);
        break;
      case 'P':	/* input paper type */
-       if ( (paper = paperinfo(optarg)) != NULL ) {
-         inwidth = paperpswidth(paper);
-         inheight = paperpsheight(paper);
-       } else
+       if (!get_paper_size(optarg, &width, &height))
          message(FATAL, "paper size '%s' not recognised\n", optarg);
        break;
      case 'v':	/* version */

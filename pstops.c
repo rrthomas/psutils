@@ -1,7 +1,7 @@
 /* pstops.c
  * Rearrange pages in conforming PS file
  *
- * (c) Reuben Thomas 2012
+ * (c) Reuben Thomas 2012-2013
  * (c) Angus J. C. Duggan 1991-1997
  * See file LICENSE for details.
  */
@@ -10,7 +10,6 @@
 
 #include <unistd.h>
 #include <string.h>
-#include <paper.h>
 
 #include "psutil.h"
 #include "psspec.h"
@@ -104,10 +103,9 @@ main(int argc, char *argv[])
    PageSpec *specs = NULL;
    int nobinding = 0;
    double draw = 0;
-   const struct paper *paper = NULL;
    int opt;
 
-   set_paper_size(NULL);
+   get_paper_size(NULL, &width, &height);
 
    verbose = 1;
 
@@ -134,10 +132,7 @@ main(int argc, char *argv[])
        height = singledimen(optarg);
        break;
      case 'p':	/* paper type */
-       if ( (paper = paperinfo(optarg)) != NULL ) {
-         width = paperpswidth(paper);
-         height = paperpsheight(paper);
-       } else
+       if (!get_paper_size(optarg, &width, &height))
          message(FATAL, "paper size '%s' not recognised\n", optarg);
        break;
      case 'v':	/* version */

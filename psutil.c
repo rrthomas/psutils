@@ -1,7 +1,7 @@
 /* psutil.c
  * PSUtils utility functions
  *
- * (c) Reuben Thomas 2012
+ * (c) Reuben Thomas 2012-2013
  * (c) Angus J. C. Duggan 1991-1997
  * See file LICENSE for details.
  */
@@ -83,23 +83,17 @@ static void maybe_init_libpaper(void)
   }
 }
 
-void set_paper_size(const char *paper_name)
+int get_paper_size(const char *paper_name, double *width, double *height)
 {
-  const struct paper *paper = get_paper(paper_name);
-  if (paper) {
-    width = paperpswidth(paper);
-    height = paperpsheight(paper);
-  }
-}
-
-const struct paper *get_paper(const char *paper_name)
-{
+  const struct paper *paper;
   maybe_init_libpaper();
   if (paper_name == NULL)
     paper_name = systempapername();
-  if (paper_name)
-    return paperinfo(paper_name);
-  return NULL;
+  if (!paper_name || !(paper = paperinfo(paper_name)))
+    return 0;
+  *width = paperpswidth(paper);
+  *height = paperpsheight(paper);
+  return 1;
 }
 
 /* Make a file seekable, using temporary files if necessary */

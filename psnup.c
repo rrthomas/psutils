@@ -1,7 +1,7 @@
 /* psnup.c
  * Put multiple pages on to one page
  *
- * (c) Reuben Thomas 2012
+ * (c) Reuben Thomas 2012-2013
  * (c) Angus J. C. Duggan 1991-1997
  * See file LICENSE for details.
  */
@@ -10,7 +10,6 @@
 
 #include <unistd.h>
 #include <string.h>
-#include <paper.h>
 
 #include "psutil.h"
 #include "psspec.h"
@@ -49,7 +48,7 @@ main(int argc, char *argv[])
    int opt;
    const struct paper *paper = NULL;
 
-   set_paper_size(NULL);
+   get_paper_size(NULL, &width, &height);
 
    margin = border = vshift = hshift = column = flip = 0;
    leftright = topbottom = 1;
@@ -111,17 +110,11 @@ main(int argc, char *argv[])
        uscale = atof(optarg);
        break;
      case 'p':	/* output (and by default input) paper type */
-       if ( (paper = paperinfo(optarg)) != NULL ) {
-         width = paperpswidth(paper);
-         height = paperpsheight(paper);
-       } else
+       if (get_paper_size(optarg, &width, &height))
          message(FATAL, "paper size '%s' not recognised\n", optarg);
        break;
      case 'P':	/* paper type */
-       if ( (paper = paperinfo(optarg)) != NULL ) {
-         iwidth = paperpswidth(paper);
-         iheight = paperpsheight(paper);
-       } else
+       if (!get_paper_size(optarg, &width, &height))
          message(FATAL, "paper size '%s' not recognised\n", optarg);
        break;
      case 'n':	/* n-up, for compatibility with other psnups */
