@@ -1,6 +1,6 @@
 dnl Process this file with autoconf to produce a configure script
 
-AC_INIT(psutils, 1.21, rrt@sc3d.org)
+AC_INIT(psutils, 1.22, rrt@sc3d.org)
 AC_CONFIG_AUX_DIR([build-aux])
 
 AM_INIT_AUTOMAKE([-Wall -Werror foreign])
@@ -43,7 +43,8 @@ if test "$gl_gcc_warnings" = yes; then
   nw="$nw -Wmissing-format-attribute" # Don't care.
   nw="$nw -Wshadow"           # Don't care.
   nw="$nw -Wunreachable-code" # Seems buggy.
-  nw="$nw -Wsystem-headers"   # glibc headers fail as of glibc 2.15, gcc 4.7
+  nw="$nw -Wsystem-headers"   # glibc headers fail as of glibc 2.17, gcc 4.8
+  nw="$nw -Wsuggest-attribute=format" # glibc headers fail as of glibc 2.17, gcc 4.8
   nw="$nw -Wall"
   nw="$nw -Wunused-macros"    # those macros might come in handy later
 
@@ -60,18 +61,27 @@ if test "$gl_gcc_warnings" = yes; then
   # Add some more safety measures
   gl_WARN_ADD([-D_FORTIFY_SOURCE=2])
   gl_WARN_ADD([-fmudflap])
+
+  # When compiling with GCC, prefer -isystem to -I when including system
+  # include files, to avoid generating useless diagnostics for the files.
+  ISYSTEM='-isystem '
+else
+  ISYSTEM='-I'
 fi
+AC_SUBST([ISYSTEM])
 
 gl_INIT
 
 dnl Check for header files
 AC_HEADER_STDC
-AC_CHECK_HEADER([paper.h], [], [AC_MSG_FAILURE([cannot find libpaper header])])
 
-dnl Check for libraries
-AC_PROG_RANLIB
-AC_CHECK_LIB([paper], [paperinfo], [],
-  [AC_MSG_FAILURE([cannot find libpaper library])])
+dnl Check for programs
+dnl Don't use AX_WITH_PROG, as we want by default to be relocatable,
+dnl hence not use a full path
+AC_ARG_VAR([PAPER], [Absolute path to paper executable])
+if test -z "$PAPER"; then
+  PAPER=paper
+fi
 
 dnl Generate output files
 AC_CONFIG_MACRO_DIR(m4)

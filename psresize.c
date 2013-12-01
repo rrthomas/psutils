@@ -29,9 +29,9 @@ main(int argc, char *argv[])
    off_t sizeheaders[20];			/* headers to remove */
    PageSpec *specs;
    int opt;
-   const struct paper *paper = NULL;
 
-   get_paper_size(NULL, &width, &height);
+   if (!paper_size(NULL, &width, &height))
+     message(FATAL, "could not get default paper size");
 
    vshift = hshift = 0;
    rotate = 0;
@@ -54,7 +54,7 @@ main(int argc, char *argv[])
        height = singledimen(optarg);
        break;
      case 'p':	/* paper type */
-       if (!get_paper_size(optarg, &width, &height))
+       if (!paper_size(optarg, &width, &height))
          message(FATAL, "paper size '%s' not recognised\n", optarg);
        break;
      case 'W':	/* input page width */
@@ -64,7 +64,7 @@ main(int argc, char *argv[])
        inheight = singledimen(optarg);
        break;
      case 'P':	/* input paper type */
-       if (!get_paper_size(optarg, &width, &height))
+       if (!paper_size(optarg, &width, &height))
          message(FATAL, "paper size '%s' not recognised\n", optarg);
        break;
      case 'v':	/* version */

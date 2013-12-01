@@ -8,11 +8,12 @@ SUBDIRS = lib
 ACLOCAL_AMFLAGS = -I m4
 
 AM_CFLAGS = $(WERROR_CFLAGS) $(WARN_CFLAGS)
+AM_CPPFLAGS = $(ISYSTEM)$(top_srcdir)/lib -DPAPER='"$(PAPER)"'
+LDADD = libpsutils.a $(top_builddir)/lib/libgnu.a
 
 noinst_LIBRARIES = libpsutils.a
 libpsutils_a_SOURCES = psutil.c psspec.c
 libpsutils_a_LIBADD = $(LIBPAPER)
-LDADD = libpsutils.a
 
 bin_PROGRAMS = psbook psselect pstops epsffit psnup psresize
 

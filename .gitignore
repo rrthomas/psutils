@@ -15,7 +15,6 @@ psutils*.tar.gz
 /configure
 /gnulib
 /lib
-/m4
 /stamp-h1
 /epsffit
 /includeres

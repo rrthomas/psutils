@@ -17,7 +17,8 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <stdio.h>
-#include <paper.h>
+
+#include "xvasprintf.h"
 
 #define iscomment(x,y) (strncmp(x,y,strlen(y)) == 0)
 
@@ -72,26 +73,39 @@ void message(int flags, const char *format, ...)
     exit(1) ;
 }
 
-static void maybe_init_libpaper(void)
+/* Read a line from a pipe and return it without any trailing newline. */
+static char *pgetline(const char *cmd)
 {
-  static int libpaper_initted = 0;
-  if (!libpaper_initted) {
-    paperinit();
-    libpaper_initted = 1;
+  char *l = NULL;
+  FILE *fp = popen(cmd, "r");
+  if (fp) {
+    size_t n, len;
+    len = getline(&l, &n, fp);
+    if (l && l[len - 1] == '\n')
+      l[len - 1] = '\0';
+    pclose(fp);
   }
+  return l;
 }
 
-int get_paper_size(const char *paper_name, double *width, double *height)
+/* Return the default paper name. */
+char *default_paper_name(void)
 {
-  const struct paper *paper;
-  maybe_init_libpaper();
+  return pgetline(PAPER);
+}
+
+/* Get the size of the given paper, or the default paper if paper_name == NULL. */
+int paper_size(const char *paper_name, double *width, double *height)
+{
+  char *cmd = NULL, *l = NULL;
+  int res = 0;
   if (paper_name == NULL)
-    paper_name = systempapername();
-  if (!paper_name || !(paper = paperinfo(paper_name)))
-    return 0;
-  *width = paperpswidth(paper);
-  *height = paperpsheight(paper);
-  return 1;
+    paper_name = default_paper_name();
+  if (paper_name && (cmd = xasprintf(PAPER " --unit=mm --size %s", paper_name)) && (l = pgetline(cmd)))
+    res = sscanf(l, "%lg %lg", width, height);
+  free(l);
+  free(cmd);
+  return res == 2;
 }
 
 /* Make a file seekable, using temporary files if necessary */

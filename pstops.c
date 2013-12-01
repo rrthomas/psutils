@@ -105,7 +105,8 @@ main(int argc, char *argv[])
    double draw = 0;
    int opt;
 
-   get_paper_size(NULL, &width, &height);
+   if (!paper_size(NULL, &width, &height))
+     message(FATAL, "could not get default paper size");
 
    verbose = 1;
 
@@ -132,7 +133,7 @@ main(int argc, char *argv[])
        height = singledimen(optarg);
        break;
      case 'p':	/* paper type */
-       if (!get_paper_size(optarg, &width, &height))
+       if (!paper_size(optarg, &width, &height))
          message(FATAL, "paper size '%s' not recognised\n", optarg);
        break;
      case 'v':	/* version */

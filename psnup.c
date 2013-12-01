@@ -46,16 +46,16 @@ main(int argc, char *argv[])
    double tolerance = 100000;			/* layout tolerance */
    off_t sizeheaders[20];			/* headers to remove */
    int opt;
-   const struct paper *paper = NULL;
 
-   get_paper_size(NULL, &width, &height);
+   verbose = 1;
+   program = *argv;
+
+   if (!paper_size(NULL, &width, &height))
+     message(FATAL, "could not get default paper size");
 
    margin = border = vshift = hshift = column = flip = 0;
    leftright = topbottom = 1;
    iwidth = iheight = -1 ;
-
-   verbose = 1;
-   program = *argv;
 
    while((opt =
           getopt(argc, argv,
@@ -110,11 +110,11 @@ main(int argc, char *argv[])
        uscale = atof(optarg);
        break;
      case 'p':	/* output (and by default input) paper type */
-       if (get_paper_size(optarg, &width, &height))
+       if (!paper_size(optarg, &width, &height))
          message(FATAL, "paper size '%s' not recognised\n", optarg);
        break;
      case 'P':	/* paper type */
-       if (!get_paper_size(optarg, &width, &height))
+       if (!paper_size(optarg, &width, &height))
          message(FATAL, "paper size '%s' not recognised\n", optarg);
        break;
      case 'n':	/* n-up, for compatibility with other psnups */
