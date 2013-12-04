@@ -42,11 +42,8 @@ static off_t *pageptr;
 
 _Noreturn void usage(void)
 {
-   fprintf(stderr, "%s %s\n", program, PACKAGE_VERSION);
-   fprintf(stderr, COPYRIGHT_STRING);
-   fprintf(stderr, "Usage: %s %s", program, syntax);
-   fflush(stderr);
-   exit(1);
+  fprintf(stderr, "%s %s\n%sUsage: %s %s", program, PACKAGE_VERSION, COPYRIGHT_STRING, program, syntax);
+  exit(1);
 }
 
 void argerror(void)
