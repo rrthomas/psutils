@@ -57,15 +57,16 @@ void message(int flags, const char *format, ...)
 {
   va_list args ;
 
-  if ( flags & MESSAGE_PROGRAM )
-    fprintf(stderr, "%s: ", program) ;
-
   if ( (flags & MESSAGE_NL) )
     putc('\n', stderr) ;
+
+  if ( flags & MESSAGE_PROGRAM )
+    fprintf(stderr, "%s: ", program) ;
 
   va_start(args, format) ;
   vfprintf(stderr, format, args);
   va_end(args) ;
+  putc('\n', stderr) ;
 
   if ( flags & MESSAGE_EXIT )	/* don't return to program */
     exit(1) ;
