@@ -2,10 +2,7 @@ dnl Process this file with autoconf to produce a configure script
 
 AC_INIT(psutils, 1.22, rrt@sc3d.org)
 AC_CONFIG_AUX_DIR([build-aux])
-
 AM_INIT_AUTOMAKE([-Wall -Werror foreign])
-
-m4_ifdef([AM_SILENT_RULES], [AM_SILENT_RULES([yes])])
 
 dnl Check for programs
 AC_PROG_CC
@@ -35,7 +32,6 @@ if test "$gl_gcc_warnings" = yes; then
   nw="$nw -Wstrict-overflow"  # Use a lower level (see below).
   nw="$nw -Wconversion"       # These warnings usually don’t point to mistakes.
   nw="$nw -Wsign-conversion"  # Likewise.
-  nw="$nw -Waggregate-return" # We do this on purpose.
   nw="$nw -Wtraditional-conversion" # Don't care.
   nw="$nw -Wpadded"           # Don't care.
   nw="$nw -Wc++-compat"       # Don't care.
