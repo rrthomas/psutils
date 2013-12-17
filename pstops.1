@@ -3,25 +3,15 @@
 pstops \- shuffle pages in a PostScript file
 .SH SYNOPSIS
 .B pstops
-[
-.B \-q
-] [
-.B \-b
-] [
-.B \-w\fIwidth\fR
-] [
-.B \-h\fIheight\fR
-] [
-.B \-p\fIpaper\fR
-] [
-.B \-d\fIlwidth\fR
-]
+.RB [ \-q ]
+.RB [ \-b ]
+.RB [ \-w\fIwidth\fR ]
+.RB [ \-h\fIheight\fR ]
+.RB [ \-p\fIpaper\fR ]
+.RB [ \-d [ \fIlwidth\fR ]]
 .I pagespecs
-[
-.I infile
-[
-.I outfile
-] ]
+.RI [ infile
+.RI [ outfile ]]
 .SH DESCRIPTION
 .I Pstops
 rearranges pages from a PostScript document, creating a new PostScript file.
@@ -37,13 +27,16 @@ follow the syntax:
 .RS
 .TP 12
 .I pagespecs
-.I = [modulo:]specs
+.I =
+.RI [ modulo\fB:\fP ] specs
 .TP
 .I specs
-.I = spec[+specs][,specs]
+.I =
+.IR spec [ \fB+\fPspecs | \fB,\fPspecs ]
 .TP
 .I spec
-.I = [-]pageno[L][R][U][H][V][@scale][(xoff,yoff)]
+.I =
+.RB [ - ] \fIpageno\fP [ L | R | U ][ H | V ][ @\fIscale\fP ][ ( \fIxoff\fP , \fIyoff\fP ) ]
 .RE
 .sp
 .I modulo
@@ -74,7 +67,13 @@ to convert to centimetres or inches, or the flag
 or
 .B "h"
 to specify as a multiple of the width or height.
-The optional parameters \fIL\fR, \fIR\fR, \fIU\fR, \fIH\fR and \fIV\fR
+The optional parameters
+.BR L ,
+.BR R ,
+.BR R ,
+.BR R ,
+and
+.B V
 rotate the page left, right, or upside-down, and flip (mirror) page
 horizontally or vertically.
 The optional
@@ -83,8 +82,10 @@ parameter scales the page by the fraction specified.
 If the optional minus sign is specified, the page is relative to the end of
 the document, instead of the start.
 
-If page \fIspec\fRs are separated by
-.B \+
+If page
+.IR spec s
+are separated by
+.B +
 the pages will be merged into one page; if they are separated by
 .B ,
 they will be on separate pages.
@@ -102,36 +103,36 @@ at the lower left corner, then rotate about the same origin, and
 finally shift.
 .PP
 The
-.I \-w
+.B \-w
 option gives the width which is used by the
 .B "w"
 dimension specifier, and the
-.I \-h
+.B \-h
 option gives the height which is used by the
 .B "h"
 dimension specifier. These dimensions are also used (after scaling) to set the
 clipping path for each page.
 The
-.I \-p
+.B \-p
 option can be used as an alternative, to set the paper size. See
 .BR paper (1).
 .PP
 The
-.I \-b
+.B \-b
 option prevents any
 .B bind
 operators in the PostScript prolog from binding. This may be needed in cases
 where complex multi-page re-arrangements are being done.
 .PP
 The
-.I \-d
+.D \-d
 option draws a line around the border of each page, of the specified width.
 If the \fIlwidth\fR parameter is omitted, a default linewidth of 1 point is
 assumed. The linewidth is relative to the original page dimensions,
-\fIi.e.\fR it is scaled up or down with the rest of the page.
+i.e., it is scaled up or down with the rest of the page.
 .PP
 Pstops normally prints the page numbers of the pages re-arranged; the
-.I \-q
+.B \-q
 option suppresses this.
 .SH EXAMPLES
 This section contains some sample re-arrangements. To put two pages on one
@@ -159,10 +160,10 @@ for the reverse sides (or join them with a comma for duplex printing).
 .SH AUTHOR
 Written by Angus J. C. Duggan.
 .SH "SEE ALSO"
-psutils(1)
+.BR psutils (1)
 .SH TRADEMARKS
 .B PostScript
 is a trademark of Adobe Systems Incorporated.
 .SH BUGS
-.I Pstops
+.B Pstops
 does not accept all DSC comments.

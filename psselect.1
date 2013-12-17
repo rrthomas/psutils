@@ -3,68 +3,63 @@
 psselect \- select pages from a PostScript file
 .SH SYNOPSIS
 .B psselect
-[
-.B \-q
-] [
-.B \-e
-] [
-.B \-o
-] [
-.B \-r
-] [
-.B \-p\fIpages\fR
-] [
-.I pages
-] [
-.I infile
-[
-.I outfile
-] ]
+.RB [ \-q ]
+.RB [ \-e | \-o ]
+.RB [ \-r ]
+.RB [[ \-p ] \fIpages\fR ]
+.RI [ infile
+.RI [ outfile ]]
 .SH DESCRIPTION
-.I Psselect
+.B Psselect
 selects pages from a PostScript document, creating a new PostScript file. The
 input PostScript file should follow the Adobe Document Structuring
 Conventions.
 .PP
 The 
-.I \-e
+.B \-e
 option selects all of the even pages; it may be used in conjunction with the
 other page selection options to select the even pages from a range of pages.
 .PP
 The 
-.I \-o
+.B \-o
 option selects all of the odd pages; it may be used in conjunction with the
 other page selection options.
 .PP
 The 
-.I \-p\fIpages\fR
+.BI \-p pages
 option specifies the pages which are to be selected.
 .I Pages
 is a comma separated list of page ranges, each of which may be a page number,
-or a page range of the form \fIfirst\fR-\fIlast\fR. If \fIfirst\fR is omitted,
-the
-first page is assumed, and if \fIlast\fR is omitted, the last page is assumed.
+or a page range of the form
+.IB first \- last .
+If
+.I first
+is omitted, the first page is assumed, and if
+.I last
+is omitted, the last page is assumed.
 
 The prefix character `_' indicates that the page number is relative to the end
 of the document, counting backwards. If just this character with no page
 number is used, a blank page will be inserted.
 .PP
 The 
-.I \-r
+.B \-r
 option causes
-.I psselect
+.B psselect
 to output the selected pages in reverse order.
 .PP
-Psselect normally prints the page numbers of the pages rearranged; the
-.I \-q
+.B Psselect
+normally prints the page numbers of the pages rearranged; the
+.B \-q
 option suppresses this.
 .PP
 If any of the
-.I \-r, \-e,
+.BR \-r ,
+.BR \-e ,
 or
-.I \-o
+.B \-o
 options are specified, the page range must be given with the
-.I \-p
+.B \-p
 option. This is for backwards compatibility with previous versions.
 
 .SH NOTES
@@ -75,7 +70,7 @@ at one. The actual page number in the document may be different.
 .SH AUTHOR
 Written by Angus J. C. Duggan.
 .SH "SEE ALSO"
-psutils(1)
+.BR psutils (1)
 .SH TRADEMARKS
 .B PostScript
 is a trademark of Adobe Systems Incorporated.

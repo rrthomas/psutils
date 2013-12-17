@@ -3,35 +3,25 @@
 psresize \- rescales and centers a document for new output paper size
 .SH SYNOPSIS
 .B psresize
-[
-.B \-w\fIwidth\fR
-] [
-.B \-h\fIheight\fR
-] [
-.B \-p\fIpaper\fR
-] [
-.B \-W\fIwidth\fR
-] [
-.B \-H\fIheight\fR
-] [
-.B \-P\fIpaper\fR
-] [
-.B \-q
-] [
-.I infile
-[
-.I outfile
-] ]
+.RB [ \-w\fIwidth\fR ]
+.RB [ \-h\fIheight\fR ]
+.RB [ \-p\fIpaper\fR ]
+.RB [ \-W\fIwidth\fR ]
+.RB [ \-H\fIheight\fR ]
+.RB [  \-P\fIpaper\fR ]
+.RB [ \-q ]
+.RI [ infile
+.RI [ outfile ]]
 .SH DESCRIPTION
-.I Psresize
+.B Psresize
 rescales and centres a document on a different size of paper.
 The input PostScript file should follow the Adobe Document Structuring
 Conventions.
 .PP
 The
-.I \-w
+.B \-w
 option gives the output paper width, and the
-.I \-h
+.B \-h
 option gives the output paper height, normally specified in
 .B "cm"
 or
@@ -40,25 +30,25 @@ to convert
 PostScript's points (1/72 of an inch)
 to centimeters or inches.
 The 
-.I \-p
+.B \-p
 option can be used instead, to set the paper size; otherwise a default value is used.
 See
 .BR paper (1).
 .PP
 The
-.I \-W
+.B \-W
 option gives the input paper width, and the
-.I \-H
+.B \-H
 option gives the input paper height.
 The 
-.I \-P
+.B \-P
 option can be used instead, to set the paper size; otherwise a default value is used.
 See
 .BR paper (1).
 .PP
-.I Psresize
+.B Psresize
 normally prints the page numbers of the pages output; the
-.I \-q
+.B \-q
 option suppresses this.
 .SH EXAMPLES
 The following command can be used to convert a document on A4 size paper to
@@ -69,10 +59,10 @@ psresize -PA4 -pletter in.ps out.ps
 .SH AUTHOR
 Written by Angus J. C. Duggan.
 .SH "SEE ALSO"
-psutils(1)
+.Br psutils (1)
 .SH TRADEMARKS
 .B PostScript
 is a trademark of Adobe Systems Incorporated.
 .SH BUGS
-.I Psresize
+.B Psresize
 does not accept all DSC comments.
