@@ -8,7 +8,7 @@ SUBDIRS = lib
 ACLOCAL_AMFLAGS = -I m4
 
 AM_CFLAGS = $(WERROR_CFLAGS) $(WARN_CFLAGS)
-AM_CPPFLAGS = $(ISYSTEM)$(top_srcdir)/lib -DPAPER='"$(PAPER)"'
+AM_CPPFLAGS = $(ISYSTEM)$(top_builddir)/lib $(ISYSTEM)$(top_srcdir)/lib -DPAPER='"$(PAPER)"'
 LDADD = libpsutils.a $(top_builddir)/lib/libgnu.a
 
 noinst_LIBRARIES = libpsutils.a
