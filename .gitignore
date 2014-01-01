@@ -23,5 +23,6 @@ psutils*.tar.gz
 /psresize
 /psselect
 /pstops
+/*.exe
 /libpsutils.a
 /TAGS
