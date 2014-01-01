@@ -19,6 +19,7 @@
 #include <stdio.h>
 
 #include "xvasprintf.h"
+#include "verror.h"
 
 #define iscomment(x,y) (strncmp(x,y,strlen(y)) == 0)
 
@@ -49,26 +50,20 @@ _Noreturn void usage(void)
 
 void argerror(void)
 {
-   message(argerr_message);
+   die(argerr_message);
 }
 
 /* Message function: for messages, warnings, and errors sent to stderr.
    The routine does not return. */
-void message(const char *format, ...)
+void die(const char *format, ...)
 {
-  va_list args ;
+  va_list args;
 
   if (verbose) /* We may be in the middle of a line */
     putc('\n', stderr);
 
-  fprintf(stderr, "%s: ", program) ;
-
-  va_start(args, format) ;
-  vfprintf(stderr, format, args);
-  va_end(args) ;
-  putc('\n', stderr) ;
-
-  exit(1) ;
+  va_start(args, format);
+  verror(1, 0, format, args); /* Does not return */
 }
 
 /* Read a line from a pipe and return it without any trailing newline. */
@@ -190,7 +185,7 @@ void scanpages(off_t *sizeheaders)
      *sizeheaders = 0;
 
    if ((pageptr = (off_t *)malloc(sizeof(off_t)*maxpages)) == NULL)
-      message("out of memory");
+      die("out of memory");
    pages = 0;
    fseeko(infile, (off_t) 0, SEEK_SET);
    while (record = ftello(infile), fgets(buffer, BUFSIZ, infile) != NULL)
@@ -201,7 +196,7 @@ void scanpages(off_t *sizeheaders)
 		  maxpages *= 2;
 		  if ((pageptr = (off_t *)realloc((char *)pageptr,
 					     sizeof(off_t)*maxpages)) == NULL)
-		     message("out of memory");
+		     die("out of memory");
 	       }
 	       pageptr[pages++] = record;
 	    } else if (headerpos == 0 && iscomment(comment, "BoundingBox:")) {
@@ -273,7 +268,7 @@ void seekpage(int p)
 	 for (end = start+1; paren > 0; end++)
 	    switch (*end) {
 	    case '\0':
-	       message("Bad page label while seeking page %d", p);
+	       die("Bad page label while seeking page %d", p);
 	    case '(':
 	       paren++;
 	       break;
@@ -289,7 +284,7 @@ void seekpage(int p)
       pagelabel[end-start] = '\0';
       pageno = atoi(end);
    } else
-      message("I/O error seeking page %d", p);
+      die("I/O error seeking page %d", p);
 }
 
 /* Output routines. These all update the global variable bytes with the number
@@ -316,11 +311,11 @@ void writepagesetup(void)
    if (beginprocset) {
       for (;;) {
 	 if (fgets(buffer, BUFSIZ, infile) == NULL)
-	    message("I/O error reading page setup %d", outputpage);
+	    die("I/O error reading page setup %d", outputpage);
 	 if (!strncmp(buffer, "PStoPSxform", 11))
 	    break;
 	 if (fputs(buffer, outfile) == EOF)
-	    message("I/O error writing page setup %d", outputpage);
+	    die("I/O error writing page setup %d", outputpage);
 	 bytes += strlen(buffer);
       }
    }
@@ -330,7 +325,7 @@ void writepagesetup(void)
 void writepagebody(int p)
 {
    if (!fcopy(pageptr[p+1], NULL))
-      message("I/O error writing page %d", outputpage);
+      die("I/O error writing page %d", outputpage);
 }
 
 /* write a whole page */
@@ -352,7 +347,7 @@ void writeheadermedia(int p, off_t *ignore, double width, double height)
     fseeko(infile, (off_t) 0, SEEK_SET);
    if (pagescmt) {
       if (!fcopy(pagescmt, ignore) || fgets(buffer, BUFSIZ, infile) == NULL)
-	 message("I/O error in header");
+	 die("I/O error in header");
       if (width > -1 && height > -1) {
          sprintf(buffer, "%%%%DocumentMedia: plain %d %d 0 () ()\n", (int) width, (int) height);
          writestring(buffer);
@@ -363,14 +358,14 @@ void writeheadermedia(int p, off_t *ignore, double width, double height)
       writestring(buffer);
    }
    if (!fcopy(headerpos, ignore))
-      message("I/O error in header");
+      die("I/O error in header");
 }
 
 /* write prologue to end of setup section excluding PStoPS procset */
 int writepartprolog(void)
 {
    if (beginprocset && !fcopy(beginprocset, NULL))
-      message("I/O error in prologue");
+      die("I/O error in prologue");
    if (endprocset)
       fseeko(infile, endprocset, SEEK_SET);
    writeprolog();
@@ -381,14 +376,14 @@ int writepartprolog(void)
 void writeprolog(void)
 {
    if (!fcopy(endsetup, NULL))
-      message("I/O error in prologue");
+      die("I/O error in prologue");
 }
 
 /* write from end of setup to start of pages */
 void writesetup(void)
 {
    if (!fcopy(pageptr[0], NULL))
-      message("I/O error in prologue");
+      die("I/O error in prologue");
 }
 
 /* write trailer */

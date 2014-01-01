@@ -9,6 +9,7 @@
 #include "config.h"
 
 #include <unistd.h>
+#include "progname.h"
 
 #include "psutil.h"
 #include "psspec.h"
@@ -30,15 +31,15 @@ main(int argc, char *argv[])
    PageSpec *specs;
    int opt;
 
+   set_program_name (argv[0]);
+
    if (!paper_size(NULL, &width, &height))
-     message("could not get default paper size");
+     die("could not get default paper size");
 
    vshift = hshift = 0;
    rotate = 0;
 
    verbose = 1;
-
-   program = *argv;
 
    while((opt = getopt(argc, argv,
                        "qw:h:p:W:H:P:")) != EOF) {
@@ -55,7 +56,7 @@ main(int argc, char *argv[])
        break;
      case 'p':	/* paper type */
        if (!paper_size(optarg, &width, &height))
-         message("paper size '%s' not recognised", optarg);
+         die("paper size '%s' not recognised", optarg);
        break;
      case 'W':	/* input page width */
        inwidth = singledimen(optarg);
@@ -65,7 +66,7 @@ main(int argc, char *argv[])
        break;
      case 'P':	/* input paper type */
        if (!paper_size(optarg, &width, &height))
-         message("paper size '%s' not recognised", optarg);
+         die("paper size '%s' not recognised", optarg);
        break;
      case 'v':	/* version */
      default:
@@ -82,29 +83,29 @@ main(int argc, char *argv[])
    if (optind != argc) {
      /* User specified an input file */
      if ((infile = fopen(argv[optind], "rb")) == NULL)
-       message("can't open input file %s", argv[optind]);
+       die("can't open input file %s", argv[optind]);
      optind++;
    }
 
    if (optind != argc) {
      /* User specified an output file */
      if ((outfile = fopen(argv[optind], "wb")) == NULL)
-       message("can't open output file %s", argv[optind]);
+       die("can't open output file %s", argv[optind]);
      optind++;
    }
 
    if (optind != argc) usage();
 
    if ((infile=seekable(infile))==NULL)
-      message("can't seek input");
+      die("can't seek input");
 
    if (width <= 0 || height <= 0)
-      message("output page width and height must be set");
+      die("output page width and height must be set");
 
    scanpages(sizeheaders);
 
    if (inwidth <= 0 || inheight <= 0)
-      message("input page width and height must be set");
+      die("input page width and height must be set");
 
    /* try normal orientation first */
    scale = MIN(width/inwidth, height/inheight);

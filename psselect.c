@@ -9,6 +9,7 @@
 #include "config.h"
 
 #include <unistd.h>
+#include "progname.h"
 
 #include "psutil.h"
 
@@ -25,7 +26,7 @@ static PageRange *makerange(int beg, int end, PageRange *next)
 {
    PageRange *new;
    if ((new = (PageRange *)malloc(sizeof(PageRange))) == NULL)
-      message("out of memory");
+      die("out of memory");
    new->first = beg;
    new->last = end;
    new->next = next;
@@ -74,7 +75,7 @@ static PageRange *addrange(char *str, PageRange *rp)
    default: /* Avoid a compiler warning */
      break;
    }
-   message("invalid page range");
+   die("invalid page range");
    return (PageRange *)0 ;
 }
 
@@ -88,8 +89,9 @@ main(int argc, char *argv[])
    int pass, all;
    PageRange *pagerange = NULL;
 
+   set_program_name (argv[0]);
+
    verbose = 1;
-   program = *argv;
 
    while((opt = getopt(argc, argv, "eorqvp:")) != EOF) {
      switch(opt) {
@@ -130,21 +132,21 @@ main(int argc, char *argv[])
    if (optind != argc) {
      /* User specified an input file */
      if ((infile = fopen(argv[optind], "rb")) == NULL)
-       message("can't open input file %s", argv[optind]);
+       die("can't open input file %s", argv[optind]);
      optind++;
    }
 
    if (optind != argc) {
      /* User specified an output file */
      if ((outfile = fopen(argv[optind], "wb")) == NULL)
-       message("can't open output file %s", argv[optind]);
+       die("can't open output file %s", argv[optind]);
      optind++;
    }
 
    if(optind != argc) usage();
 
    if ((infile=seekable(infile))==NULL)
-      message("can't seek input");
+      die("can't seek input");
 
    scanpages(NULL);
 

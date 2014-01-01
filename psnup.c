@@ -10,6 +10,7 @@
 
 #include <unistd.h>
 #include <string.h>
+#include "progname.h"
 
 #include "psutil.h"
 #include "psspec.h"
@@ -47,11 +48,12 @@ main(int argc, char *argv[])
    off_t sizeheaders[20];			/* headers to remove */
    int opt;
 
+   set_program_name (argv[0]);
+
    verbose = 1;
-   program = *argv;
 
    if (!paper_size(NULL, &width, &height))
-     message("could not get default paper size");
+     die("could not get default paper size");
 
    margin = border = vshift = hshift = column = flip = 0;
    leftright = topbottom = 1;
@@ -111,15 +113,15 @@ main(int argc, char *argv[])
        break;
      case 'p':	/* output (and by default input) paper type */
        if (!paper_size(optarg, &width, &height))
-         message("paper size '%s' not recognised", optarg);
+         die("paper size '%s' not recognised", optarg);
        break;
      case 'P':	/* paper type */
        if (!paper_size(optarg, &width, &height))
-         message("paper size '%s' not recognised", optarg);
+         die("paper size '%s' not recognised", optarg);
        break;
      case 'n':	/* n-up, for compatibility with other psnups */
        if ((nup = atoi(optarg)) < 1)
-         message("-n %d too small", nup);
+         die("-n %d too small", nup);
        break;
      case '1':
      case '2':
@@ -137,7 +139,7 @@ main(int argc, char *argv[])
 
          /* really should check that valuestr is only digits here...*/
          if ((nup = atoi(valuestr)) < 1)
-           message("-n %d too small", nup);
+           die("-n %d too small", nup);
          free(valuestr);
        } else {
          nup = (opt - '0');
@@ -158,31 +160,31 @@ main(int argc, char *argv[])
    if (optind != argc) {
      /* User specified an input file */
      if ((infile = fopen(argv[optind], "rb")) == NULL)
-       message("can't open input file %s", argv[optind]);
+       die("can't open input file %s", argv[optind]);
      optind++;
    }
 
    if (optind != argc) {
      /* User specified an output file */
      if ((outfile = fopen(argv[optind], "wb")) == NULL)
-       message("can't open output file %s", argv[optind]);
+       die("can't open output file %s", argv[optind]);
      optind++;
    }
 
    if (optind != argc) usage();
 
    if ((infile=seekable(infile))==NULL)
-      message("can't seek input");
+      die("can't seek input");
 
    if (width <= 0 || height <= 0)
-      message("page width and height must be set");
+      die("page width and height must be set");
 
    /* subtract paper margins from height & width */
    ppwid = width - margin*2;
    pphgt = height - margin*2;
 
    if (ppwid <= 0 || pphgt <= 0)
-      message("paper margins are too large");
+      die("paper margins are too large");
 
    scanpages(sizeheaders);
 
@@ -232,7 +234,7 @@ main(int argc, char *argv[])
 
       /* fail if nothing better than worst tolerance was found */
       if (best == tolerance)
-	 message("can't find acceptable layout for %d-up", nup);
+	 die("can't find acceptable layout for %d-up", nup);
    }
 
    if (flip) {	/* swap width & height for clipping */

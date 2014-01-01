@@ -10,6 +10,7 @@
 
 #include <unistd.h>
 #include <string.h>
+#include "progname.h"
 
 #include "psutil.h"
 #include "psspec.h"
@@ -105,12 +106,12 @@ main(int argc, char *argv[])
    double draw = 0;
    int opt;
 
+   set_program_name (argv[0]);
+
    if (!paper_size(NULL, &width, &height))
-     message("could not get default paper size");
+     die("could not get default paper size");
 
    verbose = 1;
-
-   program = *argv;
 
    while((opt = getopt(argc, argv, "qd::bw:h:p:v0123456789")) != EOF) {
      switch(opt) {
@@ -134,7 +135,7 @@ main(int argc, char *argv[])
        break;
      case 'p':	/* paper type */
        if (!paper_size(optarg, &width, &height))
-         message("paper size '%s' not recognised", optarg);
+         die("paper size '%s' not recognised", optarg);
        break;
      case 'v':	/* version */
        usage();
@@ -150,7 +151,7 @@ main(int argc, char *argv[])
      case '9':
        if (specs == NULL) {
          char *spec_txt = malloc((optarg ? strlen(optarg) : 0) + 3);
-         if(!spec_txt) message("no memory for spec allocation");
+         if(!spec_txt) die("no memory for spec allocation");
          spec_txt[0] = '-';
          spec_txt[1] = opt;
          spec_txt[2] = 0;
@@ -182,21 +183,21 @@ main(int argc, char *argv[])
    if (optind != argc) {
      /* User specified an input file */
      if ((infile = fopen(argv[optind], "rb")) == NULL)
-       message("can't open input file %s", argv[optind]);
+       die("can't open input file %s", argv[optind]);
      optind++;
    }
 
    if (optind != argc) {
      /* User specified an output file */
      if ((outfile = fopen(argv[optind], "wb")) == NULL)
-       message("can't open output file %s", argv[optind]);
+       die("can't open output file %s", argv[optind]);
      optind++;
    }
 
    if (optind != argc || specs == NULL) usage();
 
    if ((infile=seekable(infile))==NULL)
-      message("can't seek input");
+      die("can't seek input");
 
    pstops(modulo, pagesperspec, nobinding, specs, draw);
 

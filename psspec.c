@@ -21,7 +21,7 @@ PageSpec *newspec(void)
 {
    PageSpec *temp = (PageSpec *)malloc(sizeof(PageSpec));
    if (temp == NULL)
-      message("out of memory");
+      die("out of memory");
    temp->pageno = temp->flags = temp->rotate = 0;
    temp->scale = 1;
    temp->xoff = temp->yoff = 0;
@@ -72,12 +72,12 @@ double parsedimen(char **sp)
       s += 2;
    } else if (*s == 'w') {
       if (width < 0)
-	 message("width not initialised");
+	 die("width not initialised");
       num *= width;
       s++;
    } else if (*s == 'h') {
       if (height < 0)
-	 message("height not initialised");
+	 die("height not initialised");
       num *= height;
       s++;
    }

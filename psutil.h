@@ -1,7 +1,7 @@
 /* psutil.h
  * PSUtils utility functions
  *
- * (c) Reuben Thomas 2012-2013
+ * (c) Reuben Thomas 2012-2014
  * (c) Angus J. C. Duggan 1991-1997
  * See file LICENSE for details.
  */
@@ -13,7 +13,7 @@
 
 /* Definitions for functions found in psutil.c */
 extern void usage(void);
-extern void message(const char *format, ...);
+extern void die(const char *format, ...);
 extern void argerror(void);
 extern char *default_paper_name(void);
 extern int paper_size(const char *paper_name, double *width, double *height);
@@ -34,7 +34,6 @@ extern void scanpages(off_t *sizeheaders);
 extern void writestring(const char *s);
 
 /* These variables are exported to the client program */
-extern char *program ;
 extern int pages;
 extern int verbose;
 extern FILE *infile;
@@ -48,4 +47,4 @@ extern const char *argerr_message;
 
 /* Useful macros */
 #define MIN(x,y) ((x) > (y) ? (y) : (x))
-#define COPYRIGHT_STRING "(c) Reuben Thomas <rrt@sc3d.org> 2012\n(c) Angus J. C. Duggan 1991-1997\nSee file LICENSE for details.\n"
+#define COPYRIGHT_STRING "(c) Reuben Thomas <rrt@sc3d.org> 2014\n(c) Angus J. C. Duggan 1991-1997\nSee file LICENSE for details.\n"

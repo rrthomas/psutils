@@ -18,6 +18,7 @@
 #include <string.h>
 #include <ctype.h>
 #include <unistd.h>
+#include "progname.h"
 
 #include "psutil.h"
 
@@ -37,7 +38,7 @@ main(int argc, char **argv)
    FILE *output = stdout;
    int opt;
 
-   program = *argv;
+   set_program_name(argv[0]);
 
    while((opt = getopt(argc, argv, "csramv")) != EOF) {
      switch(opt) {
@@ -65,13 +66,13 @@ main(int argc, char **argv)
 
    if ((argc - optind) > 0) {
       if(!(input = fopen(argv[optind], "rb")))
-	 message("can't open input file %s", argv[optind]);
+	 die("can't open input file %s", argv[optind]);
       optind++;
    }
 
    if ((argc - optind) > 0) {
       if(!(output = fopen(argv[optind], "wb")))
-	 message("can't open output file %s", argv[optind]);
+	 die("can't open output file %s", argv[optind]);
       optind++;
    }
 
@@ -163,7 +164,7 @@ main(int argc, char **argv)
       if (showpage)
 	 fputs("restore showpage\n", output); /* just in case */
    } else
-      message("no %%%%BoundingBox:");
+      die("no %%%%BoundingBox:");
 
    return 0;
 }
