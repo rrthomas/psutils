@@ -22,7 +22,7 @@ typedef struct pagespec {
    struct pagespec *next;
 } PageSpec ;
 
-extern double width, height;
+extern double width, height; /* Width and height of paper in PostScript pt */
 
 extern PageSpec *newspec(void);
 extern int parseint(char **sp);

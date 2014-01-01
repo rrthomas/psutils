@@ -101,7 +101,7 @@ int paper_size(const char *paper_name, double *width, double *height)
   int res = 0;
   if (paper_name == NULL)
     paper_name = default_paper_name();
-  if (paper_name && (cmd = xasprintf(PAPER " --unit=mm --size %s", paper_name)) && (l = pgetline(cmd)))
+  if (paper_name && (cmd = xasprintf(PAPER " --unit=pt --size %s", paper_name)) && (l = pgetline(cmd)))
     res = sscanf(l, "%lg %lg", width, height);
   free(l);
   free(cmd);
