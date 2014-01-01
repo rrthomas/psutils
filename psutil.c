@@ -1,7 +1,7 @@
 /* psutil.c
  * PSUtils utility functions
  *
- * (c) Reuben Thomas 2012-2013
+ * (c) Reuben Thomas 2012-2014
  * (c) Angus J. C. Duggan 1991-1997
  * See file LICENSE for details.
  */
@@ -49,28 +49,26 @@ _Noreturn void usage(void)
 
 void argerror(void)
 {
-   message(FATAL, argerr_message);
+   message(argerr_message);
 }
 
 /* Message function: for messages, warnings, and errors sent to stderr.
-   If called with the flag MESSAGE_EXIT set, the routine does not return. */
-void message(int flags, const char *format, ...)
+   The routine does not return. */
+void message(const char *format, ...)
 {
   va_list args ;
 
-  if ( (flags & MESSAGE_NL) )
-    putc('\n', stderr) ;
+  if (verbose) /* We may be in the middle of a line */
+    putc('\n', stderr);
 
-  if ( flags & MESSAGE_PROGRAM )
-    fprintf(stderr, "%s: ", program) ;
+  fprintf(stderr, "%s: ", program) ;
 
   va_start(args, format) ;
   vfprintf(stderr, format, args);
   va_end(args) ;
   putc('\n', stderr) ;
 
-  if ( flags & MESSAGE_EXIT )	/* don't return to program */
-    exit(1) ;
+  exit(1) ;
 }
 
 /* Read a line from a pipe and return it without any trailing newline. */
@@ -192,7 +190,7 @@ void scanpages(off_t *sizeheaders)
      *sizeheaders = 0;
 
    if ((pageptr = (off_t *)malloc(sizeof(off_t)*maxpages)) == NULL)
-      message(FATAL, "out of memory\n");
+      message("out of memory");
    pages = 0;
    fseeko(infile, (off_t) 0, SEEK_SET);
    while (record = ftello(infile), fgets(buffer, BUFSIZ, infile) != NULL)
@@ -203,7 +201,7 @@ void scanpages(off_t *sizeheaders)
 		  maxpages *= 2;
 		  if ((pageptr = (off_t *)realloc((char *)pageptr,
 					     sizeof(off_t)*maxpages)) == NULL)
-		     message(FATAL, "out of memory\n");
+		     message("out of memory");
 	       }
 	       pageptr[pages++] = record;
 	    } else if (headerpos == 0 && iscomment(comment, "BoundingBox:")) {
@@ -275,7 +273,7 @@ void seekpage(int p)
 	 for (end = start+1; paren > 0; end++)
 	    switch (*end) {
 	    case '\0':
-	       message(FATAL, "Bad page label while seeking page %d\n", p);
+	       message("Bad page label while seeking page %d", p);
 	    case '(':
 	       paren++;
 	       break;
@@ -291,7 +289,7 @@ void seekpage(int p)
       pagelabel[end-start] = '\0';
       pageno = atoi(end);
    } else
-      message(FATAL, "I/O error seeking page %d\n", p);
+      message("I/O error seeking page %d", p);
 }
 
 /* Output routines. These all update the global variable bytes with the number
@@ -306,7 +304,7 @@ void writestring(const char *s)
 void writepageheader(const char *label, int page)
 {
    if (verbose)
-      message(LOG, "[%d] ", page);
+      fprintf(stderr, "[%d] ", page);
    sprintf(buffer, "%%%%Page: %s %d\n", label, ++outputpage);
    writestring(buffer);
 }
@@ -318,11 +316,11 @@ void writepagesetup(void)
    if (beginprocset) {
       for (;;) {
 	 if (fgets(buffer, BUFSIZ, infile) == NULL)
-	    message(FATAL, "I/O error reading page setup %d\n", outputpage);
+	    message("I/O error reading page setup %d", outputpage);
 	 if (!strncmp(buffer, "PStoPSxform", 11))
 	    break;
 	 if (fputs(buffer, outfile) == EOF)
-	    message(FATAL, "I/O error writing page setup %d\n", outputpage);
+	    message("I/O error writing page setup %d", outputpage);
 	 bytes += strlen(buffer);
       }
    }
@@ -332,7 +330,7 @@ void writepagesetup(void)
 void writepagebody(int p)
 {
    if (!fcopy(pageptr[p+1], NULL))
-      message(FATAL, "I/O error writing page %d\n", outputpage);
+      message("I/O error writing page %d", outputpage);
 }
 
 /* write a whole page */
@@ -354,7 +352,7 @@ void writeheadermedia(int p, off_t *ignore, double width, double height)
     fseeko(infile, (off_t) 0, SEEK_SET);
    if (pagescmt) {
       if (!fcopy(pagescmt, ignore) || fgets(buffer, BUFSIZ, infile) == NULL)
-	 message(FATAL, "I/O error in header\n");
+	 message("I/O error in header");
       if (width > -1 && height > -1) {
          sprintf(buffer, "%%%%DocumentMedia: plain %d %d 0 () ()\n", (int) width, (int) height);
          writestring(buffer);
@@ -365,14 +363,14 @@ void writeheadermedia(int p, off_t *ignore, double width, double height)
       writestring(buffer);
    }
    if (!fcopy(headerpos, ignore))
-      message(FATAL, "I/O error in header\n");
+      message("I/O error in header");
 }
 
 /* write prologue to end of setup section excluding PStoPS procset */
 int writepartprolog(void)
 {
    if (beginprocset && !fcopy(beginprocset, NULL))
-      message(FATAL, "I/O error in prologue\n");
+      message("I/O error in prologue");
    if (endprocset)
       fseeko(infile, endprocset, SEEK_SET);
    writeprolog();
@@ -383,14 +381,14 @@ int writepartprolog(void)
 void writeprolog(void)
 {
    if (!fcopy(endsetup, NULL))
-      message(FATAL, "I/O error in prologue\n");
+      message("I/O error in prologue");
 }
 
 /* write from end of setup to start of pages */
 void writesetup(void)
 {
    if (!fcopy(pageptr[0], NULL))
-      message(FATAL, "I/O error in prologue\n");
+      message("I/O error in prologue");
 }
 
 /* write trailer */
@@ -401,14 +399,14 @@ void writetrailer(void)
       writestring(buffer);
    }
    if (verbose)
-      message(LOG, "Wrote %d pages, %ld bytes\n", outputpage, bytes);
+      fprintf(stderr, "Wrote %d pages, %ld bytes", outputpage, bytes);
 }
 
 /* write a page with nothing on it */
 void writeemptypage(void)
 {
    if (verbose)
-      message(LOG, "[*] ");
+      fprintf(stderr, "[*] ");
    sprintf(buffer, "%%%%Page: * %d\n", ++outputpage);
    writestring(buffer);
    if (beginprocset)

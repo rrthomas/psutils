@@ -65,13 +65,13 @@ main(int argc, char **argv)
 
    if ((argc - optind) > 0) {
       if(!(input = fopen(argv[optind], "rb")))
-	 message(FATAL, "can't open input file %s\n", argv[optind]);
+	 message("can't open input file %s", argv[optind]);
       optind++;
    }
 
    if ((argc - optind) > 0) {
       if(!(output = fopen(argv[optind], "wb")))
-	 message(FATAL, "can't open output file %s\n", argv[optind]);
+	 message("can't open output file %s", argv[optind]);
       optind++;
    }
 
@@ -163,7 +163,7 @@ main(int argc, char **argv)
       if (showpage)
 	 fputs("restore showpage\n", output); /* just in case */
    } else
-      message(FATAL, "no %%%%BoundingBox:\n");
+      message("no %%%%BoundingBox:");
 
    return 0;
 }

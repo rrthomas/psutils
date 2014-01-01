@@ -51,21 +51,21 @@ main(int argc, char *argv[])
    if (optind != argc) {
      /* User specified an input file */
      if ((infile = fopen(argv[optind], "rb")) == NULL)
-       message(FATAL, "can't open input file %s\n", argv[optind]);
+       message("can't open input file %s", argv[optind]);
      optind++;
    }
 
    if (optind != argc) {
      /* User specified an output file */
      if ((outfile = fopen(argv[optind], "wb")) == NULL)
-       message(FATAL, "can't open output file %s\n", argv[optind]);
+       message("can't open output file %s", argv[optind]);
      optind++;
    }
 
    if(optind != argc) usage();
 
    if ((infile=seekable(infile))==NULL)
-      message(FATAL, "can't seek input\n");
+      message("can't seek input");
 
    scanpages(NULL);
 

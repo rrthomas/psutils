@@ -106,7 +106,7 @@ main(int argc, char *argv[])
    int opt;
 
    if (!paper_size(NULL, &width, &height))
-     message(FATAL, "could not get default paper size");
+     message("could not get default paper size");
 
    verbose = 1;
 
@@ -134,7 +134,7 @@ main(int argc, char *argv[])
        break;
      case 'p':	/* paper type */
        if (!paper_size(optarg, &width, &height))
-         message(FATAL, "paper size '%s' not recognised\n", optarg);
+         message("paper size '%s' not recognised", optarg);
        break;
      case 'v':	/* version */
        usage();
@@ -150,7 +150,7 @@ main(int argc, char *argv[])
      case '9':
        if (specs == NULL) {
          char *spec_txt = malloc((optarg ? strlen(optarg) : 0) + 3);
-         if(!spec_txt) message(FATAL, "no memory for spec allocation\n");
+         if(!spec_txt) message("no memory for spec allocation");
          spec_txt[0] = '-';
          spec_txt[1] = opt;
          spec_txt[2] = 0;
@@ -182,21 +182,21 @@ main(int argc, char *argv[])
    if (optind != argc) {
      /* User specified an input file */
      if ((infile = fopen(argv[optind], "rb")) == NULL)
-       message(FATAL, "can't open input file %s\n", argv[optind]);
+       message("can't open input file %s", argv[optind]);
      optind++;
    }
 
    if (optind != argc) {
      /* User specified an output file */
      if ((outfile = fopen(argv[optind], "wb")) == NULL)
-       message(FATAL, "can't open output file %s\n", argv[optind]);
+       message("can't open output file %s", argv[optind]);
      optind++;
    }
 
    if (optind != argc || specs == NULL) usage();
 
    if ((infile=seekable(infile))==NULL)
-      message(FATAL, "can't seek input\n");
+      message("can't seek input");
 
    pstops(modulo, pagesperspec, nobinding, specs, draw);
 

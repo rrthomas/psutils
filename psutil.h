@@ -11,19 +11,9 @@
 #include <ctype.h>
 #include <stdarg.h>
 
-/* message flags */
-#define MESSAGE_NL	1	/* Newline before message if necessary */
-#define MESSAGE_PROGRAM	2	/* announce program name */
-#define MESSAGE_EXIT	4	/* do not return */
-
-/* message types */
-#define FATAL		(MESSAGE_EXIT|MESSAGE_PROGRAM|MESSAGE_NL)
-#define WARN		(MESSAGE_NL|MESSAGE_PROGRAM)
-#define LOG		0
-
 /* Definitions for functions found in psutil.c */
 extern void usage(void);
-extern void message(int flags, const char *format, ...);
+extern void message(const char *format, ...);
 extern void argerror(void);
 extern char *default_paper_name(void);
 extern int paper_size(const char *paper_name, double *width, double *height);

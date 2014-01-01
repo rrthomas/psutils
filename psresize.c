@@ -31,7 +31,7 @@ main(int argc, char *argv[])
    int opt;
 
    if (!paper_size(NULL, &width, &height))
-     message(FATAL, "could not get default paper size");
+     message("could not get default paper size");
 
    vshift = hshift = 0;
    rotate = 0;
@@ -55,7 +55,7 @@ main(int argc, char *argv[])
        break;
      case 'p':	/* paper type */
        if (!paper_size(optarg, &width, &height))
-         message(FATAL, "paper size '%s' not recognised\n", optarg);
+         message("paper size '%s' not recognised", optarg);
        break;
      case 'W':	/* input page width */
        inwidth = singledimen(optarg);
@@ -65,7 +65,7 @@ main(int argc, char *argv[])
        break;
      case 'P':	/* input paper type */
        if (!paper_size(optarg, &width, &height))
-         message(FATAL, "paper size '%s' not recognised\n", optarg);
+         message("paper size '%s' not recognised", optarg);
        break;
      case 'v':	/* version */
      default:
@@ -82,29 +82,29 @@ main(int argc, char *argv[])
    if (optind != argc) {
      /* User specified an input file */
      if ((infile = fopen(argv[optind], "rb")) == NULL)
-       message(FATAL, "can't open input file %s\n", argv[optind]);
+       message("can't open input file %s", argv[optind]);
      optind++;
    }
 
    if (optind != argc) {
      /* User specified an output file */
      if ((outfile = fopen(argv[optind], "wb")) == NULL)
-       message(FATAL, "can't open output file %s\n", argv[optind]);
+       message("can't open output file %s", argv[optind]);
      optind++;
    }
 
    if (optind != argc) usage();
 
    if ((infile=seekable(infile))==NULL)
-      message(FATAL, "can't seek input\n");
+      message("can't seek input");
 
    if (width <= 0 || height <= 0)
-      message(FATAL, "output page width and height must be set\n");
+      message("output page width and height must be set");
 
    scanpages(sizeheaders);
 
    if (inwidth <= 0 || inheight <= 0)
-      message(FATAL, "input page width and height must be set\n");
+      message("input page width and height must be set");
 
    /* try normal orientation first */
    scale = MIN(width/inwidth, height/inheight);
