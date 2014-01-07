@@ -15,7 +15,6 @@
 extern void usage(void);
 extern void die(const char *format, ...);
 extern void argerror(void);
-extern char *default_paper_name(void);
 extern int paper_size(const char *paper_name, double *width, double *height);
 extern FILE *seekable(FILE *fp);
 extern void writepage(int p);

@@ -81,19 +81,13 @@ static char *pgetline(const char *cmd)
   return l;
 }
 
-/* Return the default paper name. */
-char *default_paper_name(void)
-{
-  return pgetline(PAPER);
-}
-
 /* Get the size of the given paper, or the default paper if paper_name == NULL. */
 int paper_size(const char *paper_name, double *width, double *height)
 {
   char *cmd = NULL, *l = NULL;
   int res = 0;
-  if (paper_name == NULL)
-    paper_name = default_paper_name();
+  if (paper_name == NULL) /* Use default paper name */
+    paper_name = pgetline(PAPER);
   if (paper_name && (cmd = xasprintf(PAPER " --unit=pt --size %s", paper_name)) && (l = pgetline(cmd)))
     res = sscanf(l, "%lg %lg", width, height);
   free(l);
