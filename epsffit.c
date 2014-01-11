@@ -1,7 +1,7 @@
 /* epsffit.c
  * Fit EPSF file into constrained size
  *
- * (c) Reuben Thomas 2012
+ * (c) Reuben Thomas 2012-2014
  * (c) Angus J. C. Duggan 1991-1997
  * See file LICENSE for details.
  *
@@ -19,6 +19,7 @@
 #include <ctype.h>
 #include <unistd.h>
 #include "progname.h"
+#include "binary-io.h"
 
 #include "psutil.h"
 
@@ -68,13 +69,15 @@ main(int argc, char **argv)
       if(!(input = fopen(argv[optind], "rb")))
 	 die("can't open input file %s", argv[optind]);
       optind++;
-   }
+   } else if (set_binary_mode(fileno(stdin), O_BINARY) < 0)
+      die("can't reset stdin to binary mode");
 
    if ((argc - optind) > 0) {
       if(!(output = fopen(argv[optind], "wb")))
 	 die("can't open output file %s", argv[optind]);
       optind++;
-   }
+   } else if (set_binary_mode(fileno(stdout), O_BINARY) < 0)
+      die("can't reset stdout to binary mode");
 
    while (fgets(buf, BUFSIZ, input)) {
       if (buf[0] == '%' && (buf[1] == '%' || buf[1] == '!')) {

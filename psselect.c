@@ -1,7 +1,7 @@
 /* psselect.c
  * Rearrange pages in conforming PS file for printing in signatures
  *
- * (c) Reuben Thomas 2012
+ * (c) Reuben Thomas 2012-2014
  * (c) Angus J. C. Duggan 1991-1997
  * See file LICENSE for details.
  */
@@ -10,6 +10,7 @@
 
 #include <unistd.h>
 #include "progname.h"
+#include "binary-io.h"
 
 #include "psutil.h"
 
@@ -144,6 +145,11 @@ main(int argc, char *argv[])
    }
 
    if(optind != argc) usage();
+
+   if (infile == stdin && set_binary_mode(fileno(stdin), O_BINARY) < 0)
+      die("can't reset stdin to binary mode");
+   if (outfile == stdout && setmode(fileno(stdout), O_BINARY) < 0)
+      die("can't reset stdout to binary mode");
 
    if ((infile=seekable(infile))==NULL)
       die("can't seek input");
