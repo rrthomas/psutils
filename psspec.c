@@ -1,7 +1,7 @@
 /* psspec.c
  * Page spec routines for page rearrangement
  *
- * (c) Reuben Thomas 2012
+ * (c) Reuben Thomas 2012-2014
  * (c) Angus J. C. Duggan 1991-1997
  * See file LICENSE for details.
  */
