@@ -148,7 +148,7 @@ main(int argc, char *argv[])
 
    if (infile == stdin && set_binary_mode(fileno(stdin), O_BINARY) < 0)
       die("can't reset stdin to binary mode");
-   if (outfile == stdout && setmode(fileno(stdout), O_BINARY) < 0)
+   if (outfile == stdout && set_binary_mode(fileno(stdout), O_BINARY) < 0)
       die("can't reset stdout to binary mode");
 
    if ((infile=seekable(infile))==NULL)
