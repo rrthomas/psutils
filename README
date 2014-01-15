@@ -35,9 +35,16 @@ Angus Duggan's dvibook; pstops is modeled on Tom Rokicki's dvidvi.
 
 INSTALLATION
 
-./configure && make && make install
+To build, you need the following programs installed, as well as a
+standard POSIX environment and C compiler:
 
-Run ./configure --help for options.
+  automake, autoconf, git, perl
+
+Then run:
+
+./bootstrap && ./configure && make && [sudo] make install
+
+For installation options, see ./configure --help
 
 
 BUGS
