@@ -388,7 +388,7 @@ void writetrailer(void)
       writestring(buffer);
    }
    if (verbose)
-      fprintf(stderr, "Wrote %d pages, %ld bytes", outputpage, bytes);
+      fprintf(stderr, "Wrote %d pages, %ld bytes\n", outputpage, bytes);
 }
 
 /* write a page with nothing on it */
