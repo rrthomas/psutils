@@ -66,7 +66,7 @@ main(int argc, char *argv[])
        inheight = singledimen(optarg);
        break;
      case 'P':	/* input paper type */
-       if (!paper_size(optarg, &width, &height))
+       if (!paper_size(optarg, &inwidth, &inheight))
          die("paper size '%s' not recognised", optarg);
        break;
      case 'v':	/* version */
