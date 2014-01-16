@@ -18,12 +18,12 @@
 #include <sys/stat.h>
 #include <stdio.h>
 
+#include "progname.h"
 #include "xvasprintf.h"
 #include "verror.h"
 
 #define iscomment(x,y) (strncmp(x,y,strlen(y)) == 0)
 
-char *program;
 int pages;
 int verbose;
 FILE *infile;
@@ -44,7 +44,7 @@ static off_t *pageptr;
 
 _Noreturn void usage(void)
 {
-  fprintf(stderr, "%s %s\n%sUsage: %s %s", program, PACKAGE_VERSION, COPYRIGHT_STRING, program, syntax);
+  fprintf(stderr, "%s %s\n%sUsage: %s %s", program_name, PACKAGE_VERSION, COPYRIGHT_STRING, program_name, syntax);
   exit(1);
 }
 
