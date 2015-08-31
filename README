@@ -32,6 +32,9 @@ psjoin          concatenate multiple PostScript files
 psselect in modeled on Chris Torek's dviselect, as is psbook, via
 Angus Duggan's dvibook; pstops is modeled on Tom Rokicki's dvidvi.
 
+A number of scripts for fixing up the output of obsolete proprietary
+programs for treatment by psutils are included in the old-scripts directory.
+
 
 INSTALLATION
 
