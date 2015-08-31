@@ -16,6 +16,7 @@ libpsutils_a_SOURCES = psutil.c psspec.c
 libpsutils_a_LIBADD = $(LIBPAPER)
 
 bin_PROGRAMS = psbook psselect pstops epsffit psnup psresize
+LDADD = libpsutils.a
 
 bin_SCRIPTS = psjoin extractres
 
