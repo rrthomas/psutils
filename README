@@ -14,7 +14,6 @@ PSUtils should work in any POSIX environment with libpaper (support on
 non-POSIX systems may be provided by gnulib).
 
 libpaper: http://packages.qa.debian.org/libp/libpaper.html
-Ghostscript: http://www.ghostscript.com/
 
 
 PROGRAMS
