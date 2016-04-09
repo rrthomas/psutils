@@ -1,7 +1,7 @@
 /* epsffit.c
  * Fit EPSF file into constrained size
  *
- * (c) Reuben Thomas 2012-2014
+ * (c) Reuben Thomas 2012-2016
  * (c) Angus J. C. Duggan 1991-1997
  * See file LICENSE for details.
  *
@@ -22,17 +22,18 @@
 #include "binary-io.h"
 
 #include "psutil.h"
+#include "psspec.h"
 
 const char *syntax = "[-c] [-r] [-a] [-m] [-s] LLX LLY URX URY [INFILE [OUTFILE]]\n";
 
-const char *argerr_message = "";
+const char *argerr_message = "bad dimension\n";
 
 int
 main(int argc, char **argv)
 {
    int bbfound = 0;              /* %%BoundingBox: found */
    int urx = 0, ury = 0, llx = 0, lly = 0;
-   int furx, fury, fllx, flly;
+   double furx, fury, fllx, flly;
    int showpage = 0, centre = 0, rotate = 0, aspect = 0, maximise = 0;
    char buf[BUFSIZ];
    FILE *input = stdin;
@@ -57,10 +58,10 @@ main(int argc, char **argv)
 
    if ((argc - optind) < 4 || (argc - optind) > 6) usage();
 
-   fllx = atoi(argv[optind++]);
-   flly = atoi(argv[optind++]);
-   furx = atoi(argv[optind++]);
-   fury = atoi(argv[optind++]);
+   fllx = singledimen(argv[optind++]);
+   flly = singledimen(argv[optind++]);
+   furx = singledimen(argv[optind++]);
+   fury = singledimen(argv[optind++]);
 
    if ((argc - optind) > 0) {
       if(!(input = fopen(argv[optind], "rb")))
@@ -103,8 +104,8 @@ main(int argc, char **argv)
       double width = urx-llx, height = ury-lly;
 
       if (maximise)
-	 if ((width > height && fury-flly > furx-fllx) ||
-	     (width < height && fury-flly < furx-fllx)) 
+	 if ((width > height && fury-flly > furx - fllx) ||
+	     (width < height && fury-flly < furx - fllx)) 
 	    rotate = 1;
 
       if (rotate) {
@@ -134,8 +135,8 @@ main(int argc, char **argv)
       }
       fprintf(output, 
 	      "%%%%BoundingBox: %d %d %d %d\n", (int)xoffset, (int)yoffset,
-	     (int)(xoffset+(rotate ? height : width)),
-	     (int)(yoffset+(rotate ? width : height)));
+	     (int)(xoffset + (rotate ? height : width)),
+	     (int)(yoffset + (rotate ? width : height)));
       if (rotate) {  /* compensate for original image shift */
 	 xoffset += height + lly * yscale;  /* displacement for rotation */
 	 yoffset -= llx * xscale;
