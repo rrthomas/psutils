@@ -10,6 +10,8 @@
 
 #include <unistd.h>
 #include <string.h>
+#include <errno.h>
+#include <limits.h>
 #include "progname.h"
 #include "binary-io.h"
 
@@ -23,13 +25,14 @@ const char *argerr_message = "bad dimension\n";
 /* return next larger exact divisor of number, or 0 if none. There is probably
  * a much more efficient method of doing this, but the numbers involved are
  * small, so it's not a big loss. */
-_GL_ATTRIBUTE_CONST static int nextdiv(int n, int m)
+_GL_ATTRIBUTE_CONST static long
+nextdiv(long n, long m)
 {
    while (++n <= m) {
-      if (m%n == 0)
-	 return (n);
+      if (m % n == 0)
+	 return n;
    }
-   return (0);
+   return 0;
 }
 
 int
@@ -37,7 +40,7 @@ main(int argc, char *argv[])
 {
    int horiz = 0, vert = 0, rotate = 0, column = 0;
    int flip = 0, leftright = 0, topbottom = 0;
-   int nup = 1;
+   long nup = 1;
    double draw = 0;				/* draw page borders */
    double scale = 1.0;				/* page scale */
    double uscale = 0;				/* user supplied scale */
@@ -121,9 +124,6 @@ main(int argc, char *argv[])
          die("paper size '%s' not recognised", optarg);
        break;
      case 'n':	/* n-up, for compatibility with other psnups */
-       if ((nup = atoi(optarg)) < 1)
-         die("-n %d too small", nup);
-       break;
      case '1':
      case '2':
      case '3':
@@ -133,17 +133,21 @@ main(int argc, char *argv[])
      case '7':
      case '8':
      case '9':
-       if(optarg) {
-         char *valuestr = (char *) malloc(strlen(optarg) + 2);
-         valuestr[0] = opt;
-         strcpy(&(valuestr[1]), optarg);
+       {
+         /* Construct number string */
+         char *valuestr = (char *)malloc((optarg ? strlen(optarg) : 0) + 2), *endptr;
+         if (opt != 'n')
+           valuestr[0] = opt;
+         if (optarg)
+           strcpy(&(valuestr[opt != 'n']), optarg);
 
-         /* really should check that valuestr is only digits here...*/
-         if ((nup = atoi(valuestr)) < 1)
-           die("-n %d too small", nup);
+         /* Parse and check value */
+         errno = 0;
+         nup = strtol(valuestr, &endptr, 10);
+         if ((errno == ERANGE && (nup == LONG_MIN || nup == LONG_MAX)) ||
+             (errno != 0 && nup == 0))
+           die("invalid number or too few pages per sheet (must be at least 1)");
          free(valuestr);
-       } else {
-         nup = (opt - '0');
        }
        break;
      case 'v':	/* version */
@@ -205,9 +209,8 @@ main(int argc, char *argv[])
     * minimise the wasted space. */
    {
       double best = tolerance;
-      int hor;
-      for (hor = 1; hor; hor = nextdiv(hor, nup)) {
-	 int ver = nup/hor;
+      for (long hor = 1; hor; hor = nextdiv(hor, nup)) {
+	 long ver = nup/hor;
 	 /* try normal orientation first */
 	 double scl = MIN(pphgt/(height*ver), ppwid/(width*hor));
 	 double optim = (ppwid-scl*width*hor)*(ppwid-scl*width*hor) +
@@ -258,13 +261,13 @@ main(int argc, char *argv[])
 
    /* now construct specification list and run page rearrangement procedure */
    {
-      int page = 0;
+      long page = 0;
       PageSpec *specs, *tail;
 
       tail = specs = newspec();
 
       while (page < nup) {
-	 int up, across;		/* page index */
+	 long up, across;		/* page index */
 
 	 if (column) {
 	    if (leftright)		/* left to right */
