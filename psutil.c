@@ -76,7 +76,10 @@ static char *pgetline(const char *cmd)
     len = getline(&l, &n, fp);
     if (l && l[len - 1] == '\n')
       l[len - 1] = '\0';
-    pclose(fp);
+    if (pclose(fp) != 0) {
+      free(l);
+      l = NULL;
+    }
   }
   return l;
 }
