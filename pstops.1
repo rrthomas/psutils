@@ -43,13 +43,17 @@ follow the syntax:
 is the number of pages in each block. The value of
 .I modulo
 should be greater than 0; the default value is 1.
+.PP
 .I specs
 are the page specifications for the pages in each block. The value of the
 .I pageno
 in each
 .I spec
-should be between 0 (for the first page in the block) and \fImodulo\fR-1
+should be between 0 (for the first page in the block) and \fImodulo\fR\-1
 (for the last page in each block) inclusive.
+If there is only one page specification,
+the \fIpageno\fR (0) may be omitted.
+.PP
 The optional dimensions
 .I xoff
 and
@@ -64,41 +68,34 @@ or followed by
 .B "w"
 or
 .B "h"
-to specify as a multiple of the width or height.
+to indicate a multiple of the width or height.
+.PP
 The optional parameters
 .BR L ,
 .BR R ,
-.BR R ,
-.BR R ,
+.BR U ,
+.BR H ,
 and
 .B V
-rotate the page left, right, or upside-down, and flip (mirror) page
-horizontally or vertically.
+rotate the page left, right, or upside-down, and flip (mirror) the page
+horizontally or vertically respectively.
 The optional
 .I scale
 parameter scales the page by the fraction specified.
-If the optional minus sign is specified, the page is relative to the end of
+If the optional minus sign is specified, the page number is relative to the end of
 the document, instead of the start.
-
-If page
+.PP
+Pages whose
 .IR spec s
 are separated by
 .B +
-the pages will be merged into one page; if they are separated by
-.B ,
-they will be on separate pages.
-If there is only one page specification, with
-.I pageno
-zero, the \fIpageno\fR may be omitted.
-
+will be merged into a single page; otherwise,
+they will remain as separate pages.
+.PP
 The shift, rotation, and scaling are applied
 to the PostScript transformation matrix
-in that order regardless of which order
-they appear on the command line.
-The matrix accumulates the individual transformations.
-The effect on the image is to first scale with respect to an origin
-at the lower left corner, then rotate about the same origin, and
-finally shift.
+in that order, regardless of the order
+in which they appear on the command line.
 .PP
 The
 .B \-w
@@ -119,22 +116,21 @@ The
 .B \-b
 option prevents any
 .B bind
-operators in the PostScript prolog from binding. This may be needed in cases
-where complex multi-page re-arrangements are being done.
+operators in the PostScript prolog from binding. This may be needed for
+complex multi-page re-arrangements.
 .PP
 The
 .D \-d
 option draws a line around the border of each page, of the specified width.
-If the \fIlwidth\fR parameter is omitted, a default linewidth of 1 point is
-assumed. The linewidth is relative to the original page dimensions,
-i.e., it is scaled up or down with the rest of the page.
+If the \fIlwidth\fR parameter is omitted, it defaults to \fB1pt\fR.
+The width is relative to the original page dimensions,
+i.e., it is scaled with the rest of the page.
 .PP
 Pstops normally prints the page numbers of the pages re-arranged; the
 .B \-q
 option suppresses this.
 .SH EXAMPLES
-This section contains some sample re-arrangements. To put two pages on one
-sheet (of A4 paper), the pagespec to use is:
+To put two pages on one sheet of A4 paper, the pagespec to use is:
 .sp
 .ce
 "2:0L@.7(21cm,0)+1L@.7(21cm,14.85cm)"

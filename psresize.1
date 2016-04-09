@@ -3,12 +3,10 @@
 psresize \- rescales and centers a document for new output paper size
 .SH SYNOPSIS
 .B psresize
-.RB [ \-w\fIwidth\fR ]
-.RB [ \-h\fIheight\fR ]
-.RB [ \-p\fIpaper\fR ]
-.RB [ \-W\fIwidth\fR ]
-.RB [ \-H\fIheight\fR ]
-.RB [  \-P\fIpaper\fR ]
+.RB [ \-w\fIwidth\fR
+.BR \-h\fIheight\fR | \-p\fIpaper\fR ]
+.RB [ \-W\fIwidth\fR
+.BR \-H\fIheight\fR | \-P\fIpaper\fR ]
 .RB [ \-q ]
 .RI [ infile
 .RI [ outfile ]]
@@ -51,7 +49,6 @@ The following command can be used to convert a document on A4 size paper to
 letter size paper:
 .sp
 psresize -PA4 -pletter in.ps out.ps
-.sp
 .SH AUTHOR
 Written by Angus J. C. Duggan.
 .SH "SEE ALSO"
