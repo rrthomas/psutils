@@ -62,9 +62,6 @@ main(int argc, char **argv)
    furx = atoi(argv[optind++]);
    fury = atoi(argv[optind++]);
 
-   /* Be defensive */
-   if((argc - optind) < 0 || (argc - optind) > 2) usage();
-
    if ((argc - optind) > 0) {
       if(!(input = fopen(argv[optind], "rb")))
 	 die("can't open input file %s", argv[optind]);
