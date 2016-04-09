@@ -1,7 +1,7 @@
 /* psspec.c
  * Page spec routines for page rearrangement
  *
- * (c) Reuben Thomas 2012-2014
+ * (c) Reuben Thomas 2012-2016
  * (c) Angus J. C. Duggan 1991-1997
  * See file LICENSE for details.
  */
@@ -129,13 +129,7 @@ static const char *prologue[] = { /* PStoPS procset */
    NULL
    };
 
-void pstops(int modulo, int pps, int nobind, PageSpec *specs, double draw) {
-
-  scanpages(NULL);
-  pstops_write(modulo, pps, nobind, specs, draw, NULL);
-}
-
-void pstops_write(int modulo, int pps, int nobind, PageSpec *specs, double draw, off_t *ignorelist)
+void pstops(int modulo, int pps, int nobind, PageSpec *specs, double draw, off_t *ignorelist)
 {
    int thispg, maxpage;
    int pageindex = 0;

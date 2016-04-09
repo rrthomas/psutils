@@ -1,7 +1,7 @@
 /* pstops.c
  * Rearrange pages in conforming PS file
  *
- * (c) Reuben Thomas 2012-2014
+ * (c) Reuben Thomas 2012-2016
  * (c) Angus J. C. Duggan 1991-1997
  * See file LICENSE for details.
  */
@@ -205,7 +205,8 @@ main(int argc, char *argv[])
    if ((infile=seekable(infile))==NULL)
       die("can't seek input");
 
-   pstops(modulo, pagesperspec, nobinding, specs, draw);
+   scanpages(NULL);
+   pstops(modulo, pagesperspec, nobinding, specs, draw, NULL);
 
    return 0;
 }

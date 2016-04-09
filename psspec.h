@@ -1,7 +1,7 @@
 /* psspec.h
  * Page spec routines for page rearrangement
  *
- * (c) Reuben Thomas 2012
+ * (c) Reuben Thomas 2012-2016
  * (c) Angus J. C. Duggan 1991-1997
  * See file LICENSE for details.
  */
@@ -30,6 +30,4 @@ extern double parsedouble(char **sp);
 extern double parsedimen(char **sp);
 extern double singledimen(char *str);
 extern void pstops(int modulo, int pps, int nobind, PageSpec *specs,
-		   double draw);
-extern void pstops_write(int modulo, int pps, int nobind, PageSpec *specs,
-                         double draw, off_t *ignorelist);
+                   double draw, off_t *ignorelist);

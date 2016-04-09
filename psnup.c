@@ -1,7 +1,7 @@
 /* psnup.c
  * Put multiple pages on to one page
  *
- * (c) Reuben Thomas 2012-2014
+ * (c) Reuben Thomas 2012-2016
  * (c) Angus J. C. Duggan 1991-1997
  * See file LICENSE for details.
  */
@@ -307,7 +307,7 @@ main(int argc, char *argv[])
 	 }
       }
       
-      pstops_write(nup, 1, 0, specs, draw, sizeheaders); /* do page rearrangement */
+      pstops(nup, 1, 0, specs, draw, sizeheaders); /* do page rearrangement */
    }
 
    return 0;

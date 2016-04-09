@@ -151,7 +151,7 @@ main(int argc, char *argv[])
    specs->yoff = vshift;
    specs->flags |= OFFSET;
       
-   pstops_write(1, 1, 0, specs, 0.0, sizeheaders); /* do page rearrangement */
+   pstops(1, 1, 0, specs, 0.0, sizeheaders); /* do page rearrangement */
 
    return 0;
 }
