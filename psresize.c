@@ -15,7 +15,7 @@
 #include "psutil.h"
 #include "psspec.h"
 
-const char *syntax = "[-q] [-wWIDTH] [-hHEIGHT] [-pPAPER] [-WWIDTH] [-HHEIGHT] [-PPAPER] [INFILE [OUTFILE]]\n";
+const char *syntax = "[-q] [-wWIDTH -hHEIGHT|-pPAPER] [-WWIDTH -HHEIGHT|-PPAPER] [INFILE [OUTFILE]]\n";
 
 const char *argerr_message = "bad dimension\n";
 
