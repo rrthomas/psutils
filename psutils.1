@@ -4,6 +4,26 @@ PSUtils \- utilities
 .SH DESCRIPTION
 PSUtils is a set of utilities for manipulating PostScript
 documents which follow the Adobe Document Structuring Conventions.
+.SH UNITS OF LENGTH
+PSUtils utilities accept lengths in various units:
+.IP \(bu
+.B pt
+(PostScript points, 72 points per inch)
+.IP \(bu
+.B mm
+(millimetres)
+.IP \(bu
+.B cm
+(centimetres)
+.IP \(bu
+.B in
+(inches, 1 inch is 25.4mm)
+.PP
+Write the length as a number directly followed by the unit, for example,
+.B 4.5mm
+or
+.BR 72pt .
+If no unit is given, PostScript points are assumed.
 .SH AUTHOR
 Written by Angus J. C. Duggan.
 .SH "SEE ALSO"
