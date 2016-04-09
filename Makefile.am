@@ -1,6 +1,6 @@
 # Makefile for PS utilities
 #
-# Copyright (C) Reuben Thomas 2012
+# Copyright (C) Reuben Thomas 2012-2016
 # See LICENSE for license
 
 SUBDIRS = lib
@@ -16,7 +16,6 @@ libpsutils_a_SOURCES = psutil.c psspec.c
 libpsutils_a_LIBADD = $(LIBPAPER)
 
 bin_PROGRAMS = psbook psselect pstops epsffit psnup psresize
-LDADD = libpsutils.a
 
 bin_SCRIPTS = psjoin extractres
 
