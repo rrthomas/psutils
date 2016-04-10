@@ -135,8 +135,6 @@ main(int argc, char *argv[])
        if (!paper_size(optarg, &width, &height))
          die("paper size '%s' not recognised", optarg);
        break;
-     case 'v':	/* version */
-       usage();
      case '0':
      case '1':
      case '2':
@@ -160,6 +158,7 @@ main(int argc, char *argv[])
          usage();
        }
        break;
+     case 'v':	/* version */
      default:
        usage();
        break;
