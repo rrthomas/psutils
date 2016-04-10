@@ -1,7 +1,7 @@
 /* psutil.c
  * PSUtils utility functions
  *
- * (c) Reuben Thomas 2012-2014
+ * (c) Reuben Thomas 2012-2016
  * (c) Angus J. C. Duggan 1991-1997
  * See file LICENSE for details.
  */
@@ -96,6 +96,15 @@ int paper_size(const char *paper_name, double *width, double *height)
   free(l);
   free(cmd);
   return res == 2;
+}
+
+void check_paper_size_set(void)
+{
+  /* Ensure output paper size is set */
+  if (width == -1 && height == -1 && !paper_size(NULL, &width, &height))
+    die("output paper size not set, and could not get default paper size");
+  if (width <= 0 || height <= 0)
+    die("output page width and height must both be set");
 }
 
 /* Make a file seekable, using temporary files if necessary */

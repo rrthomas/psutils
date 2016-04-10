@@ -109,9 +109,6 @@ main(int argc, char *argv[])
 
    set_program_name (argv[0]);
 
-   if (!paper_size(NULL, &width, &height))
-     die("could not get default paper size");
-
    verbose = 1;
 
    while((opt = getopt(argc, argv, "qd::bw:h:p:v0123456789")) != EOF) {

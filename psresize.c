@@ -1,7 +1,7 @@
 /* psresize.c
  * Alter page size of document
  *
- * (c) Reuben Thomas 2012-2014
+ * (c) Reuben Thomas 2012-2016
  * (c) Angus J. C. Duggan 1991-1997
  * See file LICENSE for details.
  */
@@ -33,9 +33,6 @@ main(int argc, char *argv[])
    int opt;
 
    set_program_name (argv[0]);
-
-   if (!paper_size(NULL, &width, &height))
-     die("could not get default paper size");
 
    vshift = hshift = 0;
    rotate = 0;
@@ -75,6 +72,8 @@ main(int argc, char *argv[])
      }
    }
 
+   check_paper_size_set();
+
    infile = stdin;
    outfile = stdout;
 
@@ -104,9 +103,6 @@ main(int argc, char *argv[])
 
    if ((infile=seekable(infile))==NULL)
       die("can't seek input");
-
-   if (width <= 0 || height <= 0)
-      die("output page width and height must be set");
 
    scanpages(sizeheaders);
 
