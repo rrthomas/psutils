@@ -30,10 +30,10 @@ PageSpec *newspec(void)
 }
 
 /* dimension parsing routines */
-int parseint(char **sp)
+long parseint(char **sp)
 {
    char *s = *sp;
-   int num = atoi(s);
+   long num = atol(s);
 
    while (isdigit((unsigned char)*s))
       s++;

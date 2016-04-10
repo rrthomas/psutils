@@ -132,18 +132,15 @@ main(int argc, char *argv[])
      case '9':
        {
          /* Construct number string */
-         char *valuestr = (char *)malloc((optarg ? strlen(optarg) : 0) + 2), *endptr;
+         char *valuestr = (char *)malloc((optarg ? strlen(optarg) : 0) + 2);
          if (opt != 'n')
            valuestr[0] = opt;
          if (optarg)
            strcpy(&(valuestr[opt != 'n']), optarg);
 
          /* Parse and check value */
-         errno = 0;
-         nup = strtol(valuestr, &endptr, 10);
-         if ((errno == ERANGE && (nup == LONG_MIN || nup == LONG_MAX)) ||
-             (errno != 0 && nup == 0))
-           die("invalid number or too few pages per sheet (must be at least 1)");
+         argerr_message = "invalid number or too few pages per sheet (must be at least 1)\n";
+         nup = parseint(&valuestr);
          free(valuestr);
        }
        break;
