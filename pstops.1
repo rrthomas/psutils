@@ -39,12 +39,14 @@ follow the syntax:
 .RE
 .sp
 .I modulo
-is the number of pages in each block. The value of
+is the number of pages in each block.
+The value of
 .I modulo
 should be greater than 0; the default value is 1.
 .PP
 .I specs
-are the page specifications for the pages in each block. The value of the
+are the page specifications for the pages in each block.
+The value of the
 .I pageno
 in each
 .I spec
@@ -104,19 +106,21 @@ dimension specifier, and the
 .B \-h
 option gives the height which is used by the
 .B "h"
-dimension specifier. These dimensions are also used (after scaling) to set the
+dimension specifier.
+These dimensions are also used (after scaling) to set the
 clipping path for each page.
 The
 .B \-p
-option can be used as an alternative, to set the paper size. See
+option can be used as an alternative, to set the paper size.
+See
 .BR paper (1).
 .PP
 The
 .B \-b
 option prevents any
 .B bind
-operators in the PostScript prolog from binding. This may be needed for
-complex multi-page re-arrangements.
+operators in the PostScript prolog from binding.
+This may be needed for complex multi-page re-arrangements.
 .PP
 The
 .D \-d

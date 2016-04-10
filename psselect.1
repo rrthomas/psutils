@@ -11,8 +11,8 @@ psselect \- select pages from a PostScript file
 .RI [ outfile ]]
 .SH DESCRIPTION
 .B Psselect
-selects pages from a PostScript document, creating a new PostScript file. The
-input PostScript file should follow the Adobe Document Structuring
+selects pages from a PostScript document, creating a new PostScript file.
+The input PostScript file should follow the Adobe Document Structuring
 Conventions.
 .PP
 The 
@@ -39,8 +39,9 @@ is omitted, the first page is assumed, and if
 is omitted, the last page is assumed.
 
 The prefix character \[oq]_\[cq] indicates that the page number is relative to the end
-of the document, counting backwards. If just this character with no page
-number is used, a blank page will be inserted.
+of the document, counting backwards.
+If just this character with no page number is used, a blank page will be
+inserted.
 .PP
 The 
 .B \-r
@@ -60,13 +61,15 @@ or
 .B \-o
 options are specified, the page range must be given with the
 .B \-p
-option. This is for backwards compatibility with previous versions.
+option.
+This is for backwards compatibility with previous versions.
 
 .SH NOTES
 The page number given to
 .I psselect
 is the number of the page counting from the start or end of the file, starting
-at one. The actual page number in the document may be different.
+at one.
+The actual page number in the document may be different.
 .SH AUTHOR
 Written by Angus J. C. Duggan.
 .SH "SEE ALSO"

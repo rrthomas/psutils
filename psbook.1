@@ -10,17 +10,18 @@ psbook \- rearrange pages in PostScript file into signatures
 .SH DESCRIPTION
 .B Psbook
 rearranges pages from a PostScript document into \[oq]signatures\[cq] for
-printing books or booklets, creating a new PostScript file. The
-input PostScript file should follow the Adobe Document Structuring
+printing books or booklets, creating a new PostScript file.
+The input PostScript file should follow the Adobe Document Structuring
 Conventions.
 .PP
 The
 .B \-s
-option selects the size of signature which will be used. The signature size is
-the number of sides which will be folded and bound together; the number given
-should be a multiple of four. The default is to use one signature for the
-whole file. Extra blank sides will be added if the file does not contain a
-multiple of four pages.
+option selects the size of signature which will be used.
+The signature size is the number of sides which will be folded and bound
+together; the number given should be a multiple of four.
+The default is to use one signature for the whole file.
+Extra blank sides will be added if the file does not contain a multiple of
+four pages.
 .PP
 .B Psbook
 normally prints the page numbers of the pages rearranged; the
