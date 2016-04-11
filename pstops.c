@@ -117,10 +117,7 @@ main(int argc, char *argv[])
        verbose = 0;
        break;
      case 'd':	/* draw borders */
-       if(optarg)
-         draw = singledimen(optarg);
-       else
-         draw = 1;
+       draw = optarg ? singledimen(optarg) : 1;
        break;
      case 'b':	/* no bind operator */
        nobinding = 1;
