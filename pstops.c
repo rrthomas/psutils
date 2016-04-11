@@ -163,16 +163,16 @@ main(int argc, char *argv[])
    }
 
    if (specs == NULL) {
-     if(optind == argc) usage();
-     specs = parsespecs(argv[optind]);
-     optind++;
+     if (optind == argc)
+       usage();
+     specs = parsespecs(argv[optind++]);
    }
 
    infile = stdin;
    outfile = stdout;
 
-   /* Be defensive */
-   if((argc - optind) < 0 || (argc - optind) > 2) usage();
+   if (argc > optind + 2)
+     usage();
 
    if (optind != argc) {
      /* User specified an input file */
@@ -187,8 +187,6 @@ main(int argc, char *argv[])
        die("can't open output file %s", argv[optind]);
      optind++;
    }
-
-   if (optind != argc || specs == NULL) usage();
 
    if (infile == stdin && set_binary_mode(fileno(stdin), O_BINARY) < 0)
      die("can't reset stdin to binary mode");

@@ -77,8 +77,8 @@ main(int argc, char *argv[])
    infile = stdin;
    outfile = stdout;
 
-   /* Be defensive */
-   if((argc - optind) < 0 || (argc - optind) > 2) usage();
+   if (argc > optind + 2)
+     usage();
 
    if (optind != argc) {
      /* User specified an input file */
@@ -94,8 +94,7 @@ main(int argc, char *argv[])
      optind++;
    }
 
-   if (optind != argc) usage();
-
+   /* FIXME: Common this up */
    if (infile == stdin && set_binary_mode(fileno(stdin), O_BINARY) < 0)
       die("can't reset stdin to binary mode");
    if (outfile == stdout && set_binary_mode(fileno(stdout), O_BINARY) < 0)
