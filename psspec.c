@@ -72,12 +72,12 @@ double parsedimen(char **sp)
       s += 2;
    } else if (*s == 'w') {
       if (width < 0)
-	 die("width not initialised");
+	 die("width not set");
       num *= width;
       s++;
    } else if (*s == 'h') {
       if (height < 0)
-	 die("height not initialised");
+	 die("height not set");
       num *= height;
       s++;
    }

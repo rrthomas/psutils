@@ -107,7 +107,7 @@ main(int argc, char *argv[])
    scanpages(sizeheaders);
 
    if (inwidth <= 0 || inheight <= 0)
-      die("input page width and height must be set");
+      die("input page width and height must both be set");
 
    /* try normal orientation first */
    scale = MIN(width/inwidth, height/inheight);
