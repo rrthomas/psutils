@@ -350,7 +350,7 @@ void writeheader(int p, off_t *ignore)
 
 void writeheadermedia(int p, off_t *ignore, double width, double height)
 {
-    fseeko(infile, (off_t) 0, SEEK_SET);
+   fseeko(infile, (off_t) 0, SEEK_SET);
    if (pagescmt) {
       if (!fcopy(pagescmt, ignore) || fgets(buffer, BUFSIZ, infile) == NULL)
 	 die("I/O error in header");
