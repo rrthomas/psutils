@@ -48,4 +48,4 @@ extern const char *argerr_message;
 
 /* Useful macros */
 #define MIN(x,y) ((x) > (y) ? (y) : (x))
-#define COPYRIGHT_STRING "(c) Reuben Thomas <rrt@sc3d.org> 2016\n(c) Angus J. C. Duggan 1991-1997\nSee file LICENSE for details.\n"
+#define COPYRIGHT_STRING "(c) Reuben Thomas <rrt@sc3d.org> 2012-2016\n(c) Angus J. C. Duggan 1991-1997\nSee file LICENSE for details.\n"
