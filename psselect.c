@@ -76,7 +76,7 @@ static PageRange *addrange(char *str, PageRange *rp)
      break;
    }
    die("invalid page range");
-   return (PageRange *)0 ;
+   return NULL;
 }
 
 
