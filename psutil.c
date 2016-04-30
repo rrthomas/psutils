@@ -21,6 +21,7 @@
 #include "progname.h"
 #include "xvasprintf.h"
 #include "verror.h"
+#include "binary-io.h"
 
 #define iscomment(x,y) (strncmp(x,y,strlen(y)) == 0)
 
@@ -105,6 +106,14 @@ void check_paper_size_set(void)
     die("output paper size not set, and could not get default paper size");
   if (width <= 0 || height <= 0)
     die("output page width and height must both be set");
+}
+
+void check_input_and_output_in_binary_mode(FILE *infile, FILE *outfile)
+{
+  if (infile == stdin && set_binary_mode(fileno(stdin), O_BINARY) < 0)
+    die("could not set stdin to binary mode");
+  if (outfile == stdout && set_binary_mode(fileno(stdout), O_BINARY) < 0)
+    die("could not set stdout to binary mode");
 }
 
 /* Make a file seekable, using temporary files if necessary */

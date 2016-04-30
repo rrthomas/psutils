@@ -17,6 +17,7 @@ extern void die(const char *format, ...);
 extern void argerror(void);
 extern int paper_size(const char *paper_name, double *width, double *height);
 extern void check_paper_size_set(void);
+extern void check_input_and_output_in_binary_mode(FILE *infile, FILE *outfile);
 extern FILE *seekable(FILE *fp);
 extern void writepage(int p);
 extern void seekpage(int p);

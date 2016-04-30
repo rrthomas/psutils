@@ -10,7 +10,6 @@
 
 #include <unistd.h>
 #include "progname.h"
-#include "binary-io.h"
 
 #include "psutil.h"
 #include "psspec.h"
@@ -94,11 +93,7 @@ main(int argc, char *argv[])
      optind++;
    }
 
-   /* FIXME: Common this up */
-   if (infile == stdin && set_binary_mode(fileno(stdin), O_BINARY) < 0)
-      die("can't reset stdin to binary mode");
-   if (outfile == stdout && set_binary_mode(fileno(stdout), O_BINARY) < 0)
-      die("can't reset stdout to binary mode");
+   check_input_and_output_in_binary_mode(infile, outfile);
 
    if ((infile=seekable(infile))==NULL)
       die("can't seek input");
