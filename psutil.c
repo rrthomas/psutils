@@ -108,6 +108,23 @@ void check_paper_size_set(void)
     die("output page width and height must both be set");
 }
 
+void parse_input_and_output_files(int argc, char *argv[], int optind)
+{
+  if (optind != argc) {
+    /* User specified an input file */
+    if ((infile = fopen(argv[optind], "rb")) == NULL)
+      die("can't open input file %s", argv[optind]);
+    optind++;
+  }
+
+  if (optind != argc) {
+    /* User specified an output file */
+    if ((outfile = fopen(argv[optind], "wb")) == NULL)
+      die("can't open output file %s", argv[optind]);
+    optind++;
+  }
+}
+
 void check_input_and_output_in_binary_mode(FILE *infile, FILE *outfile)
 {
   if (infile == stdin && set_binary_mode(fileno(stdin), O_BINARY) < 0)

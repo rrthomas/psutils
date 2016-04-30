@@ -47,19 +47,7 @@ main(int argc, char *argv[])
    infile = stdin;
    outfile = stdout;
 
-   if (optind != argc) {
-     /* User specified an input file */
-     if ((infile = fopen(argv[optind], "rb")) == NULL)
-       die("can't open input file %s", argv[optind]);
-     optind++;
-   }
-
-   if (optind != argc) {
-     /* User specified an output file */
-     if ((outfile = fopen(argv[optind], "wb")) == NULL)
-       die("can't open output file %s", argv[optind]);
-     optind++;
-   }
+   parse_input_and_output_files(argc, argv, optind);
 
    if(optind != argc) usage();
 
