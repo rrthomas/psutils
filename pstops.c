@@ -167,15 +167,7 @@ main(int argc, char *argv[])
      specs = parsespecs(argv[optind++]);
    }
 
-   infile = stdin;
-   outfile = stdout;
-
-   if (argc > optind + 2)
-     usage();
-
    parse_input_and_output_files(argc, argv, optind);
-
-   check_input_and_output_in_binary_mode(infile, outfile);
 
    scanpages(NULL);
    pstops(modulo, pagesperspec, nobinding, specs, draw, NULL);

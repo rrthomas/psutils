@@ -117,9 +117,6 @@ main(int argc, char *argv[])
      }
    }
 
-   infile = stdin;
-   outfile = stdout;
-
    /* If we haven't gotten a page range yet, we better get one now */
    if (pagerange == NULL && !reverse && !even && !odd) {
      if (optind > argc)
@@ -128,10 +125,6 @@ main(int argc, char *argv[])
    }
 
    parse_input_and_output_files(argc, argv, optind);
-
-   if(optind != argc) usage();
-
-   check_input_and_output_in_binary_mode(infile, outfile);
 
    scanpages(NULL);
 

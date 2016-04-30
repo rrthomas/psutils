@@ -44,14 +44,7 @@ main(int argc, char *argv[])
      }
    }
 
-   infile = stdin;
-   outfile = stdout;
-
    parse_input_and_output_files(argc, argv, optind);
-
-   if(optind != argc) usage();
-
-   check_input_and_output_in_binary_mode(infile, outfile);
 
    scanpages(NULL);
 
