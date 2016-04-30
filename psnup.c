@@ -136,8 +136,10 @@ main(int argc, char *argv[])
            strcpy(&(valuestr[opt != 'n']), optarg);
 
          /* Parse and check value */
-         argerr_message = "invalid number or too few pages per sheet (must be at least 1)\n";
+         argerr_message = "invalid number\n";
          nup = parseint(&valuestr);
+         if (nup == 0)
+           die("number of pages per sheet must be positive");
          free(valuestr);
        }
        break;
