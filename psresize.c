@@ -76,15 +76,11 @@ main(int argc, char *argv[])
    infile = stdin;
    outfile = stdout;
 
-   if (argc > optind + 2)
-     usage();
-
    parse_input_and_output_files(argc, argv, optind);
 
-   check_input_and_output_in_binary_mode(infile, outfile);
+   if (optind != argc) usage();
 
-   if ((infile=seekable(infile))==NULL)
-      die("can't seek input");
+   check_input_and_output_in_binary_mode(infile, outfile);
 
    scanpages(sizeheaders);
 

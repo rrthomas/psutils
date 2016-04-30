@@ -125,16 +125,8 @@ void parse_input_and_output_files(int argc, char *argv[], int optind)
   }
 }
 
-void check_input_and_output_in_binary_mode(FILE *infile, FILE *outfile)
-{
-  if (infile == stdin && set_binary_mode(fileno(stdin), O_BINARY) < 0)
-    die("could not set stdin to binary mode");
-  if (outfile == stdout && set_binary_mode(fileno(stdout), O_BINARY) < 0)
-    die("could not set stdout to binary mode");
-}
-
 /* Make a file seekable, using temporary files if necessary */
-FILE *seekable(FILE *fp)
+static FILE *seekable(FILE *fp)
 {
   FILE *ft;
   long r, w ;
@@ -169,6 +161,16 @@ FILE *seekable(FILE *fp)
   return (ft);
 }
 
+void check_input_and_output_in_binary_mode(FILE *infile, FILE *outfile)
+{
+  if (infile == stdin && set_binary_mode(fileno(stdin), O_BINARY) < 0)
+    die("could not set stdin to binary mode");
+  if (outfile == stdout && set_binary_mode(fileno(stdout), O_BINARY) < 0)
+    die("could not set stdout to binary mode");
+
+  if ((infile = seekable(infile)) == NULL)
+    die("cannot seek input");
+}
 
 /* copy input file from current position upto new position to output file,
  * ignoring the lines starting at something ignorelist points to */

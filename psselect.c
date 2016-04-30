@@ -133,9 +133,6 @@ main(int argc, char *argv[])
 
    check_input_and_output_in_binary_mode(infile, outfile);
 
-   if ((infile=seekable(infile))==NULL)
-      die("can't seek input");
-
    scanpages(NULL);
 
    /* select all pages or all in range if odd or even not set */

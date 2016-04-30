@@ -160,9 +160,6 @@ main(int argc, char *argv[])
 
    check_input_and_output_in_binary_mode(infile, outfile);
 
-   if ((infile=seekable(infile))==NULL)
-      die("can't seek input");
-
    /* subtract paper margins from height & width */
    ppwid = width - margin*2;
    pphgt = height - margin*2;
