@@ -108,12 +108,10 @@ main(int argc, char *argv[])
 
    set_program_name (argv[0]);
 
-   verbose = 1;
-
    while((opt = getopt(argc, argv, "qd::bw:h:p:v0123456789")) != EOF) {
      switch(opt) {
      case 'q':	/* quiet */
-       verbose = 0;
+       quiet = 1;
        break;
      case 'd':	/* draw borders */
        draw = optarg ? singledimen(optarg) : 1;
@@ -160,6 +158,7 @@ main(int argc, char *argv[])
        break;
      }
    }
+   verbose = !quiet;
 
    if (specs == NULL) {
      if (optind == argc)

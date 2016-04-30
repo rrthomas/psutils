@@ -53,8 +53,6 @@ main(int argc, char *argv[])
 
    set_program_name (argv[0]);
 
-   verbose = 1; // FIXME: allow die not to print newline by turning on only after arg parsing
-
    margin = border = vshift = hshift = column = flip = 0;
    leftright = topbottom = 1;
    iwidth = iheight = -1 ;
@@ -65,7 +63,7 @@ main(int argc, char *argv[])
          != EOF) {
      switch(opt) {
      case 'q':	/* quiet */
-       verbose = 0;
+       quiet = 1;
        break;
      case 'd':	/* draw borders */
        if (optarg)
@@ -148,6 +146,7 @@ main(int argc, char *argv[])
        usage();
      }
    }
+   verbose = !quiet;
 
    check_paper_size_set();
 

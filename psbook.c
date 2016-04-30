@@ -26,8 +26,6 @@ main(int argc, char *argv[])
 
    set_program_name (argv[0]);
 
-   verbose = 1;
-
    while((opt = getopt(argc, argv, "vqs:")) != EOF) {
      switch(opt) {
      case 's':	/* signature size */
@@ -35,7 +33,7 @@ main(int argc, char *argv[])
        if (signature < 1 || signature % 4) usage();
        break;
      case 'q':	/* quiet */
-       verbose = 0;
+       quiet = 1;
        break;
      case 'v':	/* version */
      default:
@@ -43,6 +41,7 @@ main(int argc, char *argv[])
        break;
      }
    }
+   verbose = !quiet;
 
    parse_input_and_output_files(argc, argv, optind);
 

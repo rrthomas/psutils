@@ -27,6 +27,7 @@
 
 int pages;
 int verbose;
+int quiet;
 FILE *infile;
 FILE *outfile;
 char pagelabel[BUFSIZ];
