@@ -47,9 +47,6 @@ main(int argc, char *argv[])
    infile = stdin;
    outfile = stdout;
 
-   /* Be defensive */
-   if((argc - optind) < 0 || (argc - optind) > 2) usage();
-
    if (optind != argc) {
      /* User specified an input file */
      if ((infile = fopen(argv[optind], "rb")) == NULL)

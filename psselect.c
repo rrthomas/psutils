@@ -122,12 +122,10 @@ main(int argc, char *argv[])
 
    /* If we haven't gotten a page range yet, we better get one now */
    if (pagerange == NULL && !reverse && !even && !odd) {
-     pagerange = addrange(argv[optind], NULL);
-     optind++;
+     if (optind > argc)
+       usage();
+     pagerange = addrange(argv[optind++], NULL);
    }
-
-   /* Be defensive */
-   if((argc - optind) < 0 || (argc - optind) > 2) usage();
 
    if (optind != argc) {
      /* User specified an input file */
