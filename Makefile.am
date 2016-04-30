@@ -3,6 +3,8 @@
 # Copyright (C) Reuben Thomas 2012-2016
 # See LICENSE for license
 
+CLOC = cloc --force-lang="C",h --autoconf
+
 SUBDIRS = lib
 
 ACLOCAL_AMFLAGS = -I m4
@@ -19,17 +21,30 @@ bin_PROGRAMS = psbook psselect pstops epsffit psnup psresize
 
 bin_SCRIPTS = psjoin extractres
 
+SOURCES_EXTRA = psutil.h psspec.h
+
 man_MANS = psutils.1 \
 	psbook.1 psselect.1 pstops.1 epsffit.1 psnup.1 psresize.1 \
 	psjoin.1 extractres.1 includeres.1
 
 EXTRA_DIST = m4/gnulib-cache.m4 \
 	LICENSE \
-	psutil.h psspec.h \
+	$(SOURCES_EXTRA) \
 	$(bin_SCRIPTS) \
 	$(man_MANS)
 
+PRODUCTIONSOURCES = \
+	configure.ac \
+	Makefile.am \
+	$(bin_SCRIPTS) \
+	$(libpsutils_a_SOURCES) \
+	$(SOURCES_EXTRA) \
+	$(psbook_SOURCES) $(psselect_SOURCES) $(pstops_SOURCES) $(epsffit_SOURCES) $(psnup_SOURCES) $(psresize_SOURCES)
+
 all: includeres
+
+loc:
+	$(CLOC) $(PRODUCTIONSOURCES)
 
 includeres: extractres
 	$(RM) $@ && $(LN_S) $(srcdir)/extractres $@
