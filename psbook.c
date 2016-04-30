@@ -57,19 +57,12 @@ main(int argc, char *argv[])
    writeprolog();
    writesetup();
    for (currentpg = 0; currentpg < maxpage; currentpg++) {
-      int actualpg = currentpg - currentpg%signature;
-      switch(currentpg%4) {
-      case 0:
-      case 3:
-	 actualpg += signature-1-(currentpg%signature)/2;
-	 break;
-      case 1:
-      case 2:
-	 actualpg += (currentpg%signature)/2;
-	 break;
-      default: /* Avoid a compiler warning */
-         break;
-      }
+      int actualpg = currentpg - currentpg % signature;
+      int page_on_sheet = currentpg % 4;
+      if (page_on_sheet == 0 || page_on_sheet == 3)
+	 actualpg += signature - 1 - (currentpg % signature) / 2;
+      else
+	 actualpg += (currentpg % signature) / 2;
       if (actualpg < pages)
 	 writepage(actualpg);
       else
