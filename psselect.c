@@ -79,20 +79,51 @@ static PageRange *addrange(char *str, PageRange *rp)
    return NULL;
 }
 
+static int negative_page_to_positive(int n, int pages)
+{
+  if (n < 0) {
+    n += pages + 1;
+    if (n < 1)
+      n = 1;
+  }
+  return n;
+}
+
+static int process_pages(PageRange *pagerange, int odd, int even, int count_only)
+{
+  int maxpage = 0;
+  /* select all pages in range if odd or even not set */
+  int all = !(odd || even);
+  for (PageRange *r = pagerange; r != NULL; r = r->next) {
+    int inc = r->last < r->first ? -1 : 1;
+    for (int currentpg = r->first; r->last - currentpg != -inc; currentpg += inc) {
+      if (currentpg == 0 ||
+          (currentpg <= pages &&
+           ((currentpg & 1) ? (odd || all) : (even || all)))) {
+        if (!count_only) {
+          if (currentpg)
+            writepage(currentpg - 1);
+          else
+            writeemptypage();
+        }
+        maxpage++;
+      }
+    }
+  }
+  return maxpage;
+}
 
 int
 main(int argc, char *argv[])
 {
-   int opt;
-   int currentpg, maxpage = 0;
    int even = 0, odd = 0, reverse = 0;
-   int pass, all;
    PageRange *pagerange = NULL;
 
    set_program_name (argv[0]);
 
    verbose = 1;
 
+   int opt;
    while((opt = getopt(argc, argv, "eorqvp:")) != EOF) {
      switch(opt) {
      case 'e':	/* even pages */
@@ -128,9 +159,6 @@ main(int argc, char *argv[])
 
    scanpages(NULL);
 
-   /* select all pages or all in range if odd or even not set */
-   all = !(odd || even);
-
    /* add default page range */
    if (!pagerange)
       pagerange = makerange(1, -1, NULL);
@@ -155,62 +183,20 @@ main(int argc, char *argv[])
       }
    }
 
-   { /* adjust for end-relative pageranges */
-      PageRange *r;
-      for (r = pagerange; r; r = r->next) {
-	 if (r->first < 0) {
-	    r->first += pages + 1;
-	    if (r->first < 1)
-	       r->first = 1;
-	 }
-	 if (r->last < 0) {
-	    r->last += pages + 1;
-	    if (r->last < 1)
-	       r->last = 1;
-	 }
-      }
+   /* adjust for end-relative pageranges */
+   for (PageRange *r = pagerange; r; r = r->next) {
+     r->first = negative_page_to_positive(r->first, pages);
+     r->last = negative_page_to_positive(r->last, pages);
    }
 
-   /* count pages on first pass, select pages on second pass */
-   for (pass = 0; pass < 2; pass++) {
-      PageRange *r;
-      if (pass) {                           /* write header on second pass */
-	 writeheader(maxpage, NULL);
-	 writeprolog();
-	 writesetup();
-      }
-      for (r = pagerange; r; r = r->next) {
-	 if (r->last < r->first) {
-	    for (currentpg = r->first; currentpg >= r->last; currentpg--) {
-	       if (currentpg == 0 ||
-		   (currentpg <= pages &&
-		    ((currentpg&1) ? (odd || all) : (even || all)))) {
-		  if (pass) {
-		     if (currentpg)
-		        writepage(currentpg-1);
-		     else
-		        writeemptypage() ;
-		  } else
-		     maxpage++;
-	       }
-	    }
-	 } else {
-	    for (currentpg = r->first; currentpg <= r->last; currentpg++) {
-	       if (currentpg == 0 ||
-		   (currentpg <= pages &&
-		    ((currentpg&1) ? (odd || all) : (even || all)))) {
-		  if (pass) {
-		     if (currentpg)
-		        writepage(currentpg-1);
-		     else
-		        writeemptypage() ;
-		  } else
-		     maxpage++;
-	       }
-	    }
-	 }
-      }
-   }
+   /* First pass: count pages */
+   int maxpage = process_pages(pagerange, odd, even, 1);
+
+   /* Second pass: write header, then pages, then trailer */
+   writeheader(maxpage, NULL);
+   writeprolog();
+   writesetup();
+   (void)process_pages(pagerange, odd, even, 0);
    writetrailer();
 
    return 0;
