@@ -46,6 +46,3 @@ extern int pageno;
 /* Variables imported from the client program */
 extern const char *syntax;
 extern const char *argerr_message;
-
-/* Useful macros */
-#define COPYRIGHT_STRING "(c) Reuben Thomas <rrt@sc3d.org> 2012-2016\n(c) Angus J. C. Duggan 1991-1997\nSee file LICENSE for details.\n"

@@ -47,7 +47,10 @@ static off_t *pageptr;
 
 _Noreturn void usage(void)
 {
-  fprintf(stderr, "%s %s\n%sUsage: %s %s", program_name, PACKAGE_VERSION, COPYRIGHT_STRING, program_name, syntax);
+  fprintf(stderr, "%s %s\n%sUsage: %s %s",
+          program_name, PACKAGE_VERSION,
+          "(c) Reuben Thomas <rrt@sc3d.org> 2012-2016\n(c) Angus J. C. Duggan 1991-1997\nSee file LICENSE for details.\n",
+          program_name, syntax);
   exit(1);
 }
 
