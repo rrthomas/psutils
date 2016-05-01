@@ -225,58 +225,36 @@ main(int argc, char *argv[])
    }
 
    /* now construct specification list and run page rearrangement procedure */
-   {
-      long page = 0;
-      PageSpec *specs, *tail;
+   PageSpec *specs = newspec(), *tail = specs;
+   for (long page = 0; page < nup; ) {
+     long up, across;		/* page index */
 
-      tail = specs = newspec();
-
-      while (page < nup) {
-	 long up, across;		/* page index */
-
-	 if (column) {
-	    if (leftright)		/* left to right */
-	       across = page/vert;
-	    else			/* right to left */
-	       across = horiz-1-page/vert;
-	    if (topbottom)		/* top to bottom */
-	       up = vert-1-page%vert;
-	    else			/* bottom to top */
-	       up = page%vert;
-	 } else {
-	    if (leftright)		/* left to right */
-	       across = page%horiz;
-	    else			/* right to left */
-	       across = horiz-1-page%horiz;
-	    if (topbottom)		/* top to bottom */
-	       up = vert-1-page/horiz;
-	    else			/* bottom to top */
-	       up = page/horiz;
-	 }
-	 if (rotate) {
-	    tail->xoff = margin + (across+1)*ppwid/horiz - hshift;
-	    tail->rotate = 90;
-	    tail->flags |= ROTATE;
-	 } else {
-	    tail->xoff = margin + across*ppwid/horiz + hshift;
-	 }
-	 tail->pageno = page;
-	 if (uscale > 0)
-	    tail->scale = uscale;
-	 else
-	    tail->scale = scale;
-	 tail->flags |= SCALE;
-	 tail->yoff = margin + up*pphgt/vert + vshift;
-	 tail->flags |= OFFSET;
-	 if (++page < nup) {
-	    tail->flags |= ADD_NEXT;
-	    tail->next = newspec();
-	    tail = tail->next;
-	 }
-      }
-      
-      pstops(nup, 1, 0, specs, draw, sizeheaders); /* do page rearrangement */
+     if (column) {
+       across = leftright ? page/vert : horiz-1-page/vert;
+       up = topbottom ? vert-1-page%vert : page%vert;
+     } else {
+       across = leftright ? page%horiz : horiz-1-page%horiz;
+       up = topbottom ? vert-1-page/horiz : page/horiz;
+     }
+     if (rotate) {
+       tail->xoff = margin + (across+1)*ppwid/horiz - hshift;
+       tail->rotate = 90;
+       tail->flags |= ROTATE;
+     } else
+       tail->xoff = margin + across*ppwid/horiz + hshift;
+     tail->pageno = page;
+     tail->scale = uscale > 0 ? uscale : scale;
+     tail->flags |= SCALE;
+     tail->yoff = margin + up*pphgt/vert + vshift;
+     tail->flags |= OFFSET;
+     if (++page < nup) {
+       tail->flags |= ADD_NEXT;
+       tail->next = newspec();
+       tail = tail->next;
+     }
    }
+
+   pstops(nup, 1, 0, specs, draw, sizeheaders); /* do page rearrangement */
 
    return 0;
 }
