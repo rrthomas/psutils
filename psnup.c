@@ -173,44 +173,42 @@ main(int argc, char *argv[])
    /* Finding the best layout is an optimisation problem. We try all of the
     * combinations of width*height in both normal and rotated form, and
     * minimise the wasted space. */
-   {
-      double best = tolerance;
-      for (long hor = 1; hor; hor = nextdiv(hor, nup)) {
-	 long ver = nup/hor;
-	 /* try normal orientation first */
-	 double scl = MIN(pphgt/(height*ver), ppwid/(width*hor));
-	 double optim = (ppwid-scl*width*hor)*(ppwid-scl*width*hor) +
-	    (pphgt-scl*height*ver)*(pphgt-scl*height*ver);
-	 if (optim < best) {
-	    best = optim;
-	    /* recalculate scale to allow for internal borders */
-	    scale = MIN((pphgt-2*border*ver)/(height*ver),
-			(ppwid-2*border*hor)/(width*hor));
-	    hshift = (ppwid/hor - width*scale)/2;
-	    vshift = (pphgt/ver - height*scale)/2;
-	    horiz = hor; vert = ver;
-	    rotate = flip;
-	 }
-	 /* try rotated orientation */
-	 scl = MIN(pphgt/(width*hor), ppwid/(height*ver));
-	 optim = (pphgt-scl*width*hor)*(pphgt-scl*width*hor) +
-	    (ppwid-scl*height*ver)*(ppwid-scl*height*ver);
-	 if (optim < best) {
-	    best = optim;
-	    /* recalculate scale to allow for internal borders */
-	    scale = MIN((pphgt-2*border*hor)/(width*hor),
-			(ppwid-2*border*ver)/(height*ver));
-	    hshift = (ppwid/ver - height*scale)/2;
-	    vshift = (pphgt/hor - width*scale)/2;
-	    horiz = ver; vert = hor;
-	    rotate = !flip;
-	 }
-      }
-
-      /* fail if nothing better than worst tolerance was found */
-      if (best == tolerance)
-	 die("can't find acceptable layout for %d-up", nup);
+   double best = tolerance;
+   for (long hor = 1; hor; hor = nextdiv(hor, nup)) {
+     long ver = nup/hor;
+     /* try normal orientation first */
+     double scl = MIN(pphgt/(height*ver), ppwid/(width*hor));
+     double optim = (ppwid-scl*width*hor)*(ppwid-scl*width*hor) +
+       (pphgt-scl*height*ver)*(pphgt-scl*height*ver);
+     if (optim < best) {
+       best = optim;
+       /* recalculate scale to allow for internal borders */
+       scale = MIN((pphgt-2*border*ver)/(height*ver),
+                   (ppwid-2*border*hor)/(width*hor));
+       hshift = (ppwid/hor - width*scale)/2;
+       vshift = (pphgt/ver - height*scale)/2;
+       horiz = hor; vert = ver;
+       rotate = flip;
+     }
+     /* try rotated orientation */
+     scl = MIN(pphgt/(width*hor), ppwid/(height*ver));
+     optim = (pphgt-scl*width*hor)*(pphgt-scl*width*hor) +
+       (ppwid-scl*height*ver)*(ppwid-scl*height*ver);
+     if (optim < best) {
+       best = optim;
+       /* recalculate scale to allow for internal borders */
+       scale = MIN((pphgt-2*border*hor)/(width*hor),
+                   (ppwid-2*border*ver)/(height*ver));
+       hshift = (ppwid/ver - height*scale)/2;
+       vshift = (pphgt/hor - width*scale)/2;
+       horiz = ver; vert = hor;
+       rotate = !flip;
+     }
    }
+
+   /* fail if nothing better than worst tolerance was found */
+   if (best == tolerance)
+     die("can't find acceptable layout for %d-up", nup);
 
    if (flip) {	/* swap width & height for clipping */
       double tmp = width;

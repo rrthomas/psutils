@@ -17,6 +17,7 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <stdio.h>
+#include <stdarg.h>
 
 #include "progname.h"
 #include "xvasprintf.h"
@@ -329,8 +330,15 @@ void seekpage(int p)
  * of bytes written */
 void writestring(const char *s)
 {
-   fputs(s, outfile);
-   bytes += strlen(s);
+  writestringf("%s", s);
+}
+
+void writestringf(const char *f, ...)
+{
+  va_list ap;
+  va_start(ap, f);
+  bytes += vfprintf(outfile, f, ap);
+  va_end(ap);
 }
 
 /* write page comment */

@@ -32,6 +32,7 @@ extern void writetrailer(void);
 extern void writeemptypage(void);
 extern void scanpages(off_t *sizeheaders);
 extern void writestring(const char *s);
+extern void writestringf(const char *f, ...);
 
 /* These variables are exported to the client program */
 extern int pages;
