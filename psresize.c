@@ -10,6 +10,7 @@
 
 #include <unistd.h>
 #include "progname.h"
+#include "minmax.h"
 
 #include "psutil.h"
 #include "psspec.h"

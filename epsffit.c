@@ -20,6 +20,7 @@
 #include <unistd.h>
 #include "progname.h"
 #include "binary-io.h"
+#include "minmax.h"
 
 #include "psutil.h"
 #include "psspec.h"

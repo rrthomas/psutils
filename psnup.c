@@ -13,6 +13,7 @@
 #include <errno.h>
 #include <limits.h>
 #include "progname.h"
+#include "minmax.h"
 
 #include "psutil.h"
 #include "psspec.h"
