@@ -64,7 +64,7 @@ main(int argc, char *argv[])
          != EOF) {
      switch(opt) {
      case 'q':	/* quiet */
-       quiet = 1;
+       verbose = 0;
        break;
      case 'd':	/* draw borders */
        if (optarg)
@@ -149,7 +149,6 @@ main(int argc, char *argv[])
        usage();
      }
    }
-   verbose = !quiet;
 
    check_paper_size_set();
 

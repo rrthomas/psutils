@@ -28,8 +28,7 @@
 #define iscomment(x,y) (strncmp(x,y,strlen(y)) == 0)
 
 int pages;
-int verbose;
-int quiet;
+int verbose = 1;
 FILE *infile;
 static FILE *outfile;
 char pagelabel[BUFSIZ];
@@ -56,6 +55,7 @@ _Noreturn void usage(void)
 
 void argerror(void)
 {
+   verbose = 0; /* We won't be in the middle of a line during argument parsing */
    die(argerr_message);
 }
 

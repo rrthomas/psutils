@@ -33,7 +33,7 @@ main(int argc, char *argv[])
        if (signature < 1 || signature % 4) usage();
        break;
      case 'q':	/* quiet */
-       quiet = 1;
+       verbose = 0;
        break;
      case 'v':	/* version */
      default:
@@ -41,7 +41,6 @@ main(int argc, char *argv[])
        break;
      }
    }
-   verbose = !quiet;
 
    parse_input_and_output_files(argc, argv, optind, 1);
 

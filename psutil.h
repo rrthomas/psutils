@@ -37,7 +37,6 @@ extern void writestringf(const char *f, ...);
 /* These variables are exported to the client program */
 extern int pages;
 extern int verbose;
-extern int quiet;
 extern FILE *infile;
 extern char pagelabel[BUFSIZ];
 extern int pageno;

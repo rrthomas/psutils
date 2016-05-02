@@ -137,7 +137,7 @@ main(int argc, char *argv[])
        pagerange = addrange(optarg, pagerange);
        break;
      case 'q':	/* quiet */
-       quiet = 1;
+       verbose = 0;
        break;
      case 'v':	/* version */
      default:
@@ -145,7 +145,6 @@ main(int argc, char *argv[])
        break;
      }
    }
-   verbose = !quiet;
 
    /* If we haven't gotten a page range yet, we better get one now */
    if (pagerange == NULL && !reverse && !even && !odd) {

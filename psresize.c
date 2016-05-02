@@ -41,7 +41,7 @@ main(int argc, char *argv[])
                        "qw:h:p:W:H:P:")) != EOF) {
      switch(opt) {
      case 'q':	/* quiet */
-       quiet = 1;
+       verbose = 0;
        break;
      case 'w':	/* page width */
        width = singledimen(optarg);
@@ -68,7 +68,6 @@ main(int argc, char *argv[])
        usage();
      }
    }
-   verbose = !quiet;
 
    check_paper_size_set();
 
