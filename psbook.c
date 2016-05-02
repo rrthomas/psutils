@@ -21,16 +21,16 @@ int
 main(int argc, char *argv[])
 {
    int signature = 0;
-   int currentpg, maxpage;
+
+   set_program_name(argv[0]);
+
    int opt;
-
-   set_program_name (argv[0]);
-
-   while((opt = getopt(argc, argv, "vqs:")) != EOF) {
-     switch(opt) {
+   while ((opt = getopt(argc, argv, "vqs:")) != EOF) {
+     switch (opt) {
      case 's':	/* signature size */
        signature = atoi(optarg);
-       if (signature < 1 || signature % 4) usage();
+       if (signature < 1 || signature % 4)
+         usage();
        break;
      case 'q':	/* quiet */
        verbose = 0;
@@ -46,6 +46,7 @@ main(int argc, char *argv[])
 
    scanpages(NULL);
 
+   int maxpage;
    if (!signature)
       signature = maxpage = pages+(4-pages%4)%4;
    else
@@ -55,7 +56,7 @@ main(int argc, char *argv[])
    writeheader(maxpage, NULL);
    writeprolog();
    writesetup();
-   for (currentpg = 0; currentpg < maxpage; currentpg++) {
+   for (int currentpg = 0; currentpg < maxpage; currentpg++) {
       int actualpg = currentpg - currentpg % signature;
       int page_on_sheet = currentpg % 4;
       if (page_on_sheet == 0 || page_on_sheet == 3)
