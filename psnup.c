@@ -153,7 +153,7 @@ main(int argc, char *argv[])
 
    check_paper_size_set();
 
-   parse_input_and_output_files(argc, argv, optind);
+   parse_input_and_output_files(argc, argv, optind, 1);
 
    /* subtract paper margins from height & width */
    ppwid = width - margin*2;

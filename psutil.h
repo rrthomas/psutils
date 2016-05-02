@@ -17,7 +17,7 @@ extern void die(const char *format, ...);
 extern void argerror(void);
 extern int paper_size(const char *paper_name, double *width, double *height);
 extern void check_paper_size_set(void);
-extern void parse_input_and_output_files(int argc, char *argv[], int optind);
+extern void parse_input_and_output_files(int argc, char *argv[], int optind, int seeking);
 extern void writepage(int p);
 extern void seekpage(int p);
 extern void writepageheader(const char *label, int p);

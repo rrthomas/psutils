@@ -148,7 +148,7 @@ static FILE *seekable(FILE *fp)
   return (ft);
 }
 
-void parse_input_and_output_files(int argc, char *argv[], int optind)
+void parse_input_and_output_files(int argc, char *argv[], int optind, int seeking)
 {
   infile = stdin;
   outfile = stdout;
@@ -175,7 +175,7 @@ void parse_input_and_output_files(int argc, char *argv[], int optind)
   if (outfile == stdout && set_binary_mode(fileno(stdout), O_BINARY) < 0)
     die("could not set stdout to binary mode");
 
-  if ((infile = seekable(infile)) == NULL)
+  if (seeking && (infile = seekable(infile)) == NULL)
     die("cannot seek input");
 }
 

@@ -154,7 +154,7 @@ main(int argc, char *argv[])
      pagerange = addrange(argv[optind++], NULL);
    }
 
-   parse_input_and_output_files(argc, argv, optind);
+   parse_input_and_output_files(argc, argv, optind, 1);
 
    scanpages(NULL);
 
