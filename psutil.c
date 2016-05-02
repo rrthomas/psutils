@@ -23,6 +23,7 @@
 #include "xvasprintf.h"
 #include "verror.h"
 #include "binary-io.h"
+#include "minmax.h"
 
 #define iscomment(x,y) (strncmp(x,y,strlen(y)) == 0)
 
@@ -184,34 +185,26 @@ void parse_input_and_output_files(int argc, char *argv[], int optind, int seekin
 static int fcopy(off_t upto, off_t *ignorelist)
 {
   off_t here = ftello(infile);
-  off_t bytes_left;
 
   if (ignorelist != NULL) {
-    while (*ignorelist > 0 && *ignorelist < here)
-      ignorelist++;
-
     while (*ignorelist > 0 && *ignorelist < upto) {
-      int r = fcopy(*ignorelist, NULL);
-      if (!r || fgets(buffer, BUFSIZ, infile) == NULL)
+      while (*ignorelist > 0 && *ignorelist < here)
+        ignorelist++;
+      if (!fcopy(*ignorelist, NULL) || fgets(buffer, BUFSIZ, infile) == NULL)
 	return 0;
       ignorelist++;
       here = ftello(infile);
-      while (*ignorelist > 0 && *ignorelist < here)
-	ignorelist++;
     }
   }
-  bytes_left = upto - here;
 
-  while (bytes_left > 0) {
-    size_t rw_result;
-    const size_t numtocopy = (bytes_left > BUFSIZ) ? BUFSIZ : bytes_left;
-    rw_result = fread(buffer, 1, numtocopy, infile);
-    if (rw_result < numtocopy) return (0);
-    rw_result = fwrite(buffer, 1, numtocopy, outfile);
-    if (rw_result < numtocopy) return (0);
-    bytes_left -= numtocopy;
+  size_t numtocopy;
+  for (off_t bytes_left = upto - here; bytes_left > 0; bytes_left -= numtocopy) {
+    numtocopy = MIN(bytes_left, BUFSIZ);
+    if (fread(buffer, 1, numtocopy, infile) < numtocopy ||
+        fwrite(buffer, 1, numtocopy, outfile) < numtocopy)
+      return 0;
   }
-  return (1);
+  return 1;
 }
 
 /* build array of pointers to start/end of pages */
