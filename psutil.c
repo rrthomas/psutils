@@ -35,7 +35,6 @@ char pagelabel[BUFSIZ];
 int pageno;
 
 static char buffer[BUFSIZ];
-static long bytes = 0;
 static off_t pagescmt = 0;
 static off_t headerpos = 0;
 static off_t endsetup = 0;
@@ -211,7 +210,6 @@ static int fcopy(off_t upto, off_t *ignorelist)
     rw_result = fwrite(buffer, 1, numtocopy, outfile);
     if (rw_result < numtocopy) return (0);
     bytes_left -= numtocopy;
-    bytes += numtocopy;
   }
   return (1);
 }
@@ -340,7 +338,7 @@ void writestringf(const char *f, ...)
 {
   va_list ap;
   va_start(ap, f);
-  bytes += vfprintf(outfile, f, ap);
+  vfprintf(outfile, f, ap);
   va_end(ap);
 }
 
@@ -365,7 +363,6 @@ void writepagesetup(void)
 	    break;
 	 if (fputs(buffer, outfile) == EOF)
 	    die("I/O error writing page setup %d", outputpage);
-	 bytes += strlen(buffer);
       }
    }
 }
@@ -443,7 +440,7 @@ void writetrailer(void)
       writestring(buffer);
    }
    if (verbose)
-      fprintf(stderr, "Wrote %d pages, %ld bytes\n", outputpage, bytes);
+      fprintf(stderr, "Wrote %d pages\n", outputpage);
 }
 
 /* write a page with nothing on it */
