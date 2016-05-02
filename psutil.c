@@ -217,9 +217,9 @@ static int fcopy(off_t upto, off_t *ignorelist)
 /* build array of pointers to start/end of pages */
 void scanpages(off_t *sizeheaders)
 {
-   register char *comment = buffer+2;
-   register int nesting = 0;
-   register off_t record;
+   char *comment = buffer+2;
+   int nesting = 0;
+   off_t record;
 
    if (sizeheaders)
      *sizeheaders = 0;
