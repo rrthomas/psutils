@@ -39,7 +39,6 @@ extern int pages;
 extern int verbose;
 extern int quiet;
 extern FILE *infile;
-extern FILE *outfile;
 extern char pagelabel[BUFSIZ];
 extern int pageno;
 

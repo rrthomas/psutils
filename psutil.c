@@ -30,7 +30,7 @@ int pages;
 int verbose;
 int quiet;
 FILE *infile;
-FILE *outfile;
+static FILE *outfile;
 char pagelabel[BUFSIZ];
 int pageno;
 

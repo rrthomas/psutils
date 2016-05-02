@@ -37,8 +37,6 @@ main(int argc, char **argv)
    double furx, fury, fllx, flly;
    int showpage = 0, centre = 0, rotate = 0, aspect = 0, maximise = 0;
    char buf[BUFSIZ];
-   FILE *input = stdin;
-   FILE *output = stdout;
    int opt;
 
    set_program_name(argv[0]);
@@ -57,28 +55,17 @@ main(int argc, char **argv)
      }
    }
 
-   if ((argc - optind) < 4 || (argc - optind) > 6) usage();
+   if ((argc - optind) < 4)
+      usage();
 
    fllx = singledimen(argv[optind++]);
    flly = singledimen(argv[optind++]);
    furx = singledimen(argv[optind++]);
    fury = singledimen(argv[optind++]);
 
-   if ((argc - optind) > 0) {
-      if(!(input = fopen(argv[optind], "rb")))
-	 die("can't open input file %s", argv[optind]);
-      optind++;
-   } else if (set_binary_mode(fileno(stdin), O_BINARY) < 0)
-      die("can't reset stdin to binary mode");
+   parse_input_and_output_files(argc, argv, optind, 0);
 
-   if ((argc - optind) > 0) {
-      if(!(output = fopen(argv[optind], "wb")))
-	 die("can't open output file %s", argv[optind]);
-      optind++;
-   } else if (set_binary_mode(fileno(stdout), O_BINARY) < 0)
-      die("can't reset stdout to binary mode");
-
-   while (fgets(buf, BUFSIZ, input)) {
+   while (fgets(buf, BUFSIZ, infile)) {
       if (buf[0] == '%' && (buf[1] == '%' || buf[1] == '!')) {
 	 /* still in comment section */
 	 if (!strncmp(buf, "%%BoundingBox:", 14)) {
@@ -94,79 +81,75 @@ main(int argc, char **argv)
 	 } else if (!strncmp(buf, "%%EndComments", 13)) {
 	    strcpy(buf, "\n"); /* don't repeat %%EndComments */
 	    break;
-	 } else fputs(buf, output);
+	 } else writestring(buf);
       } else break;
    }
 
-   if (bbfound) { /* put BB, followed by scale&translate */
-      int fwidth, fheight;
-      double xscale, yscale;
-      double xoffset = fllx, yoffset = flly;
-      double width = urx-llx, height = ury-lly;
-
-      if (maximise)
-	 if ((width > height && fury-flly > furx - fllx) ||
-	     (width < height && fury-flly < furx - fllx)) 
-	    rotate = 1;
-
-      if (rotate) {
-	 fwidth = fury - flly;
-	 fheight = furx - fllx;
-      } else {
-	 fwidth = furx - fllx;
-	 fheight = fury - flly;
-      }
-
-      xscale = fwidth/width;
-      yscale = fheight/height;
-
-      if (!aspect) {       /* preserve aspect ratio ? */
-	 xscale = yscale = MIN(xscale,yscale);
-      }
-      width *= xscale;     /* actual width and height after scaling */
-      height *= yscale;
-      if (centre) {
-	 if (rotate) {
-	    xoffset += (fheight - height)/2;
-	    yoffset += (fwidth - width)/2;
-	 } else {
-	    xoffset += (fwidth - width)/2;
-	    yoffset += (fheight - height)/2;
-	 }
-      }
-      fprintf(output, 
-	      "%%%%BoundingBox: %d %d %d %d\n", (int)xoffset, (int)yoffset,
-	     (int)(xoffset + (rotate ? height : width)),
-	     (int)(yoffset + (rotate ? width : height)));
-      if (rotate) {  /* compensate for original image shift */
-	 xoffset += height + lly * yscale;  /* displacement for rotation */
-	 yoffset -= llx * xscale;
-      } else {
-	 xoffset -= llx * xscale;
-	 yoffset -= lly * yscale;
-      }
-      fputs("%%EndComments\n", output);
-      if (showpage)
-	 fputs("save /showpage{}def /copypage{}def /erasepage{}def\n", output);
-      else
-	 fputs("%%BeginProcSet: epsffit 1 0\n", output);
-      fputs("gsave\n", output);
-      fprintf(output, "%.3f %.3f translate\n", xoffset, yoffset);
-      if (rotate)
-	 fputs("90 rotate\n", output);
-      fprintf(output, "%.3f %.3f scale\n", xscale, yscale);
-      if (!showpage)
-	 fputs("%%EndProcSet\n", output);
-   }
-   do {
-      fputs(buf, output);
-   } while (fgets(buf, BUFSIZ, input));
-   if (bbfound) {
-      fputs("grestore\n", output);
-      if (showpage)
-	 fputs("restore showpage\n", output); /* just in case */
-   } else
+   if (!bbfound)
       die("no %%%%BoundingBox:");
+
+   /* put BB, followed by scale&translate */
+   double xoffset = fllx, yoffset = flly;
+   double width = urx-llx, height = ury-lly;
+
+   if (maximise)
+      if ((width > height && fury-flly > furx - fllx) ||
+          (width < height && fury-flly < furx - fllx))
+         rotate = 1;
+
+   int fwidth, fheight;
+   if (rotate) {
+      fwidth = fury - flly;
+      fheight = furx - fllx;
+   } else {
+      fwidth = furx - fllx;
+      fheight = fury - flly;
+   }
+
+   double xscale = fwidth/width;
+   double yscale = fheight/height;
+
+   if (!aspect)         /* preserve aspect ratio ? */
+      xscale = yscale = MIN(xscale,yscale);
+   width *= xscale;     /* actual width and height after scaling */
+   height *= yscale;
+   if (centre) {
+      if (rotate) {
+         xoffset += (fheight - height)/2;
+         yoffset += (fwidth - width)/2;
+      } else {
+         xoffset += (fwidth - width)/2;
+         yoffset += (fheight - height)/2;
+      }
+   }
+   writestringf("%%%%BoundingBox: %d %d %d %d\n", (int)xoffset, (int)yoffset,
+           (int)(xoffset + (rotate ? height : width)),
+           (int)(yoffset + (rotate ? width : height)));
+   if (rotate) {  /* compensate for original image shift */
+      xoffset += height + lly * yscale;  /* displacement for rotation */
+      yoffset -= llx * xscale;
+   } else {
+      xoffset -= llx * xscale;
+      yoffset -= lly * yscale;
+   }
+   writestring("%%EndComments\n");
+   if (showpage)
+      writestring("save /showpage{}def /copypage{}def /erasepage{}def\n");
+   else
+      writestring("%%BeginProcSet: epsffit 1 0\n");
+   writestring("gsave\n");
+   writestringf("%.3f %.3f translate\n", xoffset, yoffset);
+   if (rotate)
+      writestring("90 rotate\n");
+   writestringf("%.3f %.3f scale\n", xscale, yscale);
+   if (!showpage)
+      writestring("%%EndProcSet\n");
+   do {
+      writestring(buf);
+   } while (fgets(buf, BUFSIZ, infile));
+   writestring("grestore\n");
+   if (showpage)
+      writestring("restore showpage\n"); /* just in case */
 
    return 0;
 }
