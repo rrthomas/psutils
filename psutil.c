@@ -46,7 +46,7 @@ static off_t *pageptr;
 
 _Noreturn void usage(void)
 {
-  fprintf(stderr, "%s %s\n%sUsage: %s %s",
+  fprintf(stderr, "%s %s\n%sUsage: %s %s\n",
           program_name, PACKAGE_VERSION,
           "(c) Reuben Thomas <rrt@sc3d.org> 2012-2016\n(c) Angus J. C. Duggan 1991-1997\nSee file LICENSE for details.\n",
           program_name, syntax);

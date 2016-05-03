@@ -25,7 +25,7 @@
 #include "psutil.h"
 #include "psspec.h"
 
-const char *syntax = "[-c] [-r] [-a] [-m] [-s] LLX LLY URX URY [INFILE [OUTFILE]]\n";
+const char *syntax = "[-c] [-r] [-a] [-m] [-s] LLX LLY URX URY [INFILE [OUTFILE]]";
 
 const char *argerr_message = "bad dimension\n";
 

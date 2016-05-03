@@ -13,7 +13,7 @@
 
 #include "psutil.h"
 
-const char *syntax = "[-q] [-e] [-o] [-r] [-pPAGES] [INFILE [OUTFILE]]\n";
+const char *syntax = "[-q] [-e] [-o] [-r] [-pPAGES] [INFILE [OUTFILE]]";
 
 const char *argerr_message = "";
 

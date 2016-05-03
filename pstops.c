@@ -15,7 +15,7 @@
 #include "psutil.h"
 #include "psspec.h"
 
-const char *syntax = "[-q] [-b] [-wWIDTH -hHEIGHT|-pPAPER] [-dLWIDTH] PAGESPECS [INFILE [OUTFILE]]\n";
+const char *syntax = "[-q] [-b] [-wWIDTH -hHEIGHT|-pPAPER] [-dLWIDTH] PAGESPECS [INFILE [OUTFILE]]";
 
 const char *argerr_message = "%page specification error:\n"
   "  pagespecs = [modulo:]spec\n"

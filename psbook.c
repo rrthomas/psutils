@@ -13,7 +13,7 @@
 
 #include "psutil.h"
 
-const char *syntax = "[-q] [-sSIGNATURE] [INFILE [OUTFILE]]\n       SIGNATURE must be positive and divisible by 4\n";
+const char *syntax = "[-q] [-sSIGNATURE] [INFILE [OUTFILE]]\n       SIGNATURE must be positive and divisible by 4";
 
 const char *argerr_message = "";
 
