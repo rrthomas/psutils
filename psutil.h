@@ -40,6 +40,7 @@ extern int verbose;
 extern FILE *infile;
 extern char pagelabel[BUFSIZ];
 extern int pageno;
+extern off_t beginprocset;
 
 /* Variables imported from the client program */
 extern const char *syntax;

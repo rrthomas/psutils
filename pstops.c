@@ -18,10 +18,12 @@
 const char *syntax = "[-q] [-b] [-wWIDTH -hHEIGHT|-pPAPER] [-dLWIDTH] PAGESPECS [INFILE [OUTFILE]]";
 
 const char *argerr_message = "%page specification error:\n"
-  "  pagespecs = [modulo:]spec\n"
+  "  pagespecs = [[signature:]modulo:]spec\n"
   "  spec      = [-]pageno[@scale][L|R|U|H|V][(xoff,yoff)][,spec|+spec]\n"
-  "                modulo >= 1, 0 <= pageno < modulo\n";
+  "                signature = 0, 1, or a positive multiple of 4; modulo >= 1; 0 <= pageno < modulo\n";
 
+static int signature = 1;
+static int signature_found = 0;
 static int modulo = 1;
 static int pagesperspec = 1;
 
@@ -38,9 +40,19 @@ static PageSpec *parsespecs(char *str)
       } else {
 	 switch (*str++) {
 	 case ':':
-	    if (spec_count || head != tail || num < 1) argerror();
-	    modulo = num;
-	    num = -1;
+	    if (spec_count > 1 || head != tail)
+              argerror();
+            if (!signature_found) {
+              signature_found = 1;
+              signature = num;
+              if (signature < 0 || (signature > 1 && signature % 4))
+                usage();
+            } else {
+              modulo = num;
+              if (modulo < 1)
+                usage();
+            }
+            num = -1;
 	    break;
 	 case '-':
 	    tail->flags ^= REVERSED;
@@ -144,13 +156,12 @@ main(int argc, char *argv[])
          if(!spec_txt) die("no memory for spec allocation");
          spec_txt[0] = '-';
          spec_txt[1] = opt;
-         spec_txt[2] = 0;
+         spec_txt[2] = '\0';
          if (optarg) strcat(spec_txt, optarg);
          specs = parsespecs(spec_txt);
          free(spec_txt);
-       } else {
+       } else
          usage();
-       }
        break;
      case 'v':	/* version */
      default:
@@ -168,7 +179,7 @@ main(int argc, char *argv[])
    parse_input_and_output_files(argc, argv, optind, 1);
 
    scanpages(NULL);
-   pstops(modulo, pagesperspec, nobinding, specs, draw, NULL);
+   pstops(signature, modulo, pagesperspec, nobinding, specs, draw, NULL);
 
    return 0;
 }

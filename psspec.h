@@ -29,5 +29,5 @@ extern long parseint(char **sp);
 extern double parsedouble(char **sp);
 extern double parsedimen(char **sp);
 extern double singledimen(char *str);
-extern void pstops(int modulo, int pps, int nobind, PageSpec *specs,
+extern void pstops(int signature, int modulo, int pps, int nobind, PageSpec *specs,
                    double draw, off_t *ignorelist);

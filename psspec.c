@@ -13,6 +13,8 @@
 
 #include <string.h>
 
+#include "gcd.h"
+
 double width = -1;
 double height = -1;
 
@@ -92,6 +94,19 @@ double singledimen(char *str)
    return (num);
 }
 
+
+int page_index_to_real_page(PageSpec *ps, int maxpage, int modulo, int signature, int pagebase)
+{
+   int page_number = (ps->flags & REVERSED ? maxpage - pagebase - modulo : pagebase) + ps->pageno;
+   int real_page = page_number - page_number % signature;
+   int page_on_sheet = page_number % 4;
+   if (page_on_sheet == 0 || page_on_sheet == 3)
+      real_page += signature - 1 - (page_number % signature) / 2;
+   else
+      real_page += (page_number % signature) / 2;
+   return real_page;
+}
+
 static const char *prologue = /* PStoPS procset */
    /* Wrap these up with our own versions.  We have to  */
 "userdict begin\
@@ -127,9 +142,15 @@ static const char *prologue = /* PStoPS procset */
  10 setmiterlimit}bind def\
 end\n";
 
-void pstops(int modulo, int pps, int nobind, PageSpec *specs, double draw, off_t *ignorelist)
+void pstops(int signature, int modulo, int pps, int nobind, PageSpec *specs, double draw, off_t *ignorelist)
 {
    int maxpage = ((pages+modulo-1)/modulo)*modulo;
+   if (signature == 0)
+      signature = maxpage = pages+(4-pages%4)%4;
+   else {
+      unsigned long lcm = (signature / gcd(signature, modulo)) * modulo;
+      maxpage = pages+(lcm-pages%lcm)%lcm;
+   }
 
    /* rearrange pages: doesn't cope properly with loaded definitions */
    writeheadermedia((maxpage/modulo)*pps, ignorelist, width, height);
@@ -149,26 +170,23 @@ void pstops(int modulo, int pps, int nobind, PageSpec *specs, double draw, off_t
    }
    writesetup();
    int pageindex = 0;
-   for (int thispg = 0; thispg < maxpage; thispg += modulo) {
+   for (int pagebase = 0; pagebase < maxpage; pagebase += modulo) {
       int add_last = 0;
       for (PageSpec *ps = specs; ps != NULL; ps = ps->next) {
-	 int actualpg;
-	 if (ps->flags & REVERSED)
-	    actualpg = maxpage-thispg-modulo+ps->pageno;
-	 else
-	    actualpg = thispg+ps->pageno;
-	 if (actualpg < pages)
-	    seekpage(actualpg);
+         int real_page = page_index_to_real_page(ps, maxpage, modulo, signature, pagebase);
+
+	 if (real_page < pages)
+	    seekpage(real_page);
 	 if (!add_last) {	/* page label contains original pages */
 	    PageSpec *np = ps;
 	    char *eob = pagelabel;
 	    char sep = '(';
 	    do {
-               eob += sprintf(eob, "%c%d", sep, (np->flags & REVERSED) ? maxpage-thispg-modulo+np->pageno : thispg+np->pageno);
+               eob += sprintf(eob, "%c%d", sep, page_index_to_real_page(np, maxpage, modulo, signature, pagebase) + 1);
 	       sep = ',';
 	    } while ((np->flags & ADD_NEXT) && (np = np->next));
 	    strcpy(eob, ")");
-	    writepageheader(pagelabel, ++pageindex);
+	    writepageheader(pagelabel, real_page < pages ? ++pageindex : -1);
 	 }
 	 writestring("userdict/PStoPSsaved save put\n");
 	 if (ps->flags & GSAVE) {
@@ -194,13 +212,14 @@ void pstops(int modulo, int pps, int nobind, PageSpec *specs, double draw, off_t
 	 }
 	 if ((add_last = (ps->flags & ADD_NEXT) != 0))
 	    writestring("/PStoPSenablepage false def\n");
-	 if (actualpg < pages) {
+	 if (real_page < pages)
 	    writepagesetup();
-	    writestring("PStoPSxform concat\n");
-	    writepagebody(actualpg);
-	 } else
-	    writestring("PStoPSxform concat\
-showpage\n");
+         if (beginprocset)
+            writestring("PStoPSxform concat\n");
+         if (real_page < pages)
+	    writepagebody(real_page);
+	 else
+            writestring("showpage\n");
 	 writestring("PStoPSsaved restore\n");
       }
    }

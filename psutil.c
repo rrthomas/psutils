@@ -33,12 +33,12 @@ FILE *infile;
 static FILE *outfile;
 char pagelabel[BUFSIZ];
 int pageno;
+off_t beginprocset = 0;		/* start of pstops procset */
 
 static char buffer[BUFSIZ];
 static off_t pagescmt = 0;
 static off_t headerpos = 0;
 static off_t endsetup = 0;
-static off_t beginprocset = 0;		/* start of pstops procset */
 static off_t endprocset = 0;
 static int outputpage = 0;
 static int maxpages = 100;
@@ -338,10 +338,13 @@ void writestringf(const char *f, ...)
 /* write page comment */
 void writepageheader(const char *label, int page)
 {
-   if (verbose)
-      fprintf(stderr, "[%d] ", page);
-   sprintf(buffer, "%%%%Page: %s %d\n", label, ++outputpage);
-   writestring(buffer);
+   if (verbose) {
+      if (page < 0)
+         fprintf(stderr, "[*] ");
+      else
+         fprintf(stderr, "[%d] ", page);
+   }
+   writestringf("%%%%Page: %s %d\n", page < 0 ? "*" : label, ++outputpage);
 }
 
 /* search for page setup */

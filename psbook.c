@@ -12,6 +12,7 @@
 #include "progname.h"
 
 #include "psutil.h"
+#include "psspec.h"
 
 const char *syntax = "[-q] [-sSIGNATURE] [INFILE [OUTFILE]]\n       SIGNATURE must be positive and divisible by 4";
 
@@ -44,31 +45,9 @@ main(int argc, char *argv[])
 
    parse_input_and_output_files(argc, argv, optind, 1);
 
-   scanpages(NULL);
-
-   int maxpage;
-   if (!signature)
-      signature = maxpage = pages+(4-pages%4)%4;
-   else
-      maxpage = pages+(signature-pages%signature)%signature;
-
    /* rearrange pages */
-   writeheader(maxpage, NULL);
-   writeprolog();
-   writesetup();
-   for (int currentpg = 0; currentpg < maxpage; currentpg++) {
-      int actualpg = currentpg - currentpg % signature;
-      int page_on_sheet = currentpg % 4;
-      if (page_on_sheet == 0 || page_on_sheet == 3)
-	 actualpg += signature - 1 - (currentpg % signature) / 2;
-      else
-	 actualpg += (currentpg % signature) / 2;
-      if (actualpg < pages)
-	 writepage(actualpg);
-      else
-	 writeemptypage();
-   }
-   writetrailer();
+   scanpages(NULL);
+   pstops(signature, 1, 1, 0, newspec(), 0.0, NULL);
 
    return 0;
 }

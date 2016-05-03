@@ -28,8 +28,6 @@ main(int argc, char *argv[])
    int rotate;
    double inwidth = -1;
    double inheight = -1;
-   off_t sizeheaders[20];			/* headers to remove */
-   PageSpec *specs;
    int opt;
 
    set_program_name (argv[0]);
@@ -73,6 +71,7 @@ main(int argc, char *argv[])
 
    parse_input_and_output_files(argc, argv, optind, 1);
 
+   off_t sizeheaders[20];			/* headers to remove */
    scanpages(sizeheaders);
 
    if (inwidth <= 0 || inheight <= 0)
@@ -103,20 +102,19 @@ main(int argc, char *argv[])
    height /= scale;
 
    /* now construct specification list and run page rearrangement procedure */
-   specs = newspec();
+   PageSpec *specs = newspec();
 
    if (rotate) {
       specs->rotate = 90;
       specs->flags |= ROTATE;
    }
-   specs->pageno = 0;
    specs->scale = scale;
    specs->flags |= SCALE;
    specs->xoff = hshift;
    specs->yoff = vshift;
    specs->flags |= OFFSET;
       
-   pstops(1, 1, 0, specs, 0.0, sizeheaders); /* do page rearrangement */
+   pstops(1, 1, 1, 0, specs, 0.0, sizeheaders); /* do page rearrangement */
 
    return 0;
 }
