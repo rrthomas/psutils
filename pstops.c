@@ -17,7 +17,7 @@
 
 const char *syntax = "[-q] [-b] [-wWIDTH -hHEIGHT|-pPAPER] [-dLWIDTH] PAGESPECS [INFILE [OUTFILE]]";
 
-const char *argerr_message = "%page specification error:\n"
+const char *argerr_message = "page specification error:\n"
   "  pagespecs = [[signature:]modulo:]spec\n"
   "  spec      = [-]pageno[@scale][L|R|U|H|V][(xoff,yoff)][,spec|+spec]\n"
   "                signature = 0, 1, or a positive multiple of 4; modulo >= 1; 0 <= pageno < modulo\n";
