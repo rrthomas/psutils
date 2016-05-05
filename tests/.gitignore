@@ -1,0 +1,4 @@
+*.log
+*.trs
+/test.ps
+/*-test.ps

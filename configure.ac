@@ -83,5 +83,5 @@ fi
 dnl Generate output files
 AC_CONFIG_MACRO_DIR(m4)
 AC_CONFIG_HEADER(config.h)
-AC_CONFIG_FILES(Makefile lib/Makefile)
+AC_CONFIG_FILES(Makefile lib/Makefile tests/Makefile)
 AC_OUTPUT

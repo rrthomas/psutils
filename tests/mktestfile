@@ -1,0 +1,18 @@
+#!/bin/bash
+# Make a test PostScript file of a given number of pages
+# Simply writes a large page number on each page
+# (c) Reuben Thomas 2016
+# This file is in the public domain
+
+# Requires a2ps
+
+# Configuration
+LINES_PER_PAGE=4
+
+# Command-line arguments
+PAGES=$1
+
+# Produce output
+separator=$(printf '\n%.0s' $(eval echo {1..$LINES_PER_PAGE}); printf x); separator=${separator%x}
+seq --separator="$separator" 1 $PAGES | \
+    a2ps --lines-per-page=$LINES_PER_PAGE --portrait --columns=1 --rows=1 --no-header --output=-

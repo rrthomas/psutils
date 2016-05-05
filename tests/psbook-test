@@ -1,0 +1,12 @@
+#!/bin/sh
+set -e
+
+# Test with 20 pages
+$srcdir/mktestfile 20 > test.ps
+$top_srcdir/psbook ./test.ps > psbook-20-test.ps
+diff -u --ignore-matching-lines=CreationDate psbook-20-test.ps $srcdir/psbook-20-expected.ps
+
+# Test with 3 pages
+$srcdir/mktestfile 3 > test.ps
+$top_srcdir/psbook ./test.ps > psbook-3-test.ps
+diff -u --ignore-matching-lines=CreationDate psbook-3-test.ps $srcdir/psbook-3-expected.ps

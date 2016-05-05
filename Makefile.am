@@ -5,7 +5,7 @@
 
 CLOC = cloc --force-lang="C",h --autoconf
 
-SUBDIRS = lib
+SUBDIRS = lib tests
 
 ACLOCAL_AMFLAGS = -I m4
 
