@@ -4,9 +4,9 @@ psselect \- select pages from a PostScript file
 .SH SYNOPSIS
 .B psselect
 .RB [ \-q ]
+.RB [[ \-p ] \fIpages\fR ]
 .RB [ \-e | \-o ]
 .RB [ \-r ]
-.RB [[ \-p ] \fIpages\fR ]
 .RI [ infile
 .RI [ outfile ]]
 .SH DESCRIPTION
@@ -14,16 +14,6 @@ psselect \- select pages from a PostScript file
 selects pages from a PostScript document, creating a new PostScript file.
 The input PostScript file should follow the Adobe Document Structuring
 Conventions.
-.PP
-The 
-.B \-e
-option selects all of the even pages; it may be used in conjunction with the
-other page selection options to select the even pages from a range of pages.
-.PP
-The 
-.B \-o
-option selects all of the odd pages; it may be used in conjunction with the
-other page selection options.
 .PP
 The 
 .BI \-p pages
@@ -42,6 +32,20 @@ The prefix character \[oq]_\[cq] indicates that the page number is relative to t
 of the document, counting backwards.
 If just this character with no page number is used, a blank page will be
 inserted.
+
+Page numbers refer to the pages as they occur in the file, starting
+at one.
+The actual page number in the document may be different.
+.PP
+The 
+.B \-e
+option selects all of the even pages.
+The 
+.B \-o
+option selects all of the odd pages.
+Either may be used in conjunction with
+.B \-p
+to select the even or odd pages from a range of pages.
 .PP
 The 
 .B \-r
@@ -49,26 +53,20 @@ option causes
 .B psselect
 to output the selected pages in reverse order.
 .PP
-.B Psselect
-normally prints the page numbers of the pages rearranged; the
-.B \-q
-option suppresses this.
-.PP
 If any of the
 .BR \-r ,
 .BR \-e ,
 or
 .B \-o
-options are specified, the page range must be given with the
+options are specified, any page range must be given with the
 .B \-p
 option.
 This is for backwards compatibility with previous versions.
-.SH NOTES
-The page number given to
-.I psselect
-is the number of the page counting from the start or end of the file, starting
-at one.
-The actual page number in the document may be different.
+.PP
+.B Psselect
+normally prints the page numbers of the pages rearranged; the
+.B \-q
+option suppresses this.
 .SH AUTHOR
 Written by Angus J. C. Duggan.
 .SH "SEE ALSO"
