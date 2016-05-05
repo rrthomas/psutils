@@ -109,37 +109,37 @@ int page_index_to_real_page(PageSpec *ps, int maxpage, int modulo, int signature
 
 static const char *prologue = /* PStoPS procset */
    /* Wrap these up with our own versions.  We have to  */
-"userdict begin\
-[/showpage/erasepage/copypage]{dup where{pop dup load\
- type/operatortype eq{ /PStoPSenablepage cvx 1 index\
- load 1 array astore cvx {} bind /ifelse cvx 4 array\
- astore cvx def}{pop}ifelse}{pop}ifelse}forall\
- /PStoPSenablepage true def\
-[/letter/legal/executivepage/a4/a4small/b5/com10envelope%nullify\
- /monarchenvelope/c5envelope/dlenvelope/lettersmall/note%paper\
- /folio/quarto/a5]{dup where{dup wcheck{exch{}put}%operators\
- {pop{}def}ifelse}{pop}ifelse}forall\
-/setpagedevice {pop}bind 1 index where{dup wcheck{3 1 roll put}\
- {pop def}ifelse}{def}ifelse\
-/PStoPSmatrix matrix currentmatrix def\
-/PStoPSxform matrix def/PStoPSclip{clippath}def\
-/defaultmatrix{PStoPSmatrix exch PStoPSxform exch concatmatrix}bind def\
-/initmatrix{matrix defaultmatrix setmatrix}bind def\
-/initclip[{matrix currentmatrix PStoPSmatrix setmatrix\
- [{currentpoint}stopped{$error/newerror false put{newpath}}\
- {/newpath cvx 3 1 roll/moveto cvx 4 array astore cvx}ifelse]\
- {[/newpath cvx{/moveto cvx}{/lineto cvx}\
- {/curveto cvx}{/closepath cvx}pathforall]cvx exch pop}\
- stopped{$error/errorname get/invalidaccess eq{cleartomark\
- $error/newerror false put cvx exec}{stop}ifelse}if}bind aload pop\
- /initclip dup load dup type dup/operatortype eq{pop exch pop}\
- {dup/arraytype eq exch/packedarraytype eq or\
-  {dup xcheck{exch pop aload pop}{pop cvx}ifelse}\
-  {pop cvx}ifelse}ifelse\
- {newpath PStoPSclip clip newpath exec setmatrix} bind aload pop]cvx def\
-/initgraphics{initmatrix newpath initclip 1 setlinewidth\
- 0 setlinecap 0 setlinejoin []0 setdash 0 setgray\
- 10 setmiterlimit}bind def\
+"userdict begin\n\
+[/showpage/erasepage/copypage]{dup where{pop dup load\n\
+ type/operatortype eq{ /PStoPSenablepage cvx 1 index\n\
+ load 1 array astore cvx {} bind /ifelse cvx 4 array\n\
+ astore cvx def}{pop}ifelse}{pop}ifelse}forall\n\
+ /PStoPSenablepage true def\n\
+[/letter/legal/executivepage/a4/a4small/b5/com10envelope%nullify\n\
+ /monarchenvelope/c5envelope/dlenvelope/lettersmall/note%paper\n\
+ /folio/quarto/a5]{dup where{dup wcheck{exch{}put}%operators\n\
+ {pop{}def}ifelse}{pop}ifelse}forall\n\
+/setpagedevice {pop}bind 1 index where{dup wcheck{3 1 roll put}\n\
+ {pop def}ifelse}{def}ifelse\n\
+/PStoPSmatrix matrix currentmatrix def\n\
+/PStoPSxform matrix def/PStoPSclip{clippath}def\n\
+/defaultmatrix{PStoPSmatrix exch PStoPSxform exch concatmatrix}bind def\n\
+/initmatrix{matrix defaultmatrix setmatrix}bind def\n\
+/initclip[{matrix currentmatrix PStoPSmatrix setmatrix\n\
+ [{currentpoint}stopped{$error/newerror false put{newpath}}\n\
+ {/newpath cvx 3 1 roll/moveto cvx 4 array astore cvx}ifelse]\n\
+ {[/newpath cvx{/moveto cvx}{/lineto cvx}\n\
+ {/curveto cvx}{/closepath cvx}pathforall]cvx exch pop}\n\
+ stopped{$error/errorname get/invalidaccess eq{cleartomark\n\
+ $error/newerror false put cvx exec}{stop}ifelse}if}bind aload pop\n\
+ /initclip dup load dup type dup/operatortype eq{pop exch pop}\n\
+ {dup/arraytype eq exch/packedarraytype eq or\n\
+  {dup xcheck{exch pop aload pop}{pop cvx}ifelse}\n\
+  {pop cvx}ifelse}ifelse\n\
+ {newpath PStoPSclip clip newpath exec setmatrix} bind aload pop]cvx def\n\
+/initgraphics{initmatrix newpath initclip 1 setlinewidth\n\
+ 0 setlinecap 0 setlinejoin []0 setdash 0 setgray\n\
+ 10 setmiterlimit}bind def\n\
 end\n";
 
 void pstops(int signature, int modulo, int pps, int nobind, PageSpec *specs, double draw, off_t *ignorelist)
