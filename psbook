@@ -1,0 +1,51 @@
+#!/usr/bin/env perl
+my $version_banner = <<END;
+FIXME: generate this banner
+psbook 2.00
+Copyright (c) Reuben Thomas 2016
+Released under the GPL version 3, or (at your option) any later version.
+END
+
+use warnings;
+use strict;
+
+use File::Basename;
+use Getopt::Long;
+
+my $prog = basename($0);
+my ($help_flag, $version_flag, $quiet_flag);
+my $signature = 0;
+
+sub usage {
+  my ($exit_code) = @_;
+  print STDERR <<END;
+$prog [OPTION...] [INFILE [OUTFILE]]
+Rearrange pages in a PostScript file for printing in signatures.
+
+  --signature N        number of pages per signature
+                       0 = all pages in one signature [default]
+                       1 = one page per signature
+                       otherwise, a multiple of 4
+  --quiet              don't show page numbers being output
+  --help               display this help and exit
+  --version            display version information and exit
+END
+  exit $exit_code;
+}
+
+# Get arguments
+my $opts = GetOptions(
+  "signature", \$signature,
+  "quiet" => \$quiet_flag,
+  "help" => \$help_flag,
+  "version" => \$version_flag,
+ ) or usage(1);
+if ($version_flag) {
+  print STDERR $version_banner;
+  exit 0;
+}
+usage(0) if $help_flag;
+usage(1) if $#ARGV == -1 || ($signature > 1 && $signature % 4 != 0);
+
+# Rearrange pages
+exec("pstops", "$signature:1:0", @ARGV) or die("error running pstops");

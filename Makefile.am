@@ -17,9 +17,9 @@ noinst_LIBRARIES = libpsutils.a
 libpsutils_a_SOURCES = psutil.c psspec.c
 libpsutils_a_LIBADD = $(LIBPAPER)
 
-bin_PROGRAMS = psbook psselect pstops epsffit psnup psresize
+bin_PROGRAMS = psselect pstops epsffit psnup psresize
 
-bin_SCRIPTS = psjoin extractres
+bin_SCRIPTS = psjoin extractres psbook
 
 SOURCES_EXTRA = psutil.h psspec.h
 
@@ -39,7 +39,7 @@ PRODUCTIONSOURCES = \
 	$(bin_SCRIPTS) \
 	$(libpsutils_a_SOURCES) \
 	$(SOURCES_EXTRA) \
-	$(psbook_SOURCES) $(psselect_SOURCES) $(pstops_SOURCES) $(epsffit_SOURCES) $(psnup_SOURCES) $(psresize_SOURCES)
+	$(psselect_SOURCES) $(pstops_SOURCES) $(epsffit_SOURCES) $(psnup_SOURCES) $(psresize_SOURCES)
 
 all: includeres
 
