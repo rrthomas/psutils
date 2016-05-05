@@ -147,19 +147,16 @@ main(int argc, char *argv[])
    }
 
    /* If we haven't gotten a page range yet, we better get one now */
-   if (pagerange == NULL && !reverse && !even && !odd) {
-     if (optind > argc)
-       usage();
-     pagerange = addrange(argv[optind++], NULL);
+   if (pagerange == NULL) {
+     if (!reverse && !even && !odd && optind <= argc)
+       pagerange = addrange(argv[optind++], NULL);
+     else
+       pagerange = makerange(1, -1, NULL);
    }
 
    parse_input_and_output_files(argc, argv, optind, 1);
 
    scanpages(NULL);
-
-   /* add default page range */
-   if (!pagerange)
-      pagerange = makerange(1, -1, NULL);
 
    /* reverse page list if not reversing pages (list constructed bottom up) */
    if (!reverse) {
