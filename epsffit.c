@@ -27,7 +27,7 @@
 
 const char *syntax = "[-c] [-r] [-a] [-m] [-s] LLX LLY URX URY [INFILE [OUTFILE]]";
 
-const char *argerr_message = "bad dimension\n";
+const char *argerr_message = "bad dimension";
 
 int
 main(int argc, char **argv)

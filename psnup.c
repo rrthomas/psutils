@@ -20,7 +20,7 @@
 
 const char *syntax = "[-q] [-wWIDTH -hHEIGHT|-pPAPER] [-WWIDTH -HHEIGHT|-PPAPER] [-l] [-r] [-c] [-f] [-mMARGIN] [-bBORDER] [-dLWIDTH] [-sSCALE] [-NUP] [INFILE [OUTFILE]]";
 
-const char *argerr_message = "bad dimension\n";
+const char *argerr_message = "bad dimension";
 
 /* return next larger exact divisor of number, or 0 if none. There is probably
  * a much more efficient method of doing this, but the numbers involved are
@@ -137,7 +137,7 @@ main(int argc, char *argv[])
            strcpy(&(valuestr[opt != 'n']), optarg);
 
          /* Parse and check value */
-         argerr_message = "invalid number\n";
+         argerr_message = "invalid number";
          nup = parseint(&valuestr);
          if (nup == 0)
            die("number of pages per sheet must be positive");

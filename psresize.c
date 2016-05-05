@@ -17,7 +17,7 @@
 
 const char *syntax = "[-q] -wWIDTH -hHEIGHT|-pPAPER -WWIDTH -HHEIGHT|-PPAPER [INFILE [OUTFILE]]";
 
-const char *argerr_message = "bad dimension\n";
+const char *argerr_message = "bad dimension";
 
 int
 main(int argc, char *argv[])
