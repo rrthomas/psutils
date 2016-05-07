@@ -350,8 +350,8 @@ void writepageheader(const char *label, int page)
 /* search for page setup */
 void writepagesetup(void)
 {
-   char buffer[BUFSIZ];
    if (beginprocset) {
+      char buffer[BUFSIZ];
       for (;;) {
 	 if (fgets(buffer, BUFSIZ, infile) == NULL)
 	    die("I/O error reading page setup %d", outputpage);
