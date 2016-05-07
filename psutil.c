@@ -370,14 +370,6 @@ void writepagebody(int p)
       die("I/O error writing page %d", outputpage);
 }
 
-/* write a whole page */
-void writepage(int p)
-{
-   seekpage(p);
-   writepageheader(pagelabel, p+1);
-   writepagebody(p);
-}
-
 /* write from start of file to end of header comments */
 void writeheader(int p, off_t *ignore)
 {
@@ -438,16 +430,3 @@ void writetrailer(void)
    if (verbose)
       fprintf(stderr, "Wrote %d pages\n", outputpage);
 }
-
-/* write a page with nothing on it */
-void writeemptypage(void)
-{
-   if (verbose)
-      fprintf(stderr, "[*] ");
-   sprintf(buffer, "%%%%Page: * %d\n", ++outputpage);
-   writestring(buffer);
-   if (beginprocset)
-      writestring("PStoPSxform concat\n");
-   writestring("showpage\n");
-}
-

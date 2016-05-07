@@ -102,9 +102,14 @@ static int process_pages(PageRange *pagerange, int odd, int even, int count_only
            ((currentpg & 1) ? (odd || all) : (even || all)))) {
         if (!count_only) {
           if (currentpg)
-            writepage(currentpg - 1);
+            seekpage(currentpg - 1);
+          writepageheader(pagelabel, currentpg ? currentpg : -1);
+          if (beginprocset)
+            writestring("PStoPSxform concat\n");
+          if (currentpg)
+            writepagebody(currentpg - 1);
           else
-            writeemptypage();
+            writestring("showpage\n");
         }
         maxpage++;
       }
