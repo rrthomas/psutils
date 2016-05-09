@@ -20,7 +20,6 @@ Makefile.in
 /includeres
 /psnup
 /psresize
-/psselect
 /pstops
 /*.exe
 /libpsutils.a

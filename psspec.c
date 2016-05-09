@@ -18,6 +18,62 @@
 double width = -1;
 double height = -1;
 
+PageRange *makerange(int beg, int end, PageRange *next)
+{
+   PageRange *new;
+   if ((new = (PageRange *)malloc(sizeof(PageRange))) == NULL)
+      die("out of memory");
+   new->first = beg;
+   new->last = end;
+   new->next = next;
+   return (new);
+}
+
+PageRange *addrange(char *str, PageRange *rp)
+{
+   int first=0;
+   int sign;
+
+   if(!str) return NULL;
+
+   sign = (*str == '_' && ++str) ? -1 : 1;
+   if (isdigit((unsigned char)*str)) {
+      first = sign*atoi(str);
+      while (isdigit((unsigned char)*str)) str++;
+   }
+   switch (*str) {
+   case '\0':
+      if (first || sign < 0)
+	 return (makerange(first, first, rp));
+      break;
+   case ',':
+      if (first || sign < 0)
+	 return (addrange(str+1, makerange(first, first, rp)));
+      break;
+   case '-':
+   case ':':
+      str++;
+      sign = (*str == '_' && ++str) ? -1 : 1;
+      if (!first)
+	 first = 1;
+      if (isdigit((unsigned char)*str)) {
+	 int last = sign*atoi(str);
+	 while (isdigit((unsigned char)*str)) str++;
+	 if (*str == '\0')
+	   return (makerange(first, last, rp));
+	 if (*str == ',')
+	   return (addrange(str+1, makerange(first, last, rp)));
+      } else if (*str == '\0')
+	 return (makerange(first, -1, rp));
+      else if (*str == ',')
+	 return (addrange(str+1, makerange(first, -1, rp)));
+   default: /* Avoid a compiler warning */
+     break;
+   }
+   die("invalid page range");
+   return NULL;
+}
+
 /* create a new page spec */
 PageSpec *newspec(void)
 {
@@ -95,7 +151,17 @@ double singledimen(char *str)
 }
 
 
-int page_index_to_real_page(PageSpec *ps, int maxpage, int modulo, int signature, int pagebase)
+static int negative_page_to_positive(int n, int pages)
+{
+  if (n < 0) {
+    n += pages + 1;
+    if (n < 1)
+      n = 1;
+  }
+  return n;
+}
+
+static int page_index_to_real_page(PageSpec *ps, int maxpage, int modulo, int signature, int pagebase)
 {
    int page_number = (ps->flags & REVERSED ? maxpage - pagebase - modulo : pagebase) + ps->pageno;
    int real_page = page_number - page_number % signature;
@@ -142,18 +208,60 @@ static const char *prologue = /* PStoPS procset */
  10 setmiterlimit}bind def\n\
 end\n";
 
-void pstops(int signature, int modulo, int pps, int nobind, PageSpec *specs, double draw, off_t *ignorelist)
+// FIXME: improve variable names
+void pstops(PageRange *pagerange, int signature, int modulo, int pps, int odd, int even, int reverse, int nobind, PageSpec *specs, double draw, off_t *ignorelist)
 {
-   int maxpage = ((pages+modulo-1)/modulo)*modulo;
+   /* If no page range given, select all pages */
+   if (pagerange == NULL)
+      pagerange = makerange(1, -1, NULL);
+
+   /* Reverse page list if not reversing pages (list constructed bottom up) */
+   if (!reverse) {
+      PageRange *revlist = NULL;
+      for (PageRange *next = NULL; pagerange; pagerange = next) {
+         next = pagerange->next;
+         pagerange->next = revlist;
+         revlist = pagerange;
+      }
+      pagerange = revlist;
+   } else { /* Swap start & end if reversing */
+      for (PageRange *r = pagerange; r; r = r->next) {
+         int temp = r->last;
+         r->last = r->first;
+         r->first = temp;
+      }
+   }
+
+   /* adjust for end-relative pageranges */
+   for (PageRange *r = pagerange; r; r = r->next) {
+     r->first = negative_page_to_positive(r->first, pages);
+     r->last = negative_page_to_positive(r->last, pages);
+   }
+
+   /* Get list of pages */
+   int pages_to_output = 0;
+   int page_to_real_page[1000000]; // FIXME!
+   for (PageRange *r = pagerange; r != NULL; r = r->next) {
+      int inc = r->last < r->first ? -1 : 1;
+      for (int currentpg = r->first; r->last - currentpg != -inc; currentpg += inc) {
+         if (currentpg == 0 || (currentpg <= pages &&
+                                !(odd && !even && currentpg % 2 == 0) &&
+                                !(even && !odd && currentpg % 2 == 1)))
+            page_to_real_page[pages_to_output++] = currentpg - 1;
+      }
+   }
+
+   /* Adjust for signature size */
+   int maxpage = ((pages_to_output + modulo - 1) / modulo) * modulo;
    if (signature == 0)
-      signature = maxpage = pages+(4-pages%4)%4;
+      signature = maxpage = pages_to_output + (4 - pages_to_output % 4) % 4;
    else {
       unsigned long lcm = (signature / gcd(signature, modulo)) * modulo;
-      maxpage = pages+(lcm-pages%lcm)%lcm;
+      maxpage = pages_to_output + (lcm - pages_to_output % lcm) % lcm;
    }
 
    /* rearrange pages: doesn't cope properly with loaded definitions */
-   writeheadermedia((maxpage/modulo)*pps, ignorelist, width, height);
+   writeheadermedia((maxpage / modulo) * pps, ignorelist, width, height);
    writestring("%%BeginProcSet: PStoPS");
    if (nobind)
       writestring("-nobind");
@@ -174,19 +282,18 @@ void pstops(int signature, int modulo, int pps, int nobind, PageSpec *specs, dou
       int add_last = 0;
       for (PageSpec *ps = specs; ps != NULL; ps = ps->next) {
          int real_page = page_index_to_real_page(ps, maxpage, modulo, signature, pagebase);
-
-	 if (real_page < pages)
-	    seekpage(real_page);
+	 if (real_page < pages_to_output && page_to_real_page[real_page] < pages)
+	    seekpage(page_to_real_page[real_page]);
 	 if (!add_last) {	/* page label contains original pages */
 	    PageSpec *np = ps;
 	    char *eob = pagelabel;
 	    char sep = '(';
 	    do {
-               eob += sprintf(eob, "%c%d", sep, page_index_to_real_page(np, maxpage, modulo, signature, pagebase) + 1);
+               eob += sprintf(eob, "%c%d", sep, page_to_real_page[page_index_to_real_page(np, maxpage, modulo, signature, pagebase)] + 1);
 	       sep = ',';
 	    } while ((np->flags & ADD_NEXT) && (np = np->next));
 	    strcpy(eob, ")");
-	    writepageheader(pagelabel, real_page < pages ? ++pageindex : -1);
+	    writepageheader(pagelabel, real_page < pages_to_output && page_to_real_page[real_page] < pages ? ++pageindex : -1);
 	 }
 	 writestring("userdict/PStoPSsaved save put\n");
 	 if (ps->flags & GSAVE) {
@@ -212,12 +319,12 @@ void pstops(int signature, int modulo, int pps, int nobind, PageSpec *specs, dou
 	 }
 	 if ((add_last = (ps->flags & ADD_NEXT) != 0))
 	    writestring("/PStoPSenablepage false def\n");
-	 if (real_page < pages)
+	 if (real_page < pages_to_output && page_to_real_page[real_page] < pages)
 	    writepagesetup();
          if (beginprocset)
             writestring("PStoPSxform concat\n");
-         if (real_page < pages)
-	    writepagebody(real_page);
+         if (real_page < pages_to_output && page_to_real_page[real_page] < pages)
+	    writepagebody(page_to_real_page[real_page]);
 	 else
             writestring("showpage\n");
 	 writestring("PStoPSsaved restore\n");

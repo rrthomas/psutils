@@ -114,7 +114,7 @@ main(int argc, char *argv[])
    specs->yoff = vshift;
    specs->flags |= OFFSET;
       
-   pstops(1, 1, 1, 0, specs, 0.0, sizeheaders); /* do page rearrangement */
+   pstops(NULL, 1, 1, 1, 0, 0, 0, 0, specs, 0.0, sizeheaders); /* do page rearrangement */
 
    return 0;
 }

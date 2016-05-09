@@ -252,7 +252,7 @@ main(int argc, char *argv[])
      }
    }
 
-   pstops(1, nup, 1, 0, specs, draw, sizeheaders); /* do page rearrangement */
+   pstops(NULL, 1, nup, 1, 0, 0, 0, 0, specs, draw, sizeheaders); /* do page rearrangement */
 
    return 0;
 }

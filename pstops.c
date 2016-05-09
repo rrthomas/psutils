@@ -80,7 +80,8 @@ static PageSpec *parsespecs(char *str)
 	 case '+':
 	    tail->flags |= ADD_NEXT;
 	 case ',':
-	    if (num < 0 || num >= modulo) argerror();
+	    if (num < 0 || num >= modulo)
+	       argerror();
 	    if ((tail->flags & ADD_NEXT) == 0)
 	       pagesperspec++;
 	    tail->pageno = num;
@@ -105,22 +106,32 @@ int
 main(int argc, char *argv[])
 {
    PageSpec *specs = NULL;
-   int nobinding = 0;
+   PageRange *pagerange = NULL;
+   int nobinding = 0, even = 0, odd = 0, reverse = 0;
    double draw = 0;
-   int opt;
 
    set_program_name (argv[0]);
 
-   while((opt = getopt(argc, argv, "qd::bw:h:p:s:v0123456789")) != EOF) {
+   int opt;
+   while((opt = getopt(argc, argv, "qbd::eh:op:rR:s:vw:0123456789")) != EOF) {
      switch(opt) {
      case 'q':	/* quiet */
        verbose = 0;
        break;
+     case 'b':	/* no bind operator */
+       nobinding = 1;
+       break;
      case 'd':	/* draw borders */
        draw = optarg ? singledimen(optarg) : 1;
        break;
-     case 'b':	/* no bind operator */
-       nobinding = 1;
+     case 'e':  /* select even pages */
+       even = 1;
+       break;
+     case 'o':  /* select odd pages */
+       odd = 1;
+       break;
+     case 'r':  /* reverse pages */
+       reverse = 1;
        break;
      case 'w':	/* page width */
        width = singledimen(optarg);
@@ -131,6 +142,9 @@ main(int argc, char *argv[])
      case 'p':	/* paper type */
        if (!paper_size(optarg, &width, &height))
          die("paper size '%s' not recognised", optarg);
+       break;
+     case 'R': /* page ranges */
+       pagerange = addrange(optarg, pagerange);
        break;
      case 's':  /* signature size */
        signature = parseint(&optarg);
@@ -175,7 +189,7 @@ main(int argc, char *argv[])
    parse_input_and_output_files(argc, argv, optind, 1);
 
    scanpages(NULL);
-   pstops(signature, modulo, pagesperspec, nobinding, specs, draw, NULL);
+   pstops(pagerange, signature, modulo, pagesperspec, odd, even, reverse, nobinding, specs, draw, NULL);
 
    return 0;
 }

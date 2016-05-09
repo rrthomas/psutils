@@ -8,6 +8,10 @@ pstops \- shuffle pages in a PostScript file
 .RB [ \-w\fIwidth\fR
 .BR \-h\fIheight\fR | \-p\fIpaper\fR ]
 .RB [ \-d [ \fIlwidth\fR ]]
+.RB [ -o ]
+.RB [ -e ]
+.RB [ -r ]
+.RB [ -R\fIpages\fR ]
 .RB [ \-s\fIsignature\fR ]
 .I pagespecs
 .RI [ infile
@@ -115,6 +119,44 @@ The
 option can be used as an alternative, to set the paper size.
 See
 .BR paper (1).
+.PP
+The
+.BI \-R pages
+option specifies the pages which are to be selected.
+.I Pages
+is a comma separated list of page ranges, each of which may be a page number,
+or a page range of the form
+.IB first \- last .
+If
+.I first
+is omitted, the first page is assumed, and if
+.I last
+is omitted, the last page is assumed.
+
+The prefix character \[oq]_\[cq] indicates that the page number is relative to the end
+of the document, counting backwards.
+If just this character with no page number is used, a blank page will be
+inserted.
+
+Page numbers refer to the pages as they occur in the file, starting
+at one.
+The actual page number in the document may be different.
+.PP
+The
+.B \-e
+option selects all of the even pages.
+The
+.B \-o
+option selects all of the odd pages.
+Either may be used in conjunction with
+.B \-R
+to select the even or odd pages from a range of pages.
+.PP
+The
+.B \-r
+option causes
+.B psselect
+to output the selected pages in reverse order.
 .PP
 The
 .B \-b

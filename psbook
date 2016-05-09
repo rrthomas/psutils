@@ -35,7 +35,7 @@ END
 
 # Get arguments
 my $opts = GetOptions(
-  "signature", \$signature,
+  "signature=i" => \$signature,
   "quiet" => \$quiet_flag,
   "help" => \$help_flag,
   "version" => \$version_flag,
