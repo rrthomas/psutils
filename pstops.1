@@ -8,6 +8,7 @@ pstops \- shuffle pages in a PostScript file
 .RB [ \-w\fIwidth\fR
 .BR \-h\fIheight\fR | \-p\fIpaper\fR ]
 .RB [ \-d [ \fIlwidth\fR ]]
+.RB [ \-s\fIsignature\fR ]
 .I pagespecs
 .RI [ infile
 .RI [ outfile ]]
@@ -27,7 +28,7 @@ follow the syntax:
 .TP 12
 .I pagespecs
 =
-.RI [[ signature\fB:\fP ] modulo\fB:\fP ] specs
+.RI [ modulo\fB:\fP ] specs
 .TP
 .I specs
 =
@@ -38,9 +39,6 @@ follow the syntax:
 .RB [ - ] \fIpageno\fP [ L | R | U ][ H | V ][ @\fIscale\fP ][ ( \fIxoff\fP , \fIyoff\fP ) ]
 .RE
 .sp
-.I signature
-is the number of pages in each signature, and must be either 1 (the default) or a multiple of 4.
-To put all pages in a single signature, use the value 0.
 .I modulo
 is the number of pages in each block.
 The value of
@@ -131,6 +129,11 @@ option draws a line around the border of each page, of the specified width.
 If the \fIlwidth\fR parameter is omitted, it defaults to \fB1pt\fR.
 The width is relative to the original page dimensions,
 i.e., it is scaled with the rest of the page.
+.PP
+The
+.B \-s
+option gives the number of pages in each signature, which must be either 1 (the default) or a multiple of 4.
+To put all pages in a single signature, use the value 0.
 .PP
 Pstops normally prints the page numbers of the pages re-arranged; the
 .B \-q

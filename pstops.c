@@ -15,15 +15,15 @@
 #include "psutil.h"
 #include "psspec.h"
 
-const char *syntax = "[-q] [-b] [-wWIDTH -hHEIGHT|-pPAPER] [-dLWIDTH] PAGESPECS [INFILE [OUTFILE]]";
+const char *syntax = "[-q] [-b] [-wWIDTH -hHEIGHT|-pPAPER] [-dLWIDTH] [-sSIGNATURE] PAGESPECS [INFILE [OUTFILE]]";
 
 const char *argerr_message = "page specification error:\n"
   "  pagespecs = [[signature:]modulo:]spec\n"
   "  spec      = [-]pageno[@scale][L|R|U|H|V][(xoff,yoff)][,spec|+spec]\n"
-  "                signature = 0, 1, or a positive multiple of 4; modulo >= 1; 0 <= pageno < modulo";
+  "              modulo >= 1; 0 <= pageno < modulo\n"
+  "  SIGNATURE = 0, 1, or a positive multiple of 4";
 
 static int signature = 1;
-static int signature_found = 0;
 static int modulo = 1;
 static int pagesperspec = 1;
 
@@ -40,18 +40,9 @@ static PageSpec *parsespecs(char *str)
       } else {
 	 switch (*str++) {
 	 case ':':
-	    if (spec_count > 1 || head != tail)
-              argerror();
-            if (!signature_found) {
-              signature_found = 1;
-              signature = num;
-              if (signature < 0 || (signature > 1 && signature % 4))
-                usage();
-            } else {
-              modulo = num;
-              if (modulo < 1)
-                usage();
-            }
+            if (spec_count > 1 || head != tail || num < 0)
+               argerror();
+            modulo = num;
             num = -1;
 	    break;
 	 case '-':
@@ -120,7 +111,7 @@ main(int argc, char *argv[])
 
    set_program_name (argv[0]);
 
-   while((opt = getopt(argc, argv, "qd::bw:h:p:v0123456789")) != EOF) {
+   while((opt = getopt(argc, argv, "qd::bw:h:p:s:v0123456789")) != EOF) {
      switch(opt) {
      case 'q':	/* quiet */
        verbose = 0;
@@ -140,6 +131,11 @@ main(int argc, char *argv[])
      case 'p':	/* paper type */
        if (!paper_size(optarg, &width, &height))
          die("paper size '%s' not recognised", optarg);
+       break;
+     case 's':  /* signature size */
+       signature = parseint(&optarg);
+       if (signature < 0 || (signature > 1 && signature % 4))
+         usage();
        break;
      case '0':
      case '1':
