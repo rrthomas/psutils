@@ -320,8 +320,7 @@ void seekpage(int p)
       die("I/O error seeking page %d", p);
 }
 
-/* Output routines. These all update the global variable bytes with the number
- * of bytes written */
+/* Output routines. */
 void writestring(const char *s)
 {
   writestringf("%s", s);
