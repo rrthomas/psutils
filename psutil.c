@@ -30,17 +30,17 @@
 int pages;
 int verbose = 1;
 FILE *infile;
-static FILE *outfile;
+FILE *outfile;
 char pagelabel[BUFSIZ];
 int pageno;
 off_t beginprocset = 0;		/* start of pstops procset */
+int outputpage = 0;
 
 static char buffer[BUFSIZ];
 static off_t pagescmt = 0;
 static off_t headerpos = 0;
 static off_t endsetup = 0;
 static off_t endprocset = 0;
-static int outputpage = 0;
 static int maxpages = 100;
 static off_t *pageptr;
 
@@ -72,14 +72,22 @@ void die(const char *format, ...)
   verror(1, 0, format, args); /* Does not return */
 }
 
+/* Read a line from a FILE * and return it. */
+char *xgetline(FILE *fp)
+{
+  char *l = NULL;
+  size_t n;
+  return getline(&l, &n, fp) == -1 ? NULL : l;
+}
+
 /* Read a line from a pipe and return it without any trailing newline. */
 static char *pgetline(const char *cmd)
 {
   char *l = NULL;
   FILE *fp = popen(cmd, "r");
   if (fp) {
-    size_t n, len;
-    len = getline(&l, &n, fp);
+    l = xgetline(fp);
+    size_t len = strlen(l);
     if (l && l[len - 1] == '\n')
       l[len - 1] = '\0';
     if (pclose(fp) != 0) {
@@ -116,37 +124,30 @@ void check_paper_size_set(void)
 /* Make a file seekable, using temporary files if necessary */
 static FILE *seekable(FILE *fp)
 {
-  FILE *ft;
-  long r, w ;
-  char *p;
-  char buffer[BUFSIZ] ;
+  /* If fp is seekable, we're OK */
   off_t fpos;
-
   if ((fpos = ftello(fp)) >= 0)
     if (!fseeko(fp, (off_t) 0, SEEK_END) && !fseeko(fp, fpos, SEEK_SET))
-      return (fp);
+      return fp;
 
-  if ((ft = tmpfile()) == NULL)
-    return (NULL);
-
-  while ((r = fread(p = buffer, sizeof(char), BUFSIZ, fp)) > 0) {
-    do {
-      if ((w = fwrite(p, sizeof(char), r, ft)) == 0)
-	return (NULL) ;
-      p += w ;
-      r -= w ;
-    } while (r > 0) ;
+  /* Otherwise, copy fp to a temporary file */
+  FILE *ft = tmpfile();
+  if (ft == NULL)
+    return NULL;
+  size_t r;
+  for (char buffer[BUFSIZ]; (r = fread(buffer, sizeof(char), BUFSIZ, fp)) > 0;) {
+    if (fwrite(buffer, sizeof(char), r, ft) != r)
+      return NULL;
   }
-
   if (!feof(fp))
-    return (NULL) ;
+    return NULL;
 
-  /* discard the input file, and rewind the temporary */
+  /* Discard the input file, and rewind the temporary */
   (void) fclose(fp);
   if (fseeko(ft, (off_t) 0, SEEK_SET) != 0)
-    return (NULL) ;
+    return NULL;
 
-  return (ft);
+  return ft;
 }
 
 void parse_input_and_output_files(int argc, char *argv[], int optind, int seeking)
@@ -190,18 +191,21 @@ static int fcopy(off_t upto, off_t *ignorelist)
     while (*ignorelist > 0 && *ignorelist < upto) {
       while (*ignorelist > 0 && *ignorelist < here)
         ignorelist++;
-      if (!fcopy(*ignorelist, NULL) || fgets(buffer, BUFSIZ, infile) == NULL)
+      char *buffer;
+      if (!fcopy(*ignorelist, NULL) || (buffer = xgetline(infile)) == NULL)
 	return 0;
+      free(buffer);
       ignorelist++;
       here = ftello(infile);
     }
   }
 
   size_t numtocopy;
+  char buffer[BUFSIZ];
   for (off_t bytes_left = upto - here; bytes_left > 0; bytes_left -= numtocopy) {
     numtocopy = MIN(bytes_left, BUFSIZ);
-    if (fread(buffer, 1, numtocopy, infile) < numtocopy ||
-        fwrite(buffer, 1, numtocopy, outfile) < numtocopy)
+    if (fread(buffer, sizeof(char), numtocopy, infile) < numtocopy ||
+        fwrite(buffer, sizeof(char), numtocopy, outfile) < numtocopy)
       return 0;
   }
   return 1;
@@ -292,8 +296,8 @@ void scanpages(off_t *sizeheaders)
 void seekpage(int p)
 {
    fseeko(infile, pageptr[p], SEEK_SET);
-   if (fgets(buffer, BUFSIZ, infile) != NULL &&
-       iscomment(buffer, "%%Page:")) {
+   char *buffer = xgetline(infile);
+   if (buffer != NULL && iscomment(buffer, "%%Page:")) {
       char *start, *end;
       for (start = buffer+7; isspace((unsigned char)*start); start++);
       if (*start == '(') {
@@ -315,6 +319,7 @@ void seekpage(int p)
 	 for (end = start; !isspace((unsigned char)*end); end++);
       strncpy(pagelabel, start, end-start);
       pagelabel[end-start] = '\0';
+      free(buffer);
       pageno = atoi(end);
    } else
       die("I/O error seeking page %d", p);
@@ -344,22 +349,6 @@ void writepageheader(const char *label, int page)
          fprintf(stderr, "[%d] ", page);
    }
    writestringf("%%%%Page: %s %d\n", page < 0 ? "*" : label, ++outputpage);
-}
-
-/* search for page setup */
-void writepagesetup(void)
-{
-   if (beginprocset) {
-      char buffer[BUFSIZ];
-      for (;;) {
-	 if (fgets(buffer, BUFSIZ, infile) == NULL)
-	    die("I/O error reading page setup %d", outputpage);
-	 if (!strncmp(buffer, "PStoPSxform", 11))
-	    break;
-	 if (fputs(buffer, outfile) == EOF)
-	    die("I/O error writing page setup %d", outputpage);
-      }
-   }
 }
 
 /* write the body of a page */

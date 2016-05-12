@@ -319,8 +319,19 @@ void pstops(PageRange *pagerange, int signature, int modulo, int pps, int odd, i
 	 }
 	 if ((add_last = (ps->flags & ADD_NEXT) != 0))
 	    writestring("/PStoPSenablepage false def\n");
-	 if (real_page < pages_to_output && page_to_real_page[real_page] < pages)
-	    writepagesetup();
+	 if (beginprocset && real_page < pages_to_output && page_to_real_page[real_page] < pages) {
+            /* search for page setup */
+            for (;;) {
+               char *buffer = xgetline(infile);
+               if (buffer == NULL)
+                  die("I/O error reading page setup %d", outputpage);
+               if (!strncmp(buffer, "PStoPSxform", 11))
+                  break;
+               if (fputs(buffer, outfile) == EOF)
+                  die("I/O error writing page setup %d", outputpage);
+               free(buffer);
+            }
+         }
          if (beginprocset)
             writestring("PStoPSxform concat\n");
          if (real_page < pages_to_output && page_to_real_page[real_page] < pages)

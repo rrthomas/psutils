@@ -15,12 +15,12 @@
 extern void usage(void);
 extern void die(const char *format, ...);
 extern void argerror(void);
+extern char *xgetline(FILE *fp);
 extern int paper_size(const char *paper_name, double *width, double *height);
 extern void check_paper_size_set(void);
 extern void parse_input_and_output_files(int argc, char *argv[], int optind, int seeking);
 extern void seekpage(int p);
 extern void writepageheader(const char *label, int p);
-extern void writepagesetup(void);
 extern void writepagebody(int p);
 extern void writeheadermedia(int p, off_t *ignorelist, double width, double height);
 extern int writepartprolog(void);
@@ -35,9 +35,11 @@ extern void writestringf(const char *f, ...);
 extern int pages;
 extern int verbose;
 extern FILE *infile;
+extern FILE *outfile;
 extern char pagelabel[BUFSIZ];
 extern int pageno;
 extern off_t beginprocset;
+extern int outputpage;
 
 /* Variables imported from the client program */
 extern const char *syntax;
