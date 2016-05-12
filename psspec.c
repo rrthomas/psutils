@@ -173,7 +173,7 @@ static int page_index_to_real_page(PageSpec *ps, int maxpage, int modulo, int si
    return real_page;
 }
 
-static const char *prologue = /* PStoPS procset */
+static const char *procset = /* PStoPS procset */
    /* Wrap these up with our own versions.  We have to  */
 "userdict begin\n\
 [/showpage/erasepage/copypage]{dup where{pop dup load\n\
@@ -260,18 +260,25 @@ void pstops(PageRange *pagerange, int signature, int modulo, int pps, int odd, i
       maxpage = pages_to_output + (lcm - pages_to_output % lcm) % lcm;
    }
 
+   // Work out whether we need procset
+   int use_procset = 0;
+   for (PageSpec *p = specs; p && !use_procset; p = p->next)
+      use_procset |= p->flags & (GSAVE | ADD_NEXT);
+
    /* rearrange pages: doesn't cope properly with loaded definitions */
    writeheadermedia((maxpage / modulo) * pps, ignorelist, width, height);
-   writestring("%%BeginProcSet: PStoPS");
-   if (nobind)
-      writestring("-nobind");
-   writestring(" 1 15\n");
-   writestring(prologue);
-   if (nobind) /* desperation measures */
-      writestring("/bind{}def\n");
-   writestring("%%EndProcSet\n");
+   if (use_procset) {
+      writestring("%%BeginProcSet: PStoPS");
+      if (nobind)
+         writestring("-nobind");
+      writestring(" 1 15\n");
+      writestring(procset);
+      if (nobind) /* desperation measures */
+         writestring("/bind{}def\n");
+      writestring("%%EndProcSet\n");
+   }
    /* save transformation from original to current matrix */
-   if (writepartprolog()) {
+   if (writepartprolog() && use_procset) {
       writestring("userdict/PStoPSxform PStoPSmatrix matrix currentmatrix\n\
  matrix invertmatrix matrix concatmatrix\n\
  matrix invertmatrix put\n");
@@ -295,7 +302,8 @@ void pstops(PageRange *pagerange, int signature, int modulo, int pps, int odd, i
 	    strcpy(eob, ")");
 	    writepageheader(pagelabel, real_page < pages_to_output && page_to_real_page[real_page] < pages ? ++pageindex : -1);
 	 }
-	 writestring("userdict/PStoPSsaved save put\n");
+         if (use_procset)
+            writestring("userdict/PStoPSsaved save put\n");
 	 if (ps->flags & GSAVE) {
 	    writestring("PStoPSmatrix setmatrix\n");
 	    if (ps->flags & OFFSET)
@@ -332,13 +340,14 @@ void pstops(PageRange *pagerange, int signature, int modulo, int pps, int odd, i
                free(buffer);
             }
          }
-         if (beginprocset)
+         if (beginprocset && use_procset)
             writestring("PStoPSxform concat\n");
          if (real_page < pages_to_output && page_to_real_page[real_page] < pages)
 	    writepagebody(page_to_real_page[real_page]);
 	 else
             writestring("showpage\n");
-	 writestring("PStoPSsaved restore\n");
+         if (use_procset)
+            writestring("PStoPSsaved restore\n");
       }
    }
    writetrailer();
