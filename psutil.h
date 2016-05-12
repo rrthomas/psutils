@@ -24,7 +24,6 @@ extern void writepageheader(const char *label, int p);
 extern void writepagebody(int p);
 extern void writeheadermedia(int p, off_t *ignorelist, double width, double height);
 extern int writepartprolog(void);
-extern void writeprolog(void);
 extern void writesetup(void);
 extern void writetrailer(void);
 extern void scanpages(off_t *sizeheaders);

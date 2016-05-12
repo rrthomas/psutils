@@ -384,15 +384,9 @@ int writepartprolog(void)
       die("I/O error in prologue");
    if (endprocset)
       fseeko(infile, endprocset, SEEK_SET);
-   writeprolog();
-   return !beginprocset;
-}
-
-/* write prologue up to end of setup section */
-void writeprolog(void)
-{
    if (!fcopy(endsetup, NULL))
       die("I/O error in prologue");
+   return !beginprocset;
 }
 
 /* write from end of setup to start of pages */
