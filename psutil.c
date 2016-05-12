@@ -369,12 +369,6 @@ void writepagebody(int p)
       die("I/O error writing page %d", outputpage);
 }
 
-/* write from start of file to end of header comments */
-void writeheader(int p, off_t *ignore)
-{
-   writeheadermedia(p, ignore, -1, -1);
-}
-
 void writeheadermedia(int p, off_t *ignore, double width, double height)
 {
    fseeko(infile, (off_t) 0, SEEK_SET);

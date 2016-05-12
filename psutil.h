@@ -22,7 +22,6 @@ extern void seekpage(int p);
 extern void writepageheader(const char *label, int p);
 extern void writepagesetup(void);
 extern void writepagebody(int p);
-extern void writeheader(int p, off_t *ignorelist);
 extern void writeheadermedia(int p, off_t *ignorelist, double width, double height);
 extern int writepartprolog(void);
 extern void writeprolog(void);
