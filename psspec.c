@@ -164,8 +164,8 @@ void pstops(int signature, int modulo, int pps, int nobind, PageSpec *specs, dou
    writestring("%%EndProcSet\n");
    /* save transformation from original to current matrix */
    if (writepartprolog()) {
-      writestring("userdict/PStoPSxform PStoPSmatrix matrix currentmatrix\
- matrix invertmatrix matrix concatmatrix\
+      writestring("userdict/PStoPSxform PStoPSmatrix matrix currentmatrix\n\
+ matrix invertmatrix matrix concatmatrix\n\
  matrix invertmatrix put\n");
    }
    writesetup();
@@ -203,8 +203,8 @@ void pstops(int signature, int modulo, int pps, int nobind, PageSpec *specs, dou
 	       writestringf("%f dup scale\n", ps->scale);
 	    writestring("userdict/PStoPSmatrix matrix currentmatrix put\n");
 	    if (width > 0 && height > 0) {
-	       writestringf("userdict/PStoPSclip{0 0 moveto\
- %f 0 rlineto 0 %f rlineto -%f 0 rlineto\
+	       writestringf("userdict/PStoPSclip{0 0 moveto\n\
+ %f 0 rlineto 0 %f rlineto -%f 0 rlineto\n\
  closepath}put initclip\n", width, height, width);
 	       if (draw > 0)
 		  writestringf("gsave clippath 0 setgray %f setlinewidth stroke grestore\n", draw);
