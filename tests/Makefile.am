@@ -3,15 +3,40 @@
 # Copyright (C) Reuben Thomas 2016
 # See LICENSE for license
 
-TESTS = psbook-test \
-	psselect-test
+TEST_EXTENSIONS = .sh
+SH_LOG_COMPILER = $(srcdir)/run-test
 
-RESULTS = psbook-expected.ps \
-	psselect-expected.ps
+TESTS = psbook-20.sh \
+	psbook-3.sh \
+	psselect-odd.sh \
+	psselect-even.sh \
+	psselect-reverse.sh \
+	psselect-even-reverse.sh \
+	psselect-positive-range.sh \
+	psselect-negative-range.sh \
+	psselect-positive-negative-range.sh \
+	psselect-individual-pages-and-dash-p.sh \
+	psselect-options-and-complex-pagerange.sh \
+	psselect-invalid-pagerange.sh
 
-EXTRA_DIST = mktestfile $(TESTS) $(RESULTS)
+XFAIL_TESTS = \
+	psselect-invalid-pagerange.sh
+
+RESULTS = psbook-20-expected.ps \
+	psbook-3-expected.ps \
+	psselect-odd-expected.ps \
+	psselect-even-expected.ps \
+	psselect-reverse-expected.ps \
+	psselect-even-reverse-expected.ps \
+	psselect-positive-range-expected.ps \
+	psselect-negative-range-expected.ps \
+	psselect-positive-negative-range-expected.ps \
+	psselect-individual-pages-and-dash-p-expected.ps \
+	psselect-options-and-complex-pagerange-expected.ps
+
+EXTRA_DIST = mktestfile run-test $(TESTS) $(RESULTS)
 
 AM_TESTS_ENVIRONMENT = srcdir=$(srcdir) top_srcdir=$(top_srcdir)
 
 clean-local:
-	rm -f *-test.ps
+	rm -f *-input.ps *-output.ps

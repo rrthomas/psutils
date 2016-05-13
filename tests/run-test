@@ -1,0 +1,19 @@
+#!/bin/bash
+# Run a psutils test
+
+set -e
+
+test_file=$1
+name=$(basename ${1%.sh})
+
+# First argument is number of pages for test document
+# Remaining arguments are command to run
+function test() {
+    local pages=$1
+    shift
+    "$srcdir/mktestfile" "$pages" > "$name-input.ps"
+    eval "$@" "$name-input.ps" > "$name-output.ps"
+    diff -u --ignore-matching-lines=CreationDate "$srcdir/$name-expected.ps" "$name-output.ps"
+}
+
+source $test_file
