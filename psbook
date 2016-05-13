@@ -34,11 +34,13 @@ END
 }
 
 # Get arguments
+Getopt::Long::Configure("bundling");
+# Having configured bundling, must give short options explicitly
 my $opts = GetOptions(
-  "signature=i" => \$signature,
-  "quiet" => \$quiet_flag,
-  "help" => \$help_flag,
-  "version" => \$version_flag,
+  "signature|s=i" => \$signature,
+  "quiet|q" => \$quiet_flag,
+  "help|h" => \$help_flag,
+  "version|v" => \$version_flag,
  ) or usage(1);
 if ($version_flag) {
   print STDERR $version_banner;

@@ -35,14 +35,16 @@ END
 }
 
 # Get arguments
+Getopt::Long::Configure("bundling");
+# Having configured bundling, must give short options explicitly
 my $opts = GetOptions(
-  "pages=s" => \$pages,
-  "even" => \$even_flag,
-  "odd" => \$odd_flag,
-  "reverse" => \$reverse_flag,
-  "quiet" => \$quiet_flag,
-  "help" => \$help_flag,
-  "version" => \$version_flag,
+  "pages|p=s" => \$pages,
+  "even|e" => \$even_flag,
+  "odd|o" => \$odd_flag,
+  "reverse|r" => \$reverse_flag,
+  "quiet|q" => \$quiet_flag,
+  "help|h" => \$help_flag,
+  "version|v" => \$version_flag,
  ) or usage(1);
 if ($version_flag) {
   print STDERR $version_banner;
