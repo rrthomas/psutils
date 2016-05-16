@@ -36,7 +36,7 @@ RESULTS = psbook-20-expected.ps \
 
 EXTRA_DIST = mktestfile run-test $(TESTS) $(RESULTS)
 
-AM_TESTS_ENVIRONMENT = srcdir=$(srcdir) top_srcdir=$(top_srcdir)
+AM_TESTS_ENVIRONMENT = srcdir=$(srcdir) PATH=$(top_srcdir):$(PATH)
 
 clean-local:
 	rm -f *-input.ps *-output.ps
