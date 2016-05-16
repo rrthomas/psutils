@@ -7,7 +7,9 @@ TEST_EXTENSIONS = .sh
 SH_LOG_COMPILER = $(srcdir)/run-test
 
 TESTS = psbook-20.sh \
+	psbook-20-signature-4.sh \
 	psbook-3.sh \
+	psbook-3-signature-4.sh \
 	psselect-odd.sh \
 	psselect-even.sh \
 	psselect-reverse.sh \
@@ -20,10 +22,14 @@ TESTS = psbook-20.sh \
 	psselect-invalid-pagerange.sh
 
 XFAIL_TESTS = \
+	psbook-invalid-signature-size.sh \
 	psselect-invalid-pagerange.sh
 
-RESULTS = psbook-20-expected.ps \
+RESULTS = \
+	psbook-20-expected.ps \
+	psbook-20-signature-4-expected.ps \
 	psbook-3-expected.ps \
+	psbook-3-signature-4-expected.ps \
 	psselect-odd-expected.ps \
 	psselect-even-expected.ps \
 	psselect-reverse-expected.ps \
