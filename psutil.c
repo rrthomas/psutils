@@ -365,13 +365,10 @@ void writeheadermedia(int p, off_t *ignore, double width, double height)
       if (!fcopy(pagescmt, ignore) || fgets(buffer, BUFSIZ, infile) == NULL)
 	 die("I/O error in header");
       if (width > -1 && height > -1) {
-         sprintf(buffer, "%%%%DocumentMedia: plain %d %d 0 () ()\n", (int) width, (int) height);
-         writestring(buffer);
-         sprintf(buffer, "%%%%BoundingBox: 0 0 %d %d\n", (int) width, (int) height);
-         writestring(buffer);
+         writestringf("%%%%DocumentMedia: plain %d %d 0 () ()\n", (int) width, (int) height);
+         writestringf("%%%%BoundingBox: 0 0 %d %d\n", (int) width, (int) height);
       }
-      sprintf(buffer, "%%%%Pages: %d 0\n", p);
-      writestring(buffer);
+      writestringf("%%%%Pages: %d 0\n", p);
    }
    if (!fcopy(headerpos, ignore))
       die("I/O error in header");
