@@ -115,7 +115,7 @@ main(int argc, char *argv[])
          die("paper size '%s' not recognised", optarg);
        break;
      case 'P':	/* paper type */
-       if (!paper_size(optarg, &width, &height))
+       if (!paper_size(optarg, &iwidth, &iheight))
          die("paper size '%s' not recognised", optarg);
        break;
      case 'n':	/* n-up, for compatibility with other psnups */
