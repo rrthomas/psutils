@@ -113,8 +113,8 @@ main(int argc, char *argv[])
    set_program_name (argv[0]);
 
    int opt;
-   while((opt = getopt(argc, argv, "qbd::eh:op:rR:s:vw:0123456789")) != EOF) {
-     switch(opt) {
+   while ((opt = getopt(argc, argv, "qbd::eh:H:op:P:rR:s:vw:W:0123456789")) != EOF) {
+     switch (opt) {
      case 'q':	/* quiet */
        verbose = 0;
        break;
@@ -136,11 +136,21 @@ main(int argc, char *argv[])
      case 'w':	/* page width */
        width = singledimen(optarg);
        break;
+     case 'W':	/* input page width */
+       iwidth = singledimen(optarg);
+       break;
      case 'h':	/* page height */
        height = singledimen(optarg);
        break;
+     case 'H':	/* input page height */
+       iheight = singledimen(optarg);
+       break;
      case 'p':	/* paper type */
        if (!paper_size(optarg, &width, &height))
+         die("paper size '%s' not recognised", optarg);
+       break;
+     case 'P':	/* paper type */
+       if (!paper_size(optarg, &iwidth, &iheight))
          die("paper size '%s' not recognised", optarg);
        break;
      case 'R': /* page ranges */
@@ -188,8 +198,16 @@ main(int argc, char *argv[])
 
    parse_input_and_output_files(argc, argv, optind, 1);
 
-   scanpages(NULL);
-   pstops(pagerange, signature, modulo, pagesperspec, odd, even, reverse, nobinding, specs, draw, NULL);
+   if ((iwidth <= 0) ^ (iheight <= 0))
+      die("input page width and height must both be set, or neither");
+
+   off_t *sizeheaders = NULL;
+   if (iwidth >= 0)
+     if ((sizeheaders = malloc(sizeof(off_t) * 20)) == NULL)
+       die("out of memory");
+
+   scanpages(sizeheaders);
+   pstops(pagerange, signature, modulo, pagesperspec, odd, even, reverse, nobinding, specs, draw, sizeheaders);
 
    return 0;
 }

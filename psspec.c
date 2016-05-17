@@ -16,8 +16,12 @@
 #include "xvasprintf.h"
 #include "gcd.h"
 
+/* Output paper size */
 double width = -1;
 double height = -1;
+/* Input paper size, if different from output */
+double iwidth = -1;
+double iheight = -1;
 
 PageRange *makerange(int beg, int end, PageRange *next)
 {

@@ -27,7 +27,8 @@ typedef struct pgrange {
    struct pgrange *next;
 } PageRange;
 
-extern double width, height; /* Width and height of paper in PostScript pt */
+extern double width, height; /* Width and height of output paper in PostScript pt */
+extern double iwidth, iheight; /* Width and height of input paper in PostScript pt */
 
 extern PageSpec *newspec(void);
 extern long parseint(char **sp);
