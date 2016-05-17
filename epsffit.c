@@ -23,7 +23,7 @@
 #include "minmax.h"
 
 #include "psutil.h"
-#include "psspec.h"
+#include "psspec.h" /* for singledimen */
 
 const char *syntax = "[-c] [-r] [-a] [-m] [-s] LLX LLY URX URY [INFILE [OUTFILE]]";
 
@@ -36,7 +36,6 @@ main(int argc, char **argv)
    int urx = 0, ury = 0, llx = 0, lly = 0;
    double furx, fury, fllx, flly;
    int showpage = 0, centre = 0, rotate = 0, aspect = 0, maximise = 0;
-   char buf[BUFSIZ];
    int opt;
 
    set_program_name(argv[0]);
@@ -65,7 +64,8 @@ main(int argc, char **argv)
 
    parse_input_and_output_files(argc, argv, optind, 0);
 
-   while (fgets(buf, BUFSIZ, infile)) {
+   char *buf;
+   for (; (buf = xgetline(infile)) != NULL; free(buf)) {
       if (buf[0] == '%' && (buf[1] == '%' || buf[1] == '!')) {
 	 /* still in comment section */
 	 if (!strncmp(buf, "%%BoundingBox:", 14)) {
@@ -146,7 +146,8 @@ main(int argc, char **argv)
       writestring("%%EndProcSet\n");
    do {
       writestring(buf);
-   } while (fgets(buf, BUFSIZ, infile));
+      free(buf);
+   } while ((buf = xgetline(infile)) != NULL);
    writestring("grestore\n");
    if (showpage)
       writestring("restore showpage\n"); /* just in case */

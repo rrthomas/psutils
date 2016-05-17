@@ -31,12 +31,11 @@ int pages;
 int verbose = 1;
 FILE *infile;
 FILE *outfile;
-char pagelabel[BUFSIZ];
+char *pagelabel = NULL;
 int pageno;
 off_t beginprocset = 0;		/* start of pstops procset */
 int outputpage = 0;
 
-static char buffer[BUFSIZ];
 static off_t pagescmt = 0;
 static off_t headerpos = 0;
 static off_t endsetup = 0;
@@ -214,7 +213,6 @@ static int fcopy(off_t upto, off_t *ignorelist)
 /* build array of pointers to start/end of pages */
 void scanpages(off_t *sizeheaders)
 {
-   char *comment = buffer+2;
    int nesting = 0;
    off_t record;
 
@@ -225,10 +223,10 @@ void scanpages(off_t *sizeheaders)
       die("out of memory");
    pages = 0;
    fseeko(infile, (off_t) 0, SEEK_SET);
-   while (record = ftello(infile), fgets(buffer, BUFSIZ, infile) != NULL)
+   for (char *buffer; record = ftello(infile), (buffer = xgetline(infile)) != NULL; free(buffer))
       if (*buffer == '%') {
 	 if (buffer[1] == '%') {
-	    if (nesting == 0 && iscomment(comment, "Page:")) {
+	    if (nesting == 0 && iscomment(buffer, "%%Page:")) {
 	       if (pages >= maxpages-1) {
 		  maxpages *= 2;
 		  if ((pageptr = (off_t *)realloc((char *)pageptr,
@@ -236,50 +234,50 @@ void scanpages(off_t *sizeheaders)
 		     die("out of memory");
 	       }
 	       pageptr[pages++] = record;
-	    } else if (headerpos == 0 && iscomment(comment, "BoundingBox:")) {
+	    } else if (headerpos == 0 && iscomment(buffer, "%%BoundingBox:")) {
 	       if (sizeheaders) {
 		  *(sizeheaders++) = record;
 		  *sizeheaders = 0;
 	       }
-	    } else if (headerpos == 0 && iscomment(comment, "HiResBoundingBox:")) {
+	    } else if (headerpos == 0 && iscomment(buffer, "%%HiResBoundingBox:")) {
 	       if (sizeheaders) {
 		  *(sizeheaders++) = record;
 		  *sizeheaders = 0;
 	       }
-	    } else if (headerpos == 0 && iscomment(comment,"DocumentPaperSizes:")) {
+	    } else if (headerpos == 0 && iscomment(buffer, "%%DocumentPaperSizes:")) {
 	       if (sizeheaders) {
 		  *(sizeheaders++) = record;
 		  *sizeheaders = 0;
 	       }
-	    } else if (headerpos == 0 && iscomment(comment,"DocumentMedia:")) {
+	    } else if (headerpos == 0 && iscomment(buffer, "%%DocumentMedia:")) {
 	       if (sizeheaders) {
 		  *(sizeheaders++) = record;
 		  *sizeheaders = 0;
 	       }
-	    } else if (headerpos == 0 && iscomment(comment, "Pages:"))
+	    } else if (headerpos == 0 && iscomment(buffer, "%%Pages:"))
 	       pagescmt = record;
-	    else if (headerpos == 0 && iscomment(comment, "EndComments"))
+	    else if (headerpos == 0 && iscomment(buffer, "%%EndComments"))
 	       headerpos = ftello(infile);
-	    else if (iscomment(comment, "BeginDocument") ||
-		     iscomment(comment, "BeginBinary") ||
-		     iscomment(comment, "BeginFile"))
+	    else if (iscomment(buffer, "%%BeginDocument") ||
+		     iscomment(buffer, "%%BeginBinary") ||
+		     iscomment(buffer, "%%BeginFile"))
 	       nesting++;
-	    else if (iscomment(comment, "EndDocument") ||
-		     iscomment(comment, "EndBinary") ||
-		     iscomment(comment, "EndFile"))
+	    else if (iscomment(buffer, "%%EndDocument") ||
+		     iscomment(buffer, "%%EndBinary") ||
+		     iscomment(buffer, "%%EndFile"))
 	       nesting--;
-	    else if (nesting == 0 && iscomment(comment, "EndSetup"))
+	    else if (nesting == 0 && iscomment(buffer, "EndSetup"))
 	       endsetup = record;
-	    else if (nesting == 0 && iscomment(comment, "BeginProlog"))
+	    else if (nesting == 0 && iscomment(buffer, "BeginProlog"))
 	       headerpos = ftello(infile);
 	    else if (nesting == 0 &&
-		       iscomment(comment, "BeginProcSet: PStoPS"))
+		       iscomment(buffer, "%%BeginProcSet: PStoPS"))
 	       beginprocset = record;
 	    else if (beginprocset && !endprocset &&
-		     iscomment(comment, "EndProcSet"))
+		     iscomment(buffer, "%%EndProcSet"))
 	       endprocset = ftello(infile);
-	    else if (nesting == 0 && (iscomment(comment, "Trailer") ||
-				      iscomment(comment, "EOF"))) {
+	    else if (nesting == 0 && (iscomment(buffer, "%%Trailer") ||
+				      iscomment(buffer, "%%EOF"))) {
 	       fseeko(infile, record, SEEK_SET);
 	       break;
 	    }
@@ -317,10 +315,11 @@ void seekpage(int p)
 	    }
       } else
 	 for (end = start; !isspace((unsigned char)*end); end++);
-      strncpy(pagelabel, start, end-start);
-      pagelabel[end-start] = '\0';
-      free(buffer);
+      if (pagelabel != NULL)
+        free(pagelabel);
+      pagelabel = strndup(start, end - start);
       pageno = atoi(end);
+      free(buffer);
    } else
       die("I/O error seeking page %d", p);
 }
@@ -362,8 +361,10 @@ void writeheadermedia(int p, off_t *ignore, double width, double height)
 {
    fseeko(infile, (off_t) 0, SEEK_SET);
    if (pagescmt) {
-      if (!fcopy(pagescmt, ignore) || fgets(buffer, BUFSIZ, infile) == NULL)
+      char *line;
+      if (!fcopy(pagescmt, ignore) || (line = xgetline(infile)) == NULL)
 	 die("I/O error in header");
+      free(line);
       if (width > -1 && height > -1) {
          writestringf("%%%%DocumentMedia: plain %d %d 0 () ()\n", (int) width, (int) height);
          writestringf("%%%%BoundingBox: 0 0 %d %d\n", (int) width, (int) height);
@@ -397,9 +398,8 @@ void writesetup(void)
 void writetrailer(void)
 {
    fseeko(infile, pageptr[pages], SEEK_SET);
-   while (fgets(buffer, BUFSIZ, infile) != NULL) {
+   for (char *buffer; (buffer = xgetline(infile)) != NULL; free(buffer))
       writestring(buffer);
-   }
    if (verbose)
       fprintf(stderr, "Wrote %d pages\n", outputpage);
 }

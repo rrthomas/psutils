@@ -13,6 +13,7 @@
 
 #include <string.h>
 
+#include "xvasprintf.h"
 #include "gcd.h"
 
 double width = -1;
@@ -208,6 +209,13 @@ static const char *procset = /* PStoPS procset */
  10 setmiterlimit}bind def\n\
 end\n";
 
+static void xastrcat(char **s1, const char *s2)
+{
+   char *t = xasprintf("%s%s", *s1 ? *s1 : "", s2);
+   free(*s1);
+   *s1 = t;
+}
+
 // FIXME: improve variable names
 void pstops(PageRange *pagerange, int signature, int modulo, int pps, int odd, int even, int reverse, int nobind, PageSpec *specs, double draw, off_t *ignorelist)
 {
@@ -293,13 +301,15 @@ void pstops(PageRange *pagerange, int signature, int modulo, int pps, int odd, i
 	    seekpage(page_to_real_page[real_page]);
 	 if (!add_last) {	/* page label contains original pages */
 	    PageSpec *np = ps;
-	    char *eob = pagelabel;
+	    char *pagelabel = NULL;
 	    char sep = '(';
 	    do {
-               eob += sprintf(eob, "%c%d", sep, page_to_real_page[page_index_to_real_page(np, maxpage, modulo, signature, pagebase)] + 1);
+               char *label = xasprintf("%c%d", sep, page_to_real_page[page_index_to_real_page(np, maxpage, modulo, signature, pagebase)] + 1);
+               xastrcat(&pagelabel, label);
+               free(label);
 	       sep = ',';
 	    } while ((np->flags & ADD_NEXT) && (np = np->next));
-	    strcpy(eob, ")");
+	    xastrcat(&pagelabel, ")");
 	    writepageheader(pagelabel, real_page < pages_to_output && page_to_real_page[real_page] < pages ? ++pageindex : -1);
 	 }
          if (use_procset)

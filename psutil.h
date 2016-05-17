@@ -35,7 +35,7 @@ extern int pages;
 extern int verbose;
 extern FILE *infile;
 extern FILE *outfile;
-extern char pagelabel[BUFSIZ];
+extern char *pagelabel;
 extern int pageno;
 extern off_t beginprocset;
 extern int outputpage;
