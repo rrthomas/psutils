@@ -51,14 +51,14 @@ typedef struct pgrange {
 
 #define iscomment(x,y) (strncmp(x,y,strlen(y)) == 0)
 
-size_t pages;
-int verbose = 1;
-FILE *infile;
-FILE *outfile;
-char *pagelabel = NULL;
-int pageno;
-off_t beginprocset = 0;		/* start of pstops procset */
-int outputpage = 0;
+static size_t pages;
+static int verbose = 1;
+static FILE *infile;
+static FILE *outfile;
+static char *pagelabel = NULL;
+static int pageno;
+static off_t beginprocset = 0;		/* start of pstops procset */
+static int outputpage = 0;
 
 static off_t pagescmt = 0;
 static off_t headerpos = 0;
@@ -67,7 +67,7 @@ static off_t endprocset = 0;
 static size_t maxpages = 100;
 static off_t *pageptr;
 
-const char *syntax = "[-q] [-b] [-e|-o] [-r] [-RPAGES] [-wWIDTH -hHEIGHT|-pPAPER] [-WWIDTH -HHEIGHT|-PPAPER] [-dWIDTH] [-sSIGNATURE] PAGESPECS [INFILE [OUTFILE]]";
+static const char *syntax = "[-q] [-b] [-e|-o] [-r] [-RPAGES] [-wWIDTH -hHEIGHT|-pPAPER] [-WWIDTH -HHEIGHT|-PPAPER] [-dWIDTH] [-sSIGNATURE] PAGESPECS [INFILE [OUTFILE]]";
 
 static _Noreturn void usage(void)
 {
@@ -370,11 +370,11 @@ void writetrailer(void)
 // Page spec routines for page rearrangement
 
 /* Output paper size */
-double width = -1;
-double height = -1;
+static double width = -1;
+static double height = -1;
 /* Input paper size, if different from output */
-double iwidth = -1;
-double iheight = -1;
+static double iwidth = -1;
+static double iheight = -1;
 // Global scale factor
 static double scale = 1;
 // Global page offsets
