@@ -19,7 +19,6 @@ Makefile.in
 /epsffit
 /includeres
 /psnup
-/psresize
 /pstops
 /*.exe
 /libpsutils.a

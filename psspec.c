@@ -12,9 +12,11 @@
 #include "psspec.h"
 
 #include <string.h>
+#include <math.h>
 
 #include "xvasprintf.h"
 #include "gcd.h"
+#include "minmax.h"
 
 /* Output paper size */
 double width = -1;
@@ -22,6 +24,13 @@ double height = -1;
 /* Input paper size, if different from output */
 double iwidth = -1;
 double iheight = -1;
+// Global scale factor
+static double scale = 1;
+// Global page offsets
+static double hshift = 0;
+static double vshift = 0;
+// Global rotation
+static int rotate = 0;
 
 PageRange *makerange(int beg, int end, PageRange *next)
 {
@@ -223,6 +232,34 @@ static void xastrcat(char **s1, const char *s2)
 // FIXME: improve variable names
 void pstops(PageRange *pagerange, int signature, int modulo, int pps, int odd, int even, int reverse, int nobind, PageSpec *specs, double draw, off_t *ignorelist)
 {
+   // If input paper size given and different from output paper size, find best orientation for output
+   if (iwidth >= 0 && (iwidth != width || iheight != height)) {
+      // Calculate normal orientation
+      scale = MIN(width / iwidth, height / iheight);
+      double waste = pow(width - scale * iwidth, 2) + pow(height - scale * iheight, 2);
+
+      // Calculate rotated orientation
+      double rscale = MIN(height / iwidth, width / iheight);
+      double rwaste = pow(height - scale * iwidth, 2) + pow(width - scale * iheight, 2);
+
+      // Use the orientation with the least waste
+      if (rwaste < waste) {
+         scale = rscale;
+         rotate = 90;
+         double tmp = width;
+         width = height;
+         height = tmp;
+         hshift = (height - iheight * scale) / 2; // FIXME: height + inheight * scale ?
+         vshift = (width - iwidth * scale) / 2;
+      } else {
+         hshift = (width - iwidth * scale) / 2;
+         vshift = (height - iheight * scale) / 2;
+      }
+
+      width /= scale;
+      height /= scale;
+   }
+
    /* If no page range given, select all pages */
    if (pagerange == NULL)
       pagerange = makerange(1, -1, NULL);
@@ -273,9 +310,11 @@ void pstops(PageRange *pagerange, int signature, int modulo, int pps, int odd, i
    }
 
    // Work out whether we need procset
-   int use_procset = 0;
-   for (PageSpec *p = specs; p && !use_procset; p = p->next)
-      use_procset |= p->flags & (GSAVE | ADD_NEXT);
+   int global_transform = scale != 1 || hshift != 0 || vshift != 0 || rotate != 0;
+   int use_procset = global_transform;
+   if (use_procset == 0)
+      for (PageSpec *p = specs; p && !use_procset; p = p->next)
+         use_procset |= p->flags & (GSAVE | ADD_NEXT);
 
    /* rearrange pages: doesn't cope properly with loaded definitions */
    writeheadermedia((maxpage / modulo) * pps, ignorelist, width, height);
@@ -318,18 +357,18 @@ void pstops(PageRange *pagerange, int signature, int modulo, int pps, int odd, i
 	 }
          if (use_procset)
             writestring("userdict/PStoPSsaved save put\n");
-	 if (ps->flags & GSAVE) {
+	 if (global_transform || ps->flags & GSAVE) {
 	    writestring("PStoPSmatrix setmatrix\n");
 	    if (ps->flags & OFFSET)
-	       writestringf("%f %f translate\n", ps->xoff, ps->yoff);
+	       writestringf("%f %f translate\n", ps->xoff + hshift, ps->yoff + vshift);
 	    if (ps->flags & ROTATE)
-	       writestringf("%d rotate\n", ps->rotate);
+	       writestringf("%d rotate\n", (ps->rotate + rotate) % 360);
 	    if (ps->flags & HFLIP)
-	       writestringf("[ -1 0 0 1 %f 0 ] concat\n", width*ps->scale);
+	       writestringf("[ -1 0 0 1 %f 0 ] concat\n", width * ps->scale * scale);
 	    if (ps->flags & VFLIP)
-	       writestringf("[ 1 0 0 -1 0 %f ] concat\n", height*ps->scale);
+	       writestringf("[ 1 0 0 -1 0 %f ] concat\n", height * ps->scale * scale);
 	    if (ps->flags & SCALE)
-	       writestringf("%f dup scale\n", ps->scale);
+	       writestringf("%f dup scale\n", ps->scale * scale);
 	    writestring("userdict/PStoPSmatrix matrix currentmatrix put\n");
 	    if (width > 0 && height > 0) {
 	       writestringf("userdict/PStoPSclip{0 0 moveto\n\

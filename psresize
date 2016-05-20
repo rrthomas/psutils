@@ -1,0 +1,59 @@
+#!/usr/bin/env perl
+my $version_banner = <<END;
+FIXME: generate this banner
+psresize 2.00
+Copyright (c) Reuben Thomas 2016
+Released under the GPL version 3, or (at your option) any later version.
+END
+
+use warnings;
+use strict;
+
+use File::Basename;
+use Getopt::Long;
+
+my $prog = basename($0);
+my ($help_flag, $version_flag);
+
+sub usage {
+  my ($exit_code) = @_;
+  print STDERR <<END;
+$prog [OPTION...] -wWIDTH -hHEIGHT|-pPAPER -WWIDTH -HHEIGHT|-PPAPER [INFILE [OUTFILE]]
+Alter page size of a PostScript file.
+
+  --paper=PAPER        output paper size OR
+  --width=DIMENSION    output paper width and
+  --height=DIMENSION   output paper height
+  --inpaper=PAPER      input paper size OR
+  --inwidth=DIMENSION  input paper width and
+  --inheight=DIMENSION input paper height
+  --quiet              don't show page numbers being output
+  --help               display this help and exit
+  --version            display version information and exit
+END
+  exit $exit_code;
+}
+
+# Get arguments
+Getopt::Long::Configure("bundling");
+# Having configured bundling, must give short option names explicitly
+my @pstops_args = ();
+my $opts = GetOptions(
+  "paper|p=s" => sub { push @pstops_args, "-p", $_[1]; },
+  "inpaper|P=s" => sub { push @pstops_args, "-P", $_[1]; },
+  "width|w=s" => sub { push @pstops_args, "-w", $_[1]; },
+  "height|h=s" => sub { push @pstops_args, "-W", $_[1]; },
+  "inwidth|W=s" => sub { push @pstops_args, "-h", $_[1]; },
+  "inheight|I=s" => sub { push @pstops_args, "-W", $_[1]; },
+  "quiet|q" => sub { push @pstops_args, "-q"; },
+  "help" => \$help_flag,
+  "version|v" => \$version_flag,
+ ) or usage(1);
+if ($version_flag) {
+  print STDERR $version_banner;
+  exit 0;
+}
+usage(0) if $help_flag;
+
+# Resize pages
+exec("pstops", @pstops_args, "0", @ARGV) or die("error running pstops");
