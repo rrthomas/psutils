@@ -191,14 +191,14 @@ static const char *procset = /* PStoPS procset */
    /* Wrap these up with our own versions.  We have to  */
 "userdict begin\n\
 [/showpage/erasepage/copypage]{dup where{pop dup load\n\
- type/operatortype eq{ /PStoPSenablepage cvx 1 index\n\
- load 1 array astore cvx {} bind /ifelse cvx 4 array\n\
- astore cvx def}{pop}ifelse}{pop}ifelse}forall\n\
+ type/operatortype eq{ /PStoPSenablepage cvx 1 index\
+ load 1 array astore cvx {} bind /ifelse cvx 4 array\
+ astore cvx def}{pop}ifelse}{pop}ifelse}forall\
  /PStoPSenablepage true def\n\
-[/letter/legal/executivepage/a4/a4small/b5/com10envelope%nullify\n\
- /monarchenvelope/c5envelope/dlenvelope/lettersmall/note%paper\n\
- /folio/quarto/a5]{dup where{dup wcheck{exch{}put}%operators\n\
- {pop{}def}ifelse}{pop}ifelse}forall\n\
+[/letter/legal/executivepage/a4/a4small/b5/com10envelope\n" // nullify
+" /monarchenvelope/c5envelope/dlenvelope/lettersmall/note\n" // paper
+" /folio/quarto/a5]{dup where{dup wcheck{exch{}put}\n" // operators
+" {pop{}def}ifelse}{pop}ifelse}forall\n\
 /setpagedevice {pop}bind 1 index where{dup wcheck{3 1 roll put}\n\
  {pop def}ifelse}{def}ifelse\n\
 /PStoPSmatrix matrix currentmatrix def\n\
@@ -393,7 +393,7 @@ void pstops(PageRange *pagerange, int signature, int modulo, int pps, int odd, i
                free(buffer);
             }
          }
-         if (beginprocset && use_procset)
+         if (!beginprocset && use_procset)
             writestring("PStoPSxform concat\n");
          if (real_page < pages_to_output && page_to_real_page[real_page] < pages)
 	    writepagebody(page_to_real_page[real_page]);

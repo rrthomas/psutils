@@ -266,12 +266,11 @@ void scanpages(off_t *sizeheaders)
 		     iscomment(buffer, "%%EndBinary") ||
 		     iscomment(buffer, "%%EndFile"))
 	       nesting--;
-	    else if (nesting == 0 && iscomment(buffer, "EndSetup"))
+	    else if (nesting == 0 && iscomment(buffer, "%%EndSetup"))
 	       endsetup = record;
-	    else if (nesting == 0 && iscomment(buffer, "BeginProlog"))
+	    else if (nesting == 0 && iscomment(buffer, "%%BeginProlog"))
 	       headerpos = ftello(infile);
-	    else if (nesting == 0 &&
-		       iscomment(buffer, "%%BeginProcSet: PStoPS"))
+	    else if (nesting == 0 && iscomment(buffer, "%%BeginProcSet: PStoPS"))
 	       beginprocset = record;
 	    else if (beginprocset && !endprocset &&
 		     iscomment(buffer, "%%EndProcSet"))
