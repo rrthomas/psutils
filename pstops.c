@@ -38,6 +38,8 @@
 #define REVERSED (0x40)
 #define GSAVE    (ROTATE|HFLIP|VFLIP|SCALE|OFFSET)
 
+#define iscomment(x,y) (strncmp(x,y,strlen(y)) == 0)
+
 typedef struct pagespec {
   int pageno, flags, rotate;
   double xoff, yoff, scale;
@@ -48,8 +50,6 @@ typedef struct pgrange {
   int first, last;
   struct pgrange *next;
 } PageRange;
-
-#define iscomment(x,y) (strncmp(x,y,strlen(y)) == 0)
 
 static size_t pages;
 static int verbose = 1;
@@ -172,7 +172,7 @@ static FILE *seekable(FILE *fp)
 
 /* copy input file from current position upto new position to output file,
  * ignoring the lines starting at something ignorelist points to */
-static int fcopy(off_t upto, off_t *ignorelist)
+static void fcopy(off_t upto, off_t *ignorelist)
 {
   off_t here = ftello(infile);
 
@@ -181,8 +181,9 @@ static int fcopy(off_t upto, off_t *ignorelist)
       while (*ignorelist > 0 && *ignorelist < here)
         ignorelist++;
       char *buffer;
-      if (!fcopy(*ignorelist, NULL) || (buffer = xgetline(infile)) == NULL)
-	return 0;
+      fcopy(*ignorelist, NULL);
+      if ((buffer = xgetline(infile)) == NULL)
+        die("I/O error");
       free(buffer);
       ignorelist++;
       here = ftello(infile);
@@ -195,95 +196,8 @@ static int fcopy(off_t upto, off_t *ignorelist)
     numtocopy = MIN(bytes_left, BUFSIZ);
     if (fread(buffer, sizeof(char), numtocopy, infile) < numtocopy ||
         fwrite(buffer, sizeof(char), numtocopy, outfile) < numtocopy)
-      return 0;
+      die("I/O error");
   }
-  return 1;
-}
-
-/* build array of pointers to start/end of pages */
-static void scanpages(off_t *sizeheaders)
-{
-  int nesting = 0;
-
-  pageptr = (off_t *)XCALLOC(maxpages, off_t);
-  pages = 0;
-  fseeko(infile, (off_t) 0, SEEK_SET);
-  off_t record;
-  for (char *buffer; record = ftello(infile), (buffer = xgetline(infile)) != NULL; free(buffer))
-    if (*buffer == '%' && buffer[1] == '%') {
-      if (nesting == 0 && iscomment(buffer, "%%Page:")) {
-        if (pages >= maxpages - 1)
-          pageptr = (off_t *)x2nrealloc(pageptr, &maxpages, sizeof(off_t));
-        pageptr[pages++] = record;
-      } else if (headerpos == 0 && sizeheaders && (iscomment(buffer, "%%BoundingBox:") ||
-                                                   iscomment(buffer, "%%HiResBoundingBox:") ||
-                                                   iscomment(buffer, "%%DocumentPaperSizes:") ||
-                                                   iscomment(buffer, "%%DocumentMedia:"))) {
-        *(sizeheaders++) = record;
-      } else if (headerpos == 0 && iscomment(buffer, "%%Pages:"))
-        pagescmt = record;
-      else if (headerpos == 0 && iscomment(buffer, "%%EndComments"))
-        headerpos = ftello(infile);
-      else if (iscomment(buffer, "%%BeginDocument") ||
-               iscomment(buffer, "%%BeginBinary") ||
-               iscomment(buffer, "%%BeginFile"))
-        nesting++;
-      else if (iscomment(buffer, "%%EndDocument") ||
-               iscomment(buffer, "%%EndBinary") ||
-               iscomment(buffer, "%%EndFile"))
-        nesting--;
-      else if (nesting == 0 && iscomment(buffer, "%%EndSetup"))
-        endsetup = record;
-      else if (nesting == 0 && iscomment(buffer, "%%BeginProlog"))
-        headerpos = ftello(infile);
-      else if (nesting == 0 && iscomment(buffer, "%%BeginProcSet: PStoPS"))
-        beginprocset = record;
-      else if (beginprocset && !endprocset && iscomment(buffer, "%%EndProcSet"))
-        endprocset = ftello(infile);
-      else if (nesting == 0 && (iscomment(buffer, "%%Trailer") ||
-                                iscomment(buffer, "%%EOF"))) {
-        fseeko(infile, record, SEEK_SET);
-        break;
-      }
-    } else if (headerpos == 0)
-      headerpos = record;
-  pageptr[pages] = ftello(infile);
-  if (endsetup == 0 || endsetup > pageptr[0])
-    endsetup = pageptr[0];
-}
-
-/* seek a particular page */
-static void seekpage(int p)
-{
-  fseeko(infile, pageptr[p], SEEK_SET);
-  char *buffer = xgetline(infile);
-  if (buffer != NULL && iscomment(buffer, "%%Page:")) {
-    char *start, *end;
-    for (start = buffer+7; isspace((unsigned char)*start); start++);
-    if (*start == '(') {
-      int paren = 1;
-      for (end = start+1; paren > 0; end++)
-        switch (*end) {
-        case '\0':
-          die("Bad page label while seeking page %d", p);
-        case '(':
-          paren++;
-          break;
-        case ')':
-          paren--;
-          break;
-        default:
-          break;
-        }
-    } else
-      for (end = start; !isspace((unsigned char)*end); end++);
-    if (pagelabel != NULL)
-      free(pagelabel);
-    pagelabel = strndup(start, end - start);
-    pageno = atoi(end);
-    free(buffer);
-  } else
-    die("I/O error seeking page %d", p);
 }
 
 /* Output routines. */
@@ -298,72 +212,6 @@ static void writestringf(const char *f, ...)
 static void writestring(const char *s)
 {
   writestringf("%s", s);
-}
-
-/* write page comment */
-static void writepageheader(const char *label, int page)
-{
-  if (verbose) {
-    if (page < 0)
-      fprintf(stderr, "[*] ");
-    else
-      fprintf(stderr, "[%d] ", page);
-  }
-  writestringf("%%%%Page: %s %d\n", page < 0 ? "*" : label, ++outputpage);
-}
-
-/* write the body of a page */
-static void writepagebody(int p)
-{
-  if (!fcopy(pageptr[p+1], NULL))
-    die("I/O error writing page %d", outputpage);
-}
-
-static void writeheadermedia(int p, off_t *ignore, double width, double height)
-{
-  fseeko(infile, (off_t) 0, SEEK_SET);
-  if (pagescmt) {
-    char *line;
-    if (!fcopy(pagescmt, ignore) || (line = xgetline(infile)) == NULL)
-      die("I/O error in header");
-    free(line);
-    if (width > -1 && height > -1) {
-      writestringf("%%%%DocumentMedia: plain %d %d 0 () ()\n", (int) width, (int) height);
-      writestringf("%%%%BoundingBox: 0 0 %d %d\n", (int) width, (int) height);
-    }
-    writestringf("%%%%Pages: %d 0\n", p);
-  }
-  if (!fcopy(headerpos, ignore))
-    die("I/O error in header");
-}
-
-/* write prologue to end of setup section excluding PStoPS procset */
-static int writepartprolog(void)
-{
-  if (beginprocset && !fcopy(beginprocset, NULL))
-    die("I/O error in prologue");
-  if (endprocset)
-    fseeko(infile, endprocset, SEEK_SET);
-  if (!fcopy(endsetup, NULL))
-    die("I/O error in prologue");
-  return !beginprocset;
-}
-
-/* write from end of setup to start of pages */
-static void writesetup(void)
-{
-  if (!fcopy(pageptr[0], NULL))
-    die("I/O error in prologue");
-}
-
-static /* write trailer */
-void writetrailer(void)
-{
-  fseeko(infile, pageptr[pages], SEEK_SET);
-  for (char *buffer; (buffer = xgetline(infile)) != NULL; free(buffer))
-    writestring(buffer);
-  if (verbose)
-    fprintf(stderr, "Wrote %d pages\n", outputpage);
 }
 
 
@@ -394,12 +242,8 @@ static PageRange *makerange(int beg, int end, PageRange *next)
 
 static PageRange *addrange(char *str, PageRange *rp)
 {
-  int first=0;
-  int sign;
-
-  if(!str) return NULL;
-
-  sign = (*str == '_' && ++str) ? -1 : 1;
+  int first = 0;
+  int sign = (*str == '_' && ++str) ? -1 : 1;
   if (isdigit((unsigned char)*str)) {
     first = sign*atoi(str);
     while (isdigit((unsigned char)*str)) str++;
@@ -663,8 +507,22 @@ static void pstops(PageRange *pagerange, int signature, int modulo, int pps, int
     for (PageSpec *p = specs; p && !use_procset; p = p->next)
       use_procset |= p->flags & (GSAVE | ADD_NEXT);
 
-  /* rearrange pages: doesn't cope properly with loaded definitions */
-  writeheadermedia((maxpage / modulo) * pps, ignorelist, width, height);
+  /* Rearrange pages: doesn't cope properly with loaded definitions */
+  int p = (maxpage / modulo) * pps;
+  fseeko(infile, (off_t) 0, SEEK_SET);
+  if (pagescmt) {
+    fcopy(pagescmt, ignorelist);
+    char *line;
+    if ((line = xgetline(infile)) == NULL)
+      die("I/O error in header");
+    free(line);
+    if (width > -1 && height > -1) {
+      writestringf("%%%%DocumentMedia: plain %d %d 0 () ()\n", (int) width, (int) height);
+      writestringf("%%%%BoundingBox: 0 0 %d %d\n", (int) width, (int) height);
+    }
+    writestringf("%%%%Pages: %d 0\n", p);
+  }
+  fcopy(headerpos, ignorelist);
   if (use_procset) {
     writestring("%%BeginProcSet: PStoPS");
     if (nobind)
@@ -675,20 +533,62 @@ static void pstops(PageRange *pagerange, int signature, int modulo, int pps, int
       writestring("/bind{}def\n");
     writestring("%%EndProcSet\n");
   }
+
+  // Write prologue to end of setup section excluding PStoPS procset
+  if (beginprocset)
+    fcopy(beginprocset, NULL);
+  if (endprocset)
+    fseeko(infile, endprocset, SEEK_SET);
+  fcopy(endsetup, NULL);
+
   /* save transformation from original to current matrix */
-  if (writepartprolog() && use_procset) {
+  if (!beginprocset && use_procset) {
     writestring("userdict/PStoPSxform PStoPSmatrix matrix currentmatrix\n\
  matrix invertmatrix matrix concatmatrix\n\
  matrix invertmatrix put\n");
   }
-  writesetup();
+
+  // Write from end of setup to start of pages
+  fcopy(pageptr[0], NULL);
+
   int pageindex = 0;
   for (int pagebase = 0; pagebase < maxpage; pagebase += modulo) {
     int add_last = 0;
     for (PageSpec *ps = specs; ps != NULL; ps = ps->next) {
       int real_page = page_index_to_real_page(ps, maxpage, modulo, signature, pagebase);
-      if (real_page < pages_to_output && page_to_real_page[real_page] < pages)
-        seekpage(page_to_real_page[real_page]);
+      if (real_page < pages_to_output && page_to_real_page[real_page] < pages) {
+        /* Seek the page */
+        int p = page_to_real_page[real_page];
+        fseeko(infile, pageptr[p], SEEK_SET);
+        char *buffer = xgetline(infile);
+        if (buffer != NULL && iscomment(buffer, "%%Page:")) {
+          char *start, *end;
+          for (start = buffer+7; isspace((unsigned char)*start); start++);
+          if (*start == '(') {
+            int paren = 1;
+            for (end = start+1; paren > 0; end++)
+              switch (*end) {
+              case '\0':
+                die("Bad page label while seeking page %d", p);
+              case '(':
+                paren++;
+                break;
+              case ')':
+                paren--;
+                break;
+              default:
+                break;
+              }
+          } else
+            for (end = start; !isspace((unsigned char)*end); end++);
+          if (pagelabel != NULL)
+            free(pagelabel);
+          pagelabel = strndup(start, end - start);
+          pageno = atoi(end);
+          free(buffer);
+        } else
+          die("I/O error seeking page %d", p);
+      }
       if (!add_last) {	/* page label contains original pages */
         PageSpec *np = ps;
         char *pagelabel = NULL;
@@ -700,7 +600,15 @@ static void pstops(PageRange *pagerange, int signature, int modulo, int pps, int
           sep = ',';
         } while ((np->flags & ADD_NEXT) && (np = np->next));
         xastrcat(&pagelabel, ")");
-        writepageheader(pagelabel, real_page < pages_to_output && page_to_real_page[real_page] < pages ? ++pageindex : -1);
+        // Write page comment
+        int page_label_number = real_page < pages_to_output && page_to_real_page[real_page] < pages ? ++pageindex : -1;
+        if (verbose) {
+          if (page_label_number < 0)
+            fprintf(stderr, "[*] ");
+          else
+            fprintf(stderr, "[%d] ", page_label_number);
+        }
+        writestringf("%%%%Page: %s %d\n", page_label_number < 0 ? "*" : pagelabel, ++outputpage);
       }
       if (use_procset)
         writestring("userdict/PStoPSsaved save put\n");
@@ -743,14 +651,21 @@ static void pstops(PageRange *pagerange, int signature, int modulo, int pps, int
       if (!beginprocset && use_procset)
         writestring("PStoPSxform concat\n");
       if (real_page < pages_to_output && page_to_real_page[real_page] < pages)
-        writepagebody(page_to_real_page[real_page]);
+        /* write the body of a page */
+        fcopy(pageptr[page_to_real_page[real_page] + 1], NULL);
       else
         writestring("showpage\n");
       if (use_procset)
         writestring("PStoPSsaved restore\n");
     }
   }
-  writetrailer();
+
+  /* write trailer */
+  fseeko(infile, pageptr[pages], SEEK_SET);
+  for (char *buffer; (buffer = xgetline(infile)) != NULL; free(buffer))
+    writestring(buffer);
+  if (verbose)
+    fprintf(stderr, "Wrote %d pages\n", outputpage);
 }
 
 static int signature = 1;
@@ -903,10 +818,7 @@ main(int argc, char *argv[])
     case '9':
       if (specs == NULL) {
         char *spec_txt = xzalloc((optarg ? strlen(optarg) : 0) + 3);
-        spec_txt[0] = '-';
-        spec_txt[1] = opt;
-        spec_txt[2] = '\0';
-        if (optarg) strcat(spec_txt, optarg);
+        sprintf(spec_txt, "-%c%s", opt, optarg ? optarg : "");
         specs = parsespecs(spec_txt);
         free(spec_txt);
       } else
@@ -956,8 +868,57 @@ main(int argc, char *argv[])
   if ((iwidth <= 0) ^ (iheight <= 0))
     die("input page width and height must both be set, or neither");
 
+  // Build array of pointers to start/end of pages
   off_t *sizeheaders = iwidth >= 0 ? XCALLOC(20, off_t) :NULL;
-  scanpages(sizeheaders);
+  int nesting = 0;
+
+  pageptr = (off_t *)XCALLOC(maxpages, off_t);
+  pages = 0;
+  fseeko(infile, (off_t) 0, SEEK_SET);
+  off_t record;
+  for (char *buffer; record = ftello(infile), (buffer = xgetline(infile)) != NULL; free(buffer))
+    if (*buffer == '%' && buffer[1] == '%') {
+      if (nesting == 0 && iscomment(buffer, "%%Page:")) {
+        if (pages >= maxpages - 1)
+          pageptr = (off_t *)x2nrealloc(pageptr, &maxpages, sizeof(off_t));
+        pageptr[pages++] = record;
+      } else if (headerpos == 0 && sizeheaders && (iscomment(buffer, "%%BoundingBox:") ||
+                                                   iscomment(buffer, "%%HiResBoundingBox:") ||
+                                                   iscomment(buffer, "%%DocumentPaperSizes:") ||
+                                                   iscomment(buffer, "%%DocumentMedia:"))) {
+        *(sizeheaders++) = record;
+      } else if (headerpos == 0 && iscomment(buffer, "%%Pages:"))
+        pagescmt = record;
+      else if (headerpos == 0 && iscomment(buffer, "%%EndComments"))
+        headerpos = ftello(infile);
+      else if (iscomment(buffer, "%%BeginDocument") ||
+               iscomment(buffer, "%%BeginBinary") ||
+               iscomment(buffer, "%%BeginFile"))
+        nesting++;
+      else if (iscomment(buffer, "%%EndDocument") ||
+               iscomment(buffer, "%%EndBinary") ||
+               iscomment(buffer, "%%EndFile"))
+        nesting--;
+      else if (nesting == 0 && iscomment(buffer, "%%EndSetup"))
+        endsetup = record;
+      else if (nesting == 0 && iscomment(buffer, "%%BeginProlog"))
+        headerpos = ftello(infile);
+      else if (nesting == 0 && iscomment(buffer, "%%BeginProcSet: PStoPS"))
+        beginprocset = record;
+      else if (beginprocset && !endprocset && iscomment(buffer, "%%EndProcSet"))
+        endprocset = ftello(infile);
+      else if (nesting == 0 && (iscomment(buffer, "%%Trailer") ||
+                                iscomment(buffer, "%%EOF"))) {
+        fseeko(infile, record, SEEK_SET);
+        break;
+      }
+    } else if (headerpos == 0)
+      headerpos = record;
+  pageptr[pages] = ftello(infile);
+  if (endsetup == 0 || endsetup > pageptr[0])
+    endsetup = pageptr[0];
+
+  // Output the pages
   pstops(pagerange, signature, modulo, pagesperspec, odd, even, reverse, nobinding, specs, draw, sizeheaders);
 
   return 0;
