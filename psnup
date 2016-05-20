@@ -1,0 +1,260 @@
+#!/usr/bin/env perl
+my $version_banner = <<END;
+FIXME: generate this banner
+psnup 2.00
+Copyright (c) Reuben Thomas 2016
+Released under the GPL version 3, or (at your option) any later version.
+END
+
+use v5.14;
+use warnings;
+use strict;
+no if $] >= 5.018, warnings => "experimental::smartmatch";
+
+use File::Basename;
+use Getopt::Long;
+use List::Util qw(min);
+use POSIX qw(strtod);
+
+my $prog = basename($0);
+my ($help_flag, $version_flag);
+
+sub usage {
+  my ($exit_code, $message) = @_;
+  say STDERR $message if $message;
+  print STDERR <<END;
+$prog [OPTION...] -NUP [INFILE [OUTFILE]]
+
+Put multiple pages of a PostScript file on to one page
+
+  --paper=PAPER        output paper size OR
+  --width=DIMENSION    output paper width and
+  --height=DIMENSION   output paper height
+  --inpaper=PAPER      input paper size OR
+  --inwidth=DIMENSION  input paper width and
+  --inheight=DIMENSION input paper height
+  --margin=DIMENSION   width of margin around each output page
+  --border=DIMENSION   width of border around each input page
+  --draw[=DIMENSION]   draw a line of given width around each page
+                       [argument defaults to 1; default is 0]
+  --scale=SCALE        manually set scale of reduction
+  --landscape          pages are landscape (rotated left)
+  --seascape           pages are seascape (rotated right)
+  --flipped            pages have width and height swapped
+  --columnmajor        use column major layout
+  --tolerance=NUMBER   maximum page wastage in square points [100,000]
+  --quiet              don't show page numbers being output
+  --help               display this help and exit
+  --version            display version information and exit
+END
+  exit $exit_code;
+}
+
+# Settings
+my ($horiz, $vert) = (0, 0);
+my $rotate = 0;
+my $column = 0;
+my $flip = 0;
+my ($leftright, $topbottom) = (1, 1);
+my $nup = 1;
+my $draw = 0;				# draw page borders
+my $scale = 1.0;			# page scale
+my $uscale = 0;				# user supplied scale
+my ($margin, $border) = (0, 0);		# paper & page margins
+my ($vshift, $hshift) = (0, 0);		# page centring shifts
+my ($width, $height);			# output paper size
+my ($iwidth, $iheight) = (-1, -1);	# input paper size
+my $tolerance = 100000;			# layout tolerance
+
+# Argument parsers
+sub singledimen {
+  my $str = $_[0];
+  my ($num, $unparsed) = strtod($str);
+  $str = substr($str, length($str) - $unparsed);
+  for ($str) {
+    $num *= 1 when /^pt/;
+    $num *= 72 when /^in/;
+    $num *= 28.346456692913385211 when /^cm/;
+    $num *= 2.8346456692913385211 when /^mm/;
+    when (/^w/) {
+      die("width not set") if !defined($width);
+      $num *= $width;
+    }
+    when (/^h/) {
+      die("height not set") if !defined($height);
+      $num *= $height;
+    }
+    default { usage(1, "bad dimension") };
+  }
+  return $num;
+}
+
+sub parsenup {
+  die("Option $_[0] requires an argument") unless $_[1] ne "";
+  die("Value \"$nup\" invalid for -NUP (number expected)") unless $_[1] =~ /^\d+$/;
+  die("number of pages per sheet must be positive") if $_[1] == 0;
+  $nup = $_[1];
+}
+
+sub parsepaper {
+  die("Option $_[0] requires an argument") unless $_[1] ne "";
+  my ($width, $height) = paper_size($_[1]);
+  die("paper size '$_[1]' unknown") if !defined($width);
+  return $width, $height;
+}
+
+# Parse -NUP, which Getopt::Long can't easily be made to understand
+for (my $i = 0; $i <= $#ARGV; ) {
+  if ($ARGV[$i] =~ /^-\d+/) { # looks like an option
+    die("Value \"$ARGV[$i]\" invalid for -NUP (number expected)") unless $ARGV[$i] =~ /^-\d+$/;
+    $nup = -$ARGV[$i];
+    die("number of pages per sheet must be positive") if $nup == 0;
+    splice(@ARGV, $i, 1)
+  } else {
+    $i++;
+  }
+}
+
+# Get arguments
+Getopt::Long::Configure("bundling");
+# Having configured bundling, must give short options explicitly
+my @pstops_args = ();
+my $opts = GetOptions(
+  "paper|p:s" => sub { push @pstops_args, "-p", $_[1];
+                       ($width, $height) = parsepaper(@_); },
+  "width|w=s" => sub { push @pstops_args, "-w", $_[1];
+                       $width = singledimen($_[1]); },
+  "height|h=s" => sub { push @pstops_args, "-h", $_[1];
+                        $height = singledimen($_[1]); },
+  "inpaper|P=s" => sub { push @pstops_args, "-P", $_[1];
+                         ($iwidth, $iheight) = parsepaper(@_); },
+  "inwidth|W=s" => sub { push @pstops_args, "-W", $_[1];
+                         $iwidth = singledimen($_[1]); },
+  "inheight|H=s" => sub { push @pstops_args, "-H", $_[1];
+                          $iheight = singledimen($_[1]); },
+  "margin|m=s" => sub { $margin = singledimen($_[1]); },
+  "border|b=s" => sub { $margin = singledimen($_[1]); },
+  "draw|d:s" => sub { push @pstops_args, "-d";
+                      $draw = singledimen($_[1] || "1"); },
+  "scale|s=f" => \$uscale,
+  "landscape|l" => sub { $column = !$column; $topbottom = !$topbottom; },
+  "seascape|r" => sub { $column = !$column; $leftright = !$leftright; },
+  "flipped|f" => \$flip,
+  "columnmajor|c" => sub { $column = !$column; },
+  "tolerance|t=i" => \$tolerance,
+  "quiet|q" => sub { push @pstops_args, "-q"; },
+  "help|h" => \$help_flag,
+  "version|v" => \$version_flag,
+  "n=s" => \&parsenup, # for compatibility with other psnup implementations
+ ) or usage(1);
+if ($version_flag) {
+  print STDERR $version_banner;
+  exit 0;
+}
+usage(0) if $help_flag;
+
+# Return next larger exact divisor of number, or 0 if none. There is probably
+# a much more efficient method of doing this, but the numbers involved are
+# small.
+sub nextdiv {
+  my ($n, $m) = @_;
+  while (++$n <= $m) {
+    return $n if $m % $n == 0;
+  }
+  return 0;
+}
+
+# Get the size of the given paper, or the default paper if no argument given.
+sub paper_size {
+  my ($paper_name) = @_;
+  chomp($paper_name = `paper`) unless defined($paper_name);
+  my $dimensions = `paper --unit=pt --size $paper_name`;
+  $dimensions =~ /^([\d.]+) ([\d.]+)/;
+  # Round dimensions to nearest point for compatibility with older psutils
+  # FIXME: check whether this is a good idea
+  return int($1 + 0.5), int($2 + 0.5);
+}
+
+# Set output height/width from corresponding input value if undefined
+$width = $iwidth if $iwidth > 0 && !defined($width);
+$height = $iheight if $iheight > 0 && !defined($height);
+
+# Ensure output paper size is set
+if (!defined($width) && !defined($height)) {
+  ($width, $height) = paper_size();
+  die("output paper size not set, and could not get default paper size")
+    unless defined($width) && defined($height);
+}
+die("output page width and height must both be set") if !defined($width) || !defined($height);
+
+# Calculate paper dimensions, subtracting paper margins from height & width
+my $ppwid = $width - $margin * 2;
+my $pphgt = $height - $margin * 2;
+
+die("paper margins are too large") if $ppwid <= 0 || $pphgt <= 0;
+
+# Finding the best layout is an optimisation problem. We try all of the
+# combinations of width*height in both normal and rotated form, and
+# minimise the wasted space.
+my $best = $tolerance;
+for (my $hor = 1; $hor != 0; $hor = nextdiv($hor, $nup)) {
+  my $ver = $nup / $hor;
+  # try normal orientation first
+  my $scl = min($pphgt / ($height * $ver), $ppwid / ($width * $hor));
+  my $optim = ($ppwid - $scl * $width * $hor) ** 2 + ($pphgt - $scl * $height * $ver) ** 2;
+  if ($optim < $best) {
+    $best = $optim;
+    # recalculate scale to allow for internal borders
+    $scale = min(($pphgt - 2 * $border * $ver) / ($height * $ver),
+                 ($ppwid - 2 * $border * $hor) / ($width * $hor));
+    $hshift = ($ppwid / $hor - $width * $scale) / 2;
+    $vshift = ($pphgt / $ver - $height * $scale) / 2;
+    ($horiz, $vert) = ($hor, $ver);
+    $rotate = $flip;
+  }
+  # try rotated orientation
+  $scl = min($pphgt / ($width * $hor), $ppwid / ($height * $ver));
+  $optim = ($pphgt - $scl * $width * $hor) ** 2 + ($ppwid - $scl * $height * $ver) ** 2;
+  if ($optim < $best) {
+    $best = $optim;
+    # recalculate scale to allow for internal borders
+    $scale = min(($pphgt - 2 * $border * $hor) / ($width * $hor),
+                 ($ppwid - 2 * $border * $ver) / ($height * $ver));
+    $hshift = ($ppwid / $ver - $height * $scale) / 2;
+    $vshift = ($pphgt / $hor - $width * $scale) / 2;
+    ($horiz, $vert) = ($ver, $hor);
+    $rotate = !$flip;
+  }
+}
+
+# fail if nothing better than worst tolerance was found
+die("can't find acceptable layout for $nup-up") if $best == $tolerance;
+
+($width, $height) = ($height, $width) if $flip;	# swap width & height for clipping
+
+if ($rotate) {	# rotate leftright and topbottom orders
+  ($topbottom, $leftright) = (!$leftright, $topbottom);
+  $column = !$column;
+}
+
+# Construct specification list
+my $specs = "$nup:";
+for (my $page = 0; $page < $nup; ) {
+  my ($up, $across); # page index
+  if ($column) {
+    $across = $leftright ? int($page / $vert) : $horiz - 1 - int($page / $vert);
+    $up = $topbottom ? $vert - 1 - $page % $vert : $page % $vert;
+  } else {
+    $across = $leftright ? $page % $horiz : $horiz - 1 - $page % $horiz;
+    $up = $topbottom ? $vert - 1 - int($page / $horiz) : int($page / $horiz);
+  }
+  ($across, $up) = ($across, $up);
+  $specs .= $page . ($rotate ? "L" : "") . "@" . ($uscale > 0 ? $uscale : $scale) .
+    "(" . ($rotate ? $margin + ($across + 1) * $ppwid / $horiz - $hshift : $margin + $across * $ppwid / $horiz + $hshift) . "," .
+    ($margin + $up * $pphgt / $vert + $vshift) . ")";
+  $specs .= "+" if ++$page < $nup;
+}
+
+# Rearrange pages
+print STDERR join " ", ("pstops", @pstops_args, $specs, @ARGV);
+exec("pstops", @pstops_args, $specs, @ARGV) or die("error running pstops");

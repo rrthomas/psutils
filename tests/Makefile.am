@@ -10,6 +10,7 @@ TESTS = psbook-20.sh \
 	psbook-20-signature-4.sh \
 	psbook-3.sh \
 	psbook-3-signature-4.sh \
+	psnup-20-4.sh \
 	psselect-odd.sh \
 	psselect-even.sh \
 	psselect-reverse.sh \
@@ -30,6 +31,7 @@ RESULTS = \
 	psbook-20-signature-4-expected.ps \
 	psbook-3-expected.ps \
 	psbook-3-signature-4-expected.ps \
+	psnup-20-4-expected.ps \
 	psselect-odd-expected.ps \
 	psselect-even-expected.ps \
 	psselect-reverse-expected.ps \

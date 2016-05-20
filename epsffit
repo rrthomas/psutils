@@ -1,0 +1,176 @@
+#!/usr/bin/env perl
+my $version_banner = <<END;
+FIXME: generate this banner
+epsffit 2.00
+Copyright (c) Reuben Thomas 2016
+Released under the GPL version 3, or (at your option) any later version.
+END
+
+use warnings;
+use strict;
+
+use File::Basename;
+use Getopt::Long;
+
+my $prog = basename($0);
+my ($help_flag, $version_flag, $centre, $rotate, $aspect, $maximise, $showpage);
+
+sub usage {
+  my ($exit_code) = @_;
+  print STDERR <<END;
+$prog [OPTION...] [-c] [-r] [-a] [-m] [-s] LLX LLY URX URY [INFILE [OUTFILE]]
+Fit EPSF file into constrained size.
+
+  --centre             
+  --rotate             
+  --aspect             
+  --maximise           
+  --showpage           
+  --help               display this help and exit
+  --version            display version information and exit
+END
+  exit $exit_code;
+}
+
+# Get arguments
+Getopt::Long::Configure("bundling");
+# Having configured bundling, must give short option names explicitly
+my $opts = GetOptions(
+  "centre|c" => \$centre,
+  "rotate|r" => \$rotate,
+  "aspect|a" => \$aspect,
+  "maximise|m" => \$maximise,
+  "showpage|s" => \$showpage,
+  "help|h" => \$help_flag,
+  "version|v" => \$version_flag,
+ ) or usage(1);
+if ($version_flag) {
+  print STDERR $version_banner;
+  exit 0;
+}
+usage(0) if $help_flag;
+usage(1) if $#ARGV < 3 || $#ARGV > 5;
+
+my $bbfound = 0;              # %%BoundingBox: found
+my ($urx, $ury, $llx, $lly) = (0, 0, 0, 0);
+
+# FIXME: common up with psnup
+sub singledimen {
+  my $str = $_[0];
+  my ($num, $unparsed) = strtod($str);
+  $str = substr($str, length($str) - $unparsed);
+  for ($str) {
+    0 when s/^pt//;
+    $num *= 72 when s/^in//;
+    $num *= 28.346456692913385211 when s/^cm//;
+    $num *= 2.8346456692913385211 when s/^mm//;
+    when (s/^w//) {
+      die("width not set") if !defined($width);
+      $num *= $width;
+    }
+    when (s/^h//) {
+      die("height not set") if !defined($height);
+      $num *= $height;
+    }
+  }
+  usage(1, "bad dimension") if $str;
+  return $num;
+}
+
+my $fllx = singledimen(shift);
+my $flly = singledimen(shift);
+my $furx = singledimen(shift);
+my $fury = singledimen(shift);
+
+my $infile = \*STDIN;
+my $outfile = \*STDOUT;
+
+if ($#ARGV >= 0) { # User specified an input file
+  my $name = shift;
+  open($infile, "<", $name) or die("can't open input file '$name'");
+}
+
+if ($#ARGV >= 0) { # User specified an output file
+  my $name = shift;
+  open($outfile, ">", $name) or die("can't open output file '$name'");
+}
+
+usage(1) if $#ARGV != -1; # Check no more arguments were given
+
+binmode($infile) or die("could not set input to binary mode");
+binmode($outfile)or die("could not set output to binary mode");
+
+while (<$infile>) {
+  if (/^%[%!]/) {
+    # still in comment section
+    if (/^%%BoundingBox:/) {
+      if (/^%%BoundingBox:([\d.]+) ([\d.]+) ([\d.]+) ([\d.]+)$/) {
+        $bbfound = 1;
+        $llx = int($1); # accept doubles, but convert to int
+        $lly = int($2);
+        $urx = int($3 + 0.5);
+        $ury = int($4 + 0.5);
+      }
+    } elsif (/^%%EndComments/) {
+      # don't repeat %%EndComments
+      last;
+    } else {
+      say $outfile $_;
+    }
+  } else {
+    last;
+  }
+}
+
+die("no %%%%BoundingBox:") unless $bbfound;
+
+# put BB, followed by scale & translate
+my ($xoffset, $yoffset) = ($fllx, $flly);
+my ($width, $height) = ($urx - $llx, $ury - $lly);
+
+$rotate = 1 if $maximise &&
+  (($width > $height && $fury - $flly > $furx - $fllx) ||
+   ($width < $height && $fury - $flly < $furx - $fllx));
+
+my ($fwidth, $fheight) = ($furx - $fllx, $fury - $flly);
+($fwidth, $fheight) = ($fury - $flly, $furx - $fllx) if $rotate;
+
+my ($xscale, $yscale) = ($fwidth / $width, $fheight / $height);
+
+$xscale = $yscale = min($xscale, $yscale) if !$aspect; # preserve aspect ratio?
+$width *= $xscale; # actual width and height after scaling
+$height *= $yscale;
+if ($centre) {
+   if ($rotate) {
+      $xoffset += ($fheight - $height) / 2;
+      $yoffset += ($fwidth - $width) / 2;
+   } else {
+      $xoffset += ($fwidth - $width) / 2;
+      $yoffset += ($fheight - $height) / 2;
+   }
+}
+say $outfile "%%%%BoundingBox: " . int($xoffset) . " " . int($yoffset) . " " .
+  int($xoffset + ($rotate ? $height : $width)) . " " .
+  int($yoffset + ($rotate ? $width : $height));
+if ($rotate) { # compensate for original image shift
+   $xoffset += $height + $lly * $yscale; # displacement for rotation
+   $yoffset -= $llx * $xscale;
+} else {
+   $xoffset -= $llx * $xscale;
+   $yoffset -= $lly * $yscale;
+}
+say $outfile "%%EndComments";
+if ($showpage) {
+  say $outfile "save /showpage{}def /copypage{}def /erasepage{}def";
+} else {
+  say $outfile "%%BeginProcSet: epsffit 1 0";
+}
+say $outfile "gsave", (sprintf "%.3f %.3f translate", $xoffset, $yoffset);
+say $outfile "90 rotate" if $rotate;
+say $outfile (sprintf "%.3f %.3f scale", $xscale, $yscale);
+say $outfile "%%EndProcSet" unless $showpage;
+do {
+   say $outfile $_;
+} while (<$infile>);
+say $outfile "grestore";
+say $outfile "restore showpage" if $showpage; # just in case

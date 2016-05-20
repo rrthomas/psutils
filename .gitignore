@@ -16,9 +16,7 @@ Makefile.in
 /gnulib
 /lib
 /stamp-h1
-/epsffit
 /includeres
-/psnup
 /pstops
 /*.exe
 /libpsutils.a
