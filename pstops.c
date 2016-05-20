@@ -205,9 +205,6 @@ static void scanpages(off_t *sizeheaders)
 {
   int nesting = 0;
 
-  if (sizeheaders)
-    *sizeheaders = 0;
-
   pageptr = (off_t *)XCALLOC(maxpages, off_t);
   pages = 0;
   fseeko(infile, (off_t) 0, SEEK_SET);
@@ -223,7 +220,6 @@ static void scanpages(off_t *sizeheaders)
                                                    iscomment(buffer, "%%DocumentPaperSizes:") ||
                                                    iscomment(buffer, "%%DocumentMedia:"))) {
         *(sizeheaders++) = record;
-        *sizeheaders = 0;
       } else if (headerpos == 0 && iscomment(buffer, "%%Pages:"))
         pagescmt = record;
       else if (headerpos == 0 && iscomment(buffer, "%%EndComments"))
@@ -960,10 +956,7 @@ main(int argc, char *argv[])
   if ((iwidth <= 0) ^ (iheight <= 0))
     die("input page width and height must both be set, or neither");
 
-  off_t *sizeheaders = NULL;
-  if (iwidth >= 0)
-    sizeheaders = XCALLOC(20, off_t);
-
+  off_t *sizeheaders = iwidth >= 0 ? XCALLOC(20, off_t) :NULL;
   scanpages(sizeheaders);
   pstops(pagerange, signature, modulo, pagesperspec, odd, even, reverse, nobinding, specs, draw, sizeheaders);
 
