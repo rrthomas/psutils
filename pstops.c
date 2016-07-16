@@ -870,7 +870,7 @@ main(int argc, char *argv[])
 
   // Build array of pointers to start/end of pages
   off_t *sizeheaders = iwidth >= 0 ? XCALLOC(20, off_t) : NULL;
-  int nesting = 0;
+  int sizeheader = 0, nesting = 0;
 
   pageptr = (off_t *)XCALLOC(maxpages, off_t);
   pages = 0;
@@ -886,7 +886,7 @@ main(int argc, char *argv[])
                                                    iscomment(buffer, "%%HiResBoundingBox:") ||
                                                    iscomment(buffer, "%%DocumentPaperSizes:") ||
                                                    iscomment(buffer, "%%DocumentMedia:"))) {
-        *(sizeheaders++) = record;
+        sizeheaders[sizeheader++] = record;
       } else if (headerpos == 0 && iscomment(buffer, "%%Pages:"))
         pagescmt = record;
       else if (headerpos == 0 && iscomment(buffer, "%%EndComments"))
