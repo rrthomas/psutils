@@ -869,7 +869,7 @@ main(int argc, char *argv[])
     die("input page width and height must both be set, or neither");
 
   // Build array of pointers to start/end of pages
-  off_t *sizeheaders = iwidth >= 0 ? XCALLOC(20, off_t) :NULL;
+  off_t *sizeheaders = iwidth >= 0 ? XCALLOC(20, off_t) : NULL;
   int nesting = 0;
 
   pageptr = (off_t *)XCALLOC(maxpages, off_t);
