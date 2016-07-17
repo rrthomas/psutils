@@ -171,8 +171,9 @@ static FILE *seekable(FILE *fp)
 }
 
 /* copy input file from current position upto new position to output file,
- * ignoring the lines starting at something ignorelist points to */
-static void fcopy(off_t upto, off_t *ignorelist)
+ * ignoring the lines starting at something ignorelist points to.
+ * Returns updated ignorelist. */
+static off_t *fcopy(off_t upto, off_t *ignorelist)
 {
   off_t here = ftello(infile);
 
@@ -198,6 +199,7 @@ static void fcopy(off_t upto, off_t *ignorelist)
         fwrite(buffer, sizeof(char), numtocopy, outfile) < numtocopy)
       die("I/O error");
   }
+  return ignorelist;
 }
 
 /* Output routines. */
@@ -511,7 +513,7 @@ static void pstops(PageRange *pagerange, int signature, int modulo, int pps, int
   int p = (maxpage / modulo) * pps;
   fseeko(infile, (off_t) 0, SEEK_SET);
   if (pagescmt) {
-    fcopy(pagescmt, ignorelist);
+    ignorelist = fcopy(pagescmt, ignorelist);
     char *line;
     if ((line = xgetline(infile)) == NULL)
       die("I/O error in header");
