@@ -887,9 +887,9 @@ main(int argc, char *argv[])
       } else if (headerpos == 0 && sizeheaders && (iscomment(buffer, "%%BoundingBox:") ||
                                                    iscomment(buffer, "%%HiResBoundingBox:") ||
                                                    iscomment(buffer, "%%DocumentPaperSizes:") ||
-                                                   iscomment(buffer, "%%DocumentMedia:"))) {
+                                                   iscomment(buffer, "%%DocumentMedia:")))
         sizeheaders[sizeheader++] = record;
-      } else if (headerpos == 0 && iscomment(buffer, "%%Pages:"))
+      else if (headerpos == 0 && iscomment(buffer, "%%Pages:"))
         pagescmt = record;
       else if (headerpos == 0 && iscomment(buffer, "%%EndComments"))
         headerpos = ftello(infile);
