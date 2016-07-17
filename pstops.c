@@ -771,13 +771,13 @@ main(int argc, char *argv[])
     case 'd':	/* draw borders */
       draw = optarg ? singledimen(optarg) : 1;
       break;
-    case 'e':  /* select even pages */
+    case 'e':	/* select even pages */
       even = 1;
       break;
-    case 'o':  /* select odd pages */
+    case 'o':	/* select odd pages */
       odd = 1;
       break;
-    case 'r':  /* reverse pages */
+    case 'r':	/* reverse pages */
       reverse = 1;
       break;
     case 'w':	/* page width */
@@ -800,10 +800,10 @@ main(int argc, char *argv[])
       if (!paper_size(optarg, &iwidth, &iheight))
         die("paper size '%s' not recognised", optarg);
       break;
-    case 'R': /* page ranges */
+    case 'R':	/* page ranges */
       pagerange = addrange(optarg, pagerange);
       break;
-    case 's':  /* signature size */
+    case 's':	/* signature size */
       signature = parseint(&optarg);
       if (signature < 0 || (signature > 1 && signature % 4))
         usage();
