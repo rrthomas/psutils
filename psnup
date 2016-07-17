@@ -122,16 +122,11 @@ my @pstops_args = ();
 my $opts = GetOptions(
   "paper|p:s" => sub { push @pstops_args, "-p", $_[1];
                        ($width, $height) = parsepaper(@_); },
-  "width|w=s" => sub { push @pstops_args, "-w", $_[1];
-                       $width = singledimen($_[1]); },
-  "height|h=s" => sub { push @pstops_args, "-h", $_[1];
-                        $height = singledimen($_[1]); },
-  "inpaper|P=s" => sub { push @pstops_args, "-P", $_[1];
-                         ($iwidth, $iheight) = parsepaper(@_); },
-  "inwidth|W=s" => sub { push @pstops_args, "-W", $_[1];
-                         $iwidth = singledimen($_[1]); },
-  "inheight|H=s" => sub { push @pstops_args, "-H", $_[1];
-                          $iheight = singledimen($_[1]); },
+  "width|w=s" => sub { $width = singledimen($_[1]); },
+  "height|h=s" => sub { $height = singledimen($_[1]); },
+  "inpaper|P=s" => sub { ($iwidth, $iheight) = parsepaper(@_); },
+  "inwidth|W=s" => sub { $iwidth = singledimen($_[1]); },
+  "inheight|H=s" => sub { $iheight = singledimen($_[1]); },
   "margin|m=s" => sub { $margin = singledimen($_[1]); },
   "border|b=s" => sub { $margin = singledimen($_[1]); },
   "draw|d:s" => sub { push @pstops_args, "-d";
@@ -184,6 +179,7 @@ if (!defined($width) && !defined($height)) {
   ($width, $height) = paper_size();
   die("output paper size not set, and could not get default paper size")
     unless defined($width) && defined($height);
+  push @pstops_args, "-w", $width, "-h", $height;
 }
 die("output page width and height must both be set") if !defined($width) || !defined($height);
 
@@ -257,4 +253,4 @@ for (my $page = 0; $page < $nup; ) {
 
 # Rearrange pages
 print STDERR join " ", ("pstops", @pstops_args, $specs, @ARGV);
-exec("pstops", @pstops_args, $specs, @ARGV) or die("error running pstops");
+exec("pstops", "-S", @pstops_args, $specs, @ARGV) or die("error running pstops");

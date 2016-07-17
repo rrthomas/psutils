@@ -14,6 +14,7 @@ psnup \- multiple pages per sheet
 .RB [ \-d [ \fIlwidth\fR ]]
 .RB [ \-s\fIscale\fR ]
 .RB [ \-\fInup\fR ]
+.RB [ \-S ]
 .RB [ \-q ]
 .RI [ infile
 .RI [ outfile ]]
@@ -35,13 +36,9 @@ The
 option can be used instead, to set the paper size; otherwise a default value is used
 (see
 .BR paper (1)).
-The
-.BR \-W ,
-.BR \-H ,
-and
-.B \-P
-options set the input paper size, if it is different from the output
-size.
+.PP
+.B \-S
+option causes the input paper size information to be ignored.
 This makes it easy to impose pages of one size on a different size of
 paper.
 .PP

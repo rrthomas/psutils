@@ -222,9 +222,6 @@ static void writestring(const char *s)
 /* Output paper size */
 static double width = -1;
 static double height = -1;
-/* Input paper size, if different from output */
-static double iwidth = -1;
-static double iheight = -1;
 // Global scale factor
 static double scale = 1;
 // Global page offsets
@@ -425,34 +422,6 @@ static void xastrcat(char **s1, const char *s2)
 // FIXME: improve variable names
 static void pstops(PageRange *pagerange, int signature, int modulo, int pps, int odd, int even, int reverse, int nobind, PageSpec *specs, double draw, off_t *ignorelist)
 {
-  // If input paper size given and different from output paper size, find best orientation for output
-  if (iwidth >= 0 && (iwidth != width || iheight != height)) {
-    // Calculate normal orientation
-    scale = MIN(width / iwidth, height / iheight);
-    double waste = pow(width - scale * iwidth, 2) + pow(height - scale * iheight, 2);
-
-    // Calculate rotated orientation
-    double rscale = MIN(height / iwidth, width / iheight);
-    double rwaste = pow(height - scale * iwidth, 2) + pow(width - scale * iheight, 2);
-
-    // Use the orientation with the least waste
-    if (rwaste < waste) {
-      scale = rscale;
-      rotate = 90;
-      double tmp = width;
-      width = height;
-      height = tmp;
-      hshift = (height - iheight * scale) / 2; // FIXME: height + inheight * scale ?
-      vshift = (width - iwidth * scale) / 2;
-    } else {
-      hshift = (width - iwidth * scale) / 2;
-      vshift = (height - iheight * scale) / 2;
-    }
-
-    width /= scale;
-    height /= scale;
-  }
-
   /* If no page range given, select all pages */
   if (pagerange == NULL)
     pagerange = makerange(1, -1, NULL);
@@ -754,13 +723,13 @@ main(int argc, char *argv[])
 {
   PageSpec *specs = NULL;
   PageRange *pagerange = NULL;
-  int nobinding = 0, even = 0, odd = 0, reverse = 0;
+  int nobinding = 0, even = 0, odd = 0, reverse = 0, strip_sizeheaders = 0;
   double draw = 0;
 
   set_program_name (argv[0]);
 
   int opt;
-  while ((opt = getopt(argc, argv, "qbd::eh:H:op:P:rR:s:vw:W:0123456789")) != EOF) {
+  while ((opt = getopt(argc, argv, "qbd::eh:H:op:P:rR:s:Svw:W:0123456789")) != EOF) {
     switch (opt) {
     case 'q':	/* quiet */
       verbose = 0;
@@ -783,21 +752,11 @@ main(int argc, char *argv[])
     case 'w':	/* page width */
       width = singledimen(optarg);
       break;
-    case 'W':	/* input page width */
-      iwidth = singledimen(optarg);
-      break;
     case 'h':	/* page height */
       height = singledimen(optarg);
       break;
-    case 'H':	/* input page height */
-      iheight = singledimen(optarg);
-      break;
     case 'p':	/* paper type */
       if (!paper_size(optarg, &width, &height))
-        die("paper size '%s' not recognised", optarg);
-      break;
-    case 'P':	/* paper type */
-      if (!paper_size(optarg, &iwidth, &iheight))
         die("paper size '%s' not recognised", optarg);
       break;
     case 'R':	/* page ranges */
@@ -807,6 +766,9 @@ main(int argc, char *argv[])
       signature = parseint(&optarg);
       if (signature < 0 || (signature > 1 && signature % 4))
         usage();
+      break;
+    case 'S':	/* strip size headers */
+      strip_sizeheaders = 1;
       break;
     case '0':
     case '1':
@@ -867,11 +829,8 @@ main(int argc, char *argv[])
   if ((infile = seekable(infile)) == NULL)
     die("cannot seek input");
 
-  if ((iwidth <= 0) ^ (iheight <= 0))
-    die("input page width and height must both be set, or neither");
-
   // Build array of pointers to start/end of pages
-  off_t *sizeheaders = iwidth >= 0 ? XCALLOC(20, off_t) : NULL;
+  off_t *sizeheaders = strip_sizeheaders ? XCALLOC(20, off_t) : NULL;
   int sizeheader = 0, nesting = 0;
 
   pageptr = (off_t *)XCALLOC(maxpages, off_t);
