@@ -252,5 +252,4 @@ for (my $page = 0; $page < $nup; ) {
 }
 
 # Rearrange pages
-print STDERR join " ", ("pstops", @pstops_args, $specs, @ARGV);
 exec("pstops", "-S", @pstops_args, $specs, @ARGV) or die("error running pstops");
