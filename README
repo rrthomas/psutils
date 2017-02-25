@@ -10,6 +10,9 @@ PostScript; if PSUtils doesn't work, check your documentation). It is
 possible to select and rearrange pages, including arrangement into
 signatures for booklet printing, and page merging for n-up printing.
 
+If you simply want to use PSUtils, you will find it in most GNU/Linux
+distributions; it is available in brew for macOS and Cygwin for Windows.
+
 PSUtils should work in any POSIX environment (support on
 non-POSIX systems may be provided by gnulib).
 
