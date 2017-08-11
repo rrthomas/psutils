@@ -22,7 +22,7 @@ sub usage {
 $prog [OPTION...] [INFILE [OUTFILE]]
 Rearrange pages in a PostScript file for printing in signatures.
 
-  --signature N        number of pages per signature
+  --signature=N        number of pages per signature
                        0 = all pages in one signature [default]
                        1 = one page per signature
                        otherwise, a multiple of 4
