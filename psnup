@@ -63,7 +63,7 @@ my $uscale = 0;				# user supplied scale
 my ($margin, $border) = (0, 0);		# paper & page margins
 my ($vshift, $hshift) = (0, 0);		# page centring shifts
 my ($width, $height);			# output paper size
-my ($iwidth, $iheight) = (-1, -1);	# input paper size
+my ($iwidth, $iheight);			# input paper size
 my $tolerance = 100000;			# layout tolerance
 
 # Argument parsers
@@ -171,17 +171,20 @@ sub paper_size {
 }
 
 # Set output height/width from corresponding input value if undefined
-$width = $iwidth if $iwidth > 0 && !defined($width);
-$height = $iheight if $iheight > 0 && !defined($height);
+$width = $iwidth if defined($iwidth) && !defined($width);
+$height = $iheight if defined($iheight) && !defined($height);
 
 # Ensure output paper size is set
 if (!defined($width) && !defined($height)) {
   ($width, $height) = paper_size();
   die("output paper size not set, and could not get default paper size")
     unless defined($width) && defined($height);
-  push @pstops_args, "-w", $width, "-h", $height;
 }
 die("output page width and height must both be set") if !defined($width) || !defined($height);
+
+# Set input height/width from corresponding output value if undefined
+$iwidth = $width if !defined($iwidth);
+$iheight = $height if !defined($iheight);
 
 # Calculate paper dimensions, subtracting paper margins from height & width
 my $ppwid = $width - $margin * 2;
@@ -196,28 +199,28 @@ my $best = $tolerance;
 for (my $hor = 1; $hor != 0; $hor = nextdiv($hor, $nup)) {
   my $ver = $nup / $hor;
   # try normal orientation first
-  my $scl = min($pphgt / ($height * $ver), $ppwid / ($width * $hor));
-  my $optim = ($ppwid - $scl * $width * $hor) ** 2 + ($pphgt - $scl * $height * $ver) ** 2;
+  my $scl = min($pphgt / ($iheight * $ver), $ppwid / ($iwidth * $hor));
+  my $optim = ($ppwid - $scl * $iwidth * $hor) ** 2 + ($pphgt - $scl * $iheight * $ver) ** 2;
   if ($optim < $best) {
     $best = $optim;
     # recalculate scale to allow for internal borders
-    $scale = min(($pphgt - 2 * $border * $ver) / ($height * $ver),
-                 ($ppwid - 2 * $border * $hor) / ($width * $hor));
-    $hshift = ($ppwid / $hor - $width * $scale) / 2;
-    $vshift = ($pphgt / $ver - $height * $scale) / 2;
+    $scale = min(($pphgt - 2 * $border * $ver) / ($iheight * $ver),
+                 ($ppwid - 2 * $border * $hor) / ($iwidth * $hor));
+    $hshift = ($ppwid / $hor - $iwidth * $scale) / 2;
+    $vshift = ($pphgt / $ver - $iheight * $scale) / 2;
     ($horiz, $vert) = ($hor, $ver);
     $rotate = $flip;
   }
   # try rotated orientation
-  $scl = min($pphgt / ($width * $hor), $ppwid / ($height * $ver));
-  $optim = ($pphgt - $scl * $width * $hor) ** 2 + ($ppwid - $scl * $height * $ver) ** 2;
+  $scl = min($pphgt / ($iwidth * $hor), $ppwid / ($iheight * $ver));
+  $optim = ($pphgt - $scl * $iwidth * $hor) ** 2 + ($ppwid - $scl * $iheight * $ver) ** 2;
   if ($optim < $best) {
     $best = $optim;
     # recalculate scale to allow for internal borders
-    $scale = min(($pphgt - 2 * $border * $hor) / ($width * $hor),
-                 ($ppwid - 2 * $border * $ver) / ($height * $ver));
-    $hshift = ($ppwid / $ver - $height * $scale) / 2;
-    $vshift = ($pphgt / $hor - $width * $scale) / 2;
+    $scale = min(($pphgt - 2 * $border * $hor) / ($iwidth * $hor),
+                 ($ppwid - 2 * $border * $ver) / ($iheight * $ver));
+    $hshift = ($ppwid / $ver - $iheight * $scale) / 2;
+    $vshift = ($pphgt / $hor - $iwidth * $scale) / 2;
     ($horiz, $vert) = ($ver, $hor);
     $rotate = !$flip;
   }
@@ -227,6 +230,8 @@ for (my $hor = 1; $hor != 0; $hor = nextdiv($hor, $nup)) {
 die("can't find acceptable layout for $nup-up") if $best == $tolerance;
 
 ($width, $height) = ($height, $width) if $flip;	# swap width & height for clipping
+
+push @pstops_args, "-w", $width, "-h", $height; # set width and height for pstops
 
 if ($rotate) {	# rotate leftright and topbottom orders
   ($topbottom, $leftright) = (!$leftright, $topbottom);
