@@ -5,10 +5,13 @@ Maintainer: Reuben Thomas <rrt@sc3d.org>
 
 PSUtils is a suite of utilities for manipulating PostScript documents
 produced according to the Document Structuring Conventions (some older
-software may need to be configured to produce DSC-conformant
-PostScript; if PSUtils doesn't work, check your documentation). It is
-possible to select and rearrange pages, including arrangement into
-signatures for booklet printing, and page merging for n-up printing.
+software may need to be configured to produce DSC-conformant PostScript; if
+PSUtils doesn't work, check your documentation). It is possible to select
+and rearrange pages, including arrangement into signatures for booklet
+printing, and page merging for n-up printing.
+
+PSUtils is distributed under the GNU General Public License version 3, or,
+at your option, any later version; see the file COPYING.
 
 If you simply want to use PSUtils, you will find it in most GNU/Linux
 distributions; it is available in brew for macOS and Cygwin for Windows.

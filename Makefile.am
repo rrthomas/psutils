@@ -1,7 +1,4 @@
-# Makefile for PS utilities
-#
-# Copyright (C) Reuben Thomas 2012-2016
-# See LICENSE for license
+# Makefile.am for PSUtils
 
 CLOC = cloc --force-lang="C",h --autoconf
 
@@ -22,7 +19,7 @@ man_MANS = psutils.1 \
 	psjoin.1 extractres.1 includeres.1
 
 EXTRA_DIST = m4/gnulib-cache.m4 \
-	LICENSE \
+	COPYING \
 	$(bin_SCRIPTS) \
 	$(man_MANS)
 
