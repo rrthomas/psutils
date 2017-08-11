@@ -43,8 +43,8 @@ my $opts = GetOptions(
   "odd|o" => \$odd_flag,
   "reverse|r" => \$reverse_flag,
   "quiet|q" => \$quiet_flag,
-  "help|h" => \$help_flag,
-  "version|v" => \$version_flag,
+  "help" => \$help_flag,
+  "version" => \$version_flag,
  ) or usage(1);
 if ($version_flag) {
   print STDERR $version_banner;

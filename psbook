@@ -39,8 +39,8 @@ Getopt::Long::Configure("bundling");
 my $opts = GetOptions(
   "signature|s=i" => \$signature,
   "quiet|q" => \$quiet_flag,
-  "help|h" => \$help_flag,
-  "version|v" => \$version_flag,
+  "help" => \$help_flag,
+  "version" => \$version_flag,
  ) or usage(1);
 if ($version_flag) {
   print STDERR $version_banner;

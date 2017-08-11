@@ -22,11 +22,11 @@ sub usage {
 Usage: psjoin [OPTION...] FILENAME...
 Concatenate PostScript files
 
-  --even, -a    force each file to take an even number of pages
-  --save, -s    try to close unclosed save operators
-  --strip, -p   do not strip prolog or trailer from input files
-  --help, -h    print this help, then exit
-  --version,-V  print version information and exit
+  --even              force each file to an even number of pages
+  --save              try to close unclosed save operators
+  --strip             do not strip prolog or trailer from input files
+  --help              display this help and exit
+  --version           display version information and exit
 END
     exit $exit_code;
 }
@@ -42,8 +42,8 @@ GetOptions(
   "even|a" => \$force_even,
   "save|s" => \$force_save,
   "strip|p" => \$dont_strip,
-  "help|h" => \$help_flag,
-  "version|V" => \$version_flag,
+  "help" => \$help_flag,
+  "version" => \$version_flag,
  ) or usage(1);
 
 if ($help_flag) {

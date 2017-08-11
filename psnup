@@ -138,8 +138,8 @@ my $opts = GetOptions(
   "columnmajor|c" => sub { $column = !$column; },
   "tolerance|t=i" => \$tolerance,
   "quiet|q" => sub { push @pstops_args, "-q"; },
-  "help|h" => \$help_flag,
-  "version|v" => \$version_flag,
+  "help" => \$help_flag,
+  "version" => \$version_flag,
   "n=s" => \&parsenup, # for compatibility with other psnup implementations
  ) or usage(1);
 if ($version_flag) {

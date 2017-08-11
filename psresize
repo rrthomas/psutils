@@ -47,7 +47,7 @@ my $opts = GetOptions(
   "inheight|I=s" => sub { push @psnup_args, "-W", $_[1]; },
   "quiet|q" => sub { push @psnup_args, "-q"; },
   "help" => \$help_flag,
-  "version|v" => \$version_flag,
+  "version" => \$version_flag,
  ) or usage(1);
 if ($version_flag) {
   print STDERR $version_banner;
