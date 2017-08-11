@@ -1,34 +1,33 @@
 #!/usr/bin/env perl
-#
-# psjoin - concatenate PostScript files
-#
-# version 0.2, 2002-07-18
-# version 0.3, 2003-11-30
-# version 0.31, 2013-10-20
-#
-# versions up to 0.3 by Tom Sato <VEF00200@nifty.ne.jp>, http://homepage3.nifty.com/tsato/
-# versions from 0.31 by Reuben Thomas <rrt@sc3d.org>
+my $version_banner = <<END;
+FIXME: generate this banner
+psjoin 2.00
+Copyright (c) Tom Sato 2002-2003
+Copyright (c) Reuben Thomas 2013-2017
+Released under the GPL version 3, or (at your option) any later version.
+END
 
 use strict;
 use warnings;
 
+use File::Basename;
 use Getopt::Long;
 
-my $version = 0.31;
+my $prog = basename($0);
 
 sub usage {
-    my ($exit_code) = @_;
-    print STDERR <<END;
-Usage: psjoin [OPTION...] FILENAME...
+  my ($exit_code) = @_;
+  print STDERR <<END;
+$prog [OPTION...] [-a] [-s] [-p] FILE...
 Concatenate PostScript files
 
-  --even              force each file to an even number of pages
+  --even, -a          force each file to an even number of pages
   --save              try to close unclosed save operators
-  --strip             do not strip prolog or trailer from input files
+  --strip, -p         do not strip prolog or trailer from input files
   --help              display this help and exit
   --version           display version information and exit
 END
-    exit $exit_code;
+  exit $exit_code;
 }
 
 my $force_even = 0;
@@ -38,6 +37,8 @@ my $save = "save %psjoin\n";
 my $restore = "restore %psjoin\n";
 my ($help_flag, $version_flag);
 
+Getopt::Long::Configure("bundling");
+# Having configured bundling, must give short option names explicitly
 GetOptions(
   "even|a" => \$force_even,
   "save|s" => \$force_save,
@@ -45,14 +46,11 @@ GetOptions(
   "help" => \$help_flag,
   "version" => \$version_flag,
  ) or usage(1);
-
-if ($help_flag) {
-    usage(0);
-} elsif ($version_flag) {
-    print "psjoin (version $version)\n";
-    print "(c) Tom Sato <VEF00200\@nifty.ne.jp> and Reuben Thomas <rrt\@sc3d.org>\n";
-    exit 0;
+if ($version_flag) {
+  print STDERR $version_banner;
+  exit 0;
 }
+usage(0) if $help_flag or $#ARGV == -1;
 
 if ($force_save) {
     $save = "/#psjoin-save# save def %psjoin\n";
@@ -128,7 +126,7 @@ if ($dont_strip) {
 print <<END;
 %!PS-Adobe-3.0
 %%Title: @ARGV
-%%Creator: psjoin $version
+%%Creator: psjoin 2.00 FIXME: Get version from configure
 %%Pages: (atend)
 END
 print $comments[$prolog_inx];
