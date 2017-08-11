@@ -249,7 +249,6 @@ for (my $page = 0; $page < $nup; ) {
     $across = $leftright ? $page % $horiz : $horiz - 1 - $page % $horiz;
     $up = $topbottom ? $vert - 1 - int($page / $horiz) : int($page / $horiz);
   }
-  ($across, $up) = ($across, $up);
   $specs .= $page . ($rotate ? "L" : "") . "@" . ($uscale > 0 ? $uscale : $scale) .
     "(" . ($rotate ? $margin + ($across + 1) * $ppwid / $horiz - $hshift : $margin + $across * $ppwid / $horiz + $hshift) . "," .
     ($margin + $up * $pphgt / $vert + $vshift) . ")";
