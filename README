@@ -37,9 +37,9 @@ extractres      filter to extract resources from PostScript files
 includeres      filter to include resources into PostScript files
 psjoin          concatenate multiple PostScript files
 
-psselect in modeled on Chris Torek's dviselect, as is psbook, via
-Angus Duggan's dvibook; pstops is modeled on Tom Rokicki's dvidvi.
-psjoin was originally written by Tom Sato: http://t-sato.in.coocan.jp
+psselect in modeled on Chris Torek's dviselect, as is psbook, via Angus
+Duggan's dvibook; pstops is modeled on Tom Rokicki's dvidvi. psjoin was
+originally written by Tom Sato: http://t-sato.in.coocan.jp
 
 A number of scripts for fixing up the output of obsolete proprietary
 programs for treatment by psutils are included in the old-scripts directory.
@@ -61,8 +61,8 @@ For installation options, see ./configure --help
 
 BUGS
 
-The utilities don't check for PS-Adobe-?.? conformance; they assume documents
-conform.
+The utilities don't check for PS-Adobe-?.? conformance; they assume
+documents conform.
 
 Please send bug reports, patches and suggestions to the bug tracker or
 maintainer (see the top of this file).
@@ -71,7 +71,7 @@ maintainer (see the top of this file).
 ACKNOWLEDGEMENTS
 
 PSUtils was written by Angus Duggan, who maintained it up to release 1
-patchlevel 17.
+patchlevel 17, and Reuben Thomas.
 
 Bug fixes and suggestions for improvements to PSUtils have come from many
 people, including:
