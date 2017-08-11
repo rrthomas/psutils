@@ -38,7 +38,7 @@ END
 Getopt::Long::Configure("bundling");
 # Having configured bundling, must give short option names explicitly
 my @psnup_args = ();
-my $opts = GetOptions(
+GetOptions(
   "paper|p=s" => sub { push @psnup_args, "-p", $_[1]; },
   "inpaper|P=s" => sub { push @psnup_args, "-P", $_[1]; },
   "width|w=s" => sub { push @psnup_args, "-w", $_[1]; },

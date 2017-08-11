@@ -36,7 +36,7 @@ END
 # Get arguments
 Getopt::Long::Configure("bundling");
 # Having configured bundling, must give short options explicitly
-my $opts = GetOptions(
+GetOptions(
   "signature|s=i" => \$signature,
   "quiet|q" => \$quiet_flag,
   "help" => \$help_flag,
