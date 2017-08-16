@@ -128,7 +128,7 @@ GetOptions(
   "inwidth|W=s" => sub { $iwidth = singledimen($_[1]); },
   "inheight|H=s" => sub { $iheight = singledimen($_[1]); },
   "margin|m=s" => sub { $margin = singledimen($_[1]); },
-  "border|b=s" => sub { $margin = singledimen($_[1]); },
+  "border|b=s" => sub { $border = singledimen($_[1]); },
   "draw|d:s" => sub { push @pstops_args, "-d";
                       $draw = singledimen($_[1] || "1"); },
   "scale|s=f" => \$uscale,
