@@ -162,9 +162,7 @@ sub paper_size {
   chomp($paper_name = `paper`) unless defined($paper_name);
   my $dimensions = `paper --unit=pt --size $paper_name`;
   $dimensions =~ /^([\d.]+) ([\d.]+)/;
-  # Round dimensions to nearest point for compatibility with older psutils
-  # FIXME: check whether this is a good idea
-  return int($1 + 0.5), int($2 + 0.5);
+  return int($1 + 0.5), int($2 + 0.5); # round dimensions to nearest point
 }
 
 # Set output height/width from corresponding input value if undefined
