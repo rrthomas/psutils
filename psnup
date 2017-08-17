@@ -191,6 +191,7 @@ my $ppwid = $width - $margin * 2;
 my $pphgt = $height - $margin * 2;
 
 die("paper margins are too large") if $ppwid <= 0 || $pphgt <= 0;
+die("border is too large") if $border > min($ppwid, $pphgt);
 
 # Finding the best layout is an optimisation problem. We try all of the
 # combinations of width*height in both normal and rotated form, and
