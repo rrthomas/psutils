@@ -10,7 +10,6 @@ psnup \- multiple pages per sheet
 .RB [ \-m\fImargin\fR ]
 .RB [ \-b\fIborder\fR ]
 .RB [ \-d [ \fIlwidth\fR ]]
-.RB [ \-s\fIscale\fR ]
 .RB [ \-\fInup\fR ]
 .RB [ \-q ]
 .RI [ infile
@@ -75,13 +74,6 @@ If the \fIlwidth\fR parameter is omitted, a default linewidth of 1 point is
 assumed.
 The line width is relative to the original page dimensions,
 i.e., it is scaled down with the rest of the page.
-.PP
-The scale chosen by
-.B psnup
-can be overridden with the
-.B \-s
-option.
-This is useful to merge pages which are already reduced.
 .PP
 The
 .BI \- nup

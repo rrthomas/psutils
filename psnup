@@ -33,7 +33,6 @@ Put multiple pages of a PostScript file on to one page
   --border=DIMENSION   width of border around each input page
   --draw[=DIMENSION]   draw a line of given width around each page
                        [argument defaults to 1; default is 0]
-  --scale=SCALE        manually set scale of reduction
   --landscape          pages are landscape (rotated left)
   --seascape           pages are seascape (rotated right)
   --flipped            pages have width and height swapped
@@ -55,7 +54,6 @@ my ($leftright, $topbottom) = (1, 1);
 my $nup = 1;
 my $draw = 0;				# draw page borders
 my $scale = 1.0;			# page scale
-my $uscale = 0;				# user supplied scale
 my ($margin, $border) = (0, 0);		# paper & page margins
 my ($vshift, $hshift) = (0, 0);		# page centring shifts
 my ($width, $height);			# output paper size
@@ -131,7 +129,6 @@ GetOptions(
   "border|b=s" => sub { $border = singledimen($_[1]); },
   "draw|d:s" => sub { push @pstops_args, "-d";
                       $draw = singledimen($_[1] || "1"); },
-  "scale|s=f" => \$uscale,
   "landscape|l" => sub { $column = !$column; $topbottom = !$topbottom; },
   "seascape|r" => sub { $column = !$column; $leftright = !$leftright; },
   "flipped|f" => \$flip,
@@ -237,7 +234,7 @@ for (my $page = 0; $page < $nup; ) {
     $across = $leftright ? $page % $horiz : $horiz - 1 - $page % $horiz;
     $up = $topbottom ? $vert - 1 - int($page / $horiz) : int($page / $horiz);
   }
-  $specs .= $page . ($rotate ? "L" : "") . "@" . ($uscale > 0 ? $uscale : $scale) .
+  $specs .= $page . ($rotate ? "L" : "") . "@" . $scale .
     "(" . ($rotate ? $margin + ($across + 1) * $ppwid / $horiz - $hshift : $margin + $across * $ppwid / $horiz + $hshift) . "," .
     ($margin + $up * $pphgt / $vert + $vshift) . ")";
   $specs .= "+" if ++$page < $nup;
