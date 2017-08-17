@@ -27,12 +27,8 @@ $prog [OPTION...] -NUP [INFILE [OUTFILE]]
 
 Put multiple pages of a PostScript file on to one page
 
-  --paper=PAPER        output paper size OR
-  --width=DIMENSION    output paper width and
-  --height=DIMENSION   output paper height
-  --inpaper=PAPER      input paper size OR
-  --inwidth=DIMENSION  input paper width and
-  --inheight=DIMENSION input paper height
+  --paper=PAPER        output paper name or dimensions
+  --inpaper=PAPER      input paper name or dimensions
   --margin=DIMENSION   width of margin around each output page
   --border=DIMENSION   width of border around each input page
   --draw[=DIMENSION]   draw a line of given width around each page
@@ -77,11 +73,11 @@ sub singledimen {
     $num *= 28.346456692913385211 when /^cm/;
     $num *= 2.8346456692913385211 when /^mm/;
     when (/^w/) {
-      die("width not set") if !defined($width);
+      die("paper size not set") if !defined($width);
       $num *= $width;
     }
     when (/^h/) {
-      die("height not set") if !defined($height);
+      die("paper size not set") if !defined($width);
       $num *= $height;
     }
     default { usage(1, "bad dimension") };
@@ -99,7 +95,11 @@ sub parsenup {
 sub parsepaper {
   die("Option $_[0] requires an argument") unless $_[1] ne "";
   my ($width, $height) = paper_size($_[1]);
-  die("paper size '$_[1]' unknown") if !defined($width);
+  if (!defined($width)) {
+    my ($w, $h) = split /x/, $_[1];
+    eval { ($width, $height) = singledimen($w), singledimen($h); }
+      or die("paper size '$_[1]' unknown");
+  }
   return $width, $height;
 }
 
@@ -171,26 +171,20 @@ sub paper_size {
 }
 
 # Set output height/width from corresponding input value if undefined
-$width = $iwidth if defined($iwidth) && !defined($width);
-$height = $iheight if defined($iheight) && !defined($height);
+($width, $height) = ($iwidth, $iheight) if defined($iwidth);
 
 # Ensure output paper size is set
-if (!defined($width) && !defined($height)) {
-  ($width, $height) = paper_size();
-  die("output paper size not set, and could not get default paper size")
-    unless defined($width) && defined($height);
-}
-die("output page width and height must both be set") if !defined($width) || !defined($height);
+($width, $height) = paper_size()
+  or die("output paper size not set, and could not get default paper size")
+  if !defined($width);
 
 # Set input height/width from corresponding output value if undefined
-$iwidth = $width if !defined($iwidth);
-$iheight = $height if !defined($iheight);
+($iwidth, $iheight) = ($width, $height) if !defined($iwidth);
 
 # Calculate paper dimensions, subtracting paper margins from height & width
-my $ppwid = $width - $margin * 2;
-my $pphgt = $height - $margin * 2;
+my ($ppwid, $pphgt) = ($width - $margin * 2, $height - $margin * 2);
 
-die("paper margins are too large") if $ppwid <= 0 || $pphgt <= 0;
+die("margins is too large") if $ppwid <= 0 || $pphgt <= 0;
 die("border is too large") if $border > min($ppwid, $pphgt);
 
 # Finding the best layout is an optimisation problem. We try all of the

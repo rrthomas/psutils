@@ -3,10 +3,8 @@
 psnup \- multiple pages per sheet
 .SH SYNOPSIS
 .B psnup
-.B \-w\fIwidth\fR
-.BR \-h\fIheight\fR | \-p\fIpaper\fR
-.RB [[ \-W\fIwidth\fR ]
-.RB [ \-H\fIheight\fR ]| \-P\fIpaper\fR ]
+.RB [ \-p\fIpaper\-size\fR ]
+.RB [ \-P\fIpaper\-size\fR ]
 .RB [ \-l | \-r | \-f ]
 .RB [ \-c ]
 .RB [ \-m\fImargin\fR ]
@@ -23,18 +21,22 @@ imposes multiple logical pages on to each physical sheet of paper.
 The input PostScript file should follow the Adobe Document Structuring
 Conventions.
 .PP
-The
-.B \-w
-option gives the paper width, and the
-.B \-h
-option gives the paper height (see
+Paper sizes can be given either as a name (see
+.BR paper(1))
+or as \fBwidth\fRx\fBheight\fR (see
 .BR psutils (1)
 for the available units).
+.PP
 The 
 .B \-p
-option can be used instead, to set the paper size; otherwise a default value is used
-(see
+option can be used to set the output paper size; otherwise it defaults to
+the input paper size; if that is not given, a default value is used (see
 .BR paper (1)).
+.PP
+The
+.B \-P
+option can be used to set the input paper size; otherwise it defaults to the
+output paper size.
 .PP
 The
 .B \-l
