@@ -193,7 +193,7 @@ sub optim {
   my $optim = ($ppwid - $scl * $iwid * $hor) ** 2 + ($pphgt - $scl * $ihgt * $ver) ** 2;
   if ($optim < $best) {
     $best = $optim;
-    # recalculate scale to allow for internal borders
+    # Recalculate scale to allow for internal borders
     $scale = min(($pphgt - 2 * $border * $ver) / ($iheight * $ver),
                  ($ppwid - 2 * $border * $hor) / ($iwidth * $hor));
     $hshift = ($ppwid / $hor - $iwidth * $scale) / 2;
@@ -209,7 +209,7 @@ for (my $hor = 1; $hor != 0; $hor = nextdiv($hor, $nup)) {
   optim($ver, $hor, $iheight, $iwidth, !$flip); # rotated orientation
 }
 
-# fail if nothing better than worst tolerance was found
+# Fail if nothing better than worst tolerance was found
 die("can't find acceptable layout for $nup-up") if $best == $tolerance;
 
 ($width, $height) = ($height, $width) if $flip;	# swap width & height for clipping
