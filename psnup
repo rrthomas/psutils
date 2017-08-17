@@ -197,11 +197,11 @@ die("border is too large") if $border > min($ppwid, $pphgt);
 # combinations of width*height in both normal and rotated form, and
 # minimise the wasted space.
 my $best = $tolerance;
-for (my $hor = 1; $hor != 0; $hor = nextdiv($hor, $nup)) {
-  my $ver = $nup / $hor;
-  # try normal orientation first
-  my $scl = min($pphgt / ($iheight * $ver), $ppwid / ($iwidth * $hor));
-  my $optim = ($ppwid - $scl * $iwidth * $hor) ** 2 + ($pphgt - $scl * $iheight * $ver) ** 2;
+
+sub optim {
+  my ($hor, $ver, $iwid, $ihgt, $flip) = @_;
+  my $scl = min($pphgt / ($ihgt * $ver), $ppwid / ($iwid * $hor));
+  my $optim = ($ppwid - $scl * $iwid * $hor) ** 2 + ($pphgt - $scl * $ihgt * $ver) ** 2;
   if ($optim < $best) {
     $best = $optim;
     # recalculate scale to allow for internal borders
@@ -212,19 +212,12 @@ for (my $hor = 1; $hor != 0; $hor = nextdiv($hor, $nup)) {
     ($horiz, $vert) = ($hor, $ver);
     $rotate = $flip;
   }
-  # try rotated orientation
-  $scl = min($pphgt / ($iwidth * $hor), $ppwid / ($iheight * $ver));
-  $optim = ($pphgt - $scl * $iwidth * $hor) ** 2 + ($ppwid - $scl * $iheight * $ver) ** 2;
-  if ($optim < $best) {
-    $best = $optim;
-    # recalculate scale to allow for internal borders
-    $scale = min(($pphgt - 2 * $border * $hor) / ($iwidth * $hor),
-                 ($ppwid - 2 * $border * $ver) / ($iheight * $ver));
-    $hshift = ($ppwid / $ver - $iheight * $scale) / 2;
-    $vshift = ($pphgt / $hor - $iwidth * $scale) / 2;
-    ($horiz, $vert) = ($ver, $hor);
-    $rotate = !$flip;
-  }
+}
+
+for (my $hor = 1; $hor != 0; $hor = nextdiv($hor, $nup)) {
+  my $ver = $nup / $hor;
+  optim($hor, $ver, $iwidth, $iheight, $flip); # normal orientation
+  optim($ver, $hor, $iheight, $iwidth, !$flip); # rotated orientation
 }
 
 # fail if nothing better than worst tolerance was found
