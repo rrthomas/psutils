@@ -4,9 +4,7 @@ Web site: https://github.com/rrthomas/psutils
 Maintainer: Reuben Thomas <rrt@sc3d.org>
 
 PSUtils is a suite of utilities for manipulating PostScript documents
-produced according to the Document Structuring Conventions (some older
-software may need to be configured to produce DSC-conformant PostScript; if
-PSUtils doesn't work, check your documentation). It is possible to select
+produced according to the Document Structuring Conventions. You can select
 and rearrange pages, including arrangement into signatures for booklet
 printing, and page merging for n-up printing.
 
@@ -23,6 +21,13 @@ It is also recommended to install paper, which allows a sensible default
 paper size to be discovered, and configured by the user:
 
 paper: https://github.com/rrthomas/paper
+
+PSUtils intentionally does not check its input is DSC-conformant, as some
+programs produce non-conforming output that can be successfully processed
+anyway. If PSUtils does not work for you, check whether your software needs
+to be configured to produce DSC-conformant PostScript. The old-scripts
+directory contains some scripts that fix the output of certain obsolete
+programs.
 
 
 PROGRAMS
@@ -41,9 +46,6 @@ psselect in modeled on Chris Torek's dviselect, as is psbook, via Angus
 Duggan's dvibook; pstops is modeled on Tom Rokicki's dvidvi. psjoin was
 originally written by Tom Sato: http://t-sato.in.coocan.jp
 
-A number of scripts for fixing up the output of obsolete proprietary
-programs for treatment by psutils are included in the old-scripts directory.
-
 
 INSTALLATION
 
@@ -60,9 +62,6 @@ For installation options, see ./configure --help
 
 
 BUGS
-
-The utilities don't check for PS-Adobe-?.? conformance; they assume
-documents conform.
 
 Please send bug reports, patches and suggestions to the bug tracker or
 maintainer (see the top of this file).
