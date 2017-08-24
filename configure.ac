@@ -2,8 +2,8 @@ dnl Process this file with autoconf to produce a configure script
 
 AC_INIT(psutils, 1.23, rrt@sc3d.org)
 AC_CONFIG_AUX_DIR([build-aux])
-AM_INIT_AUTOMAKE([-Wall -Werror foreign])
-m4_ifdef([AM_SILENT_RULES], [AM_SILENT_RULES([yes])])
+AM_INIT_AUTOMAKE([-Wall -Werror foreign 1.11])
+AM_SILENT_RULES([yes])
 
 dnl Check for programs
 AC_PROG_CC
