@@ -10,6 +10,7 @@ TESTS = psbook-20.sh \
 	psbook-20-signature-4.sh \
 	psbook-3.sh \
 	psbook-3-signature-4.sh \
+	psbook-invalid-signature-size.sh \
 	psnup-20-4.sh \
 	psselect-odd.sh \
 	psselect-even.sh \
