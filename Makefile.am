@@ -35,13 +35,13 @@ loc:
 	$(CLOC) $(PRODUCTIONSOURCES)
 
 includeres: extractres
-	$(RM) $@ && $(LN_S) $(srcdir)/extractres $@
+	rm -f $@ && $(LN_S) $(srcdir)/extractres $@
 
 install-exec-hook:
-	cd $(DESTDIR)$(bindir); $(RM) includeres; $(LN_S) extractres includeres
+	cd $(DESTDIR)$(bindir); rm -f includeres; $(LN_S) extractres includeres
 
 uninstall-hook:
-	$(RM) $(DESTDIR)$(bindir)/includeres
+	rm -f $(DESTDIR)$(bindir)/includeres
 
 clean-local:
-	$(RM) includeres
+	rm -f includeres
