@@ -18,6 +18,7 @@ Makefile.in
 /stamp-h1
 /includeres
 /pstops
+/psnup
 /*.exe
 /libpsutils.a
 /TAGS

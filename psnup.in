@@ -1,4 +1,5 @@
 #!/usr/bin/env perl
+# @configure_input@
 my $version_banner = <<END;
 FIXME: generate this banner
 psnup 2.00
@@ -11,10 +12,17 @@ use warnings;
 use strict;
 no if $] >= 5.018, warnings => "experimental::smartmatch";
 
+BEGIN
+{
+  @PSUtils::perl_libdirs = ('@pkgdatadir@') unless @PSUtils::perl_libdirs;
+  unshift @INC, @PSUtils::perl_libdirs;
+}
+
 use File::Basename;
 use Getopt::Long;
 use List::Util qw(min);
-use POSIX qw(strtod);
+
+use PSUtils;
 
 my $prog = basename($0);
 my ($help_flag, $version_flag);
@@ -60,29 +68,7 @@ my ($width, $height);			# output paper size
 my ($iwidth, $iheight);			# input paper size
 my $tolerance = 100000;			# layout tolerance
 
-# Argument parsers
-sub singledimen {
-  my $str = $_[0];
-  my ($num, $unparsed) = strtod($str);
-  $str = substr($str, length($str) - $unparsed);
-  for ($str) {
-    $num *= 1 when /^pt/;
-    $num *= 72 when /^in/;
-    $num *= 28.346456692913385211 when /^cm/;
-    $num *= 2.8346456692913385211 when /^mm/;
-    when (/^w/) {
-      die("paper size not set") if !defined($width);
-      $num *= $width;
-    }
-    when (/^h/) {
-      die("paper size not set") if !defined($width);
-      $num *= $height;
-    }
-    default { usage(1, "bad dimension") };
-  }
-  return $num;
-}
-
+# Parse -NUP, which Getopt::Long can't easily be made to understand
 sub parsenup {
   die("Option $_[0] requires an argument") unless $_[1] ne "";
   die("Value \"$nup\" invalid for -NUP (number expected)") unless $_[1] =~ /^\d+$/;
@@ -90,18 +76,6 @@ sub parsenup {
   $nup = $_[1];
 }
 
-sub parsepaper {
-  die("Option $_[0] requires an argument") unless $_[1] ne "";
-  my ($width, $height) = paper_size($_[1]);
-  if (!defined($width)) {
-    my ($w, $h) = split /x/, $_[1];
-    eval { ($width, $height) = singledimen($w), singledimen($h); }
-      or die("paper size '$_[1]' unknown");
-  }
-  return $width, $height;
-}
-
-# Parse -NUP, which Getopt::Long can't easily be made to understand
 for (my $i = 0; $i <= $#ARGV; ) {
   if ($ARGV[$i] =~ /^-\d+/) { # looks like an option
     die("Value \"$ARGV[$i]\" invalid for -NUP (number expected)") unless $ARGV[$i] =~ /^-\d+$/;
@@ -120,15 +94,15 @@ my @pstops_args = ();
 GetOptions(
   "paper|p=s" => sub { push @pstops_args, "-p", $_[1];
                        ($width, $height) = parsepaper(@_); },
-  "width|w=s" => sub { $width = singledimen($_[1]); },
-  "height|h=s" => sub { $height = singledimen($_[1]); },
+  "width|w=s" => sub { $width = singledimen($_[1], $width, $height); },
+  "height|h=s" => sub { $height = singledimen($_[1], $width, $height); },
   "inpaper|P=s" => sub { ($iwidth, $iheight) = parsepaper(@_); },
-  "inwidth|W=s" => sub { $iwidth = singledimen($_[1]); },
-  "inheight|H=s" => sub { $iheight = singledimen($_[1]); },
-  "margin|m=s" => sub { $margin = singledimen($_[1]); },
-  "border|b=s" => sub { $border = singledimen($_[1]); },
+  "inwidth|W=s" => sub { $iwidth = singledimen($_[1], $width, $height); },
+  "inheight|H=s" => sub { $iheight = singledimen($_[1], $width, $height); },
+  "margin|m=s" => sub { $margin = singledimen($_[1], $width, $height); },
+  "border|b=s" => sub { $border = singledimen($_[1], $width, $height); },
   "draw|d:s" => sub { push @pstops_args, "-d";
-                      $draw = singledimen($_[1] || "1"); },
+                      $draw = singledimen($_[1] || "1pt", $width, $height); },
   "landscape|l" => sub { $column = !$column; $topbottom = !$topbottom; },
   "seascape|r" => sub { $column = !$column; $leftright = !$leftright; },
   "flipped|f" => \$flip,
@@ -154,15 +128,6 @@ sub nextdiv {
     return $n if $m % $n == 0;
   }
   return 0;
-}
-
-# Get the size of the given paper, or the default paper if no argument given.
-sub paper_size {
-  my ($paper_name) = @_;
-  chomp($paper_name = `paper`) unless defined($paper_name);
-  my $dimensions = `paper --unit=pt --size $paper_name`;
-  $dimensions =~ /^([\d.]+) ([\d.]+)/;
-  return int($1 + 0.5), int($2 + 0.5); # round dimensions to nearest point
 }
 
 # Set output height/width from corresponding input value if undefined

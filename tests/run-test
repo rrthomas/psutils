@@ -12,7 +12,7 @@ function test() {
     local pages=$1
     shift
     "$srcdir/mktestfile" "$pages" > "$name-input.ps"
-    eval "$@" "$name-input.ps" > "$name-output.ps"
+    ./psutils-wrapper "$@" "$name-input.ps" > "$name-output.ps"
     diff -u --ignore-matching-lines=CreationDate "$srcdir/$name-expected.ps" "$name-output.ps"
 }
 
