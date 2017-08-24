@@ -52,7 +52,7 @@ INSTALLATION
 To build, you need the following programs installed, as well as a
 standard POSIX environment and C compiler:
 
-  automake, autoconf, git, perl
+  automake, autoconf, git, Perl, bash, a2ps
 
 Then run:
 
