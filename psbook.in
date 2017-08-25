@@ -1,7 +1,7 @@
 #!/usr/bin/env perl
 my $version_banner = <<END;
 FIXME: generate this banner
-psbook 2.00
+psbook @VERSION@
 Copyright (c) Reuben Thomas 2016
 Released under the GPL version 3, or (at your option) any later version.
 END

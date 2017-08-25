@@ -18,7 +18,12 @@ Makefile.in
 /stamp-h1
 /includeres
 /pstops
+/psbook
+/psjoin
+/psresize
+/psselect
 /psnup
+/epsffit
 /*.exe
 /libpsutils.a
 /TAGS
