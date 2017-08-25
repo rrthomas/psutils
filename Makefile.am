@@ -1,8 +1,11 @@
 # Makefile.am for PSUtils
+#
+# Copyright (C) Reuben Thomas 2016-2017
+# See LICENSE for license
 
 CLOC = cloc --force-lang="C",h --autoconf
 
-SUBDIRS = lib tests
+SUBDIRS = lib .
 
 ACLOCAL_AMFLAGS = -I m4
 
@@ -54,14 +57,19 @@ man_MANS = psutils.1 \
 
 EXTRA_DIST = m4/gnulib-cache.m4 \
 	COPYING \
-	$(bin_SCRIPTS) \
+	extractres \
+	psbook.in psjoin.in psresize.in psselect.in psnup.in epsffit.in \
 	$(man_MANS)
+
+DISTCLEANFILES = psbook psjoin psresize psselect psnup epsffit
 
 PRODUCTIONSOURCES = \
 	configure.ac \
 	Makefile.am \
 	$(bin_SCRIPTS) \
 	$(pstops_SOURCES)
+
+include tests/Makefile.am
 
 all: includeres
 
@@ -77,5 +85,4 @@ install-exec-hook:
 uninstall-hook:
 	rm -f $(DESTDIR)$(bindir)/includeres
 
-clean-local:
-	rm -f includeres
+CLEANFILES = includeres

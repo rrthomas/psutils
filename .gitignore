@@ -27,3 +27,4 @@ Makefile.in
 /*.exe
 /libpsutils.a
 /TAGS
+/test-suite.log
