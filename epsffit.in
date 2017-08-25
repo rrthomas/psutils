@@ -1,4 +1,5 @@
 #!/usr/bin/env perl
+# @configure_input@
 my $version_banner = <<END;
 FIXME: generate this banner
 epsffit 2.00
@@ -9,8 +10,16 @@ END
 use warnings;
 use strict;
 
+BEGIN
+{
+  @PSUtils::perl_libdirs = ('@pkgdatadir@') unless @PSUtils::perl_libdirs;
+  unshift @INC, @PSUtils::perl_libdirs;
+}
+
 use File::Basename;
 use Getopt::Long;
+
+use PSUtils;
 
 my $prog = basename($0);
 my ($help_flag, $version_flag, $centre, $rotate, $aspect, $maximise, $showpage);
@@ -53,29 +62,6 @@ usage(1) if $#ARGV < 3 || $#ARGV > 5;
 
 my $bbfound = 0;              # %%BoundingBox: found
 my ($urx, $ury, $llx, $lly) = (0, 0, 0, 0);
-
-# FIXME: common up with psnup
-sub singledimen {
-  my $str = $_[0];
-  my ($num, $unparsed) = strtod($str);
-  $str = substr($str, length($str) - $unparsed);
-  for ($str) {
-    0 when s/^pt//;
-    $num *= 72 when s/^in//;
-    $num *= 28.346456692913385211 when s/^cm//;
-    $num *= 2.8346456692913385211 when s/^mm//;
-    when (s/^w//) {
-      die("width not set") if !defined($width);
-      $num *= $width;
-    }
-    when (s/^h//) {
-      die("height not set") if !defined($height);
-      $num *= $height;
-    }
-  }
-  usage(1, "bad dimension") if $str;
-  return $num;
-}
 
 my $fllx = singledimen(shift);
 my $flly = singledimen(shift);

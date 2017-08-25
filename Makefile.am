@@ -36,8 +36,10 @@ do_subst = ( sed \
 
 # These files depend on Makefile so they are rebuilt if do_subst'ituted
 # variables change.
+epsffit: epsffit.in
+psjoin: psjoin.in
 psnup: psnup.in
-psnup: Makefile
+epsffit psjoin psnup: Makefile
 	$(AM_V_GEN)rm -f $@ $@-t \
 ## Common substitutions.
 	  && in=$@.in && $(do_subst) <$(srcdir)/$$in >$@-t
