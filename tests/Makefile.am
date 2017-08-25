@@ -59,8 +59,7 @@ tests/psutils-wrapper: Makefile
 ## Common substitutions.
 	  && in=$@.in && $(do_subst) <$(srcdir)/$$in >$@-t
 	$(generated_file_finalize)
-# FIXME: When we flatten the build system, add bin_SCRIPTS and bin_PROGRAMS as prereqs below
-$(TESTS): tests/psutils-wrapper
+$(TESTS): tests/psutils-wrapper $(bin_SCRIPTS) $(bin_PROGRAMS)
 DISTCLEANFILES += tests/psutils-wrapper
 
 clean-local:
