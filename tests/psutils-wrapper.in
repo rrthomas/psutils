@@ -11,5 +11,5 @@ BEGIN
 }
 
 my $program = $ARGV[0];
-shift @ARGV;
+shift;
 require '@abs_top_builddir@' . "/$program";
