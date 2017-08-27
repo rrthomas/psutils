@@ -22,7 +22,7 @@ use Getopt::Long;
 use PSUtils;
 
 my $prog = basename($0);
-my ($help_flag, $version_flag, $centre, $rotate, $aspect, $maximise, $showpage);
+my ($help_flag, $version_flag, $center, $rotate, $aspect, $maximize, $showpage);
 
 sub usage {
   my ($exit_code) = @_;
@@ -30,10 +30,10 @@ sub usage {
 $prog [OPTION...] [-c] [-r] [-a] [-m] [-s] LLX LLY URX URY [INFILE [OUTFILE]]
 Fit EPSF file into constrained size.
 
-  --centre             center the image in the given bounding box
+  --center             center the image in the given bounding box
   --rotate             rotate the image by 90 degrees counter-clockwise
   --aspect             adjust the aspect ratio to fit the bounding box
-  --maximise           rotate the image to fill more of the page if possible
+  --maximize           rotate the image to fill more of the page if possible
   --showpage           append a /showpage to the file to force printing
   --help               display this help and exit
   --version            display version information and exit
@@ -45,10 +45,10 @@ END
 Getopt::Long::Configure("bundling");
 # Having configured bundling, must give short option names explicitly
 my $opts = GetOptions(
-  "centre|c" => \$centre,
+  "center|centre|c" => \$center,
   "rotate|r" => \$rotate,
   "aspect|a" => \$aspect,
-  "maximise|m" => \$maximise,
+  "maximize|maximise|m" => \$maximize,
   "showpage|s" => \$showpage,
   "help" => \$help_flag,
   "version" => \$version_flag,
@@ -114,7 +114,7 @@ die("no %%%%BoundingBox:") unless $bbfound;
 my ($xoffset, $yoffset) = ($fllx, $flly);
 my ($width, $height) = ($urx - $llx, $ury - $lly);
 
-$rotate = 1 if $maximise &&
+$rotate = 1 if $maximize &&
   (($width > $height && $fury - $flly > $furx - $fllx) ||
    ($width < $height && $fury - $flly < $furx - $fllx));
 
@@ -126,7 +126,7 @@ my ($xscale, $yscale) = ($fwidth / $width, $fheight / $height);
 $xscale = $yscale = min($xscale, $yscale) if !$aspect; # preserve aspect ratio?
 $width *= $xscale; # actual width and height after scaling
 $height *= $yscale;
-if ($centre) {
+if ($center) {
    if ($rotate) {
       $xoffset += ($fheight - $height) / 2;
       $yoffset += ($fwidth - $width) / 2;
