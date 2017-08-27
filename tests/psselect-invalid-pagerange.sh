@@ -1,1 +1,1 @@
-test 1 psselect -e 1-5
+test 1 psselect -e -p 1-5
