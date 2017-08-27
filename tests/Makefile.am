@@ -10,6 +10,7 @@ TESTS = %D%/psbook-20.sh \
 	%D%/psbook-20-signature-4.sh \
 	%D%/psbook-3.sh \
 	%D%/psbook-3-signature-4.sh \
+	%D%/psbook-invalid-signature-size.sh \
 	%D%/psnup-20-4.sh \
 	%D%/psselect-odd.sh \
 	%D%/psselect-even.sh \
@@ -21,10 +22,6 @@ TESTS = %D%/psbook-20.sh \
 	%D%/psselect-individual-pages-and-dash-p.sh \
 	%D%/psselect-options-and-complex-pagerange.sh \
 	%D%/psselect-invalid-pagerange.sh
-
-# FIXME: Write this!
-#	%D%/psbook-invalid-signature-size.sh
-
 
 XFAIL_TESTS = \
 	%D%/psbook-invalid-signature-size.sh \
