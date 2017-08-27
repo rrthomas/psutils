@@ -3,10 +3,11 @@
 
 # Wrap psutils scripts for testing, to set up access to PSUtils.pm
 
-BEGIN
-{
-  use strict;
-  use warnings;
+use strict;
+use warnings;
+
+BEGIN {
+  no warnings 'once';
   @PSUtils::perl_libdirs = ('@abs_top_srcdir@');
 }
 
