@@ -159,10 +159,10 @@ sub optim {
   if ($optim < $best) {
     $best = $optim;
     # Recalculate scale to allow for internal borders
-    $scale = min(($pphgt - 2 * $border * $ver) / ($iheight * $ver),
-                 ($ppwid - 2 * $border * $hor) / ($iwidth * $hor));
-    $hshift = ($ppwid / $hor - $iwidth * $scale) / 2;
-    $vshift = ($pphgt / $ver - $iheight * $scale) / 2;
+    $scale = min(($pphgt - 2 * $border * $ver) / ($ihgt * $ver),
+                 ($ppwid - 2 * $border * $hor) / ($iwid * $hor));
+    $hshift = ($ppwid / $hor - $iwid * $scale) / 2;
+    $vshift = ($pphgt / $ver - $ihgt * $scale) / 2;
     ($horiz, $vert) = ($hor, $ver);
     $rotate = $flip;
   }
