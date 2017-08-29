@@ -140,6 +140,9 @@ sub nextdiv {
 # Set input height/width from corresponding output value if undefined
 ($iwidth, $iheight) = ($width, $height) if !defined($iwidth);
 
+# Tell pstops to strip size headers if output paper size differs from input
+push @pstops_args, "-S" if $width != $iwidth || $height != $iheight;
+
 # Calculate paper dimensions, subtracting paper margins from height & width
 my ($ppwid, $pphgt) = ($width - $margin * 2, $height - $margin * 2);
 
@@ -203,4 +206,4 @@ for (my $page = 0; $page < $nup; ) {
 }
 
 # Rearrange pages
-exec("pstops", "-S", @pstops_args, $specs, @ARGV) or die("error running pstops");
+exec("pstops", @pstops_args, $specs, @ARGV) or die("error running pstops");
