@@ -8,7 +8,7 @@ use warnings;
 no if $] >= 5.018, warnings => "experimental::smartmatch";
 
 use base qw(Exporter);
-our @EXPORT = qw(singledimen paper_size papersize);
+our @EXPORT = qw(singledimen paper_size parsepaper);
 
 
 # Argument parsers
