@@ -131,7 +131,7 @@ sub nextdiv {
 }
 
 # Set output height/width from corresponding input value if undefined
-($width, $height) = ($iwidth, $iheight) if defined($iwidth);
+($width, $height) = ($iwidth, $iheight) if !defined($width) && defined($iwidth);
 
 # Ensure output paper size is set
 ($width, $height) = paper_size()
