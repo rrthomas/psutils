@@ -92,8 +92,7 @@ Getopt::Long::Configure("bundling");
 # Having configured bundling, must give short options explicitly
 my @pstops_args = ();
 GetOptions(
-  "paper|p=s" => sub { push @pstops_args, "-p", $_[1];
-                       ($width, $height) = parsepaper(@_); },
+  "paper|p=s" => sub { ($width, $height) = parsepaper(@_); },
   "width|w=s" => sub { $width = singledimen($_[1], $width, $height); },
   "height|h=s" => sub { $height = singledimen($_[1], $width, $height); },
   "inpaper|P=s" => sub { ($iwidth, $iheight) = parsepaper(@_); },
