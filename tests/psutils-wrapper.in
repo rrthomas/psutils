@@ -12,5 +12,6 @@ BEGIN {
 }
 
 my $program = $ARGV[0];
+$0 = $program; # Set program name so error messages make sense
 shift;
 require '@abs_top_builddir@' . "/$program";
