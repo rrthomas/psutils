@@ -41,9 +41,9 @@ Put multiple pages of a PostScript file on to one page
   --border=DIMENSION   width of border around each input page
   --draw[=DIMENSION]   draw a line of given width around each page
                        [argument defaults to 1; default is 0]
-  --landscape          pages are landscape (rotated left)
-  --seascape           pages are seascape (rotated right)
-  --flipped            pages have width and height swapped
+  --rotateleft         rotate pages left 90 degrees
+  --rotateright        rotate pages right 90 degrees
+  --flip               swap width and height of pages
   --columnmajor        use column major layout
   --tolerance=NUMBER   maximum page wastage in square points [100,000]
   --quiet              don't show page numbers being output
@@ -95,9 +95,9 @@ GetOptions(
   "border|b=s" => sub { $border = singledimen($_[1], $owidth, $oheight); },
   "draw|d:s" => sub { push @pstops_args, "-d";
                       $draw = singledimen($_[1] || "1pt", $owidth, $oheight); },
-  "landscape|l" => sub { $rowmajor = !$rowmajor; $topbottom = !$topbottom; },
-  "seascape|r" => sub { $rowmajor = !$rowmajor; $leftright = !$leftright; },
-  "flipped|f" => \$flip,
+  "rotateleft|l" => sub { $rowmajor = !$rowmajor; $topbottom = !$topbottom; },
+  "rotateright|r" => sub { $rowmajor = !$rowmajor; $leftright = !$leftright; },
+  "flip|f" => sub { $flip = !$flip; },
   "columnmajor|c" => sub { $rowmajor = !$rowmajor; },
   "tolerance|t=i" => \$tolerance,
   "quiet|q" => sub { push @pstops_args, "-q"; },
