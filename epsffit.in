@@ -85,7 +85,7 @@ if ($#ARGV >= 0) { # User specified an output file
 usage(1) if $#ARGV != -1; # Check no more arguments were given
 
 binmode($infile) or die("could not set input to binary mode");
-binmode($outfile)or die("could not set output to binary mode");
+binmode($outfile) or die("could not set output to binary mode");
 
 while (<$infile>) {
   if (/^%[%!]/) {
