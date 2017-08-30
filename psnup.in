@@ -55,7 +55,6 @@ END
 
 # Settings
 my ($horiz, $vert) = (0, 0);
-my $rotate = 0;
 my $rowmajor = 1;
 my $flip = 0;
 my ($leftright, $topbottom) = (1, 1);
@@ -118,13 +117,14 @@ if ($version_flag) {
 }
 usage(0) if $help_flag;
 
-# Return next larger exact divisor of number, or 0 if none. There is probably
-# a much more efficient method of doing this, but the numbers involved are
-# small.
+# Find next larger exact divisor > $n of $m, or 0 if none; return divisor
+# and dividend.
+# There is probably a much more efficient method of doing this, but the
+# numbers involved are small.
 sub nextdiv {
   my ($n, $m) = @_;
   while (++$n <= $m) {
-    return $n if $m % $n == 0;
+    return ($n, $m / $n) if $m % $n == 0;
   }
   return 0;
 }
@@ -153,40 +153,34 @@ die("border is too large") if $border > min($ppwid, $pphgt);
 # combinations of width*height in both normal and rotated form, and
 # minimise the wasted space.
 my $best = $tolerance;
+my $rotate;
 
 sub optim {
-  my ($hor, $ver, $iwid, $ihgt, $flip) = @_;
+  my ($hor, $ver, $iwid, $ihgt, $flp) = @_;
   my $scl = min($pphgt / ($ihgt * $ver), $ppwid / ($iwid * $hor));
   my $optim = ($ppwid - $scl * $iwid * $hor) ** 2 + ($pphgt - $scl * $ihgt * $ver) ** 2;
   if ($optim < $best) {
-    $best = $optim;
     # Recalculate scale to allow for internal borders
     $scale = min(($pphgt - 2 * $border * $ver) / ($ihgt * $ver),
                  ($ppwid - 2 * $border * $hor) / ($iwid * $hor));
     $hshift = ($ppwid / $hor - $iwid * $scale) / 2;
     $vshift = ($pphgt / $ver - $ihgt * $scale) / 2;
-    ($horiz, $vert) = ($hor, $ver);
-    $rotate = $flip;
+    ($best, $horiz, $vert, $rotate) = ($optim, $hor, $ver, $flp);
   }
 }
 
-for (my $hor = 1; $hor != 0; $hor = nextdiv($hor, $nup)) {
-  my $ver = $nup / $hor;
+for (my ($hor, $ver) = (1, $nup); $hor != 0; ($hor, $ver) = (nextdiv($hor, $nup))) {
   optim($hor, $ver, $iwidth, $iheight, $flip); # normal orientation
   optim($ver, $hor, $iheight, $iwidth, !$flip); # rotated orientation
 }
 
-# Fail if nothing better than worst tolerance was found
+# Fail if nothing better than tolerance was found
 die("can't find acceptable layout for $nup-up") if $best == $tolerance;
 
-($width, $height) = ($height, $width) if $flip;	# swap width & height for clipping
+($width, $height) = ($height, $width) if $flip;
+($topbottom, $leftright, $rowmajor) = (!$leftright, $topbottom, !$rowmajor) if $rotate;
 
 push @pstops_args, "-w", $width, "-h", $height; # set width and height for pstops
-
-if ($rotate) {	# rotate leftright and topbottom orders
-  ($topbottom, $leftright) = (!$leftright, $topbottom);
-  $rowmajor = !$rowmajor;
-}
 
 # Construct specification list
 my @specs;
