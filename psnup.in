@@ -56,7 +56,7 @@ END
 # Settings
 my ($horiz, $vert) = (0, 0);
 my $rotate = 0;
-my $column = 0;
+my $rowmajor = 1;
 my $flip = 0;
 my ($leftright, $topbottom) = (1, 1);
 my $nup = 1;
@@ -102,10 +102,10 @@ GetOptions(
   "border|b=s" => sub { $border = singledimen($_[1], $width, $height); },
   "draw|d:s" => sub { push @pstops_args, "-d";
                       $draw = singledimen($_[1] || "1pt", $width, $height); },
-  "landscape|l" => sub { $column = !$column; $topbottom = !$topbottom; },
-  "seascape|r" => sub { $column = !$column; $leftright = !$leftright; },
+  "landscape|l" => sub { $rowmajor = !$rowmajor; $topbottom = !$topbottom; },
+  "seascape|r" => sub { $rowmajor = !$rowmajor; $leftright = !$leftright; },
   "flipped|f" => \$flip,
-  "columnmajor|c" => sub { $column = !$column; },
+  "columnmajor|c" => sub { $rowmajor = !$rowmajor; },
   "tolerance|t=i" => \$tolerance,
   "quiet|q" => sub { push @pstops_args, "-q"; },
   "help" => \$help_flag,
@@ -185,20 +185,15 @@ push @pstops_args, "-w", $width, "-h", $height; # set width and height for pstop
 
 if ($rotate) {	# rotate leftright and topbottom orders
   ($topbottom, $leftright) = (!$leftright, $topbottom);
-  $column = !$column;
+  $rowmajor = !$rowmajor;
 }
 
 # Construct specification list
 my $specs = "$nup:";
 for (my $page = 0; $page < $nup; ) {
-  my ($up, $across); # page index
-  if ($column) {
-    $across = $leftright ? int($page / $vert) : $horiz - 1 - int($page / $vert);
-    $up = $topbottom ? $vert - 1 - $page % $vert : $page % $vert;
-  } else {
-    $across = $leftright ? $page % $horiz : $horiz - 1 - $page % $horiz;
-    $up = $topbottom ? $vert - 1 - int($page / $horiz) : int($page / $horiz);
-  }
+  my ($across, $up) = $rowmajor ? ($page % $horiz, int($page / $horiz)) : (int($page / $vert), $page % $vert);
+  $across = $horiz - 1 - $across if !$leftright;
+  $up = $vert - 1 - $up if $topbottom;
   $specs .= sprintf "%d%s@%f(%f,%f)", $page , ($rotate ? "L" : ""), $scale ,
     ($rotate ? $margin + ($across + 1) * $ppwid / $horiz - $hshift : $margin + $across * $ppwid / $horiz + $hshift),
     ($margin + $up * $pphgt / $vert + $vshift);
