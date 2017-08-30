@@ -199,9 +199,9 @@ for (my $page = 0; $page < $nup; ) {
     $across = $leftright ? $page % $horiz : $horiz - 1 - $page % $horiz;
     $up = $topbottom ? $vert - 1 - int($page / $horiz) : int($page / $horiz);
   }
-  $specs .= $page . ($rotate ? "L" : "") . "@" . $scale .
-    "(" . ($rotate ? $margin + ($across + 1) * $ppwid / $horiz - $hshift : $margin + $across * $ppwid / $horiz + $hshift) . "," .
-    ($margin + $up * $pphgt / $vert + $vshift) . ")";
+  $specs .= sprintf "%d%s@%f(%f,%f)", $page , ($rotate ? "L" : ""), $scale ,
+    ($rotate ? $margin + ($across + 1) * $ppwid / $horiz - $hshift : $margin + $across * $ppwid / $horiz + $hshift),
+    ($margin + $up * $pphgt / $vert + $vshift);
   $specs .= "+" if ++$page < $nup;
 }
 
