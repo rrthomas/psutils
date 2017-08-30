@@ -150,16 +150,16 @@ die("border is too large") if $border > min($ppwid, $pphgt);
 my $best = $tolerance;
 my ($horiz, $vert, $rotate);
 
-sub optim {
+sub reduce_waste {
   my ($hor, $ver, $iwid, $ihgt, $rot) = @_;
   my $scl = min($pphgt / ($ihgt * $ver), $ppwid / ($iwid * $hor));
-  my $optim = ($ppwid - $scl * $iwid * $hor) ** 2 + ($pphgt - $scl * $ihgt * $ver) ** 2;
-  ($best, $horiz, $vert, $rotate) = ($optim, $hor, $ver, $rot) if $optim < $best;
+  my $waste = ($ppwid - $scl * $iwid * $hor) ** 2 + ($pphgt - $scl * $ihgt * $ver) ** 2;
+  ($best, $horiz, $vert, $rotate) = ($waste, $hor, $ver, $rot) if $waste < $best;
 }
 
 for (my ($hor, $ver) = (1, $nup); $hor != 0; ($hor, $ver) = (nextdiv($hor, $nup))) {
-  optim($hor, $ver, $iwidth, $iheight, $flip); # normal orientation
-  optim($ver, $hor, $iheight, $iwidth, !$flip); # rotated orientation
+  reduce_waste($hor, $ver, $iwidth, $iheight, $flip); # normal orientation
+  reduce_waste($ver, $hor, $iheight, $iwidth, !$flip); # rotated orientation
 }
 
 # Fail if nothing better than tolerance was found
