@@ -7,7 +7,7 @@ use strict;
 use warnings;
 no if $] >= 5.018, warnings => "experimental::smartmatch";
 
-use POSIX qw(strtod);
+use POSIX qw(strtod round);
 
 use base qw(Exporter);
 our @EXPORT = qw(singledimen paper_size parsepaper);
@@ -42,7 +42,7 @@ sub paper_size {
   chomp($paper_name = `paper`) unless defined($paper_name);
   my $dimensions = `paper --unit=pt --size $paper_name 2>/dev/null` or return;
   $dimensions =~ /^([\d.]+) ([\d.]+)/;
-  return int($1 + 0.5), int($2 + 0.5); # round dimensions to nearest point
+  return round($1), round($2); # round dimensions to nearest point
 }
 
 sub parsepaper {

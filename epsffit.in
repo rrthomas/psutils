@@ -18,6 +18,7 @@ BEGIN
 
 use File::Basename;
 use Getopt::Long;
+use POSIX qw(round);
 
 use PSUtils;
 
@@ -92,10 +93,10 @@ while (<$infile>) {
     if (/^%%BoundingBox:/) {
       if (/^%%BoundingBox:([\d.]+) ([\d.]+) ([\d.]+) ([\d.]+)$/) {
         $bbfound = 1;
-        $llx = int($1); # accept doubles, but convert to int
-        $lly = int($2);
-        $urx = int($3 + 0.5);
-        $ury = int($4 + 0.5);
+        $llx = round($1); # accept doubles, but convert to int
+        $lly = round($2);
+        $urx = round($3);
+        $ury = round($4);
       }
     } elsif (/^%%EndComments/) {
       # don't repeat %%EndComments
