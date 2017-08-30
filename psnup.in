@@ -59,7 +59,7 @@ my ($flip, $leftright, $topbottom) = (0, 1, 1);
 my $nup = 1;
 my $draw = 0;				# draw page borders
 my ($margin, $border) = (0, 0);		# paper & page margins
-my ($width, $height);			# output paper size
+my ($owidth, $oheight);			# output paper size
 my ($iwidth, $iheight);			# input paper size
 my $tolerance = 100000;			# layout tolerance
 
@@ -87,16 +87,16 @@ Getopt::Long::Configure("bundling");
 # Having configured bundling, must give short options explicitly
 my @pstops_args = ();
 GetOptions(
-  "paper|p=s" => sub { ($width, $height) = parsepaper(@_); },
-  "width|w=s" => sub { $width = singledimen($_[1], $width, $height); },
-  "height|h=s" => sub { $height = singledimen($_[1], $width, $height); },
+  "paper|p=s" => sub { ($owidth, $oheight) = parsepaper(@_); },
+  "width|w=s" => sub { $owidth = singledimen($_[1], $owidth, $oheight); },
+  "height|h=s" => sub { $oheight = singledimen($_[1], $owidth, $oheight); },
   "inpaper|P=s" => sub { ($iwidth, $iheight) = parsepaper(@_); },
-  "inwidth|W=s" => sub { $iwidth = singledimen($_[1], $width, $height); },
-  "inheight|H=s" => sub { $iheight = singledimen($_[1], $width, $height); },
-  "margin|m=s" => sub { $margin = singledimen($_[1], $width, $height); },
-  "border|b=s" => sub { $border = singledimen($_[1], $width, $height); },
+  "inwidth|W=s" => sub { $iwidth = singledimen($_[1], $owidth, $oheight); },
+  "inheight|H=s" => sub { $iheight = singledimen($_[1], $owidth, $oheight); },
+  "margin|m=s" => sub { $margin = singledimen($_[1], $owidth, $oheight); },
+  "border|b=s" => sub { $border = singledimen($_[1], $owidth, $oheight); },
   "draw|d:s" => sub { push @pstops_args, "-d";
-                      $draw = singledimen($_[1] || "1pt", $width, $height); },
+                      $draw = singledimen($_[1] || "1pt", $owidth, $oheight); },
   "landscape|l" => sub { $rowmajor = !$rowmajor; $topbottom = !$topbottom; },
   "seascape|r" => sub { $rowmajor = !$rowmajor; $leftright = !$leftright; },
   "flipped|f" => \$flip,
@@ -126,21 +126,21 @@ sub nextdiv {
 }
 
 # Set output height/width from corresponding input value if undefined
-($width, $height) = ($iwidth, $iheight) if !defined($width) && defined($iwidth);
+($owidth, $oheight) = ($iwidth, $iheight) if !defined($owidth) && defined($iwidth);
 
 # Ensure output paper size is set
-($width, $height) = paper_size()
+($owidth, $oheight) = paper_size()
   or die("output paper size not set, and could not get default paper size")
-  if !defined($width);
+  if !defined($owidth);
 
 # Set input height/width from corresponding output value if undefined
-($iwidth, $iheight) = ($width, $height) if !defined($iwidth);
+($iwidth, $iheight) = ($owidth, $oheight) if !defined($iwidth);
 
 # Tell pstops to strip size headers if output paper size differs from input
-push @pstops_args, "-S" if $width != $iwidth || $height != $iheight;
+push @pstops_args, "-S" if $owidth != $iwidth || $oheight != $iheight;
 
 # Calculate paper dimensions, subtracting paper margin from height & width
-my ($ppwid, $pphgt) = ($width - $margin * 2, $height - $margin * 2);
+my ($ppwid, $pphgt) = ($owidth - $margin * 2, $oheight - $margin * 2);
 die("margin is too large") if $ppwid <= 0 || $pphgt <= 0;
 die("border is too large") if $border > min($ppwid, $pphgt);
 
@@ -166,7 +166,7 @@ for (my ($hor, $ver) = (1, $nup); $hor != 0; ($hor, $ver) = (nextdiv($hor, $nup)
 die("can't find acceptable layout for $nup-up") if $best == $tolerance;
 
 # Take account of flip and rotation
-($width, $height) = ($height, $width) if $flip;
+($owidth, $oheight) = ($oheight, $owidth) if $flip;
 ($topbottom, $leftright, $rowmajor, $iwidth, $iheight) = (!$leftright, $topbottom, !$rowmajor, $iheight, $iwidth) if $rotate;
 
 # Calculate page scale, allowing for internal borders
@@ -176,7 +176,7 @@ my $scale = min(($pphgt - 2 * $border * $vert) / ($iheight * $vert),
 # Page centring shifts
 my ($hshift, $vshift) = (($ppwid / $horiz - $iwidth * $scale) / 2, ($pphgt / $vert - $iheight * $scale) / 2);
 
-push @pstops_args, "-w", $width, "-h", $height; # set width and height for pstops
+push @pstops_args, "-w", $owidth, "-h", $oheight; # set width and height for pstops
 
 # Construct specification list
 my @specs;
