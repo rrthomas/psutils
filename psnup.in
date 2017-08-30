@@ -63,19 +63,17 @@ my ($owidth, $oheight);			# output paper size
 my ($iwidth, $iheight);			# input paper size
 my $tolerance = 100000;			# layout tolerance
 
-# Parse -NUP, which Getopt::Long can't easily be made to understand
 sub parsenup {
-  die("Option $_[0] requires an argument") unless $_[1] ne "";
-  die("Value \"$nup\" invalid for -NUP (number expected)") unless $_[1] =~ /^\d+$/;
+  die("option $_[0] requires an argument") unless $_[1] ne "";
+  die("value \"$nup\" invalid for -NUP (number expected)") unless $_[1] =~ /^\d+$/;
   die("number of pages per sheet must be positive") if $_[1] == 0;
   $nup = $_[1];
 }
 
+# Parse -NUP, which Getopt::Long can't easily be made to understand
 for (my $i = 0; $i <= $#ARGV; ) {
-  if ($ARGV[$i] =~ /^-\d+/) { # looks like an option
-    die("Value \"$ARGV[$i]\" invalid for -NUP (number expected)") unless $ARGV[$i] =~ /^-\d+$/;
+  if ($ARGV[$i] =~ /^-[1-9]\d*$/) { # -NUP
     $nup = -$ARGV[$i];
-    die("number of pages per sheet must be positive") if $nup == 0;
     splice(@ARGV, $i, 1)
   } else {
     $i++;
