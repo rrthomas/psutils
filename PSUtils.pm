@@ -7,6 +7,8 @@ use strict;
 use warnings;
 no if $] >= 5.018, warnings => "experimental::smartmatch";
 
+use POSIX qw(strtod);
+
 use base qw(Exporter);
 our @EXPORT = qw(singledimen paper_size parsepaper);
 
@@ -38,7 +40,7 @@ sub singledimen {
 sub paper_size {
   my ($paper_name) = @_;
   chomp($paper_name = `paper`) unless defined($paper_name);
-  my $dimensions = `paper --unit=pt --size $paper_name`;
+  my $dimensions = `paper --unit=pt --size $paper_name 2>/dev/null` or return;
   $dimensions =~ /^([\d.]+) ([\d.]+)/;
   return int($1 + 0.5), int($2 + 0.5); # round dimensions to nearest point
 }
@@ -48,7 +50,7 @@ sub parsepaper {
   my ($width, $height) = paper_size($_[1]);
   if (!defined($width)) {
     my ($w, $h) = split /x/, $_[1];
-    eval { ($width, $height) = singledimen($w), singledimen($h); }
+    eval { ($width, $height) = (singledimen($w), singledimen($h)); }
       or die("paper size '$_[1]' unknown");
   }
   return $width, $height;
