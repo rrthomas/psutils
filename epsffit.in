@@ -109,7 +109,7 @@ while (<$infile>) {
   }
 }
 
-die("no %%%%BoundingBox:") unless $bbfound;
+die("no %%BoundingBox:") unless $bbfound;
 
 # put BB, followed by scale & translate
 my ($xoffset, $yoffset) = ($fllx, $flly);
@@ -136,7 +136,7 @@ if ($center) {
       $yoffset += ($fheight - $height) / 2;
    }
 }
-say $outfile "%%%%BoundingBox: " . int($xoffset) . " " . int($yoffset) . " " .
+say $outfile "%%BoundingBox: " . int($xoffset) . " " . int($yoffset) . " " .
   int($xoffset + ($rotate ? $height : $width)) . " " .
   int($yoffset + ($rotate ? $width : $height));
 if ($rotate) { # compensate for original image shift
