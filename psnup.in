@@ -44,7 +44,7 @@ Put multiple pages of a PostScript file on to one page
   --rotateleft         rotate pages left 90 degrees
   --rotateright        rotate pages right 90 degrees
   --flip               swap width and height of pages
-  --columnmajor        use column major layout
+  --transpose          swap columns and rows
   --tolerance=NUMBER   maximum page wastage in square points [100,000]
   --quiet              don't show page numbers being output
   --help               display this help and exit
@@ -98,7 +98,7 @@ GetOptions(
   "rotateleft|l" => sub { $rowmajor = !$rowmajor; $topbottom = !$topbottom; },
   "rotateright|r" => sub { $rowmajor = !$rowmajor; $leftright = !$leftright; },
   "flip|f" => sub { $flip = !$flip; },
-  "columnmajor|c" => sub { $rowmajor = !$rowmajor; },
+  "transpose|c" => sub { $rowmajor = !$rowmajor; },
   "tolerance|t=i" => \$tolerance,
   "quiet|q" => sub { push @pstops_args, "-q"; },
   "help" => \$help_flag,
