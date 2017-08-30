@@ -189,16 +189,15 @@ if ($rotate) {	# rotate leftright and topbottom orders
 }
 
 # Construct specification list
-my $specs = "$nup:";
-for (my $page = 0; $page < $nup; ) {
+my @specs;
+for (my $page = 0; $page < $nup; $page++) {
   my ($across, $up) = $rowmajor ? ($page % $horiz, int($page / $horiz)) : (int($page / $vert), $page % $vert);
   $across = $horiz - 1 - $across if !$leftright;
   $up = $vert - 1 - $up if $topbottom;
-  $specs .= sprintf "%d%s@%f(%f,%f)", $page , ($rotate ? "L" : ""), $scale ,
+  push @specs, sprintf "%d%s@%f(%f,%f)", $page , ($rotate ? "L" : ""), $scale ,
     ($rotate ? $margin + ($across + 1) * $ppwid / $horiz - $hshift : $margin + $across * $ppwid / $horiz + $hshift),
     ($margin + $up * $pphgt / $vert + $vshift);
-  $specs .= "+" if ++$page < $nup;
 }
 
 # Rearrange pages
-exec("pstops", @pstops_args, $specs, @ARGV) or die("error running pstops");
+exec("pstops", @pstops_args, "$nup:" . join("+", @specs), @ARGV) or die("error running pstops");
