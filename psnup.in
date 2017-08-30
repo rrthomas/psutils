@@ -54,15 +54,11 @@ END
 }
 
 # Settings
-my ($horiz, $vert) = (0, 0);
 my $rowmajor = 1;
-my $flip = 0;
-my ($leftright, $topbottom) = (1, 1);
+my ($flip, $leftright, $topbottom) = (0, 1, 1);
 my $nup = 1;
 my $draw = 0;				# draw page borders
-my $scale = 1.0;			# page scale
 my ($margin, $border) = (0, 0);		# paper & page margins
-my ($vshift, $hshift) = (0, 0);		# page centring shifts
 my ($width, $height);			# output paper size
 my ($iwidth, $iheight);			# input paper size
 my $tolerance = 100000;			# layout tolerance
@@ -143,30 +139,22 @@ sub nextdiv {
 # Tell pstops to strip size headers if output paper size differs from input
 push @pstops_args, "-S" if $width != $iwidth || $height != $iheight;
 
-# Calculate paper dimensions, subtracting paper margins from height & width
+# Calculate paper dimensions, subtracting paper margin from height & width
 my ($ppwid, $pphgt) = ($width - $margin * 2, $height - $margin * 2);
-
-die("margins is too large") if $ppwid <= 0 || $pphgt <= 0;
+die("margin is too large") if $ppwid <= 0 || $pphgt <= 0;
 die("border is too large") if $border > min($ppwid, $pphgt);
 
 # Finding the best layout is an optimisation problem. We try all of the
 # combinations of width*height in both normal and rotated form, and
 # minimise the wasted space.
 my $best = $tolerance;
-my $rotate;
+my ($horiz, $vert, $rotate);
 
 sub optim {
-  my ($hor, $ver, $iwid, $ihgt, $flp) = @_;
+  my ($hor, $ver, $iwid, $ihgt, $rot) = @_;
   my $scl = min($pphgt / ($ihgt * $ver), $ppwid / ($iwid * $hor));
   my $optim = ($ppwid - $scl * $iwid * $hor) ** 2 + ($pphgt - $scl * $ihgt * $ver) ** 2;
-  if ($optim < $best) {
-    # Recalculate scale to allow for internal borders
-    $scale = min(($pphgt - 2 * $border * $ver) / ($ihgt * $ver),
-                 ($ppwid - 2 * $border * $hor) / ($iwid * $hor));
-    $hshift = ($ppwid / $hor - $iwid * $scale) / 2;
-    $vshift = ($pphgt / $ver - $ihgt * $scale) / 2;
-    ($best, $horiz, $vert, $rotate) = ($optim, $hor, $ver, $flp);
-  }
+  ($best, $horiz, $vert, $rotate) = ($optim, $hor, $ver, $rot) if $optim < $best;
 }
 
 for (my ($hor, $ver) = (1, $nup); $hor != 0; ($hor, $ver) = (nextdiv($hor, $nup))) {
@@ -177,8 +165,16 @@ for (my ($hor, $ver) = (1, $nup); $hor != 0; ($hor, $ver) = (nextdiv($hor, $nup)
 # Fail if nothing better than tolerance was found
 die("can't find acceptable layout for $nup-up") if $best == $tolerance;
 
+# Take account of flip and rotation
 ($width, $height) = ($height, $width) if $flip;
-($topbottom, $leftright, $rowmajor) = (!$leftright, $topbottom, !$rowmajor) if $rotate;
+($topbottom, $leftright, $rowmajor, $iwidth, $iheight) = (!$leftright, $topbottom, !$rowmajor, $iheight, $iwidth) if $rotate;
+
+# Calculate page scale, allowing for internal borders
+my $scale = min(($pphgt - 2 * $border * $vert) / ($iheight * $vert),
+                ($ppwid - 2 * $border * $horiz) / ($iwidth * $horiz));
+
+# Page centring shifts
+my ($hshift, $vshift) = (($ppwid / $horiz - $iwidth * $scale) / 2, ($pphgt / $vert - $iheight * $scale) / 2);
 
 push @pstops_args, "-w", $width, "-h", $height; # set width and height for pstops
 
