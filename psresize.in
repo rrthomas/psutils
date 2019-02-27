@@ -18,15 +18,11 @@ my ($help_flag, $version_flag);
 sub usage {
   my ($exit_code) = @_;
   print STDERR <<END;
-$prog [OPTION...] -wWIDTH -hHEIGHT|-pPAPER -WWIDTH -HHEIGHT|-PPAPER [INFILE [OUTFILE]]
+$prog [OPTION...] [INFILE [OUTFILE]]
 Alter page size of a PostScript file.
 
-  --paper=PAPER        output paper size OR
-  --width=DIMENSION    output paper width and
-  --height=DIMENSION   output paper height
-  --inpaper=PAPER      input paper size OR
-  --inwidth=DIMENSION  input paper width and
-  --inheight=DIMENSION input paper height
+  --paper=PAPER        output paper size
+  --inpaper=PAPER      input paper size
   --quiet              don't show page numbers being output
   --help               display this help and exit
   --version            display version information and exit
