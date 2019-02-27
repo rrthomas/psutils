@@ -10,9 +10,10 @@ basename=$(basename $name)
 # First argument is number of pages for test document
 # Remaining arguments are command to run
 function test() {
-    local pages=$1
-    shift
-    "$srcdir/mktestfile" "$pages" > "tests/$basename-input.ps"
+    local paper=$1
+    local pages=$2
+    shift 2
+    "$srcdir/mktestfile" "$paper" "$pages" > "tests/$basename-input.ps"
     tests/psutils-wrapper "$@" "tests/$basename-input.ps" > "tests/$basename-output.ps"
     diff -u --ignore-matching-lines="^%%CreationDate" "$srcdir/$basename-expected.ps" "tests/$basename-output.ps"
 }

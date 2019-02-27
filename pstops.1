@@ -7,13 +7,14 @@ pstops \- shuffle pages in a PostScript file
 .RB [ \-b ]
 .RB [ \-w\fIwidth\fR
 .BR \-h\fIheight\fR | \-p\fIpaper\fR ]
+.RB [ \-W\fIwidth\fR
+.BR \-H\fIheight\fR | \-P\fIpaper\fR ]
 .RB [ \-d [ \fIlwidth\fR ]]
 .RB [ \-o ]
 .RB [ \-e ]
 .RB [ \-r ]
 .RB [ \-R\fIpages\fR ]
 .RB [ \-s\fIsignature\fR ]
-.RB [ \-S ]
 .I pagespecs
 .RI [ infile
 .RI [ outfile ]]
@@ -113,13 +114,23 @@ dimension specifier, and the
 option gives the height which is used by the
 .B "h"
 dimension specifier.
-These dimensions, if given are also used (after scaling) to set the
-clipping path for each page.
 The
 .B \-p
 option can be used as an alternative, to set the paper size.
 See
 .BR paper (1).
+The
+.B \-W
+option gives the width of the input paper and the
+.B \-H
+option gives the height of the output paper.
+The
+.B \-P
+option can be used as an alternative, to set the input paper size.
+See
+.BR paper (1).
+These dimensions, if given are also used (after scaling) to set the
+clipping path for each page.
 .PP
 The
 .BI \-R pages
@@ -177,12 +188,6 @@ The
 .B \-s
 option gives the number of pages in each signature, which must be either 1
 (the default), a multiple of 4, or, to put all pages in a single signature, 0.
-.PP
-The
-.B \-S
-option causes the input paper size information to be ignored.
-This makes it easy to impose pages of one size on a different size of
-paper.
 .PP
 Pstops normally prints the page numbers of the pages re-arranged; the
 .B \-q

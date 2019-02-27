@@ -6,12 +6,26 @@
 TEST_EXTENSIONS = .sh
 SH_LOG_COMPILER = $(srcdir)/tests/run-test
 
-TESTS = %D%/psbook-20.sh \
+TESTS = \
+	%D%/psbook-20.sh \
 	%D%/psbook-20-signature-4.sh \
 	%D%/psbook-3.sh \
 	%D%/psbook-3-signature-4.sh \
 	%D%/psbook-invalid-signature-size.sh \
+	%D%/psnup-20-1.sh \
+	%D%/psnup-20-2.sh \
+	%D%/psnup-20-3.sh \
 	%D%/psnup-20-4.sh \
+	%D%/psnup-20-1-inpaper-a5.sh \
+	%D%/psnup-20-1-inpaper-a5-outpaper-a5.sh \
+	%D%/psnup-20-1-inpaper-a4-outpaper-a5.sh \
+	%D%/psnup-20-2-inpaper-a5.sh \
+	%D%/psnup-20-3-inpaper-a5.sh \
+	%D%/psnup-20-4-inpaper-a5.sh \
+	%D%/psnup-20-3-rotatedleft.sh \
+	%D%/psnup-20-3-rotatedright.sh \
+	%D%/psnup-20-1-flip.sh \
+	%D%/psnup-20-4-flip.sh \
 	%D%/psselect-odd.sh \
 	%D%/psselect-even.sh \
 	%D%/psselect-reverse.sh \
@@ -23,25 +37,81 @@ TESTS = %D%/psbook-20.sh \
 	%D%/psselect-options-and-complex-pagerange.sh \
 	%D%/psselect-invalid-pagerange.sh
 
+# Tests to write:
+
+# psnup-20-4-210mmx297mm.sh
+# psnup-20-4-columnmajor.sh
+# psnup-20-4-margin-10.sh
+# psnup-20-4-border-20.sh
+# psnup-20-3-impossible-tolerance.sh
+# psnup-20-4-impossible-margin.sh
+# psnup-20-4-impossible-border.sh
+
+# psjoin-1-2.sh
+# psjoin-1-2-even.sh
+# psjoin-1-2-save.sh
+# psjoin-1-2-nostrip.sh
+
+# psresize-20-4-A5.sh
+# psresize-20-4-A3.sh
+# psresize-20-4-A4.sh
+# psresize-20-4-Letter.sh
+# psresize-20-4-A4in-A4.sh
+# psresize-20-4-A5in-A4.sh
+# psresize-20-4-A3in-A4.sh
+
+# epsffit-center.sh
+# epsffit-rotate.sh
+# epsffit-aspect.sh
+# epsffit-maximise.sh
+# epsffit-center-rotate.sh
+# epsffit-center-rotate-aspect.sh
+# epsffit-center-rotate-maximize.sh
+# epsffit-center-rotate-aspect-maximize.sh
+# epsffit-showpage.sh
+
+# extractres (have at least one resource of each type in input)
+
+# includeres-pfa
+# includeres-ps
+# includeres-pat
+# includeres-frm
+# includeres-enc
+
 XFAIL_TESTS = \
 	%D%/psbook-invalid-signature-size.sh \
 	%D%/psselect-invalid-pagerange.sh
 
 RESULTS = \
-	%D%/psbook-20-expected.ps \
-	%D%/psbook-20-signature-4-expected.ps \
-	%D%/psbook-3-expected.ps \
-	%D%/psbook-3-signature-4-expected.ps \
-	%D%/psnup-20-4-expected.ps \
-	%D%/psselect-odd-expected.ps \
-	%D%/psselect-even-expected.ps \
-	%D%/psselect-reverse-expected.ps \
-	%D%/psselect-even-reverse-expected.ps \
-	%D%/psselect-positive-range-expected.ps \
-	%D%/psselect-negative-range-expected.ps \
-	%D%/psselect-positive-negative-range-expected.ps \
-	%D%/psselect-individual-pages-and-dash-p-expected.ps \
-	%D%/psselect-options-and-complex-pagerange-expected.ps
+	%D%/psbook-20-expected.sh \
+	%D%/psbook-20-signature-4-expected.sh \
+	%D%/psbook-3-expected.sh \
+	%D%/psbook-3-signature-4-expected.sh \
+	%D%/psbook-invalid-signature-size-expected.sh \
+	%D%/psnup-20-1-expected.sh \
+	%D%/psnup-20-2-expected.sh \
+	%D%/psnup-20-3-expected.sh \
+	%D%/psnup-20-4-expected.sh \
+	%D%/psnup-20-1-inpaper-a5-expected.sh \
+	%D%/psnup-20-1-inpaper-a5-outpaper-a5-expected.sh \
+	%D%/psnup-20-1-inpaper-a4-outpaper-a5-expected.sh \
+	%D%/psnup-20-2-inpaper-a5-expected.sh \
+	%D%/psnup-20-3-inpaper-a5-expected.sh \
+	%D%/psnup-20-4-inpaper-a5-expected.sh \
+	%D%/psnup-20-3-rotatedleft-expected.sh \
+	%D%/psnup-20-3-rotatedright-expected.sh \
+	%D%/psnup-20-1-flip-expected.sh \
+	%D%/psnup-20-4-flip-expected.sh \
+	%D%/psselect-odd-expected.sh \
+	%D%/psselect-even-expected.sh \
+	%D%/psselect-reverse-expected.sh \
+	%D%/psselect-even-reverse-expected.sh \
+	%D%/psselect-positive-range-expected.sh \
+	%D%/psselect-negative-range-expected.sh \
+	%D%/psselect-positive-negative-range-expected.sh \
+	%D%/psselect-individual-pages-and-dash-p-expected.sh \
+	%D%/psselect-options-and-complex-pagerange-expected.sh \
+	%D%/psselect-invalid-pagerange-expected.sh
 
 EXTRA_DIST += %D%/mktestfile $(SH_LOG_COMPILER) $(TESTS) $(RESULTS) %D%/psutils-wrapper.in
 

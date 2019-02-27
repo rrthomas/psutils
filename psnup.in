@@ -41,9 +41,9 @@ Put multiple pages of a PostScript file on to one page
   --border=DIMENSION   width of border around each input page
   --draw[=DIMENSION]   draw a line of given width around each page
                        [argument defaults to 1; default is 0]
-  --rotateleft         rotate pages left 90 degrees
-  --rotateright        rotate pages right 90 degrees
-  --flip               swap width and height of pages
+  --rotatedleft        input pages are rotated left 90 degrees
+  --rotatedright       input pages are rotated right 90 degrees
+  --flip               swap output pages' width and height
   --transpose          swap columns and rows
   --tolerance=NUMBER   maximum page wastage in square points [100,000]
   --quiet              don't show page numbers being output
@@ -95,8 +95,8 @@ GetOptions(
   "border|b=s" => sub { $border = singledimen($_[1], $owidth, $oheight); },
   "draw|d:s" => sub { push @pstops_args, "-d";
                       $draw = singledimen($_[1] || "1pt", $owidth, $oheight); },
-  "rotateleft|l" => sub { $rowmajor = !$rowmajor; $topbottom = !$topbottom; },
-  "rotateright|r" => sub { $rowmajor = !$rowmajor; $leftright = !$leftright; },
+  "rotatedleft|l" => sub { $rowmajor = !$rowmajor; $topbottom = !$topbottom; },
+  "rotatedright|r" => sub { $rowmajor = !$rowmajor; $leftright = !$leftright; },
   "flip|f" => sub { $flip = !$flip; },
   "transpose|c" => sub { $rowmajor = !$rowmajor; },
   "tolerance|t=i" => \$tolerance,
@@ -134,8 +134,11 @@ sub nextdiv {
 # Set input height/width from corresponding output value if undefined
 ($iwidth, $iheight) = ($owidth, $oheight) if !defined($iwidth);
 
-# Tell pstops to strip size headers if output paper size differs from input
-push @pstops_args, "-S" if $owidth != $iwidth || $oheight != $iheight;
+# Take account of flip
+($owidth, $oheight) = ($oheight, $owidth) if $flip;
+
+# Tell pstops input paper size if it differs from output paper size
+push @pstops_args, "-W", $iwidth, "-H", $iheight if $owidth != $iwidth || $oheight != $iheight;
 
 # Calculate paper dimensions, subtracting paper margin from height & width
 my ($ppwid, $pphgt) = ($owidth - $margin * 2, $oheight - $margin * 2);
@@ -156,15 +159,14 @@ sub reduce_waste {
 }
 
 for (my ($hor, $ver) = (1, $nup); $hor != 0; ($hor, $ver) = (nextdiv($hor, $nup))) {
-  reduce_waste($hor, $ver, $iwidth, $iheight, $flip); # normal orientation
-  reduce_waste($ver, $hor, $iheight, $iwidth, !$flip); # rotated orientation
+  reduce_waste($hor, $ver, $iwidth, $iheight, 0); # normal orientation
+  reduce_waste($ver, $hor, $iheight, $iwidth, 1); # rotated orientation
 }
 
 # Fail if nothing better than tolerance was found
 die("can't find acceptable layout for $nup-up") if $best == $tolerance;
 
-# Take account of flip and rotation
-($owidth, $oheight) = ($oheight, $owidth) if $flip;
+# Take account of rotation
 ($topbottom, $leftright, $rowmajor, $iwidth, $iheight) = (!$leftright, $topbottom, !$rowmajor, $iheight, $iwidth) if $rotate;
 
 # Calculate page scale, allowing for internal borders

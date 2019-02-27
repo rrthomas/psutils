@@ -1,1 +1,1 @@
-test 20 psselect --even
+test a4 20 psselect --even

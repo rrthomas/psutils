@@ -222,6 +222,9 @@ static void writestring(const char *s)
 /* Output paper size */
 static double width = -1;
 static double height = -1;
+/* Input paper size, if different from output */
+static double iwidth = -1;
+static double iheight = -1;
 // Global scale factor
 static double scale = 1;
 // Global page offsets
@@ -487,7 +490,7 @@ static void pstops(PageRange *pagerange, int signature, int modulo, int pps, int
     if ((line = xgetline(infile)) == NULL)
       die("I/O error in header");
     free(line);
-    if (width > -1 && height > -1) {
+    if (width > -1) {
       writestringf("%%%%DocumentMedia: plain %d %d 0 () ()\n", (int) width, (int) height);
       writestringf("%%%%BoundingBox: 0 0 %d %d\n", (int) width, (int) height);
     }
@@ -590,16 +593,16 @@ static void pstops(PageRange *pagerange, int signature, int modulo, int pps, int
         if (ps->flags & ROTATE)
           writestringf("%d rotate\n", (ps->rotate + rotate) % 360);
         if (ps->flags & HFLIP)
-          writestringf("[ -1 0 0 1 %f 0 ] concat\n", width * ps->scale * scale);
+          writestringf("[ -1 0 0 1 %f 0 ] concat\n", iwidth * ps->scale * scale);
         if (ps->flags & VFLIP)
-          writestringf("[ 1 0 0 -1 0 %f ] concat\n", height * ps->scale * scale);
+          writestringf("[ 1 0 0 -1 0 %f ] concat\n", iheight * ps->scale * scale);
         if (ps->flags & SCALE)
           writestringf("%f dup scale\n", ps->scale * scale);
         writestring("userdict/PStoPSmatrix matrix currentmatrix put\n");
-        if (width > 0 && height > 0) {
+        if (iwidth > 0 && iheight > 0) {
           writestringf("userdict/PStoPSclip{0 0 moveto\n\
  %f 0 rlineto 0 %f rlineto -%f 0 rlineto\n\
- closepath}put initclip\n", width, height, width);
+ closepath}put initclip\n", iwidth, iheight, iwidth);
           if (draw > 0)
             writestringf("gsave clippath 0 setgray %f setlinewidth stroke grestore\n", draw);
         }
@@ -723,13 +726,13 @@ main(int argc, char *argv[])
 {
   PageSpec *specs = NULL;
   PageRange *pagerange = NULL;
-  int nobinding = 0, even = 0, odd = 0, reverse = 0, strip_sizeheaders = 0;
+  int nobinding = 0, even = 0, odd = 0, reverse = 0;
   double draw = 0;
 
   set_program_name (argv[0]);
 
   int opt;
-  while ((opt = getopt(argc, argv, "qbd::eh:H:op:P:rR:s:Svw:W:0123456789")) != EOF) {
+  while ((opt = getopt(argc, argv, "qbd::eh:H:op:P:rR:s:vw:W:0123456789")) != EOF) {
     switch (opt) {
     case 'q':	/* quiet */
       verbose = 0;
@@ -752,11 +755,21 @@ main(int argc, char *argv[])
     case 'w':	/* page width */
       width = singledimen(optarg);
       break;
+    case 'W':   /* input page width */
+      iwidth = singledimen(optarg);
+      break;
     case 'h':	/* page height */
       height = singledimen(optarg);
       break;
+    case 'H':   /* input page height */
+      iheight = singledimen(optarg);
+      break;
     case 'p':	/* paper type */
       if (!paper_size(optarg, &width, &height))
+        die("paper size '%s' not recognised", optarg);
+      break;
+    case 'P':   /* input paper type */
+      if (!paper_size(optarg, &iwidth, &iheight))
         die("paper size '%s' not recognised", optarg);
       break;
     case 'R':	/* page ranges */
@@ -766,9 +779,6 @@ main(int argc, char *argv[])
       signature = parseint(&optarg);
       if (signature < 0 || (signature > 1 && signature % 4))
         usage();
-      break;
-    case 'S':	/* strip size headers */
-      strip_sizeheaders = 1;
       break;
     case '0':
     case '1':
@@ -829,8 +839,17 @@ main(int argc, char *argv[])
   if ((infile = seekable(infile)) == NULL)
     die("cannot seek input");
 
+  if ((width <= 0) ^ (height <= 0))
+    die("output page width and height must both be set, or neither");
+  if ((iwidth <= 0) ^ (iheight <= 0))
+    die("input page width and height must both be set, or neither");
+  if (iwidth < 0 && width > 0) {
+    iwidth = width;
+    iheight = height;
+  }
+
   // Build array of pointers to start/end of pages
-  off_t *sizeheaders = strip_sizeheaders ? XCALLOC(20, off_t) : NULL;
+  off_t *sizeheaders = width >= 0 ? XCALLOC(20, off_t) : NULL;
   int sizeheader = 0, nesting = 0;
 
   pageptr = (off_t *)XCALLOC(maxpages, off_t);
@@ -843,10 +862,11 @@ main(int argc, char *argv[])
         if (pages >= maxpages - 1)
           pageptr = (off_t *)x2nrealloc(pageptr, &maxpages, sizeof(off_t));
         pageptr[pages++] = record;
-      } else if (headerpos == 0 && sizeheaders && (iscomment(buffer, "%%BoundingBox:") ||
-                                                   iscomment(buffer, "%%HiResBoundingBox:") ||
-                                                   iscomment(buffer, "%%DocumentPaperSizes:") ||
-                                                   iscomment(buffer, "%%DocumentMedia:")))
+      } else if (headerpos == 0 && sizeheaders &&
+                 (iscomment(buffer, "%%BoundingBox:") ||
+                  iscomment(buffer, "%%HiResBoundingBox:") ||
+                  iscomment(buffer, "%%DocumentPaperSizes:") ||
+                  iscomment(buffer, "%%DocumentMedia:")))
         sizeheaders[sizeheader++] = record;
       else if (headerpos == 0 && iscomment(buffer, "%%Pages:"))
         pagescmt = record;
