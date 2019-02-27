@@ -508,10 +508,11 @@ static void pstops(PageRange *pagerange, int signature, int modulo, int pps, int
     writestring("%%EndProcSet\n");
   }
 
-  // Write prologue to end of setup section excluding PStoPS procset
+  // Write prologue to end of setup section
   if (beginprocset)
     fcopy(beginprocset, NULL);
-  if (endprocset)
+  // Skip any existing procset if we're using ours
+  if (endprocset && use_procset)
     fseeko(infile, endprocset, SEEK_SET);
   fcopy(endsetup, NULL);
 
