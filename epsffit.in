@@ -121,7 +121,7 @@ $rotate = 1 if $maximize &&
    ($width < $height && $fury - $flly < $furx - $fllx));
 
 my ($fwidth, $fheight) = ($furx - $fllx, $fury - $flly);
-($fwidth, $fheight) = ($fury - $flly, $furx - $fllx) if $rotate;
+($fwidth, $fheight) = ($fheight, $fwidth) if $rotate;
 
 my ($xscale, $yscale) = ($fwidth / $width, $fheight / $height);
 
