@@ -28,6 +28,9 @@ TESTS = \
 	%D%/psnup-20-3-rotatedright.sh \
 	%D%/psnup-20-1-flip.sh \
 	%D%/psnup-20-4-flip.sh \
+	%D%/psnup-20-3-impossible-tolerance.sh \
+	%D%/psnup-20-4-impossible-margin.sh \
+	%D%/psnup-20-4-impossible-border.sh \
 	%D%/psselect-odd.sh \
 	%D%/psselect-even.sh \
 	%D%/psselect-reverse.sh \
@@ -46,9 +49,6 @@ TESTS = \
 # psnup-20-4-columnmajor.sh
 # psnup-20-4-margin-10.sh
 # psnup-20-4-border-20.sh
-# psnup-20-3-impossible-tolerance.sh
-# psnup-20-4-impossible-margin.sh
-# psnup-20-4-impossible-border.sh
 
 # psjoin-1-2.sh
 # psjoin-1-2-even.sh
@@ -84,6 +84,9 @@ TESTS = \
 XFAIL_TESTS = \
 	%D%/psbook-invalid-signature-size.sh \
 	%D%/psselect-invalid-pagerange.sh \
+	%D%/psnup-20-3-impossible-tolerance.sh \
+	%D%/psnup-20-4-impossible-margin.sh \
+	%D%/psnup-20-4-impossible-border.sh \
 	$(EMPTY)
 
 RESULTS = \
