@@ -6,6 +6,7 @@ Copyright (c) Reuben Thomas 2016
 Released under the GPL version 3, or (at your option) any later version.
 END
 
+use v5.10;
 use warnings;
 use strict;
 
@@ -18,6 +19,7 @@ BEGIN
 use File::Basename;
 use Getopt::Long;
 use POSIX qw(round);
+use List::Util qw(min);
 
 use PSUtils;
 
@@ -90,7 +92,7 @@ while (<$infile>) {
   if (/^%[%!]/) {
     # still in comment section
     if (/^%%BoundingBox:/) {
-      if (/^%%BoundingBox:([\d.]+) ([\d.]+) ([\d.]+) ([\d.]+)$/) {
+      if (/^%%BoundingBox: +([\d.]+) +([\d.]+) +([\d.]+) +([\d.]+)$/) {
         $bbfound = 1;
         $llx = round($1); # accept doubles, but convert to int
         $lly = round($2);
@@ -101,7 +103,7 @@ while (<$infile>) {
       # don't repeat %%EndComments
       last;
     } else {
-      say $outfile $_;
+      print $outfile $_;
     }
   } else {
     last;
@@ -151,12 +153,14 @@ if ($showpage) {
 } else {
   say $outfile "%%BeginProcSet: epsffit 1 0";
 }
-say $outfile "gsave", (sprintf "%.3f %.3f translate", $xoffset, $yoffset);
+say $outfile "gsave " . (sprintf "%.3f %.3f translate", $xoffset, $yoffset);
 say $outfile "90 rotate" if $rotate;
 say $outfile (sprintf "%.3f %.3f scale", $xscale, $yscale);
 say $outfile "%%EndProcSet" unless $showpage;
-do {
-   say $outfile $_;
-} while (<$infile>);
+while (<$infile>) {
+   print $outfile $_;
+}
 say $outfile "grestore";
 say $outfile "restore showpage" if $showpage; # just in case
+
+1; # exit with a true value (value of previous statement may be false)
