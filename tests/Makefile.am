@@ -6,6 +6,8 @@
 TEST_EXTENSIONS = .sh
 SH_LOG_COMPILER = $(srcdir)/tests/run-test
 
+EMPTY =
+
 TESTS = \
 	%D%/psbook-20.sh \
 	%D%/psbook-20-signature-4.sh \
@@ -35,7 +37,8 @@ TESTS = \
 	%D%/psselect-positive-negative-range.sh \
 	%D%/psselect-individual-pages-and-dash-p.sh \
 	%D%/psselect-options-and-complex-pagerange.sh \
-	%D%/psselect-invalid-pagerange.sh
+	%D%/psselect-invalid-pagerange.sh \
+	$(EMPTY)
 
 # Tests to write:
 
@@ -80,7 +83,8 @@ TESTS = \
 
 XFAIL_TESTS = \
 	%D%/psbook-invalid-signature-size.sh \
-	%D%/psselect-invalid-pagerange.sh
+	%D%/psselect-invalid-pagerange.sh \
+	$(EMPTY)
 
 RESULTS = \
 	%D%/psbook-20-expected.ps \
@@ -109,7 +113,8 @@ RESULTS = \
 	%D%/psselect-negative-range-expected.ps \
 	%D%/psselect-positive-negative-range-expected.ps \
 	%D%/psselect-individual-pages-and-dash-p-expected.ps \
-	%D%/psselect-options-and-complex-pagerange-expected.ps
+	%D%/psselect-options-and-complex-pagerange-expected.ps \
+	$(EMPTY)
 
 EXTRA_DIST += %D%/mktestfile $(SH_LOG_COMPILER) $(TESTS) $(RESULTS) %D%/psutils-wrapper.in
 
