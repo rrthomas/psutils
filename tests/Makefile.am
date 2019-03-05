@@ -83,35 +83,33 @@ XFAIL_TESTS = \
 	%D%/psselect-invalid-pagerange.sh
 
 RESULTS = \
-	%D%/psbook-20-expected.sh \
-	%D%/psbook-20-signature-4-expected.sh \
-	%D%/psbook-3-expected.sh \
-	%D%/psbook-3-signature-4-expected.sh \
-	%D%/psbook-invalid-signature-size-expected.sh \
-	%D%/psnup-20-1-expected.sh \
-	%D%/psnup-20-2-expected.sh \
-	%D%/psnup-20-3-expected.sh \
-	%D%/psnup-20-4-expected.sh \
-	%D%/psnup-20-1-inpaper-a5-expected.sh \
-	%D%/psnup-20-1-inpaper-a5-outpaper-a5-expected.sh \
-	%D%/psnup-20-1-inpaper-a4-outpaper-a5-expected.sh \
-	%D%/psnup-20-2-inpaper-a5-expected.sh \
-	%D%/psnup-20-3-inpaper-a5-expected.sh \
-	%D%/psnup-20-4-inpaper-a5-expected.sh \
-	%D%/psnup-20-3-rotatedleft-expected.sh \
-	%D%/psnup-20-3-rotatedright-expected.sh \
-	%D%/psnup-20-1-flip-expected.sh \
-	%D%/psnup-20-4-flip-expected.sh \
-	%D%/psselect-odd-expected.sh \
-	%D%/psselect-even-expected.sh \
-	%D%/psselect-reverse-expected.sh \
-	%D%/psselect-even-reverse-expected.sh \
-	%D%/psselect-positive-range-expected.sh \
-	%D%/psselect-negative-range-expected.sh \
-	%D%/psselect-positive-negative-range-expected.sh \
-	%D%/psselect-individual-pages-and-dash-p-expected.sh \
-	%D%/psselect-options-and-complex-pagerange-expected.sh \
-	%D%/psselect-invalid-pagerange-expected.sh
+	%D%/psbook-20-expected.ps \
+	%D%/psbook-20-signature-4-expected.ps \
+	%D%/psbook-3-expected.ps \
+	%D%/psbook-3-signature-4-expected.ps \
+	%D%/psnup-20-1-expected.ps \
+	%D%/psnup-20-2-expected.ps \
+	%D%/psnup-20-3-expected.ps \
+	%D%/psnup-20-4-expected.ps \
+	%D%/psnup-20-1-inpaper-a5-expected.ps \
+	%D%/psnup-20-1-inpaper-a5-outpaper-a5-expected.ps \
+	%D%/psnup-20-1-inpaper-a4-outpaper-a5-expected.ps \
+	%D%/psnup-20-2-inpaper-a5-expected.ps \
+	%D%/psnup-20-3-inpaper-a5-expected.ps \
+	%D%/psnup-20-4-inpaper-a5-expected.ps \
+	%D%/psnup-20-3-rotatedleft-expected.ps \
+	%D%/psnup-20-3-rotatedright-expected.ps \
+	%D%/psnup-20-1-flip-expected.ps \
+	%D%/psnup-20-4-flip-expected.ps \
+	%D%/psselect-odd-expected.ps \
+	%D%/psselect-even-expected.ps \
+	%D%/psselect-reverse-expected.ps \
+	%D%/psselect-even-reverse-expected.ps \
+	%D%/psselect-positive-range-expected.ps \
+	%D%/psselect-negative-range-expected.ps \
+	%D%/psselect-positive-negative-range-expected.ps \
+	%D%/psselect-individual-pages-and-dash-p-expected.ps \
+	%D%/psselect-options-and-complex-pagerange-expected.ps
 
 EXTRA_DIST += %D%/mktestfile $(SH_LOG_COMPILER) $(TESTS) $(RESULTS) %D%/psutils-wrapper.in
 
