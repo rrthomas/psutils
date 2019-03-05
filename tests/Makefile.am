@@ -28,6 +28,10 @@ TESTS = \
 	%D%/psnup-20-3-rotatedright.sh \
 	%D%/psnup-20-1-flip.sh \
 	%D%/psnup-20-4-flip.sh \
+	%D%/psnup-20-4-297mmx210mm.sh \
+	%D%/psnup-20-4-columnmajor.sh \
+	%D%/psnup-20-4-margin-10.sh \
+	%D%/psnup-20-4-border-20.sh \
 	%D%/psnup-20-3-impossible-tolerance.sh \
 	%D%/psnup-20-4-impossible-margin.sh \
 	%D%/psnup-20-4-impossible-border.sh \
@@ -108,6 +112,10 @@ RESULTS = \
 	%D%/psnup-20-3-rotatedright-expected.ps \
 	%D%/psnup-20-1-flip-expected.ps \
 	%D%/psnup-20-4-flip-expected.ps \
+	%D%/psnup-20-4-297mmx210mm.ps \
+	%D%/psnup-20-4-columnmajor.ps \
+	%D%/psnup-20-4-margin-10.ps \
+	%D%/psnup-20-4-border-20.ps \
 	%D%/psselect-odd-expected.ps \
 	%D%/psselect-even-expected.ps \
 	%D%/psselect-reverse-expected.ps \
