@@ -7,6 +7,12 @@ test_file=$1
 name=${1%.sh}
 basename=$(basename $name)
 
+# Arguments are command to run
+function raw_test() {
+    tests/psutils-wrapper "$@" "tests/$basename-input.ps" > "tests/$basename-output.ps"
+    diff -u --ignore-matching-lines="^\(% \)\?%%CreationDate" "$srcdir/$basename-expected.ps" "tests/$basename-output.ps"
+}
+
 # First argument is number of pages for test document
 # Remaining arguments are command to run
 function test() {
@@ -14,8 +20,7 @@ function test() {
     local pages=$2
     shift 2
     "$srcdir/mktestfile" "$paper" "$pages" > "tests/$basename-input.ps"
-    tests/psutils-wrapper "$@" "tests/$basename-input.ps" > "tests/$basename-output.ps"
-    diff -u --ignore-matching-lines="^\(% \)\?%%CreationDate" "$srcdir/$basename-expected.ps" "tests/$basename-output.ps"
+    raw_test "$@"
 }
 
 source $test_file

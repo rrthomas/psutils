@@ -55,6 +55,18 @@ TESTS = \
 	%D%/psselect-individual-pages-and-dash-p.sh \
 	%D%/psselect-options-and-complex-pagerange.sh \
 	%D%/psselect-invalid-pagerange.sh \
+	%D%/epsffit.sh \
+	%D%/epsffit-center.sh \
+	%D%/epsffit-rotate.sh \
+	%D%/epsffit-aspect.sh \
+	%D%/epsffit-maximize.sh \
+	%D%/epsffit-center-rotate.sh \
+	%D%/epsffit-rotate-aspect.sh \
+	%D%/epsffit-rotate-maximize.sh \
+	%D%/epsffit-center-rotate-aspect.sh \
+	%D%/epsffit-center-rotate-maximize.sh \
+	%D%/epsffit-center-rotate-aspect-maximize.sh \
+	%D%/epsffit-showpage.sh \
 	$(EMPTY)
 
 # Tests to write:
@@ -145,6 +157,18 @@ RESULTS = \
 	%D%/psselect-positive-negative-range-expected.ps \
 	%D%/psselect-individual-pages-and-dash-p-expected.ps \
 	%D%/psselect-options-and-complex-pagerange-expected.ps \
+	%D%/epsffit-expected.ps \
+	%D%/epsffit-center-expected.ps \
+	%D%/epsffit-rotate-expected.ps \
+	%D%/epsffit-aspect-expected.ps \
+	%D%/epsffit-maximize-expected.ps \
+	%D%/epsffit-center-rotate-expected.ps \
+	%D%/epsffit-rotate-aspect-expected.ps \
+	%D%/epsffit-rotate-maximize-expected.ps \
+	%D%/epsffit-center-rotate-aspect-expected.ps \
+	%D%/epsffit-center-rotate-maximize-expected.ps \
+	%D%/epsffit-center-rotate-aspect-maximize-expected.ps \
+	%D%/epsffit-showpage-expected.ps \
 	$(EMPTY)
 
 EXTRA_DIST += %D%/mktestfile $(SH_LOG_COMPILER) $(TESTS) $(RESULTS) %D%/psutils-wrapper.in
