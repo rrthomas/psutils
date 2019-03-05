@@ -13,7 +13,7 @@ use File::Basename;
 use Getopt::Long;
 
 my $prog = basename($0);
-my ($help_flag, $version_flag, $quiet_flag);
+my ($help_flag, $version_flag);
 my $signature = 0;
 
 sub usage {
@@ -36,9 +36,10 @@ END
 # Get arguments
 Getopt::Long::Configure("bundling");
 # Having configured bundling, must give short options explicitly
+my @pstops_args = ();
 GetOptions(
   "signature|s=i" => \$signature,
-  "quiet|q" => \$quiet_flag,
+  "quiet|q" => sub { push @pstops_args, "-q"; },
   "help" => \$help_flag,
   "version" => \$version_flag,
  ) or usage(1);
@@ -50,4 +51,4 @@ usage(0) if $help_flag;
 usage(1) if $signature > 1 && $signature % 4 != 0;
 
 # Rearrange pages
-exec("pstops", "-s$signature", "0", @ARGV) or die("error running pstops");
+exec("pstops", "-s$signature", "0", @pstops_args, @ARGV) or die("error running pstops");
