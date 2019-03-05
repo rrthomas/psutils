@@ -31,7 +31,7 @@ sub singledimen {
       die("paper size not set") if !defined($width);
       $num *= $height;
     }
-    default { usage(1, "bad dimension") };
+    default { die("bad dimension") };
   }
   return $num;
 }
