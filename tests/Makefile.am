@@ -39,6 +39,12 @@ TESTS = \
 	%D%/psnup-20-3-impossible-tolerance.sh \
 	%D%/psnup-20-4-impossible-margin.sh \
 	%D%/psnup-20-4-impossible-border.sh \
+	%D%/psresize-20-A5.sh \
+	%D%/psresize-20-A3.sh \
+	%D%/psresize-20-A4.sh \
+	%D%/psresize-20-Letter.sh \
+	%D%/psresize-20-A5in-A4.sh \
+	%D%/psresize-20-A3in-A4.sh \
 	%D%/psselect-odd.sh \
 	%D%/psselect-even.sh \
 	%D%/psselect-reverse.sh \
@@ -124,6 +130,12 @@ RESULTS = \
 	%D%/psnup-20-4-columnmajor.ps \
 	%D%/psnup-20-4-margin-10.ps \
 	%D%/psnup-20-4-border-20.ps \
+	%D%/psresize-A5-expected.ps \
+	%D%/psresize-A3-expected.ps \
+	%D%/psresize-A4-expected.ps \
+	%D%/psresize-Letter-expected.ps \
+	%D%/psresize-A5in-A4-expected.ps \
+	%D%/psresize-A3in-A4-expected.ps \
 	%D%/psselect-odd-expected.ps \
 	%D%/psselect-even-expected.ps \
 	%D%/psselect-reverse-expected.ps \
