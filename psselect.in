@@ -23,13 +23,15 @@ $prog [OPTION...] [INFILE [OUTFILE]]
 Select pages from a PostScript file.
 
   --pages=PAGES        select the given page ranges
-                       FIXME: document syntax
   --even               select even-numbered pages
   --odd                select odd-numbered pages
   --reverse            reverse the order of the pages
   --quiet              don't show page numbers being output
   --help               display this help and exit
   --version            display version information and exit
+
+PAGES is a comma-separated list of pages and page ranges; see
+pstops(1) for more details.
 END
   exit $exit_code;
 }
