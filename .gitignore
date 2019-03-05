@@ -14,6 +14,7 @@ Makefile.in
 /config.status
 /configure
 /gnulib
+/INSTALL
 /lib
 /stamp-h1
 /includeres
