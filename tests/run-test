@@ -15,7 +15,7 @@ function test() {
     shift 2
     "$srcdir/mktestfile" "$paper" "$pages" > "tests/$basename-input.ps"
     tests/psutils-wrapper "$@" "tests/$basename-input.ps" > "tests/$basename-output.ps"
-    diff -u --ignore-matching-lines="^%%CreationDate" "$srcdir/$basename-expected.ps" "tests/$basename-output.ps"
+    diff -u --ignore-matching-lines="^\(% \)\?%%CreationDate" "$srcdir/$basename-expected.ps" "tests/$basename-output.ps"
 }
 
 source $test_file

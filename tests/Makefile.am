@@ -14,6 +14,10 @@ TESTS = \
 	%D%/psbook-3.sh \
 	%D%/psbook-3-signature-4.sh \
 	%D%/psbook-invalid-signature-size.sh \
+	%D%/psjoin-1-2.sh \
+	%D%/psjoin-1-2-even.sh \
+	%D%/psjoin-1-2-save.sh \
+	%D%/psjoin-1-2-nostrip.sh \
 	%D%/psnup-20-1.sh \
 	%D%/psnup-20-2.sh \
 	%D%/psnup-20-3.sh \
@@ -98,6 +102,10 @@ RESULTS = \
 	%D%/psbook-20-signature-4-expected.ps \
 	%D%/psbook-3-expected.ps \
 	%D%/psbook-3-signature-4-expected.ps \
+	%D%/psjoin-1-2-expected.ps \
+	%D%/psjoin-1-2-even-expected.ps \
+	%D%/psjoin-1-2-save-expected.ps \
+	%D%/psjoin-1-2-nostrip-expected.ps \
 	%D%/psnup-20-1-expected.ps \
 	%D%/psnup-20-2-expected.ps \
 	%D%/psnup-20-3-expected.ps \
