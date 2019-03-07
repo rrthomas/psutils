@@ -34,6 +34,7 @@ $prog [OPTION...] -NUP [INFILE [OUTFILE]]
 
 Put multiple pages of a PostScript file on to one page
 
+  -NUMBER              number of pages to impose on each output page
   --paper=PAPER        output paper name or dimensions
   --inpaper=PAPER      input paper name or dimensions
   --margin=DIMENSION   width of margin around each output page
