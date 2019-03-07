@@ -63,23 +63,7 @@ my $flly = singledimen(shift);
 my $furx = singledimen(shift);
 my $fury = singledimen(shift);
 
-my $infile = \*STDIN;
-my $outfile = \*STDOUT;
-
-if ($#ARGV >= 0) { # User specified an input file
-  my $name = shift;
-  open($infile, "<", $name) or die("can't open input file '$name'");
-}
-
-if ($#ARGV >= 0) { # User specified an output file
-  my $name = shift;
-  open($outfile, ">", $name) or die("can't open output file '$name'");
-}
-
-usage(1) if $#ARGV != -1; # Check no more arguments were given
-
-binmode($infile) or die("could not set input to binary mode");
-binmode($outfile) or die("could not set output to binary mode");
+my ($infile, $outfile) = setup_input_and_output();
 
 while (<$infile>) {
   if (/^%[%!]/) {

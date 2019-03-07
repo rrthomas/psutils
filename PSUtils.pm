@@ -10,7 +10,7 @@ no if $] >= 5.018, warnings => "experimental::smartmatch";
 use POSIX qw(strtod round);
 
 use base qw(Exporter);
-our @EXPORT = qw(singledimen paper_size parsepaper filename extn type);
+our @EXPORT = qw(singledimen paper_size parsepaper setup_input_and_output extn type filename);
 
 
 # Argument parsers
@@ -53,6 +53,28 @@ sub parsepaper {
       or die("paper size '$_[0]' unknown");
   }
   return $width, $height;
+}
+
+# Set up input and output files
+sub setup_input_and_output {
+  my $infile = \*STDIN;
+  my $outfile = \*STDOUT;
+
+  if ($#ARGV >= 0) {            # User specified an input file
+    my $file = shift @ARGV;
+    open($infile, $file) or die("cannot open input file $file");
+    binmode($infile) or die("could not set input to binary mode");
+  }
+
+  if ($#ARGV >= 0) {            # User specified an output file
+    my $file = shift @ARGV;
+    open($outfile, $file) or die("cannot open output file $file");
+    binmode($outfile) or die("could not set output to binary mode");
+  }
+
+  usage(1) if $#ARGV != -1; # Check no more arguments were given
+
+  return $infile, $outfile;
 }
 
 # Resource extensions
