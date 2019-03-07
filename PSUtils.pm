@@ -10,7 +10,7 @@ no if $] >= 5.018, warnings => "experimental::smartmatch";
 use POSIX qw(strtod round);
 
 use base qw(Exporter);
-our @EXPORT = qw(singledimen paper_size parsepaper);
+our @EXPORT = qw(singledimen paper_size parsepaper filename extn type);
 
 
 # Argument parsers
@@ -54,6 +54,33 @@ sub parsepaper {
       or die("paper size '$_[1]' unknown");
   }
   return $width, $height;
+}
+
+# Resource extensions
+sub extn {
+  my %exts = ("font" => ".pfa", "file" => ".ps", "procset" => ".ps",
+              "pattern" => ".pat", "form" => ".frm", "encoding" => ".enc");
+  return $exts{$_[0]};
+}
+
+# Resource types
+sub type {
+  my %types = ("%%BeginFile:" => "file", "%%BeginProcSet:" => "procset",
+               "%%BeginFont:" => "font");
+  return $types{$_[0]};
+}
+
+# Resource filename
+sub filename {			# make filename for resource in @_
+  my $name;
+  foreach (@_) {		# sanitise name
+    s/[!()\$\#*&\\\|\`\'\"\~\{\}\[\]\<\>\?]//g;
+    $name .= $_;
+  }
+  $name =~ s@.*/@@;		# drop directories
+  die("filename not found for resource ", join(" ", @_), "\n")
+    if $name =~ /^$/;
+  return $name;
 }
 
 

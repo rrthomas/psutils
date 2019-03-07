@@ -1,6 +1,6 @@
 # Tests Makefile.am
 #
-# Copyright (C) Reuben Thomas 2016-2017
+# Copyright (C) Reuben Thomas 2016-2019
 # See LICENSE for license
 
 TEST_EXTENSIONS = .sh
@@ -67,45 +67,8 @@ TESTS = \
 	%D%/epsffit-center-rotate-maximize.sh \
 	%D%/epsffit-center-rotate-aspect-maximize.sh \
 	%D%/epsffit-showpage.sh \
+	%D%/extractres-and-includeres.sh \
 	$(EMPTY)
-
-# Tests to write:
-
-# psnup-20-4-210mmx297mm.sh
-# psnup-20-4-columnmajor.sh
-# psnup-20-4-margin-10.sh
-# psnup-20-4-border-20.sh
-
-# psjoin-1-2.sh
-# psjoin-1-2-even.sh
-# psjoin-1-2-save.sh
-# psjoin-1-2-nostrip.sh
-
-# psresize-20-4-A5.sh
-# psresize-20-4-A3.sh
-# psresize-20-4-A4.sh
-# psresize-20-4-Letter.sh
-# psresize-20-4-A4in-A4.sh
-# psresize-20-4-A5in-A4.sh
-# psresize-20-4-A3in-A4.sh
-
-# epsffit-center.sh
-# epsffit-rotate.sh
-# epsffit-aspect.sh
-# epsffit-maximise.sh
-# epsffit-center-rotate.sh
-# epsffit-center-rotate-aspect.sh
-# epsffit-center-rotate-maximize.sh
-# epsffit-center-rotate-aspect-maximize.sh
-# epsffit-showpage.sh
-
-# extractres (have at least one resource of each type in input)
-
-# includeres-pfa
-# includeres-ps
-# includeres-pat
-# includeres-frm
-# includeres-enc
 
 XFAIL_TESTS = \
 	%D%/psbook-invalid-signature-size.sh \
@@ -169,6 +132,11 @@ RESULTS = \
 	%D%/epsffit-center-rotate-maximize-expected.ps \
 	%D%/epsffit-center-rotate-aspect-maximize-expected.ps \
 	%D%/epsffit-showpage-expected.ps \
+	%D%/extractres-and-includeres-expected.ps \
+	%D%/ISO-8859-1Encoding-expected.enc \
+	%D%/a2ps-a2ps-hdr2.02-expected.ps \
+	%D%/a2ps-black+white-Prolog2.01-expected.ps \
+	%D%/includeres-expected.ps \
 	$(EMPTY)
 
 EXTRA_DIST += %D%/mktestfile $(SH_LOG_COMPILER) $(TESTS) $(RESULTS) %D%/psutils-wrapper.in

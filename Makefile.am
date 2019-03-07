@@ -1,7 +1,7 @@
 # Makefile.am for PSUtils
 #
-# Copyright (C) Reuben Thomas 2016-2017
-# See LICENSE for license
+# Copyright (C) Reuben Thomas 2016-2019
+# See COPYING for license
 
 CLOC = cloc --force-lang="C",h --autoconf
 
@@ -14,7 +14,7 @@ AM_CPPFLAGS = $(ISYSTEM)$(top_builddir)/lib $(ISYSTEM)$(top_srcdir)/lib -DPAPER=
 LDADD = $(top_builddir)/lib/libgnu.a
 
 bin_PROGRAMS = pstops
-bin_SCRIPTS = psbook psjoin psresize psselect psnup epsffit extractres
+bin_SCRIPTS = psbook psjoin psresize psselect psnup epsffit extractres includeres
 dist_pkgdata_DATA = PSUtils.pm
 
 # Generated files shouldn't contain unexpanded '@substitutions@', and
@@ -45,7 +45,9 @@ psresize: psresize.in
 psselect: psselect.in
 psnup: psnup.in
 epsffit: epsffit.in
-psbook psjoin psresize psselect psnup epsffit: Makefile
+extractres: extractres.in
+includeres: includeres.in
+psbook psjoin psresize psselect psnup epsffit extractres includeres: Makefile
 	$(AM_V_GEN)rm -f $@ $@-t \
 ## Common substitutions.
 	  && in=$@.in && $(do_subst) <$(srcdir)/$$in >$@-t
@@ -57,11 +59,10 @@ man_MANS = psutils.1 \
 
 EXTRA_DIST = m4/gnulib-cache.m4 \
 	COPYING \
-	extractres \
-	psbook.in psjoin.in psresize.in psselect.in psnup.in epsffit.in \
+	psbook.in psjoin.in psresize.in psselect.in psnup.in epsffit.in extractres.in includeres.in \
 	$(man_MANS)
 
-DISTCLEANFILES = psbook psjoin psresize psselect psnup epsffit
+DISTCLEANFILES = $(bin_SCRIPTS)
 
 PRODUCTIONSOURCES = \
 	configure.ac \
@@ -71,18 +72,5 @@ PRODUCTIONSOURCES = \
 
 include tests/Makefile.am
 
-all: includeres
-
 loc:
 	$(CLOC) $(PRODUCTIONSOURCES)
-
-includeres: extractres
-	rm -f $@ && $(LN_S) $(srcdir)/extractres $@
-
-install-exec-hook:
-	cd $(DESTDIR)$(bindir); rm -f includeres; $(LN_S) extractres includeres
-
-uninstall-hook:
-	rm -f $(DESTDIR)$(bindir)/includeres
-
-CLEANFILES = includeres
