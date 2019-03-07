@@ -193,7 +193,11 @@ GetOptions(
   "odd|o" => \$odd,
   "reverse|r" => \$reverse,
   "paper|p=s" => sub { ($width, $height) = parsepaper($_[1]); },
+  "width|w=s" => sub { $width = singledimen($_[1], $width, $height); },
+  "height|h=s" => sub { $height = singledimen($_[1], $width, $height); },
   "inpaper|P=s" => sub { ($iwidth, $iheight) = parsepaper($_[1]); },
+  "inwidth|W=s" => sub { $iwidth = singledimen($_[1], $width, $height); },
+  "inheight|H=s" => sub { $iheight = singledimen($_[1], $width, $height); },
   "signature|s=i" => sub { $signature = $_[1];
                            usage(1) if $signature > 1 && $signature % 4 != 0; },
   "draw|d:s" => sub { $draw = singledimen($_[1] || "1"); },
@@ -207,6 +211,11 @@ if ($version_flag) {
   exit 0;
 }
 usage(0) if $help_flag;
+
+die("output page width and height must both be set, or neither")
+  if !defined($width) xor !defined($height);
+die("input page width and height must both be set, or neither")
+  if !defined($iwidth) xor !defined($iheight);
 
 if (!defined($specs)) {
   usage(1) if $#ARGV == -1;
