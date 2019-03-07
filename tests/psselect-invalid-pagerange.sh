@@ -1,1 +1,1 @@
-test a4 1 psselect -e -p 1:5
+no_output_test a4 1 psselect -p 1:5
