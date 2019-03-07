@@ -1,5 +1,4 @@
 *.log
 *.trs
-/*-input.ps
 /*-output.ps
 /psutils-wrapper

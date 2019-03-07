@@ -19,7 +19,8 @@ function test() {
     local paper=$1
     local pages=$2
     shift 2
-    "$srcdir/mktestfile" "$paper" "$pages" > "tests/$basename-input.ps"
+    # Uncomment to regenerate test files
+    #"$srcdir/mktestfile" "$paper" "$pages" > "tests/$basename-input.ps"
     raw_test "$@"
 }
 

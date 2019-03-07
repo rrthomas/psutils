@@ -156,4 +156,4 @@ $(TESTS): tests/psutils-wrapper $(bin_SCRIPTS) $(bin_PROGRAMS)
 DISTCLEANFILES += tests/psutils-wrapper
 
 clean-local:
-	rm -f $(builddir)/tests/*-input.ps $(builddir)/tests/*-output.ps
+	rm -f $(builddir)/tests/*-output.ps
