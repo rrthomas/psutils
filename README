@@ -6,7 +6,8 @@ Maintainer: Reuben Thomas <rrt@sc3d.org>
 PSUtils is a suite of utilities for manipulating PostScript documents
 produced according to the Document Structuring Conventions. You can select
 and rearrange pages, including arrangement into signatures for booklet
-printing, and page merging for n-up printing.
+printing, combine multple pages into a single page for n-up printing, and
+resize, flip and rotate pages.
 
 PSUtils is distributed under the GNU General Public License version 3, or,
 at your option, any later version; see the file COPYING. (Some of the input
@@ -39,28 +40,38 @@ psselect        select pages and page ranges
 pstops          perform general page rearrangement and selection
 psnup           put multiple pages on to one page
 psresize        alter document paper size
+psjoin          concatenate multiple PostScript files
 epsffit         fit an EPSF file to a given bounding box
 extractres      filter to extract resources from PostScript files
 includeres      filter to include resources into PostScript files
-psjoin          concatenate multiple PostScript files
 
 psselect in modeled on Chris Torek's dviselect, as is psbook, via Angus
 Duggan's dvibook; pstops is modeled on Tom Rokicki's dvidvi. psjoin was
 originally written by Tom Sato: http://t-sato.in.coocan.jp
 
 
-INSTALLATION
+INSTALLATION FROM SOURCE
 
-To build, you need the following programs installed, as well as a
-standard POSIX environment and C compiler:
+You need a standard POSIX environment and C compiler, Perl and bash.
 
-  automake, autoconf, git, Perl, bash, a2ps
+Having unpacked the source tarball, run:
+
+./configure && make check && [sudo] make install
+
+For build options, see ./configure --help
+
+
+INSTALLATION FROM GIT
+
+To build from git, you need the following extra programs installed:
+
+  automake, autoconf, git, bash
 
 Then run:
 
-./bootstrap && ./configure && make check && [sudo] make install
+./bootstrap
 
-For build options, see ./configure --help
+Now follow the normal installation instructions above.
 
 
 BUGS
