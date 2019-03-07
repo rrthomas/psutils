@@ -17,9 +17,6 @@ COPYRIGHT in that directory.)
 If you simply want to use PSUtils, you will find it in most GNU/Linux
 distributions; it is available in brew for macOS and Cygwin for Windows.
 
-PSUtils should work in any POSIX environment (support on
-non-POSIX systems may be provided by gnulib).
-
 It is also recommended to install paper, which allows a sensible default
 paper size to be discovered, and configured by the user:
 
@@ -52,7 +49,7 @@ originally written by Tom Sato: http://t-sato.in.coocan.jp
 
 INSTALLATION FROM SOURCE
 
-You need a standard POSIX environment and C compiler, Perl and bash.
+You need a standard POSIX environment, Perl and bash.
 
 Having unpacked the source tarball, run:
 
@@ -69,7 +66,7 @@ To build from git, you need the following extra programs installed:
 
 Then run:
 
-./bootstrap
+autoreconf -fi
 
 Now follow the normal installation instructions above.
 

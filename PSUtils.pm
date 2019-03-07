@@ -31,7 +31,7 @@ sub singledimen {
       die("paper size not set") if !defined($width);
       $num *= $height;
     }
-    default { die("bad dimension") };
+    default { die("bad dimension") if $str ne ""; };
   }
   return $num;
 }
@@ -46,12 +46,11 @@ sub paper_size {
 }
 
 sub parsepaper {
-  die("Option $_[0] requires an argument") unless $_[1] ne "";
-  my ($width, $height) = paper_size($_[1]);
+  my ($width, $height) = paper_size($_[0]);
   if (!defined($width)) {
-    my ($w, $h) = split /x/, $_[1];
+    my ($w, $h) = split /x/, $_[0];
     eval { ($width, $height) = (singledimen($w), singledimen($h)); }
-      or die("paper size '$_[1]' unknown");
+      or die("paper size '$_[0]' unknown");
   }
   return $width, $height;
 }

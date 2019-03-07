@@ -1,5 +1,4 @@
 #!/usr/bin/env perl
-# @configure_input@
 my $version_banner = <<END;
 psjoin @VERSION@
 Copyright (c) Tom Sato 2002-2003

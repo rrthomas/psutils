@@ -9,7 +9,7 @@ basename=$(basename $name)
 
 # Arguments are command to run
 function raw_test() {
-    tests/psutils-wrapper "$@" "tests/$basename-input.ps" > "tests/$basename-output.ps"
+    eval "$@" "tests/$basename-input.ps" > "tests/$basename-output.ps"
     diff -u --ignore-matching-lines="^\(% \)\?%%CreationDate" "$srcdir/$basename-expected.ps" "tests/$basename-output.ps"
 }
 

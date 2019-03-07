@@ -11,12 +11,6 @@ use warnings;
 use strict;
 no if $] >= 5.018, warnings => "experimental::smartmatch";
 
-BEGIN
-{
-  @PSUtils::perl_libdirs = ('@pkgdatadir@') unless @PSUtils::perl_libdirs;
-  unshift @INC, @PSUtils::perl_libdirs;
-}
-
 use File::Basename;
 use Getopt::Long;
 use List::Util qw(min);
@@ -27,8 +21,7 @@ my $prog = basename($0);
 my ($help_flag, $version_flag);
 
 sub usage {
-  my ($exit_code, $message) = @_;
-  say STDERR $message if $message;
+  my ($exit_code) = @_;
   print STDERR <<END;
 $prog [OPTION...] -NUP [INFILE [OUTFILE]]
 
@@ -85,10 +78,10 @@ Getopt::Long::Configure("bundling");
 # Having configured bundling, must give short options explicitly
 my @pstops_args = ();
 GetOptions(
-  "paper|p=s" => sub { ($owidth, $oheight) = parsepaper(@_); },
+  "paper|p=s" => sub { ($owidth, $oheight) = parsepaper($_[1]); },
   "width|w=s" => sub { $owidth = singledimen($_[1], $owidth, $oheight); },
   "height|h=s" => sub { $oheight = singledimen($_[1], $owidth, $oheight); },
-  "inpaper|P=s" => sub { ($iwidth, $iheight) = parsepaper(@_); },
+  "inpaper|P=s" => sub { ($iwidth, $iheight) = parsepaper($_[1]); },
   "inwidth|W=s" => sub { $iwidth = singledimen($_[1], $owidth, $oheight); },
   "inheight|H=s" => sub { $iheight = singledimen($_[1], $owidth, $oheight); },
   "margin|m=s" => sub { $margin = singledimen($_[1], $owidth, $oheight); },
@@ -138,7 +131,7 @@ sub nextdiv {
 ($owidth, $oheight) = ($oheight, $owidth) if $flip;
 
 # Tell pstops input paper size if it differs from output paper size
-push @pstops_args, "-W", $iwidth, "-H", $iheight if $owidth != $iwidth || $oheight != $iheight;
+push @pstops_args, "-P${iwidth}x${iheight}" if $owidth != $iwidth || $oheight != $iheight;
 
 # Calculate paper dimensions, subtracting paper margin from height & width
 my ($ppwid, $pphgt) = ($owidth - $margin * 2, $oheight - $margin * 2);
@@ -176,7 +169,7 @@ my $scale = min(($pphgt - 2 * $border * $vert) / ($iheight * $vert),
 # Page centring shifts
 my ($hshift, $vshift) = (($ppwid / $horiz - $iwidth * $scale) / 2, ($pphgt / $vert - $iheight * $scale) / 2);
 
-push @pstops_args, "-w", $owidth, "-h", $oheight; # set width and height for pstops
+push @pstops_args, "-p${owidth}x${oheight}"; # set output paper size for pstops
 
 # Construct specification list
 my @specs;

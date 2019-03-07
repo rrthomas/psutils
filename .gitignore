@@ -26,9 +26,6 @@ Makefile.in
 /psselect
 /psnup
 /epsffit
-/*.exe
-/libpsutils.a
-/TAGS
 /test-suite.log
 /ISO-8859-1Encoding.enc
 /a2ps-a2ps-hdr2.02.ps

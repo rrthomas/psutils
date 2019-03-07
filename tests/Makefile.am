@@ -78,6 +78,64 @@ XFAIL_TESTS = \
 	%D%/psnup-20-4-impossible-border.sh \
 	$(EMPTY)
 
+INPUTS = \
+	%D%/psbook-20-input.ps \
+	%D%/psbook-20-signature-4-input.ps \
+	%D%/psbook-3-input.ps \
+	%D%/psbook-3-signature-4-input.ps \
+	%D%/psjoin-1-2-input.ps \
+	%D%/psjoin-1-2-even-input.ps \
+	%D%/psjoin-1-2-save-input.ps \
+	%D%/psjoin-1-2-nostrip-input.ps \
+	%D%/psnup-20-1-input.ps \
+	%D%/psnup-20-2-input.ps \
+	%D%/psnup-20-3-input.ps \
+	%D%/psnup-20-4-input.ps \
+	%D%/psnup-20-1-inpaper-A5-input.ps \
+	%D%/psnup-20-1-inpaper-A5-outpaper-A5-input.ps \
+	%D%/psnup-20-1-inpaper-A4-outpaper-A5-input.ps \
+	%D%/psnup-20-2-inpaper-A5-input.ps \
+	%D%/psnup-20-3-inpaper-A5-input.ps \
+	%D%/psnup-20-4-inpaper-A5-input.ps \
+	%D%/psnup-20-3-rotatedleft-input.ps \
+	%D%/psnup-20-3-rotatedright-input.ps \
+	%D%/psnup-20-1-flip-input.ps \
+	%D%/psnup-20-4-flip-input.ps \
+	%D%/psnup-20-4-297mmx210mm.ps \
+	%D%/psnup-20-4-columnmajor.ps \
+	%D%/psnup-20-4-margin-10.ps \
+	%D%/psnup-20-4-border-20.ps \
+	%D%/psresize-A5-input.ps \
+	%D%/psresize-A3-input.ps \
+	%D%/psresize-A4-input.ps \
+	%D%/psresize-Letter-input.ps \
+	%D%/psresize-A5in-A4-input.ps \
+	%D%/psresize-A3in-A4-input.ps \
+	%D%/psselect-odd-input.ps \
+	%D%/psselect-even-input.ps \
+	%D%/psselect-reverse-input.ps \
+	%D%/psselect-even-reverse-input.ps \
+	%D%/psselect-positive-range-input.ps \
+	%D%/psselect-negative-range-input.ps \
+	%D%/psselect-positive-negative-range-input.ps \
+	%D%/psselect-individual-pages-and-dash-p-input.ps \
+	%D%/psselect-options-and-complex-pagerange-input.ps \
+	%D%/epsffit-input.ps \
+	%D%/epsffit-center-input.ps \
+	%D%/epsffit-rotate-input.ps \
+	%D%/epsffit-aspect-input.ps \
+	%D%/epsffit-maximize-input.ps \
+	%D%/epsffit-center-rotate-input.ps \
+	%D%/epsffit-rotate-aspect-input.ps \
+	%D%/epsffit-rotate-maximize-input.ps \
+	%D%/epsffit-center-rotate-aspect-input.ps \
+	%D%/epsffit-center-rotate-maximize-input.ps \
+	%D%/epsffit-center-rotate-aspect-maximize-input.ps \
+	%D%/epsffit-showpage-input.ps \
+	%D%/extractres-and-includeres-input.ps \
+	%D%/includeres-input.ps \
+	$(EMPTY)
+
 RESULTS = \
 	%D%/psbook-20-expected.ps \
 	%D%/psbook-20-signature-4-expected.ps \
@@ -139,21 +197,9 @@ RESULTS = \
 	%D%/includeres-expected.ps \
 	$(EMPTY)
 
-EXTRA_DIST += %D%/mktestfile $(SH_LOG_COMPILER) $(TESTS) $(RESULTS) %D%/psutils-wrapper.in
+EXTRA_DIST += %D%/mktestfile $(SH_LOG_COMPILER) $(TESTS) $(INPUTS) $(RESULTS)
 
 AM_TESTS_ENVIRONMENT = srcdir=$(srcdir)/tests PATH=$(abs_top_srcdir):$(PATH) PERL5LIB=$(abs_top_srcdir)
-
-# These files depend on Makefile so they are rebuilt if do_subst'ituted
-# variables change.
-tests/psutils-wrapper: tests/psutils-wrapper.in
-tests/psutils-wrapper: Makefile
-	$(MKDIR_P) tests
-	$(AM_V_GEN)rm -f $@ $@-t \
-## Common substitutions.
-	  && in=$@.in && $(do_subst) <$(srcdir)/$$in >$@-t
-	$(generated_file_finalize)
-$(TESTS): tests/psutils-wrapper $(bin_SCRIPTS) $(bin_PROGRAMS)
-DISTCLEANFILES += tests/psutils-wrapper
 
 clean-local:
 	rm -f $(builddir)/tests/*-output.ps
