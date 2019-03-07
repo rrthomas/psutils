@@ -86,7 +86,6 @@ $prog [OPTION...] PAGESPECS [INFILE [OUTFILE]]
 Rearrange pages of a PostScript file.
 
   --pages=PAGES        select the given page ranges
-                       FIXME: document syntax
   --even               select even-numbered pages
   --odd                select odd-numbered pages
   --reverse            reverse the order of the pages
@@ -329,8 +328,8 @@ sub parserange {
     } else {
       die("page range syntax error") unless $range_text =~ m/^(-?\d+)?(?:(:)(-?\d+))?$/;
       $range = { from => $1 || 1, to => $2 ? ($3 || -1) : $1 };
-      say STDERR "from " . $range->{from} . " to " . $range->{to};
     }
+    $range->{text} = $range_text;
     push @ranges, $range;
   }
   return \@ranges;
@@ -391,15 +390,13 @@ sub pstops {
   foreach my $range (@$pagerange) {
     my $inc = $range->{to} < $range->{from} ? -1 : 1;
     for (my $currentpg = $range->{from}; $range->{to} - $currentpg != -$inc; $currentpg += $inc) {
-      if ($currentpg == 0 || ($currentpg <= $pages &&
-                             !($odd && !$even && $currentpg % 2 == 0) &&
-                              !($even && !$odd && $currentpg % 2 == 1))) {
+      die("page range $range->{text} is invalid") if $currentpg > $pages;
+      if (!($odd && !$even && $currentpg % 2 == 0) && !($even && !$odd && $currentpg % 2 == 1)) {
         push @page_to_real_page, $currentpg - 1;
       }
     }
   }
   my $pages_to_output = $#page_to_real_page + 1;
-  # FIXME: Validate input page range now that real number of pages is known
 
   # Reverse page list if reversing pages
   @page_to_real_page = reverse @page_to_real_page if $reverse;
