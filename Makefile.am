@@ -15,6 +15,7 @@ man_MANS = psutils.1 \
 
 EXTRA_DIST = \
 	COPYING \
+	$(perl_DATA) \
 	pstops.in psbook.in psjoin.in psresize.in psselect.in psnup.in epsffit.in extractres.in includeres.in \
 	$(man_MANS)
 

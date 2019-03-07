@@ -101,16 +101,16 @@ INPUTS = \
 	%D%/psnup-20-3-rotatedright-input.ps \
 	%D%/psnup-20-1-flip-input.ps \
 	%D%/psnup-20-4-flip-input.ps \
-	%D%/psnup-20-4-297mmx210mm.ps \
-	%D%/psnup-20-4-columnmajor.ps \
-	%D%/psnup-20-4-margin-10.ps \
-	%D%/psnup-20-4-border-20.ps \
-	%D%/psresize-A5-input.ps \
-	%D%/psresize-A3-input.ps \
-	%D%/psresize-A4-input.ps \
-	%D%/psresize-Letter-input.ps \
-	%D%/psresize-A5in-A4-input.ps \
-	%D%/psresize-A3in-A4-input.ps \
+	%D%/psnup-20-4-297mmx210mm-input.ps \
+	%D%/psnup-20-4-columnmajor-input.ps \
+	%D%/psnup-20-4-margin-10-input.ps \
+	%D%/psnup-20-4-border-20-input.ps \
+	%D%/psresize-20-A5-input.ps \
+	%D%/psresize-20-A3-input.ps \
+	%D%/psresize-20-A4-input.ps \
+	%D%/psresize-20-Letter-input.ps \
+	%D%/psresize-20-A5in-A4-input.ps \
+	%D%/psresize-20-A3in-A4-input.ps \
 	%D%/psselect-odd-input.ps \
 	%D%/psselect-even-input.ps \
 	%D%/psselect-reverse-input.ps \
@@ -133,7 +133,6 @@ INPUTS = \
 	%D%/epsffit-center-rotate-aspect-maximize-input.ps \
 	%D%/epsffit-showpage-input.ps \
 	%D%/extractres-and-includeres-input.ps \
-	%D%/includeres-input.ps \
 	$(EMPTY)
 
 RESULTS = \
@@ -159,16 +158,16 @@ RESULTS = \
 	%D%/psnup-20-3-rotatedright-expected.ps \
 	%D%/psnup-20-1-flip-expected.ps \
 	%D%/psnup-20-4-flip-expected.ps \
-	%D%/psnup-20-4-297mmx210mm.ps \
-	%D%/psnup-20-4-columnmajor.ps \
-	%D%/psnup-20-4-margin-10.ps \
-	%D%/psnup-20-4-border-20.ps \
-	%D%/psresize-A5-expected.ps \
-	%D%/psresize-A3-expected.ps \
-	%D%/psresize-A4-expected.ps \
-	%D%/psresize-Letter-expected.ps \
-	%D%/psresize-A5in-A4-expected.ps \
-	%D%/psresize-A3in-A4-expected.ps \
+	%D%/psnup-20-4-297mmx210mm-expected.ps \
+	%D%/psnup-20-4-columnmajor-expected.ps \
+	%D%/psnup-20-4-margin-10-expected.ps \
+	%D%/psnup-20-4-border-20-expected.ps \
+	%D%/psresize-20-A5-expected.ps \
+	%D%/psresize-20-A3-expected.ps \
+	%D%/psresize-20-A4-expected.ps \
+	%D%/psresize-20-Letter-expected.ps \
+	%D%/psresize-20-A5in-A4-expected.ps \
+	%D%/psresize-20-A3in-A4-expected.ps \
 	%D%/psselect-odd-expected.ps \
 	%D%/psselect-even-expected.ps \
 	%D%/psselect-reverse-expected.ps \
@@ -199,7 +198,10 @@ RESULTS = \
 
 EXTRA_DIST += %D%/mktestfile $(SH_LOG_COMPILER) $(TESTS) $(INPUTS) $(RESULTS)
 
-AM_TESTS_ENVIRONMENT = srcdir=$(srcdir)/tests PATH=$(abs_top_srcdir):$(PATH) PERL5LIB=$(abs_top_srcdir)
+AM_TESTS_ENVIRONMENT = srcdir=$(srcdir)/tests PATH=$(abs_top_builddir):$(PATH) PERL5LIB=$(abs_top_srcdir)
+
+DISTCLEANFILES += ISO-8859-1Encoding.enc a2ps-a2ps-hdr2.02.ps a2ps-black+white-Prolog2.01.ps
+
 
 clean-local:
 	rm -f $(builddir)/tests/*-output.ps
