@@ -29,7 +29,7 @@ my ($help_flag, $version_flag, $center, $rotate, $aspect, $maximize, $showpage);
 sub usage {
   my ($exit_code) = @_;
   print STDERR <<END;
-$prog [OPTION...] [-c] [-r] [-a] [-m] [-s] LLX LLY URX URY [INFILE [OUTFILE]]
+$prog [OPTION...] LLX LLY URX URY [INFILE [OUTFILE]]
 Fit EPSF file into constrained size.
 
   --center             center the image in the given bounding box
