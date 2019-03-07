@@ -38,8 +38,6 @@ my $pagelabel;
 my $pageno;
 my $outputpage = 0;
 my $scale = 1.0; # global scale factor
-# FIXME: restore command-line options to set these
-my ($hshift, $vshift) = (0.0, 0.0); # global page offsets
 my $rotate = 0; # global rotation
 
 my $procset = # PStoPS procset
@@ -411,7 +409,7 @@ sub pstops {
   }
 
   # Work out whether we need procset
-  my $global_transform = $scale != 1.0 || $hshift != 0.0 || $vshift != 0.0 || $rotate != 0;
+  my $global_transform = $scale != 1.0 || $rotate != 0;
   my $use_procset = $global_transform;
   if ($use_procset == 0) {
     PAGE: foreach my $page (@$specs) {
@@ -490,7 +488,7 @@ sub pstops {
         say $outfile "userdict/PStoPSsaved save put" if $use_procset;
         if ($global_transform || ps_transform($ps)) {
           say $outfile "PStoPSmatrix setmatrix";
-          say $outfile (sprintf "%f", $ps->{xoff} + $hshift) . " " . (sprintf "%f", $ps->{yoff} + $vshift) . " translate"
+          say $outfile (sprintf "%f", $ps->{xoff}) . " " . (sprintf "%f", $ps->{yoff}) . " translate"
             if defined($ps->{xoff});
           say $outfile ($ps->{rotate} + $rotate) % 360 . " rotate"
             if $ps->{rotate} != 0;
