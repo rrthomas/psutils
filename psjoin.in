@@ -52,74 +52,74 @@ if ($version_flag) {
 usage(0) if $help_flag or $#ARGV == -1;
 
 if ($force_save) {
-    $save = "/#psjoin-save# save def %psjoin\n";
-    $restore = "#psjoin-save# restore %psjoin\n";
+  $save = "/#psjoin-save# save def %psjoin\n";
+  $restore = "#psjoin-save# restore %psjoin\n";
 }
 my (@prolog, $prolog_inx, @trailer, @comments, @pages);
 if ($nostrip) {
-    $prolog_inx = 9999;
-    $prolog[$prolog_inx] = "% [ psjoin: don't strip ]\n";
-    $trailer[$prolog_inx] = "% [ psjoin: don't strip ]\n";
+  $prolog_inx = 9999;
+  $prolog[$prolog_inx] = "% [ psjoin: don't strip ]\n";
+  $trailer[$prolog_inx] = "% [ psjoin: don't strip ]\n";
 } else {
-    for (my $i = 0; $i <= $#ARGV; $i++) {
-	open(IN, $ARGV[$i]) || die "$0: can't open \"$ARGV[$i]\" ($!)";
+  for (my $i = 0; $i <= $#ARGV; $i++) {
+    open(IN, $ARGV[$i]) || die "$0: can't open \"$ARGV[$i]\" ($!)";
 
-	my $in_comment = 1;
-	my $in_prolog = 1;
-	my $in_trailer = 0;
-	$comments[$i] = "";
-	$prolog[$i] = "";
-	$trailer[$i] = "";
-	$pages[$i] = 0;
-	while (<IN>) {
-	    next if /^%%BeginDocument/ .. /^%%EndDocument/;
+    my $in_comment = 1;
+    my $in_prolog = 1;
+    my $in_trailer = 0;
+    $comments[$i] = "";
+    $prolog[$i] = "";
+    $trailer[$i] = "";
+    $pages[$i] = 0;
+    while (<IN>) {
+      next if /^%%BeginDocument/ .. /^%%EndDocument/;
 
-	    if ($in_comment) {
-		next if /^%!PS-Adobe-/;
-		next if /^%%Title/;
-		next if /^%%Pages/;
-		next if /^%%Creator/;
-		$in_comment = 0 if /^%%EndComments/;
-		$comments[$i] .= $_;
-		next;
-	    } elsif ($in_prolog) {
-		if (/^%%Page:/) {
-		    $in_prolog = 0;
-		} else {
-		    $prolog[$i] .= $_;
-		    next;
-		}
-	    }
+      if ($in_comment) {
+        next if /^%!PS-Adobe-/;
+        next if /^%%Title/;
+        next if /^%%Pages/;
+        next if /^%%Creator/;
+        $in_comment = 0 if /^%%EndComments/;
+        $comments[$i] .= $_;
+        next;
+      } elsif ($in_prolog) {
+        if (/^%%Page:/) {
+          $in_prolog = 0;
+        } else {
+          $prolog[$i] .= $_;
+          next;
+        }
+      }
 
-	    $in_trailer = 1 if /^%%Trailer/;
-	    if ($in_trailer) {
-		$trailer[$i] .= $_;
-		next;
-	    }
+      $in_trailer = 1 if /^%%Trailer/;
+      if ($in_trailer) {
+        $trailer[$i] .= $_;
+        next;
+      }
 
-	    $pages[$i]++ if /^%%Page:/;
-	}
-	close(IN);
-
-	if ($prolog[$i]) {
-	    for (my $j = 0; $j < $i; $j++) {
-		if ($prolog[$j] eq $prolog[$i]) {
-		    $pages[$j] += $pages[$i];
-		    last;
-		}
-	    }
-	}
+      $pages[$i]++ if /^%%Page:/;
     }
+    close(IN);
 
-    my $largest = 0;
-    $prolog_inx = 0;
-    for (my $i = 0; $i <= $#ARGV; $i++) {
-	my $size = length($prolog[$i]) * $pages[$i];
-	if ($largest < $size) {
-	    $largest = $size;
-	    $prolog_inx = $i;
-	}
+    if ($prolog[$i]) {
+      for (my $j = 0; $j < $i; $j++) {
+        if ($prolog[$j] eq $prolog[$i]) {
+          $pages[$j] += $pages[$i];
+          last;
+        }
+      }
     }
+  }
+
+  my $largest = 0;
+  $prolog_inx = 0;
+  for (my $i = 0; $i <= $#ARGV; $i++) {
+    my $size = length($prolog[$i]) * $pages[$i];
+    if ($largest < $size) {
+      $largest = $size;
+      $prolog_inx = $i;
+    }
+  }
 }
 
 print <<END;
@@ -128,88 +128,90 @@ print <<END;
 %%Creator: psjoin @VERSION@
 %%Pages: (atend)
 END
-print $comments[$prolog_inx];
+print $comments[$prolog_inx] || "";
 
 print "\n$prolog[$prolog_inx]";
 for (my $i = 0; $i <= $#ARGV; $i++) {
+  if ($prolog[$i]) {
     $prolog[$i] =~ s/^%%/% %%/;
     $prolog[$i] =~ s/\n%%/\n% %%/g;
     $trailer[$i] =~ s/^%%/% %%/;
     $trailer[$i] =~ s/\n%%/\n% %%/g;
+  }
 }
 
 my $total_pages = 0;
 for (my $i = 0; $i <= $#ARGV; $i++) {
-    print "\n% [ psjoin: file = $ARGV[$i] ]\n";
-    if ($prolog[$i] ne $prolog[$prolog_inx]) {
-        print "% [ psjoin: Prolog/Trailer will be inserted in each page ]\n";
+  print "\n% [ psjoin: file = $ARGV[$i] ]\n";
+  if (!defined($prolog[$i]) || $prolog[$i] ne $prolog[$prolog_inx]) {
+    print "% [ psjoin: Prolog/Trailer will be inserted in each page ]\n";
+  } else {
+    print "% [ psjoin: common Prolog/Trailer will be used ]\n";
+  }
+
+  my $in_comment = 1 if !$nostrip;
+  my $in_prolog = 1 if !$nostrip;
+  my $in_trailer = 0;
+  my $saved = 0;
+  my $pages = 0;
+
+  open(IN, $ARGV[$i]) || die "$0: can't open \"$ARGV[$i]\" ($!)";
+  while (<IN>) {
+    if (/^%%BeginDocument/ .. /^%%EndDocument/) {
+      # s/^(%[%!])/% \1/;
+      print $_;
     } else {
-        print "% [ psjoin: common Prolog/Trailer will be used ]\n";
-    }
-
-    my $in_comment = 1 if !$nostrip;
-    my $in_prolog = 1 if !$nostrip;
-    my $in_trailer = 0;
-    my $saved = 0;
-    my $pages = 0;
-
-    open(IN, $ARGV[$i]) || die "$0: can't open \"$ARGV[$i]\" ($!)";
-    while (<IN>) {
-        if (/^%%BeginDocument/ .. /^%%EndDocument/) {
-            # s/^(%[%!])/% \1/;
-            print $_;
+      if ($in_comment) {
+        $in_comment = 0 if /^%%EndComments/;
+      } elsif ($in_prolog) {
+        if (/^%%Page:/) {
+          $in_prolog = 0;
         } else {
-            if ($in_comment) {
-                $in_comment = 0 if /^%%EndComments/;
-            } elsif ($in_prolog) {
-                if (/^%%Page:/) {
-                    $in_prolog = 0;
-                } else {
-                    next;
-                }
-            }
-            $in_trailer = 1 if !$nostrip && /^%%Trailer/;
-            next if $in_trailer;
-
-            if (/^%%Page:/) {
-                if ($saved) {
-                    print $trailer[$i];
-		    print $restore;
-                    $saved = 0;
-                }
-
-                $pages++;
-                $total_pages++;
-                print "\n";
-                print "%%Page: ($i-$pages) $total_pages\n";
-                if ($prolog[$i] ne $prolog[$prolog_inx]) {
-		    print $save;
-                    print $prolog[$i];
-                    $saved = 1;
-                } elsif ($force_save) {
-		    print $save;
-		}
-            } else {
-                s/^(%[%!])/% $1/;
-                print $_;
-            }
+          next;
         }
-    }
-    close(IN);
+      }
+      $in_trailer = 1 if !$nostrip && /^%%Trailer/;
+      next if $in_trailer;
 
-    if ($force_even && $pages % 2 != 0) {
-	$pages++;
-	$total_pages++;
-        print <<END;
+      if (/^%%Page:/) {
+        if ($saved) {
+          print $trailer[$i];
+          print $restore;
+          $saved = 0;
+        }
+
+        $pages++;
+        $total_pages++;
+        print "\n";
+        print "%%Page: ($i-$pages) $total_pages\n";
+        if (!defined($prolog[$i]) || $prolog[$i] ne $prolog[$prolog_inx]) {
+          print $save;
+          print $prolog[$i] if defined($prolog[$i]);
+          $saved = 1;
+        } elsif ($force_save) {
+          print $save;
+        }
+      } else {
+        s/^(%[%!])/% $1/;
+        print $_;
+      }
+    }
+  }
+  close(IN);
+
+  if ($force_even && $pages % 2 != 0) {
+    $pages++;
+    $total_pages++;
+    print <<END;
 
 %%Page: ($i-E) $total_pages
 % [ psjoin: empty page inserted to force even pages ]
 showpage
 END
-    }
+  }
 
-    print $trailer[$i] if $saved;
-    print $restore if $saved || $force_save;
+  print $trailer[$i] if defined($trailer[$i]) && $saved;
+  print $restore if $saved || $force_save;
 }
 
 print "\n%%Trailer\n";
