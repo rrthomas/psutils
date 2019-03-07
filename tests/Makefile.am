@@ -22,12 +22,12 @@ TESTS = \
 	%D%/psnup-20-2.sh \
 	%D%/psnup-20-3.sh \
 	%D%/psnup-20-4.sh \
-	%D%/psnup-20-1-inpaper-a5.sh \
-	%D%/psnup-20-1-inpaper-a5-outpaper-a5.sh \
-	%D%/psnup-20-1-inpaper-a4-outpaper-a5.sh \
-	%D%/psnup-20-2-inpaper-a5.sh \
-	%D%/psnup-20-3-inpaper-a5.sh \
-	%D%/psnup-20-4-inpaper-a5.sh \
+	%D%/psnup-20-1-inpaper-A5.sh \
+	%D%/psnup-20-1-inpaper-A5-outpaper-A5.sh \
+	%D%/psnup-20-1-inpaper-A4-outpaper-A5.sh \
+	%D%/psnup-20-2-inpaper-A5.sh \
+	%D%/psnup-20-3-inpaper-A5.sh \
+	%D%/psnup-20-4-inpaper-A5.sh \
 	%D%/psnup-20-3-rotatedleft.sh \
 	%D%/psnup-20-3-rotatedright.sh \
 	%D%/psnup-20-1-flip.sh \
@@ -91,12 +91,12 @@ RESULTS = \
 	%D%/psnup-20-2-expected.ps \
 	%D%/psnup-20-3-expected.ps \
 	%D%/psnup-20-4-expected.ps \
-	%D%/psnup-20-1-inpaper-a5-expected.ps \
-	%D%/psnup-20-1-inpaper-a5-outpaper-a5-expected.ps \
-	%D%/psnup-20-1-inpaper-a4-outpaper-a5-expected.ps \
-	%D%/psnup-20-2-inpaper-a5-expected.ps \
-	%D%/psnup-20-3-inpaper-a5-expected.ps \
-	%D%/psnup-20-4-inpaper-a5-expected.ps \
+	%D%/psnup-20-1-inpaper-A5-expected.ps \
+	%D%/psnup-20-1-inpaper-A5-outpaper-A5-expected.ps \
+	%D%/psnup-20-1-inpaper-A4-outpaper-A5-expected.ps \
+	%D%/psnup-20-2-inpaper-A5-expected.ps \
+	%D%/psnup-20-3-inpaper-A5-expected.ps \
+	%D%/psnup-20-4-inpaper-A5-expected.ps \
 	%D%/psnup-20-3-rotatedleft-expected.ps \
 	%D%/psnup-20-3-rotatedright-expected.ps \
 	%D%/psnup-20-1-flip-expected.ps \
