@@ -129,7 +129,7 @@ my @files = @ARGV;
 print <<END;
 %!PS-Adobe-3.0
 %%Title: @files
-%%Creator: psjoin @VERSION@
+%%Creator: psjoin (from PSUtils)
 %%Pages: (atend)
 END
 print $comments[$prolog_inx] || "";
