@@ -1,4 +1,4 @@
-#!/usr/bin/env perl
+#!@PERL@
 my $version_banner = <<END;
 psbook @VERSION@
 Copyright (c) Reuben Thomas 2016
