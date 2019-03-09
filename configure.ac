@@ -6,8 +6,6 @@ AC_CONFIG_AUX_DIR([build-aux])
 AM_INIT_AUTOMAKE([-Wall -Werror foreign 1.11])
 
 AC_PATH_PROG(PERL, perl)
-perl_installvendorlibdir="$(eval $(${PERL} -V:installvendorlib); echo $installvendorlib)"
-AC_SUBST([perl_installvendorlibdir])
 
 # Generate output files
 AC_OUTPUT([
