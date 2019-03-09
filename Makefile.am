@@ -7,7 +7,7 @@ CLOC = cloc --autoconf
 
 bin_SCRIPTS = pstops psbook psjoin psresize psselect psnup epsffit extractres includeres
 
-installvendorarch_DATA = PSUtils.pm
+perl_installvendorlib_DATA = PSUtils.pm
 
 man_MANS = psutils.1 \
 	psbook.1 psselect.1 pstops.1 epsffit.1 psnup.1 psresize.1 \
