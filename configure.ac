@@ -6,6 +6,8 @@ AC_CONFIG_AUX_DIR([build-aux])
 AM_INIT_AUTOMAKE([-Wall -Werror foreign 1.11])
 
 AC_PATH_PROG(PERL, perl)
+installvendorarchdir="$(eval $(${PERL} -V:installvendorarch); echo $installvendorarch)"
+AC_SUBST(installvendorarchdir)
 
 # Generate output files
 AC_OUTPUT([
