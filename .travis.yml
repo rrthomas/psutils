@@ -1,0 +1,11 @@
+# Use language: c because perl builds are not available on macOS
+language: c
+
+matrix:
+  include:
+    - os: linux
+    - os: osx
+
+script:
+  - autoreconf -fi && ./configure --enable-silent-rules
+  - make distcheck
