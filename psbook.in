@@ -1,4 +1,5 @@
 #!@PERL@
+# -*- perl -*-
 my $version_banner = <<END;
 psbook @VERSION@
 Copyright (c) Reuben Thomas 2016
@@ -7,6 +8,12 @@ END
 
 use warnings;
 use strict;
+
+BEGIN
+{
+  @PSUtils::perl_libdirs = ('@pkgdatadir@') unless @PSUtils::perl_libdirs;
+  unshift @INC, @PSUtils::perl_libdirs;
+}
 
 use File::Basename;
 use Getopt::Long;

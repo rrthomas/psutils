@@ -1,4 +1,5 @@
 #!@PERL@
+# -*- perl -*-
 my $version_banner = <<END;
 pstops @VERSION@
 Copyright (c) Reuben Thomas 2017-2019
@@ -9,6 +10,12 @@ use v5.14;
 use warnings;
 use strict;
 no if $] >= 5.018, warnings => "experimental::smartmatch";
+
+BEGIN
+{
+  @PSUtils::perl_libdirs = ('@pkgdatadir@') unless @PSUtils::perl_libdirs;
+  unshift @INC, @PSUtils::perl_libdirs;
+}
 
 use File::Basename;
 use File::Temp qw(tempfile);

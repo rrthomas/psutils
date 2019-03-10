@@ -1,5 +1,5 @@
 #!@PERL@
-# @configure_input@
+# -*- perl -*-
 my $version_banner = <<END;
 psnup @VERSION@
 Copyright (c) Reuben Thomas 2016
@@ -10,6 +10,12 @@ use v5.14;
 use warnings;
 use strict;
 no if $] >= 5.018, warnings => "experimental::smartmatch";
+
+BEGIN
+{
+  @PSUtils::perl_libdirs = ('@pkgdatadir@') unless @PSUtils::perl_libdirs;
+  unshift @INC, @PSUtils::perl_libdirs;
+}
 
 use File::Basename;
 use Getopt::Long;

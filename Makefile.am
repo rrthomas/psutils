@@ -6,17 +6,51 @@
 CLOC = cloc --autoconf
 
 bin_SCRIPTS = pstops psbook psjoin psresize psselect psnup epsffit extractres includeres
-
-perldir = $(datadir)/perl
-perl_DATA = PSUtils.pm
+dist_pkgdata_DATA = PSUtils.pm
 
 man_MANS = psutils.1 \
 	psbook.1 psselect.1 pstops.1 epsffit.1 psnup.1 psresize.1 \
 	psjoin.1 extractres.1 includeres.1
 
+# Generated files shouldn't contain unexpanded '@substitutions@', and
+# should be made read-only, to prevent them from being edited by mistake
+# instead of the file they are generated from.
+generated_file_finalize = $(AM_V_at) \
+  if LC_ALL=C grep '@[a-zA-Z0-9_][a-zA-Z0-9_]*@' $@-t; then \
+    echo "$@ contains unexpanded substitution (see lines above)"; \
+    exit 1; \
+  fi; \
+  chmod a+x,a-w $@-t && mv -f $@-t $@
+
+# We want a handful of substitutions to be fully-expanded by make;
+# then use config.status to substitute the remainder where a single
+# expansion is sufficient.  We use a funny notation here to avoid
+# configure substitutions in our text.
+do_subst = ( sed \
+  -e 's,[@]pkgdatadir[@],$(pkgdatadir),g' \
+  | $(SHELL) ./config.status --file=- \
+  )
+
+# These files depend on Makefile so they are rebuilt if do_subst'ituted
+# variables change.
+pstops: pstops.in
+psbook: psbook.in
+psjoin: psjoin.in
+psresize: psresize.in
+psselect: psselect.in
+psnup: psnup.in
+epsffit: epsffit.in
+extractres: extractres.in
+includeres: includeres.in
+pstops psbook psjoin psresize psselect psnup epsffit extractres includeres: Makefile
+	$(AM_V_GEN)rm -f $@ $@-t \
+## Common substitutions.
+	 && in=$@.in && $(do_subst) <$(srcdir)/$$in >$@-t
+	$(generated_file_finalize)
+
 EXTRA_DIST = \
 	COPYING \
-	$(perl_DATA) \
+	PSUtils.pm \
 	pstops.in psbook.in psjoin.in psresize.in psselect.in psnup.in epsffit.in extractres.in includeres.in \
 	$(man_MANS)
 
