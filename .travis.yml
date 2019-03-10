@@ -10,6 +10,11 @@ env:
   global:
     - VERBOSE=1
 
+# Install paper
+install:
+  - git clone https://github.com/rrthomas/paper.git
+  - cd paper && ./bootstrap && ./configure --quiet --enable-silent-rules && sudo make install && cd ..
+
 script:
   - autoreconf -fi && ./configure --enable-silent-rules
   - make distcheck

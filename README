@@ -62,7 +62,9 @@ INSTALLATION FROM GIT
 
 To build from git, you need the following extra programs installed:
 
-  automake, autoconf, git, bash
+  automake, autoconf, git, bash, paper
+
+(paper can be found at: https://github.com/rrthomas/paper )
 
 Then run:
 
