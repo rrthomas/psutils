@@ -58,4 +58,4 @@ if ($version_flag) {
 usage(0) if $help_flag;
 
 # Resize pages
-exec("psnup", "-1", @psnup_args, @ARGV) or die("error running pstops");
+exec("psnup", "-1", @psnup_args, @ARGV) or die("error running pstops\n");

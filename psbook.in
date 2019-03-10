@@ -54,7 +54,7 @@ if ($version_flag) {
   exit 0;
 }
 usage(0) if $help_flag;
-die("signature must be a multiple of 4") if $signature > 1 && $signature % 4 != 0;
+die("signature must be a multiple of 4\n") if $signature > 1 && $signature % 4 != 0;
 
 # Rearrange pages
-exec("pstops", "-s$signature", "0", @pstops_args, @ARGV) or die("error running pstops");
+exec("pstops", "-s$signature", @pstops_args, @ARGV) or die("error running pstops\n");

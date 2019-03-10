@@ -75,4 +75,4 @@ my @arg = ();
 push @arg, "-r" if $reverse_flag;
 push @arg, "-e" if $even_flag;
 push @arg, "-o" if $odd_flag;
-exec("pstops", "-R$pages", @arg, "0", @ARGV) or die("error running pstops");
+exec("pstops", "-R$pages", @arg, @ARGV) or die("error running pstops\n");

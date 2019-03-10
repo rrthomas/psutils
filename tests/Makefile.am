@@ -9,6 +9,7 @@ SH_LOG_COMPILER = $(srcdir)/tests/run-test
 EMPTY =
 
 TESTS = \
+	%D%/pstops-invalid-pagespecs.sh \
 	%D%/psbook-20.sh \
 	%D%/psbook-20-signature-4.sh \
 	%D%/psbook-3.sh \
@@ -71,6 +72,7 @@ TESTS = \
 	$(EMPTY)
 
 XFAIL_TESTS = \
+	%D%/pstops-invalid-pagespecs.sh \
 	%D%/psbook-invalid-signature-size.sh \
 	%D%/psselect-invalid-pagerange.sh \
 	%D%/psnup-20-3-impossible-tolerance.sh \
@@ -79,6 +81,7 @@ XFAIL_TESTS = \
 	$(EMPTY)
 
 INPUTS = \
+	%D%/pstops-invalid-pagespecs-input.ps \
 	%D%/psbook-20-input.ps \
 	%D%/psbook-20-signature-4-input.ps \
 	%D%/psbook-3-input.ps \

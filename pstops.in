@@ -89,14 +89,15 @@ my $pagespecs_syntax = "  PAGESPECS = [MODULO:]SPEC\
 sub usage {
   my ($exit_code) = @_;
   print STDERR <<END;
-$prog [OPTION...] PAGESPECS [INFILE [OUTFILE]]
+$prog [OPTION...] [INFILE [OUTFILE]]
 
 Rearrange pages of a PostScript file.
 
+  -S, --specs=SPECS      page specifications (see below)
   -R, --pages=PAGES      select the given page ranges
-  -e, --even             select even-numbered pages
-  -o, --odd              select odd-numbered pages
-  -r, --reverse          reverse the order of the pages
+  -e, --even             select even-numbered output pages
+  -o, --odd              select odd-numbered output pages
+  -r, --reverse          reverse the order of the output pages
   -p, --paper=PAPER      output paper name or dimensions (WIDTHxHEIGHT)
   -P, --inpaper=PAPER    input paper name or dimensions (WIDTHxHEIGHT)
   -d, --draw[=DIMENSION] draw a line of given width around each page
@@ -110,11 +111,12 @@ Rearrange pages of a PostScript file.
       --help             display this help and exit
       --version          display version information and exit
 
-PAGESPECS is a list of page specifications:
+PAGES is a comma-separated list of pages and page ranges.
+
+PAGESPECS is a list of page specifications [default is "0", which
+selects each page in its normal order]:
 
 $pagespecs_syntax
-
-PAGES is a comma-separated list of pages and page ranges.
 
 See pstops(1) for more details.
 END
@@ -122,14 +124,16 @@ END
 }
 
 sub specerror {
-  $verbose = 0; # We won't be in the middle of a line during argument parsing
-  die("page specification error:\
-$pagespecs_syntax");
+  # Use exit rather than die to avoid full usage message
+  print STDERR "bad page specification:
+
+$pagespecs_syntax\n";
+  exit(1);
 }
 
 sub parsespecs {
   my ($str) = @_;
-  specerror() unless $str =~ m/(?:([^:]+):)?(.*)/;
+  return undef unless $str =~ m/(?:([^:]+):)?(.*)/;
   my $specs_text;
   ($modulo, $specs_text) = ($1 || 1, $2);
   # Split on commas but not inside brackets: https://stackoverflow.com/questions/9435564/perl-split-list-on-commas-except-when-within-brackets
@@ -141,7 +145,7 @@ sub parsespecs {
     my @specs = ();
     my @specs_text = split /\+/, $page;
     foreach my $spec_text (@specs_text) {
-      specerror() unless $spec_text =~ m/(-)?(\d+)([LRUlru])?([HVhv])?(?:@([^()]+))?(?:\(([\d.]+),([\d.]+)\))?/;
+      return undef unless $spec_text =~ m/(-)?(\d+)([LRUlru])?([HVhv])?(?:@([^()]+))?(?:\(([\d.]+),([\d.]+)\))?/;
       my $spec = {
         reversed => defined($1) ? 1 : 0,
         pageno => $2,
@@ -150,7 +154,7 @@ sub parsespecs {
         scale => defined($5) ? $5 : undef,
         xoff => defined($6) ? singledimen($6) : undef, yoff => defined($7) ? singledimen($7) : undef
       };
-      specerror() if $spec->{pageno} >= $modulo;
+      return undef if $spec->{pageno} >= $modulo;
       push @specs, $spec;
     }
     push @pages, \@specs;
@@ -163,6 +167,7 @@ for (my $i = 0; $i <= $#ARGV; ) {
   if ($ARGV[$i] =~ /^-\d+/) { # looks like an option starting with a digit
     if (!defined($specs)) {
       $specs = parsespecs($ARGV[$i]);
+      specerror() unless defined($specs);
       splice(@ARGV, $i, 1)
     } else {
       usage(1);
@@ -198,6 +203,8 @@ Getopt::Long::Configure("bundling");
 # Having configured bundling, must give short options explicitly
 my @pstops_args = ();
 GetOptions(
+  "specs|S=s" => sub { $specs = parsespecs($_[1]);
+                       specerror() if !defined($specs); },
   "pages|R=s" => sub { $pagerange = parserange($_[1]); },
   "even|e" => \$even,
   "odd|o" => \$odd,
@@ -222,19 +229,23 @@ if ($version_flag) {
 }
 usage(0) if $help_flag;
 
-die("output page width and height must both be set, or neither")
+die("output page width and height must both be set, or neither\n")
   if !defined($width) xor !defined($height);
-die("input page width and height must both be set, or neither")
+die("input page width and height must both be set, or neither\n")
   if !defined($iwidth) xor !defined($iheight);
 
+# Get pagespecs if we don't have them yet
 if (!defined($specs)) {
-  usage(1) if $#ARGV == -1;
-  $specs = parsespecs(shift);
+  # If there's another command-line argument, try parsing it
+  $specs = parsespecs($ARGV[0]) if $#ARGV > -1;
+  shift if defined ($specs);
+  # Otherwise, default to "0"
+  $specs = parsespecs("0") unless defined($specs);
 }
 
 my ($infile, $outfile) = setup_input_and_output();
 
-$infile = seekable($infile) or die("cannot make input seekable");
+$infile = seekable($infile) or die("cannot make input seekable\n");
 
 ($iwidth, $iheight) = ($width, $height) if !defined($iwidth) && defined($width);
 
@@ -304,7 +315,7 @@ sub fcopy {
   while ($#ignorelist >= 0 && $ignorelist[0] < $upto) {
     shift @ignorelist while $#ignorelist >= 0 && $ignorelist[0] < $here;
     fcopy($ignorelist[0]);
-    die("I/O error") if !<$infile>;
+    die("I/O error\n") if !<$infile>;
     shift @ignorelist;
     $here = tell $infile;
   }
@@ -312,7 +323,7 @@ sub fcopy {
   my ($numtocopy, $buffer);
   for (my $bytes_left = $upto - $here; $bytes_left > 0; $bytes_left -= $numtocopy) {
     $numtocopy = min($bytes_left, BUFSIZ);
-    die("I/O error")
+    die("I/O error\n")
       if ((read $infile, $buffer, $numtocopy) < $numtocopy ||
           !(print $outfile $buffer));
   }
@@ -328,7 +339,7 @@ sub parserange {
     if ($range_text eq "_") {
       $range = { from => 0, to => 0 };
     } else {
-      die("invalid page range: $range_text") unless $range_text =~ m/^(_?\d+)?(?:(-)(_?\d+))?$/;
+      die("invalid page range: $range_text\n") unless $range_text =~ m/^(_?\d+)?(?:(-)(_?\d+))?$/;
       $range = { from => $1 || 1, to => $2 ? ($3 || -1) : $1 };
       $range->{from} =~ s/^_/-/;
       $range->{to} =~ s/^_/-/;
@@ -394,7 +405,7 @@ sub pstops {
   foreach my $range (@$pagerange) {
     my $inc = $range->{to} < $range->{from} ? -1 : 1;
     for (my $currentpg = $range->{from}; $range->{to} - $currentpg != -$inc; $currentpg += $inc) {
-      die("page range $range->{text} is invalid") if $currentpg > $pages;
+      die("page range $range->{text} is invalid\n") if $currentpg > $pages;
       if (!($odd && !$even && $currentpg % 2 == 0) && !($even && !$odd && $currentpg % 2 == 1)) {
         push @page_to_real_page, $currentpg - 1;
       }
@@ -437,7 +448,7 @@ sub pstops {
   if ($pagescmt) {
     fcopy($pagescmt, @ignorelist);
     my $line;
-    die("I/O error in header") if !($line = <$infile>);
+    die("I/O error in header\n") if !($line = <$infile>);
     if (defined($width)) {
       say $outfile "%%DocumentMedia: plain " . int($width) . " " . int($height) . " 0 () ()";
       say $outfile "%%BoundingBox: 0 0 " . int($width) . " " . int($height);
@@ -475,7 +486,7 @@ sub pstops {
           my $p = &$page_to_real_page($real_page);
           seek $infile, $pageptr[$p], SEEK_SET;
           my $line = <$infile>;
-          die("I/O error seeking page $p") unless $line && iscomment($line, "Page:");
+          die("I/O error seeking page $p\n") unless $line && iscomment($line, "Page:");
           $line =~ /%%Page:[[:space:]]*(?:\((\d+)\)?[[:space:]]*(\d+))/;
           $pageno = $2;
           $pagelabel = defined($1) ? $1 : $pageno;
@@ -517,9 +528,9 @@ sub pstops {
           # Search for page setup
           for (;;) {
             my $line = <$infile>;
-            die("I/O error reading page setup $outputpage") if !defined($line);
+            die("I/O error reading page setup $outputpage\n") if !defined($line);
             last if $line !~ /^PStoPSxform/;
-            print $outfile $line or die("I/O error writing page setup $outputpage");
+            print $outfile $line or die("I/O error writing page setup $outputpage\n");
           }
         }
         say $outfile "PStoPSxform concat" if !$beginprocset && $use_procset;
