@@ -51,7 +51,10 @@ my $procset = # PStoPS procset
   # Wrap these up with our own versions.  We have to.
   "userdict begin\
 [/showpage/erasepage/copypage]{dup where{pop dup load\
- type/operatortype eq{ /PStoPSenablepage cvx 1 index load 1 array astore cvx {} bind /ifelse cvx 4 array astore cvx def}{pop}ifelse}{pop}ifelse}forall /PStoPSenablepage true def\
+ type/operatortype eq{ /PStoPSenablepage cvx 1 index\
+ load 1 array astore cvx {} bind /ifelse cvx 4 array\
+ astore cvx def}{pop}ifelse}{pop}ifelse}forall\
+ /PStoPSenablepage true def\
 [/letter/legal/executivepage/a4/a4small/b5/com10envelope\n" . # nullify
   " /monarchenvelope/c5envelope/dlenvelope/lettersmall/note\n" . # paper
   " /folio/quarto/a5]{dup where{dup wcheck{exch{}put}\n" . # operators
