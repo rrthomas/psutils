@@ -27,11 +27,11 @@ sub usage {
 $prog [OPTION...] [INFILE [OUTFILE]]
 Alter page size of a PostScript file.
 
-  --paper=PAPER        output paper size
-  --inpaper=PAPER      input paper size
-  --quiet              don't show page numbers being output
-  --help               display this help and exit
-  --version            display version information and exit
+  -p, --paper=PAPER    output paper size
+  -P, --inpaper=PAPER  input paper size
+  -q, --quiet          don't show page numbers being output
+      --help           display this help and exit
+      --version        display version information and exit
 END
   exit $exit_code;
 }
@@ -44,9 +44,9 @@ GetOptions(
   "paper|p=s" => sub { push @psnup_args, "-p", $_[1]; },
   "inpaper|P=s" => sub { push @psnup_args, "-P", $_[1]; },
   "width|w=s" => sub { push @psnup_args, "-w", $_[1]; },
-  "height|h=s" => sub { push @psnup_args, "-W", $_[1]; },
-  "inwidth|W=s" => sub { push @psnup_args, "-h", $_[1]; },
-  "inheight|I=s" => sub { push @psnup_args, "-W", $_[1]; },
+  "height|h=s" => sub { push @psnup_args, "-h", $_[1]; },
+  "inwidth|W=s" => sub { push @psnup_args, "-W", $_[1]; },
+  "inheight|H=s" => sub { push @psnup_args, "-H", $_[1]; },
   "quiet|q" => sub { push @psnup_args, "-q"; },
   "help" => \$help_flag,
   "version" => \$version_flag,

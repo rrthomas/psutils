@@ -1,1 +1,1 @@
-test a4 1 psjoin --even $srcdir/psjoin-1-2-input.ps
+test a4 1 psjoin -e $srcdir/psjoin-1-2-input.ps

@@ -93,22 +93,22 @@ $prog [OPTION...] PAGESPECS [INFILE [OUTFILE]]
 
 Rearrange pages of a PostScript file.
 
-  --pages=PAGES        select the given page ranges
-  --even               select even-numbered pages
-  --odd                select odd-numbered pages
-  --reverse            reverse the order of the pages
-  --paper=PAPER        output paper name or dimensions
-  --inpaper=PAPER      input paper name or dimensions
-  --draw[=DIMENSION]   draw a line of given width around each page
-                       [argument defaults to 1; default is 0]
-  --signature=N        number of pages per signature
-                       0 = all pages in one signature [default]
-                       1 = one page per signature
-                       otherwise, a multiple of 4
-  --nobind             disable PostScript bind operators in prolog
-  --quiet              don't show page numbers being output
-  --help               display this help and exit
-  --version            display version information and exit
+  -R, --pages=PAGES      select the given page ranges
+  -e, --even             select even-numbered pages
+  -o, --odd              select odd-numbered pages
+  -r, --reverse          reverse the order of the pages
+  -p, --paper=PAPER      output paper name or dimensions (WIDTHxHEIGHT)
+  -P, --inpaper=PAPER    input paper name or dimensions (WIDTHxHEIGHT)
+  -d, --draw[=DIMENSION] draw a line of given width around each page
+                         [argument defaults to 1; default is 0]
+  -s, --signature=N      number of pages per signature
+                         0 = all pages in one signature [default]
+                         1 = one page per signature
+                         otherwise, a multiple of 4
+  -b, --nobind           disable PostScript bind operators in prolog
+  -q, --quiet            don't show page numbers being output
+      --help             display this help and exit
+      --version          display version information and exit
 
 PAGESPECS is a list of page specifications:
 

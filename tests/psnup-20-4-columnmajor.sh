@@ -1,1 +1,1 @@
-test a4 20 psnup -p a4 -4 --transpose
+test a4 20 psnup -p a4 -4 -c

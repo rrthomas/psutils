@@ -54,8 +54,8 @@ sub usage {
 $prog [OPTION...] [INFILE [OUTFILE]]
 Filter to include resources in a PostScript document.
 
-  --help               display this help and exit
-  --version            display version information and exit
+      --help           display this help and exit
+      --version        display version information and exit
 END
   exit $exit_code;
 }

@@ -33,21 +33,21 @@ $prog [OPTION...] -NUP [INFILE [OUTFILE]]
 
 Put multiple pages of a PostScript file on to one page
 
-  -NUMBER              number of pages to impose on each output page
-  --paper=PAPER        output paper name or dimensions
-  --inpaper=PAPER      input paper name or dimensions
-  --margin=DIMENSION   width of margin around each output page
-  --border=DIMENSION   width of border around each input page
-  --draw[=DIMENSION]   draw a line of given width around each page
-                       [argument defaults to 1; default is 0]
-  --rotatedleft        input pages are rotated left 90 degrees
-  --rotatedright       input pages are rotated right 90 degrees
-  --flip               swap output pages' width and height
-  --transpose          swap columns and rows
-  --tolerance=NUMBER   maximum page wastage in square points [100,000]
-  --quiet              don't show page numbers being output
-  --help               display this help and exit
-  --version            display version information and exit
+  -NUMBER                  number of pages to impose on each output page
+  -p, --paper=PAPER        output paper name or dimensions
+  -P, --inpaper=PAPER      input paper name or dimensions
+  -m, --margin=DIMENSION   width of margin around each output page
+  -b, --border=DIMENSION   width of border around each input page
+  -d, --draw[=DIMENSION]   draw a line of given width around each page
+                           [argument defaults to 1; default is no line]
+  -l, --rotatedleft        input pages are rotated left 90 degrees
+  -r, --rotatedright       input pages are rotated right 90 degrees
+  -f, --flip               swap output pages' width and height
+  -c, --transpose          swap columns and rows (column major order)
+  -t, --tolerance=NUMBER   maximum wasted area in square pt [100,000]
+  -q, --quiet              don't show page numbers being output
+      --help               display this help and exit
+      --version            display version information and exit
 END
   exit $exit_code;
 }

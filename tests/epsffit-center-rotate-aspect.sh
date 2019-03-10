@@ -1,1 +1,1 @@
-custom_input_test epsffit --center --rotate --aspect 100pt 100pt 200pt 300pt
+custom_input_test epsffit -c -r -a 100pt 100pt 200pt 300pt

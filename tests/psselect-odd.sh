@@ -1,1 +1,1 @@
-test a4 20 psselect --odd
+test a4 20 psselect -o

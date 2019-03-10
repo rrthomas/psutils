@@ -32,13 +32,13 @@ sub usage {
 $prog [OPTION...] LLX LLY URX URY [INFILE [OUTFILE]]
 Fit EPSF file into constrained size.
 
-  --center             center the image in the given bounding box
-  --rotate             rotate the image by 90 degrees counter-clockwise
-  --aspect             adjust the aspect ratio to fit the bounding box
-  --maximize           rotate the image to fill more of the page if possible
-  --showpage           append a /showpage to the file to force printing
-  --help               display this help and exit
-  --version            display version information and exit
+  -c, --center         center the image in the given bounding box
+  -r, --rotate         rotate the image by 90 degrees counter-clockwise
+  -a, --aspect         adjust the aspect ratio to fit the bounding box
+  -m, --maximize       rotate the image to fill more of the page if possible
+  -s, --showpage       append a /showpage to the file to force printing
+      --help           display this help and exit
+      --version        display version information and exit
 END
   exit $exit_code;
 }

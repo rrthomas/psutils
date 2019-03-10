@@ -25,14 +25,14 @@ my $prog = basename($0);
 sub usage {
   my ($exit_code) = @_;
   print STDERR <<END;
-$prog [OPTION...] [-e] [-s] [-p] FILE...
+$prog [OPTION...] FILE...
 Concatenate PostScript files
 
-  --even              force each file to an even number of pages
-  --save              try to close unclosed save operators
-  --nostrip           do not strip prolog or trailer from input files
-  --help              display this help and exit
-  --version           display version information and exit
+  -e, --even          force each file to an even number of pages
+  -s, --save          try to close unclosed save operators
+  -n, --nostrip       do not strip prolog or trailer from input files
+      --help          display this help and exit
+      --version       display version information and exit
 END
   exit $exit_code;
 }
@@ -49,7 +49,7 @@ Getopt::Long::Configure("bundling");
 GetOptions(
   "even|e" => \$force_even,
   "save|s" => \$force_save,
-  "nostrip|n" => \$nostrip,
+  "nostrip|n|p" => \$nostrip,
   "help" => \$help_flag,
   "version" => \$version_flag,
  ) or usage(1);
