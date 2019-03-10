@@ -6,6 +6,10 @@ matrix:
     - os: linux
     - os: osx
 
+env:
+  global:
+    - VERBOSE=1
+
 script:
   - autoreconf -fi && ./configure --enable-silent-rules
   - make distcheck
