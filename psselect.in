@@ -66,7 +66,7 @@ if (!$pages) {
   if (!$reverse_flag && !$even_flag && !$odd_flag && $#ARGV > -1) {
     $pages = shift @ARGV;
   } else {
-    $pages = "1:-1";
+    $pages = "1-_1";
   }
 }
 

@@ -138,15 +138,17 @@ option specifies the pages which are to be selected.
 .I Pages
 is a comma separated list of page ranges, each of which may be a page number,
 or a page range of the form
-.IB first : last .
+.IB first \- last .
 If
 .I first
 is omitted, the first page is assumed, and if
 .I last
 is omitted, the last page is assumed.
 
-If an underscore character \[oq]_\[cq] is used instead of a page range,
-a blank page will be inserted.
+The prefix character \[oq]_\[cq] indicates that the page number is relative to the end
+of the document, counting backwards.
+If just this character with no page number is used, a blank page will be
+inserted.
 
 Page numbers refer to the pages as they occur in the file, starting
 at one.

@@ -325,8 +325,10 @@ sub parserange {
     if ($range_text eq "_") {
       $range = { from => 0, to => 0 };
     } else {
-      die("page range syntax error") unless $range_text =~ m/^(-?\d+)?(?:(:)(-?\d+))?$/;
+      die("invalid page range: $range_text") unless $range_text =~ m/^(_?\d+)?(?:(-)(_?\d+))?$/;
       $range = { from => $1 || 1, to => $2 ? ($3 || -1) : $1 };
+      $range->{from} =~ s/^_/-/;
+      $range->{to} =~ s/^_/-/;
     }
     $range->{text} = $range_text;
     push @ranges, $range;
@@ -372,7 +374,7 @@ sub pstops {
       $nobind, $specs, $draw, @ignorelist) = @_;
 
   # If no page range given, select all pages
-  $pagerange = parserange("1:-1") unless defined($pagerange);
+  $pagerange = parserange("1-_1") unless defined($pagerange);
 
   # Normalize end-relative pageranges
   foreach my $range (@$pagerange) {
