@@ -7,7 +7,7 @@ use strict;
 use warnings;
 no if $] >= 5.018, warnings => "experimental::smartmatch";
 
-use POSIX qw(strtod);
+use POSIX qw(strtod locale_h);
 
 use base qw(Exporter);
 our @EXPORT = qw(singledimen paper_size parsepaper setup_input_and_output extn type filename);
@@ -16,6 +16,8 @@ our @EXPORT = qw(singledimen paper_size parsepaper setup_input_and_output extn t
 # Argument parsers
 sub singledimen {
   my ($str, $width, $height) = @_;
+  my $old_locale = setlocale(LC_ALL);
+  setlocale(LC_ALL, "C");
   my ($num, $unparsed) = strtod($str);
   $str = substr($str, length($str) - $unparsed);
   for ($str) {
@@ -33,6 +35,7 @@ sub singledimen {
     }
     default { die("bad dimension") if $str ne ""; };
   }
+  setlocale(LC_ALL, $old_locale);
   return $num;
 }
 
