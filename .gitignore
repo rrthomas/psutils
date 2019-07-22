@@ -16,6 +16,7 @@ Makefile.in
 /gnulib
 /INSTALL
 /lib
+/pre-inst-env
 /stamp-h1
 /extractres
 /includeres

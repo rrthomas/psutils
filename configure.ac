@@ -7,4 +7,7 @@ AM_INIT_AUTOMAKE([-Wall -Werror foreign 1.11])
 
 AC_PATH_PROG(PERL, perl)
 
-AC_OUTPUT([Makefile])
+# Generate output files
+AC_CONFIG_FILES([Makefile])
+AC_CONFIG_FILES([pre-inst-env], [chmod +x pre-inst-env])
+AC_OUTPUT

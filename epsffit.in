@@ -12,8 +12,7 @@ use strict;
 
 BEGIN
 {
-  @PSUtils::perl_libdirs = ('@pkgdatadir@') unless @PSUtils::perl_libdirs;
-  unshift @INC, @PSUtils::perl_libdirs;
+  unshift (@INC, '@pkgdatadir@') unless $ENV{PSUTILS_UNINSTALLED};
 }
 
 use File::Basename;

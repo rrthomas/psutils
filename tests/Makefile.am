@@ -4,7 +4,7 @@
 # See LICENSE for license
 
 TEST_EXTENSIONS = .sh
-SH_LOG_COMPILER = $(srcdir)/tests/run-test
+SH_LOG_COMPILER = ./pre-inst-env $(srcdir)/tests/run-test
 
 EMPTY =
 
