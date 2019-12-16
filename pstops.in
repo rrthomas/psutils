@@ -36,6 +36,7 @@ my $reverse = 0;
 my $draw = 0;
 my ($width, $height); # output paper size
 my ($iwidth, $iheight);
+my $flipping = 0; # any spec includes page flip
 my $signature = 1;
 my $modulo = 1;
 my $pagesperspec = 1;
@@ -154,6 +155,7 @@ sub parsespecs {
         xoff => defined($6) ? singledimen($6) : undef, yoff => defined($7) ? singledimen($7) : undef
       };
       return undef if $spec->{pageno} >= $modulo;
+      $flipping = 1 if $spec->{flip} ne "";
       push @specs, $spec;
     }
     push @pages, \@specs;
@@ -247,6 +249,9 @@ my ($infile, $outfile) = setup_input_and_output();
 $infile = seekable($infile) or die("cannot make input seekable\n");
 
 ($iwidth, $iheight) = ($width, $height) if !defined($iwidth) && defined($width);
+
+die("input page size must be set to flip the page\n")
+  if !defined($iwidth) and $flipping;
 
 
 # Build array of pointers to start/end of pages
