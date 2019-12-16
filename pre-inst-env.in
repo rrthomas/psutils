@@ -17,5 +17,7 @@
 # Trigger the use of local modules.
 PSUTILS_UNINSTALLED=1
 export PSUTILS_UNINSTALLED
+PERL5LIB=@abs_top_srcdir@
+export PERL5LIB
 
 exec "$@"
