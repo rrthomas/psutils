@@ -60,7 +60,7 @@ For build options, see ./configure --help
 Note that to use the scripts before installing them, you need to run them
 with pre-inst-env; for example:
 
-./pre-inst-env psnup -2 foo.ps
+./pre-inst-env ./psnup -2 foo.ps
 
 
 INSTALLATION FROM GIT
