@@ -136,8 +136,8 @@ sub parsespecs {
   return undef unless $str =~ m/(?:([^:]+):)?(.*)/;
   my $specs_text;
   ($modulo, $specs_text) = ($1 || 1, $2);
-  # Split on commas but not inside brackets: https://stackoverflow.com/questions/9435564/perl-split-list-on-commas-except-when-within-brackets
-  my @pages_text = split /(?![^(]+\)), /, $specs_text;
+  # Split on commas but not inside parentheses: https://stackoverflow.com/questions/8481345/perl-split-and-regular-expression
+  my @pages_text = split /,(?![^()]*\))/, $specs_text;
   $pagesperspec = $#pages_text + 1;
   my @pages = ();
   my %angle = (l => 90, r => -90, u => 180);
