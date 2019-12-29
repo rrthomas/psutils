@@ -145,7 +145,7 @@ sub parsespecs {
     my @specs = ();
     my @specs_text = split /\+/, $page;
     foreach my $spec_text (@specs_text) {
-      return undef unless $spec_text =~ m/(-)?(\d+)([LRUlru])?([HVhv])?(?:@([^()]+))?(?:\(([\d.a-z]+),([\d.a-z]+)\))?/;
+      return undef unless $spec_text =~ m/(-)?(\d+)([LRUlru])?([HVhv])?(?:@([^()]+))?(?:\((-?[\d.a-z]+),(-?[\d.a-z]+)\))?/;
       my $spec = {
         reversed => defined($1) ? 1 : 0,
         pageno => $2,
