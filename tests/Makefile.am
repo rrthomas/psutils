@@ -10,6 +10,9 @@ EMPTY =
 
 TESTS = \
 	%D%/pstops-invalid-pagespecs.sh \
+	%D%/pstops-offsets.sh \
+	%D%/pstops-negative-offsets.sh \
+	%D%/pstops-multiple-pages.sh \
 	%D%/psbook-20.sh \
 	%D%/psbook-20-signature-4.sh \
 	%D%/psbook-3.sh \
@@ -82,6 +85,9 @@ XFAIL_TESTS = \
 
 INPUTS = \
 	%D%/pstops-invalid-pagespecs-input.ps \
+	%D%/pstops-offsets-input.ps \
+	%D%/pstops-negative-offsets-input.ps \
+	%D%/pstops-multiple-pages-input.ps \
 	%D%/psbook-20-input.ps \
 	%D%/psbook-20-signature-4-input.ps \
 	%D%/psbook-3-input.ps \
@@ -139,6 +145,9 @@ INPUTS = \
 	$(EMPTY)
 
 RESULTS = \
+	%D%/pstops-offsets-expected.ps \
+	%D%/pstops-negative-offsets-expected.ps \
+	%D%/pstops-multiple-pages-expected.ps \
 	%D%/psbook-20-expected.ps \
 	%D%/psbook-20-signature-4-expected.ps \
 	%D%/psbook-3-expected.ps \
