@@ -153,7 +153,7 @@ sub parsespecs {
         rotate => 0,
         hflip => 0,
         vflip => 0,
-        scale => defined($4) ? $4 : undef,
+        scale => defined($4) ? $4 : 1.0,
         xoff => defined($5) ? singledimen($5) : undef, yoff => defined($6) ? singledimen($6) : undef
       };
       return undef if $spec->{pageno} >= $modulo;
@@ -400,7 +400,7 @@ sub gcd {
 
 sub ps_transform {
   my ($ps) = @_;
-  return $ps->{rotate} != 0 || $ps->{hflip} != 0 || $ps->{vflip} != 0 || defined($ps->{scale}) || defined($ps->{xoff});
+  return $ps->{rotate} != 0 || $ps->{hflip} != 0 || $ps->{vflip} != 0 || $ps->{scale} != 1.0 || defined($ps->{xoff});
 }
 
 sub pstops {
@@ -534,7 +534,7 @@ sub pstops {
           say $outfile "[ 1 0 0 -1 0 " . $iheight * $ps->{scale} * $scale . " ] concat"
             if $ps->{vflip} == 1;
           say $outfile (sprintf "%f", $ps->{scale} * $scale) . " dup scale"
-            if defined($ps->{scale});
+            if $ps->{scale} != 1.0;
           say $outfile "userdict/PStoPSmatrix matrix currentmatrix put";
           if (defined($iwidth)) {
             say $outfile "userdict/PStoPSclip{0 0 moveto\
