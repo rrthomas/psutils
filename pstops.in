@@ -7,6 +7,7 @@ Released under the GPL version 3, or (at your option) any later version.
 END
 
 use v5.14;
+use feature "switch";
 use warnings;
 use strict;
 no if $] >= 5.018, warnings => "experimental::smartmatch";
@@ -145,17 +146,32 @@ sub parsespecs {
     my @specs = ();
     my @specs_text = split /\+/, $page;
     foreach my $spec_text (@specs_text) {
-      return undef unless $spec_text =~ m/(-)?(\d+)([LRUlru])?([HVhv])?(?:@([^()]+))?(?:\((-?[\d.a-z]+),(-?[\d.a-z]+)\))?/;
+      return undef unless $spec_text =~ m/(-)?(\d+)([LRUHV]+)?(?:@([^()]+))?(?:\((-?[\d.a-z]+),(-?[\d.a-z]+)\))?/i;
       my $spec = {
         reversed => defined($1) ? 1 : 0,
         pageno => $2,
-        rotate => defined($3) ? $angle{lc($3)} : 0,
-        flip => defined($4) ? lc($4) : "",
-        scale => defined($5) ? $5 : undef,
-        xoff => defined($6) ? singledimen($6) : undef, yoff => defined($7) ? singledimen($7) : undef
+        rotate => 0,
+        hflip => 0,
+        vflip => 0,
+        scale => defined($4) ? $4 : undef,
+        xoff => defined($5) ? singledimen($5) : undef, yoff => defined($6) ? singledimen($6) : undef
       };
       return undef if $spec->{pageno} >= $modulo;
-      $flipping = 1 if $spec->{flip} ne "";
+      if (defined($3)) {
+        foreach (split '', $3) {
+          when (/[LRU]/i) { $spec->{rotate} += $angle{lc($_)} }
+          when (/H/i)     { $spec->{hflip} ^= 1 }
+          when (/V/i)     { $spec->{vflip} ^= 1 }
+        }
+      }
+      # Normalize rotation and flips
+      if ($spec->{hflip} == 1 && $spec->{vflip} == 1) {
+        $spec->{hflip} = $spec->{vflip} = 0;
+        $spec->{rotate} += 180;
+      }
+      $spec->{rotate} %= 360;
+      $spec->{rotate} -= 180 if $spec->{rotate} > 180;
+      $flipping = 1 if $spec->{hflip} == 1 || $spec->{vflip} == 1;
       push @specs, $spec;
     }
     push @pages, \@specs;
@@ -384,7 +400,7 @@ sub gcd {
 
 sub ps_transform {
   my ($ps) = @_;
-  return $ps->{rotate} != 0 || $ps->{flip} ne "" || defined($ps->{scale}) || defined($ps->{xoff});
+  return $ps->{rotate} != 0 || $ps->{hflip} != 0 || $ps->{vflip} != 0 || defined($ps->{scale}) || defined($ps->{xoff});
 }
 
 sub pstops {
@@ -514,9 +530,9 @@ sub pstops {
           say $outfile ($ps->{rotate} + $rotate) % 360 . " rotate"
             if $ps->{rotate} != 0;
           say $outfile "[ -1 0 0 1 " . $iwidth * $ps->{scale} * $scale . " 0 ] concat"
-            if $ps->{flip} eq "h";
+            if $ps->{hflip} == 1;
           say $outfile "[ 1 0 0 -1 0 " . $iheight * $ps->{scale} * $scale . " ] concat"
-            if $ps->{flip} eq "v";
+            if $ps->{vflip} == 1;
           say $outfile (sprintf "%f", $ps->{scale} * $scale) . " dup scale"
             if defined($ps->{scale});
           say $outfile "userdict/PStoPSmatrix matrix currentmatrix put";
