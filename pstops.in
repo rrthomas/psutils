@@ -285,10 +285,13 @@ for (my $record = 0; my $buffer = <$infile>; $record = tell $infile) {
   if ($buffer =~ /^%%/) {
     if ($nesting == 0 && iscomment($buffer, "Page:")) {
       push @pageptr, $record;
-    } elsif ($headerpos == 0 && defined($iwidth) && (iscomment($buffer, "BoundingBox:") ||
-                                                       iscomment($buffer, "HiResBoundingBox:") ||
-                                                       iscomment($buffer, "DocumentPaperSizes:") ||
-                                                       iscomment($buffer, "DocumentMedia:"))) {
+    } elsif ($headerpos == 0 && defined($width) &&
+               (iscomment($buffer, "BoundingBox:") ||
+                iscomment($buffer, "HiResBoundingBox:") ||
+                iscomment($buffer, "DocumentPaperSizes:") ||
+                iscomment($buffer, "DocumentMedia:"))) {
+      # FIXME: read input paper size (from DocumentMedia comment?) if not
+      # set on command line.
       push @sizeheaders, $record;
     } elsif ($headerpos == 0 && iscomment($buffer, "Pages:")) {
       $pagescmt = $record;
