@@ -59,6 +59,7 @@ DISTCLEANFILES = $(bin_SCRIPTS)
 PRODUCTIONSOURCES = \
 	configure.ac \
 	Makefile.am \
+	PSUtils.pm \
 	$(bin_SCRIPTS)
 
 include tests/Makefile.am
