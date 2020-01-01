@@ -4,6 +4,10 @@ language: c
 matrix:
   include:
     - os: linux
+      addons:
+        apt:
+          packages:
+            - libipc-run3-perl
     - os: osx
 
 env:

@@ -9,6 +9,8 @@ no if $] >= 5.018, warnings => "experimental::smartmatch";
 
 use POSIX qw(strtod locale_h);
 
+use IPC::Run3 qw(run3);
+
 use base qw(Exporter);
 our @EXPORT = qw(singledimen paper_size parsepaper setup_input_and_output extn type filename);
 
@@ -26,24 +28,36 @@ sub singledimen {
     $num *= 28.346456692913385211 when /^cm/;
     $num *= 2.8346456692913385211 when /^mm/;
     when (/^w/) {
-      die("paper size not set") if !defined($width);
+      die("paper size not set\n") if !defined($width);
       $num *= $width;
     }
     when (/^h/) {
-      die("paper size not set") if !defined($width);
+      die("paper size not set\n") if !defined($width);
       $num *= $height;
     }
-    default { die("bad dimension") if $str ne ""; };
+    default { die("bad dimension\n") if $str ne ""; };
   }
   setlocale(LC_ALL, $old_locale);
   return $num;
 }
 
 # Get the size of the given paper, or the default paper if no argument given.
+sub paper {
+  my ($cmd, $silent) = @_;
+  unshift @{$cmd}, "paper";
+  my $out;
+  run3 $cmd, undef, \$out, $silent ? \undef : undef, {return_if_system_error=>1};
+  die("could not run `paper' command\n") if $? == -1;
+  if ($? == 0) {
+    chomp $out;
+    return $out;
+  }
+}
+
 sub paper_size {
   my ($paper_name) = @_;
-  chomp($paper_name = `paper`) unless defined($paper_name);
-  my $dimensions = `paper --unit=pt --size $paper_name 2>/dev/null` or return;
+  chomp($paper_name = paper([])) unless defined($paper_name);
+  my $dimensions = paper(["--unit=pt", "--size", "$paper_name"], 1) or return;
   $dimensions =~ /^([\d.]+) ([\d.]+)/;
   return int($1 + 0.5), int($2 + 0.5); # round dimensions to nearest point
 }
@@ -53,7 +67,7 @@ sub parsepaper {
   if (!defined($width)) {
     my ($w, $h) = split /x/, $_[0];
     eval { ($width, $height) = (singledimen($w), singledimen($h)); }
-      or die("paper size '$_[0]' unknown");
+      or die("paper size '$_[0]' unknown\n");
   }
   return $width, $height;
 }
@@ -65,14 +79,14 @@ sub setup_input_and_output {
 
   if ($#ARGV >= 0) {            # User specified an input file
     my $file = shift @ARGV;
-    open($infile, $file) or die("cannot open input file $file");
-    binmode($infile) or die("could not set input to binary mode");
+    open($infile, $file) or die("cannot open input file $file\n");
+    binmode($infile) or die("could not set input to binary mode\n");
   }
 
   if ($#ARGV >= 0) {            # User specified an output file
     my $file = shift @ARGV;
-    open($outfile, $file) or die("cannot open output file $file");
-    binmode($outfile) or die("could not set output to binary mode");
+    open($outfile, $file) or die("cannot open output file $file\n");
+    binmode($outfile) or die("could not set output to binary mode\n");
   }
 
   usage(1) if $#ARGV != -1; # Check no more arguments were given
@@ -102,7 +116,7 @@ sub filename {			# make filename for resource in @_
     $name .= $_;
   }
   $name =~ s@.*/@@;		# drop directories
-  die("filename not found for resource ", join(" ", @_), "\n")
+  die("filename not found for resource " . join(" ", @_) . "\n")
     if $name =~ /^$/;
   return $name;
 }
