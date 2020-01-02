@@ -115,5 +115,4 @@ while (<$infile>) {
   }
 }
 
-
-1;
+1; # exit with a true value (value of previous statement may be false)
