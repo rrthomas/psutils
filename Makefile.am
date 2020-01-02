@@ -1,7 +1,9 @@
 # Makefile.am for PSUtils
 #
-# Copyright (C) Reuben Thomas 2012-2019
+# Copyright (C) Reuben Thomas 2012-2020
 # See COPYING for license
+
+ACLOCAL_AMFLAGS = -I m4
 
 CLOC = cloc --autoconf
 
@@ -16,7 +18,7 @@ man_MANS = psutils.1 \
 # should be made read-only, to prevent them from being edited by mistake
 # instead of the file they are generated from.
 generated_file_finalize = $(AM_V_at) \
-  if LC_ALL=C grep '@[a-zA-Z0-9_][a-zA-Z0-9_]*@' $@-t; then \
+  if LC_ALL=C grep '^[^\#].*@[a-zA-Z0-9_][a-zA-Z0-9_]*@' $@-t; then \
     echo "$@ contains unexpanded substitution (see lines above)"; \
     exit 1; \
   fi; \
@@ -27,6 +29,8 @@ generated_file_finalize = $(AM_V_at) \
 # expansion is sufficient.  We use a funny notation here to avoid
 # configure substitutions in our text.
 do_subst = ( sed \
+  -e 's|$$[{]prefix[}]|$(prefix)|g' \
+  -e 's|$$[{]exec_prefix[}]|$(exec_prefix)|g' \
   -e 's,[@]pkgdatadir[@],$(pkgdatadir),g' \
   | $(SHELL) ./config.status --file=- \
   )
@@ -61,6 +65,11 @@ PRODUCTIONSOURCES = \
 	Makefile.am \
 	PSUtils.pm \
 	$(bin_SCRIPTS)
+
+install-exec-hook:
+	if test "x$(EXEEXT)" != "x"; then \
+	  mv $(DESTDIR)$(bindir)/paper $(DESTDIR)$(bindir)/paper$(PERL_EXEEXT); \
+	fi
 
 include tests/Makefile.am
 

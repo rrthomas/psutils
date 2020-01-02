@@ -1,7 +1,7 @@
 #!@PERL@
 # -*- perl -*-
 my $version_banner = <<END;
-extractres @VERSION@
+includeres @VERSION@
 Copyright (c) Reuben Thomas 2012-2019
 Copyright (c) Angus J. C. Duggan 1991-1997
 END
@@ -36,6 +36,28 @@ use warnings;
 
 BEGIN
 {
+# Relocatable header
+
+@relocatable_pl@
+if ("@RELOCATABLE@" eq "yes") {
+  my $exec_prefix = "@exec_prefix@";
+  my $orig_installdir = "@bindir@"; # see Makefile.am's *_SCRIPTS variables
+  my ($orig_installprefix, $curr_installprefix) = find_prefixes($orig_installdir, find_curr_installdir());
+  sub relocate { # the subroutine is defined whether or not the enclosing block is executed
+    my ($dir) = @_;
+    if ("@RELOCATABLE@" eq "yes") {
+      $dir =~ s%^$orig_installprefix/%$curr_installprefix/%;
+      $dir =~ s,/$,,;
+    }
+    return $dir;
+  }
+}
+
+# Relocate the directory variables that we use.
+my $pkgdatadir = &relocate("@pkgdatadir@");
+
+# End of relocatable header; "real" Perl starts here.
+
   unshift (@INC, '@pkgdatadir@') unless $ENV{PSUTILS_UNINSTALLED};
 }
 
@@ -45,15 +67,14 @@ use Getopt::Long;
 use PSUtils;
 
 my $prog = basename($0);
-my ($help_flag, $version_flag, $merge);
+my ($help_flag, $version_flag);
 
 sub usage {
   my ($exit_code) = @_;
   print STDERR <<END;
 $prog [OPTION...] [INFILE [OUTFILE]]
-Filter to extract resources from a PostScript document.
+Filter to include resources in a PostScript document.
 
-  -m, --merge          merge resources of the same name into one file
       --help           display this help and exit
       --version        display version information and exit
 END
@@ -64,7 +85,6 @@ END
 Getopt::Long::Configure("bundling");
 # Having configured bundling, must give short option names explicitly
 my $opts = GetOptions(
-  "merge|m" => \$merge,
   "help" => \$help_flag,
   "version" => \$version_flag,
  ) or usage(1);
@@ -77,50 +97,23 @@ usage(1) if $#ARGV > 1;
 
 my ($infile, $outfile) = setup_input_and_output();
 
-# Extract resources
-my %resources = ();             # list of resources included
-my %merge = ();                 # list of resources extracted this time
-my $prolog = "";
-my $body = "";
-my $resource = "";
-my $output = \$prolog;
-my $saveout;
-
+# Include resources
 while (<$infile>) {
-  if (/^%%Begin(Resource|Font|ProcSet):/) {
-    my ($comment, @res) = split(/\s+/); # look at resource type
-    my $type = defined(type($comment)) ? type($comment) : shift(@res);
-    my $name = filename(@res, extn($type)); # make file name
-    $saveout = $output;
-    if (!defined($resources{$name})) {
-      $prolog .= "%%IncludeResource: $type " . join(" ", @res) . "\n";
-      if (!-e $name) {
-        open RES, ">$name" || die "$prog: can't write file `$name'\n";
-        $resources{$name} = "";
-        $merge{$name} = $merge;
-        $output = \$resources{$name};
-      } else {                  # resource already exists
-        close(RES);
-        undef $output;
-      }
-    } elsif ($merge{$name}) {
-      open RES, ">>$name" || die "$prog: can't append to file `$name'\n";
-      $resources{$name} = "";
-      $output = \$resources{$name};
-    } else {			# resource already included
-      undef $output;
+  if (/^%%Include(Resource|Font|ProcSet):/) {
+    my ($comment, @res) = split(/\s+/);
+    my $type = shift(@res);
+    my $name = filename(@res);
+    if (open(RES, $name) || open(RES, $name . extn($type))) {
+      print $outfile do { local $/; <RES> };
+      close(RES);
+    } else {
+      print $outfile "%%IncludeResource: ", join(" ", $type, @res), "\n";
+      print STDERR "$prog: resource `$name' not found\n";
     }
-  } elsif (/^%%End(Resource|Font|ProcSet)/) {
-    if (defined $output) {
-      $$output .= $_;
-      print RES $$output;
-    }
-    $output = $saveout;
-    next;
-  } elsif (/^%%End(Prolog|Setup)/ || /^%%Page:/) {
-    $output = \$body;
+  } else {
+    print $outfile $_;
   }
-  $$output .= $_ if defined $output;
 }
 
-print $outfile $prolog . $body;
+
+1;

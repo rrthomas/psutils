@@ -77,7 +77,7 @@ To build from git, you need the following extra programs installed:
 
 Then run:
 
-autoreconf -fi
+./bootstrap
 
 Now follow the normal installation instructions above.
 

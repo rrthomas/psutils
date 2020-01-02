@@ -20,5 +20,5 @@ install:
   - cd paper && ./bootstrap && ./configure --quiet --enable-silent-rules && sudo make install && cd ..
 
 script:
-  - autoreconf -fi && ./configure --enable-silent-rules
+  - ./bootstrap && ./configure --enable-silent-rules
   - make distcheck
