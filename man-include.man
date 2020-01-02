@@ -1,0 +1,11 @@
+[AUTHOR]
+Written by Angus J. C. Duggan and Reuben Thomas.
+
+[>COPYRIGHT]
+.SH TRADEMARKS
+.B PostScript
+is a trademark of Adobe Systems Incorporated.
+
+[SEE ALSO]
+.BR psutils (1),
+.BR paper (1)

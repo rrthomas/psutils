@@ -71,11 +71,12 @@ my ($help_flag, $version_flag, $merge);
 
 sub usage {
   my ($exit_code) = @_;
-  print STDERR <<END;
-$prog [OPTION...] [INFILE [OUTFILE]]
+  print STDOUT <<END;
+Usage: $prog [OPTION...] [INFILE [OUTFILE]]
 Filter to extract resources from a PostScript document.
 
   -m, --merge          merge resources of the same name into one file
+                       (needed e.g. for fonts output in multiple blocks)
       --help           display this help and exit
       --version        display version information and exit
 END
@@ -91,7 +92,7 @@ my $opts = GetOptions(
   "version" => \$version_flag,
  ) or usage(1);
 if ($version_flag) {
-  print STDERR $version_banner;
+  print STDOUT $version_banner;
   exit 0;
 }
 usage(0) if $help_flag;

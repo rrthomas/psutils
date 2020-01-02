@@ -1,0 +1,33 @@
+[NAME]
+psnup - multiple pages per sheet
+
+[>DESCRIPTION]
+.PP
+.B Psnup
+uses
+.B Pstops
+to impose multiple logical pages on to each physical sheet of paper.
+.PP
+Paper sizes can be given either as a name (see
+.BR paper(1) )
+or as \fBwidth\fRx\fBheight\fR (see
+.BR psutils (1)
+for the available units).
+
+[EXAMPLES]
+The potential use of this utility is varied but one particular 
+use is in conjunction with 
+.BR psbook (1).
+For example, using groff to create a PostScript document and lpr as 
+the 
+.SM UNIX 
+print spooler a typical command line might look like this: 
+.sp
+groff -Tps -ms \fIfile\fP | psbook | psnup -2 | lpr
+.sp
+where file is a 4 page document this command will result in a 
+two page document printing two pages of \fIfile\fP per page and
+rearranges the page order to match the input pages 4 and 1 
+on the first output page and
+pages 2 then 3 of the input document 
+on the second output page.

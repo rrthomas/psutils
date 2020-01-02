@@ -1,0 +1,2 @@
+[NAME]
+psjoin - concatenate PostScript files

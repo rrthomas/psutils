@@ -71,6 +71,15 @@ install-exec-hook:
 	  mv $(DESTDIR)$(bindir)/paper $(DESTDIR)$(bindir)/paper$(PERL_EXEEXT); \
 	fi
 
+%.1: % %-include.man man-include.man
+## Exit gracefully if $@ is not writeable, such as during distcheck!
+	$(AM_V_GEN)if ( touch $@.w && rm -f $@.w; ) >/dev/null 2>&1; then \
+	  $(srcdir)/pre-inst-env $(top_srcdir)/build-aux/missing --run $(HELP2MAN) --no-info \
+		--include=$(srcdir)/man-include.man \
+		--include=$(srcdir)/$*-include.man \
+		--output=$@ ./$*; \
+	fi
+
 include tests/Makefile.am
 
 loc:

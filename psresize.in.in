@@ -2,7 +2,7 @@
 # -*- perl -*-
 my $version_banner = <<END;
 psresize @VERSION@
-Copyright (c) Reuben Thomas 2016
+Copyright (c) Reuben Thomas 2016.
 Released under the GPL version 3, or (at your option) any later version.
 END
 
@@ -44,9 +44,9 @@ my ($help_flag, $version_flag);
 
 sub usage {
   my ($exit_code) = @_;
-  print STDERR <<END;
-$prog [OPTION...] [INFILE [OUTFILE]]
-Alter page size of a PostScript file.
+  print STDOUT <<END;
+Usage: $prog [OPTION...] [INFILE [OUTFILE]]
+Change the page size of a PostScript document.
 
   -p, --paper=PAPER    output paper size
   -P, --inpaper=PAPER  input paper size
@@ -73,7 +73,7 @@ GetOptions(
   "version" => \$version_flag,
  ) or usage(1);
 if ($version_flag) {
-  print STDERR $version_banner;
+  print STDOUT $version_banner;
   exit 0;
 }
 usage(0) if $help_flag;

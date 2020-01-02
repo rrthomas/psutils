@@ -1,11 +1,8 @@
-.TH INCLUDERES 1 "PSUtils"
-.SH NAME
-includeres \- filter to include resources in a PostScript document
-.SH SYNOPSIS
-.B includeres 
-.RI < document.ps
-.RI > output.ps
-.SH DESCRIPTION
+[NAME]
+includeres - filter to include resources in a PostScript document
+
+[>DESCRIPTION]
+.PP
 .B Includeres
 includes resources (fonts, procsets, patterns, files, etc.) in place of
 .B %%IncludeResource
@@ -24,13 +21,8 @@ The output file can then be put through page re-arrangement filters such as
 or 
 .B pstops
 safely.
-.SH AUTHOR
-Written by Angus J. C. Duggan.
-.SH "SEE ALSO"
-.BR psutils (1)
-.SH TRADEMARKS
-.B PostScript
-is a trademark of Adobe Systems Incorporated.
+
+[>AUTHOR]
 .SH BUGS
 .B includeres
 does not alter the

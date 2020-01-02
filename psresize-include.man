@@ -1,0 +1,17 @@
+[NAME]
+psresize - change the page size of a PostScript document
+
+[>DESCRIPTION]
+.PP
+.B Psresize
+uses
+.B Psnup
+to change the page size of a document, scaling and centering it appropriately.
+See
+.BR psutils (1)
+for the available units.
+
+[EXAMPLES]
+The following command converts a document from A4 size to US Letter paper:
+.sp
+psresize -PA4 -pletter in.ps out.ps

@@ -1,6 +1,12 @@
 # Use language: c because perl builds are not available on macOS
 language: c
 
+addons:
+  homebrew:
+    packages:
+    - help2man
+    update: true
+
 matrix:
   include:
     - os: linux
@@ -8,6 +14,7 @@ matrix:
         apt:
           packages:
             - libipc-run3-perl
+            - help2man
     - os: osx
 
 env:

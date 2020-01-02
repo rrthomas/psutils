@@ -31,6 +31,7 @@ END
 #
 #                                                                 AJCD 4/4/95
 
+use v5.10;
 use strict;
 use warnings;
 
@@ -71,8 +72,8 @@ my ($help_flag, $version_flag);
 
 sub usage {
   my ($exit_code) = @_;
-  print STDERR <<END;
-$prog [OPTION...] [INFILE [OUTFILE]]
+  print STDOUT <<END;
+Usage: $prog [OPTION...] [INFILE [OUTFILE]]
 Filter to include resources in a PostScript document.
 
       --help           display this help and exit
@@ -89,7 +90,7 @@ my $opts = GetOptions(
   "version" => \$version_flag,
  ) or usage(1);
 if ($version_flag) {
-  print STDERR $version_banner;
+  print STDOUT $version_banner;
   exit 0;
 }
 usage(0) if $help_flag;
@@ -107,8 +108,8 @@ while (<$infile>) {
       print $outfile do { local $/; <RES> };
       close(RES);
     } else {
-      print $outfile "%%IncludeResource: ", join(" ", $type, @res), "\n";
-      print STDERR "$prog: resource `$name' not found\n";
+      say $outfile "%%IncludeResource: ", join(" ", $type, @res);
+      say STDERR "$prog: resource `$name' not found";
     }
   } else {
     print $outfile $_;

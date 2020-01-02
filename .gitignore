@@ -1,4 +1,5 @@
 *.o
+*.1
 *~
 psutils*.tar.gz
 /.deps/

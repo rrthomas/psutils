@@ -1,0 +1,14 @@
+[NAME]
+psbook - rearrange pages in PostScript file into signatures
+
+[>DESCRIPTION]
+.PP
+.B Psbook
+uses
+.B Pstops
+to rearrange pages from a PostScript document into \[oq]signatures\[cq] for
+printing books or booklets, creating a new PostScript file.
+The signature size is the number of sides which will be folded and bound
+together; the number given should be a multiple of four.
+Extra blank sides will be added if the file does not contain a multiple of
+four pages.

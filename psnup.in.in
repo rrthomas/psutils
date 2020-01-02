@@ -2,7 +2,7 @@
 # -*- perl -*-
 my $version_banner = <<END;
 psnup @VERSION@
-Copyright (c) Reuben Thomas 2016
+Copyright (c) Reuben Thomas 2016.
 Released under the GPL version 3, or (at your option) any later version.
 END
 
@@ -49,8 +49,8 @@ my ($help_flag, $version_flag);
 
 sub usage {
   my ($exit_code) = @_;
-  print STDERR <<END;
-$prog [OPTION...] -NUP [INFILE [OUTFILE]]
+  print STDOUT <<END;
+Usage: $prog [OPTION...] -NUP [INFILE [OUTFILE]]
 
 Put multiple pages of a PostScript file on to one page
 
@@ -58,17 +58,31 @@ Put multiple pages of a PostScript file on to one page
   -p, --paper=PAPER        output paper name or dimensions
   -P, --inpaper=PAPER      input paper name or dimensions
   -m, --margin=DIMENSION   width of margin around each output page
+                           [default 0pt]; useful for thumbnail sheets,
+                           as the original page margins will be shrunk
   -b, --border=DIMENSION   width of border around each input page
   -d, --draw[=DIMENSION]   draw a line of given width around each page
-                           [argument defaults to 1; default is no line]
+                           [relative to input page size; argument defaults to
+                           1pt; default is no line]
   -l, --rotatedleft        input pages are rotated left 90 degrees
   -r, --rotatedright       input pages are rotated right 90 degrees
   -f, --flip               swap output pages' width and height
-  -c, --transpose          swap columns and rows (column major order)
-  -t, --tolerance=NUMBER   maximum wasted area in square pt [100,000]
+  -c, --transpose          swap columns and rows (column-major order)
+  -t, --tolerance=NUMBER   maximum wasted area in square pt [default: 100,000]
   -q, --quiet              don't show page numbers being output
       --help               display this help and exit
       --version            display version information and exit
+
+psnup aborts with an error if it cannot arrange the input pages so as to
+waste less than the given tolerance.
+
+The output paper size defaults to the input paper size; if that is not given,
+the default given by the `paper' command is used.
+
+The input paper size defaults to the output paper size.
+
+In row-major order (the default), adjacent pages are placed in rows across
+the paper; in column-major order, they are placed in columns down the page.
 END
   exit $exit_code;
 }
@@ -126,7 +140,7 @@ GetOptions(
   "n=s" => \&parsenup, # for compatibility with other psnup implementations
  ) or usage(1);
 if ($version_flag) {
-  print STDERR $version_banner;
+  print STDOUT $version_banner;
   exit 0;
 }
 usage(0) if $help_flag;

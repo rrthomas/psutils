@@ -1,0 +1,7 @@
+[NAME]
+epsffit - fit an Encapsulated PostScript file to a given bounding box
+
+/reads from standard input/
+See
+.BR psutils (1)
+for the available units.

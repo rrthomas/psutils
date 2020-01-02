@@ -2,7 +2,7 @@
 # -*- perl -*-
 my $version_banner = <<END;
 pstops @VERSION@
-Copyright (c) Reuben Thomas 2017-2019
+Copyright (c) Reuben Thomas 2017-2019.
 Released under the GPL version 3, or (at your option) any later version.
 END
 
@@ -110,46 +110,44 @@ my $pagespecs_syntax = "  PAGESPECS = [MODULO:]SPEC\
 
 sub usage {
   my ($exit_code) = @_;
-  print STDERR <<END;
-$prog [OPTION...] [INFILE [OUTFILE]]
+  print STDOUT <<END;
+Usage: $prog [OPTION...] [INFILE [OUTFILE]]
 
-Rearrange pages of a PostScript file.
+Rearrange pages of a PostScript document.
 
-  -S, --specs=SPECS      page specifications (see below)
-  -R, --pages=PAGES      select the given page ranges
-  -e, --even             select even-numbered output pages
-  -o, --odd              select odd-numbered output pages
-  -r, --reverse          reverse the order of the output pages
-  -p, --paper=PAPER      output paper name or dimensions (WIDTHxHEIGHT)
-  -P, --inpaper=PAPER    input paper name or dimensions (WIDTHxHEIGHT)
-  -d, --draw[=DIMENSION] draw a line of given width around each page
-                         [argument defaults to 1; default is 0]
-  -s, --signature=N      number of pages per signature
-                         0 = all pages in one signature [default]
-                         1 = one page per signature
-                         otherwise, a multiple of 4
-  -b, --nobind           disable PostScript bind operators in prolog
-  -q, --quiet            don't show page numbers being output
-      --help             display this help and exit
-      --version          display version information and exit
+  -S, --specs=SPECS       page specifications (see below)
+  -R, --pages=PAGES       select the given page ranges
+  -e, --even              select even-numbered output pages
+  -o, --odd               select odd-numbered output pages
+  -r, --reverse           reverse the order of the output pages
+  -p, --paper=PAPER       output paper name or dimensions (WIDTHxHEIGHT)
+  -P, --inpaper=PAPER     input paper name or dimensions (WIDTHxHEIGHT)
+  -d, --draw[=DIMENSION]  draw a line of given width (relative to original
+                          page) around each page [argument defaults to 1;
+                          default is 0]
+  -s, --signature=N       number of pages per signature;
+                          0 = all pages in one signature,
+                          1 = one page per signature [default],
+                          otherwise, a multiple of 4
+  -b, --nobind            disable PostScript bind operators in prolog;
+                          may be needed for complex page rearrangements
+  -q, --quiet             don't show page numbers being output
+      --help              display this help and exit
+      --version           display version information and exit
 
 PAGES is a comma-separated list of pages and page ranges.
 
 PAGESPECS is a list of page specifications [default is "0", which
-selects each page in its normal order]:
-
-$pagespecs_syntax
-
-See pstops(1) for more details.
+selects each page in its normal order].
 END
   exit $exit_code;
 }
 
 sub specerror {
   # Use exit rather than die to avoid full usage message
-  print STDERR "bad page specification:
+  say STDERR "bad page specification:
 
-$pagespecs_syntax\n";
+$pagespecs_syntax";
   exit(1);
 }
 
@@ -262,7 +260,7 @@ GetOptions(
   "version" => \$version_flag,
  ) or usage(1);
 if ($version_flag) {
-  print STDERR $version_banner;
+  print STDOUT $version_banner;
   exit 0;
 }
 usage(0) if $help_flag;

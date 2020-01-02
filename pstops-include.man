@@ -1,0 +1,146 @@
+[NAME]
+pstops - shuffle pages in a PostScript file
+
+/Rearrange pages of a PostScript document/
+The input PostScript file should follow the Adobe Document Structuring
+Conventions.
+.PP
+.I Pstops
+can be used to perform arbitrary re-arrangements of documents. For many tasks,
+it is simpler to use the other utilities in the PSUtils suite: see
+.BR psutils (1).
+
+/comma-separated list of pages/
+Each may be a page number, or a page range of the form
+.IB first \- last .
+If
+.I first
+is omitted, the first page is assumed, and if
+.I last
+is omitted, the last page is assumed.
+The prefix character \[oq]_\[cq] indicates that the page number is relative to the end
+of the document, counting backwards.
+If just this character with no page number is used, a blank page will be
+inserted.
+Page numbers refer to the pages as they occur in the file, starting
+at one.
+The actual page number in the document may be different.
+
+/its normal order/
+.PP
+Pagespecs have the following syntax:
+.RS
+.TP 12
+.I pagespecs
+=
+.RI [ modulo\fB:\fP ] specs
+.TP
+.I specs
+=
+.IR spec [ \fB+\fPspecs | \fB,\fPspecs ]
+.TP
+.I spec
+=
+.RB [ - ] \fIpageno\fP [\fIturns\fP][ @\fIscale\fP ][ ( \fIxoff\fP , \fIyoff\fP ) ]
+.TP
+.I turns
+=
+.IR turn [ turns ]
+.TP
+.I turn
+=
+.BR L | R | U | H | V
+.RE
+.sp
+.I modulo
+is the number of pages in each block.
+The value of
+.I modulo
+should be greater than 0; the default value is 1.
+.PP
+.I specs
+are the page specifications for the pages in each block.
+The value of the
+.I pageno
+in each
+.I spec
+should be between 0 (for the first page in the block) and \fImodulo\fR\-1
+(for the last page in each block) inclusive.
+If there is only one page specification,
+the \fIpageno\fR (0) may be omitted.
+.PP
+The optional dimensions
+.I xoff
+and
+.I yoff
+shift the page by the specified amount.
+.I xoff
+and
+.I yoff
+may either be lengths (see
+.BR psutils (1))
+or followed by
+.B "w"
+or
+.B "h"
+to indicate a multiple of the output paper width or height.
+.PP
+The optional parameters
+.BR L ,
+.BR R ,
+.BR U ,
+.BR H ,
+and
+.B V
+rotate the page left, right, or upside-down, and flip (mirror) the page
+horizontally or vertically respectively.
+The optional
+.I scale
+parameter scales the page by the fraction specified.
+If the optional minus sign is specified, the page number is relative to the end of
+the document, instead of the start.
+.PP
+Pages whose
+.IR spec s
+are separated by
+.B +
+will be merged into a single page; otherwise,
+they will remain as separate pages.
+.PP
+The shift, rotation, and scaling are applied
+to the PostScript transformation matrix
+in that order, regardless of the order
+in which they appear on the command line.
+.PP
+Paper size names are converted to dimensions using
+.BR paper (1).
+The output paper size, if set, is used (after scaling) to set the
+clipping path for each page.
+
+[EXAMPLES]
+To put two pages on one sheet of A4 paper, the pagespec to use is:
+.sp
+.ce
+2:0L@.7(21cm,0)+1L@.7(21cm,14.85cm)
+.sp
+To select all of the odd pages in reverse order, use:
+.sp
+.ce
+2:-0
+.sp
+To re-arrange pages for printing 2-up booklets, use
+.sp
+.ce
+4:-3L@.7(21cm,0)+0L@.7(21cm,14.85cm)
+.sp
+for the front sides, and
+.sp
+.ce
+4:1L@.7(21cm,0)+-2L@.7(21cm,14.85cm)
+.sp
+for the reverse sides (or join them with a comma for duplex printing).
+
+[>AUTHOR]
+.SH BUGS
+.B Pstops
+does not accept all DSC comments.
