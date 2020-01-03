@@ -7,12 +7,14 @@ use strict;
 use warnings;
 no if $] >= 5.018, warnings => "experimental::smartmatch";
 
+use Fcntl qw(:seek);
 use POSIX qw(strtod locale_h);
 
 use IPC::Run3 qw(run3);
 
 use base qw(Exporter);
-our @EXPORT = qw(singledimen paper_size parsepaper setup_input_and_output extn type filename);
+our @EXPORT = qw(singledimen paper_size parsepaper iscomment parse_file
+                 setup_input_and_output extn type filename);
 
 
 # Argument parsers
@@ -70,6 +72,76 @@ sub parsepaper {
       or die("paper size '$_[0]' unknown\n");
   }
   return $width, $height;
+}
+
+# Build array of pointers to start/end of pages
+sub parse_file {
+  my ($infile, $explicit_output_paper) = @_;
+  my $nesting = 0;
+  my $psinfo = {
+    headerpos => 0,
+    pagescmt => 0,
+    endsetup => 0,
+    beginprocset => 0,          # start and end of pstops procset
+    endprocset => 0,
+    pages => undef,
+    sizeheaders => [],
+    pageptr => [],
+  };
+  seek $infile, 0, SEEK_SET;
+  for (my $record = 0; my $buffer = <$infile>; $record = tell $infile) {
+    if ($buffer =~ /^%%/) {
+      if ($nesting == 0 && iscomment($buffer, "Page:")) {
+        push @{$psinfo->{pageptr}}, $record;
+      } elsif ($psinfo->{headerpos} == 0 && $explicit_output_paper &&
+                 (iscomment($buffer, "BoundingBox:") ||
+                  iscomment($buffer, "HiResBoundingBox:") ||
+                  iscomment($buffer, "DocumentPaperSizes:") ||
+                  iscomment($buffer, "DocumentMedia:"))) {
+        # FIXME: read input paper size (from DocumentMedia comment?) if not
+        # set on command line.
+        push @{$psinfo->{sizeheaders}}, $record;
+      } elsif ($psinfo->{headerpos} == 0 && iscomment($buffer, "Pages:")) {
+        $psinfo->{pagescmt} = $record;
+      } elsif ($psinfo->{headerpos} == 0 && iscomment($buffer, "EndComments")) {
+        $psinfo->{headerpos} = tell $infile;
+      } elsif (iscomment($buffer, "BeginDocument") ||
+                 iscomment($buffer, "BeginBinary") ||
+                 iscomment($buffer, "BeginFile")) {
+        $nesting++;
+      } elsif (iscomment($buffer, "EndDocument") ||
+                 iscomment($buffer, "EndBinary") ||
+                 iscomment($buffer, "EndFile")) {
+        $nesting--;
+      } elsif ($nesting == 0 && iscomment($buffer, "EndSetup")) {
+        $psinfo->{endsetup} = $record;
+      } elsif ($nesting == 0 && iscomment($buffer, "BeginProlog")) {
+        $psinfo->{headerpos} = tell $infile;
+      } elsif ($nesting == 0 && iscomment($buffer, "BeginProcSet: PStoPS")) {
+        $psinfo->{beginprocset} = $record;
+      } elsif ($psinfo->{beginprocset} && !$psinfo->{endprocset} && iscomment($buffer, "EndProcSet")) {
+        $psinfo->{endprocset} = tell $infile;
+      } elsif ($nesting == 0 && (iscomment($buffer, "Trailer") ||
+                                   iscomment($buffer, "EOF"))) {
+        seek $infile, $record, SEEK_SET;
+        last;
+      }
+    } elsif ($psinfo->{headerpos} == 0) {
+      $psinfo->{headerpos} = $record;
+    }
+  }
+  push @{$psinfo->{pageptr}}, tell $infile;
+  $psinfo->{pages} = $#{$psinfo->{pageptr}};
+  $psinfo->{endsetup} = ${$psinfo->{pageptr}}[0]
+    if $psinfo->{endsetup} == 0 || $psinfo->{endsetup} > ${$psinfo->{pageptr}}[0];
+
+  return $psinfo;
+}
+
+# Return true if $x is a DSC comment starting with $y
+sub iscomment {
+  my ($x, $y) = @_;
+  return substr($x, 2, length($y)) eq $y;
 }
 
 # Set up input and output files

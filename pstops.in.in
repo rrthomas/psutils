@@ -174,7 +174,7 @@ sub parsespecs {
         vflip => 0,
         scale => defined($4) ? $4 : 1.0,
         xoff => defined($5) ? singledimen($5) : undef, yoff => defined($6) ? singledimen($6) : undef
-      };
+       };
       return undef if $spec->{pageno} >= $modulo;
       if (defined($3)) {
         foreach (split '', $3) {
@@ -210,11 +210,6 @@ for (my $i = 0; $i <= $#ARGV; ) {
     }
   }
   $i++;
-}
-
-sub iscomment {
-  my ($x, $y) = @_;
-  return substr($x, 2, length($y)) eq $y;
 }
 
 # Make a file seekable, using temporary files if necessary
@@ -288,65 +283,12 @@ $infile = seekable($infile) or die("cannot make input seekable\n");
 die("input page size must be set to flip the page\n")
   if !defined($iwidth) and $flipping;
 
-
-# Build array of pointers to start/end of pages
-my @sizeheaders = ();
-my $nesting = 0;
-my $headerpos = 0;
-my $pagescmt = 0;
-my $endsetup = 0;
-my $beginprocset = 0;		# start of pstops procset
-my $endprocset = 0;
-my @pageptr = ();
-my $pages;
-seek $infile, 0, SEEK_SET;
-for (my $record = 0; my $buffer = <$infile>; $record = tell $infile) {
-  if ($buffer =~ /^%%/) {
-    if ($nesting == 0 && iscomment($buffer, "Page:")) {
-      push @pageptr, $record;
-    } elsif ($headerpos == 0 && defined($width) &&
-               (iscomment($buffer, "BoundingBox:") ||
-                iscomment($buffer, "HiResBoundingBox:") ||
-                iscomment($buffer, "DocumentPaperSizes:") ||
-                iscomment($buffer, "DocumentMedia:"))) {
-      # FIXME: read input paper size (from DocumentMedia comment?) if not
-      # set on command line.
-      push @sizeheaders, $record;
-    } elsif ($headerpos == 0 && iscomment($buffer, "Pages:")) {
-      $pagescmt = $record;
-    } elsif ($headerpos == 0 && iscomment($buffer, "EndComments")) {
-      $headerpos = tell $infile;
-    } elsif (iscomment($buffer, "BeginDocument") ||
-             iscomment($buffer, "BeginBinary") ||
-             iscomment($buffer, "BeginFile")) {
-      $nesting++;
-    } elsif (iscomment($buffer, "EndDocument") ||
-             iscomment($buffer, "EndBinary") ||
-             iscomment($buffer, "EndFile")) {
-      $nesting--;
-    } elsif ($nesting == 0 && iscomment($buffer, "EndSetup")) {
-      $endsetup = $record;
-    } elsif ($nesting == 0 && iscomment($buffer, "BeginProlog")) {
-      $headerpos = tell $infile;
-    } elsif ($nesting == 0 && iscomment($buffer, "BeginProcSet: PStoPS")) {
-      $beginprocset = $record;
-    } elsif ($beginprocset && !$endprocset && iscomment($buffer, "EndProcSet")) {
-      $endprocset = tell $infile;
-    } elsif ($nesting == 0 && (iscomment($buffer, "Trailer") ||
-                               iscomment($buffer, "EOF"))) {
-      seek $infile, $record, SEEK_SET;
-      last;
-    }
-  } elsif ($headerpos == 0) {
-    $headerpos = $record;
-  }
-}
-push @pageptr, tell $infile;
-$pages = $#pageptr;
-$endsetup = $pageptr[0] if $endsetup == 0 || $endsetup > $pageptr[0];
+# Parse input
+my $psinfo = parse_file($infile, defined($width));
 
 # Output the pages
-pstops($pagerange, $signature, $modulo, $pagesperspec, $odd, $even, $reverse, $nobinding, $specs, $draw, @sizeheaders);
+pstops($pagerange, $signature, $modulo, $pagesperspec, $odd, $even, $reverse, $nobinding, $specs, $draw, @{$psinfo->{sizeheaders}});
+
 
 # Copy input file from current position up to new position to output file,
 # ignoring the lines starting at something ignorelist points to.
@@ -395,7 +337,7 @@ sub parserange {
 sub abs_page {
   my ($n) = @_;
   if ($n < 0) {
-    $n += $pages + 1;
+    $n += $psinfo->{pages} + 1;
     $n = max($n, 1);
   }
   return $n;
@@ -447,7 +389,7 @@ sub pstops {
   foreach my $range (@$pagerange) {
     my $inc = $range->{to} < $range->{from} ? -1 : 1;
     for (my $currentpg = $range->{from}; $range->{to} - $currentpg != -$inc; $currentpg += $inc) {
-      die("page range $range->{text} is invalid\n") if $currentpg > $pages;
+      die("page range $range->{text} is invalid\n") if $currentpg > $psinfo->{pages};
       if (!($odd && !$even && $currentpg % 2 == 0) && !($even && !$odd && $currentpg % 2 == 1)) {
         push @page_to_real_page, $currentpg - 1;
       }
@@ -487,8 +429,8 @@ sub pstops {
   # FIXME: doesn't cope properly with loaded definitions
   my $p = int($maxpage / $modulo) * $pps;
   seek $infile, 0, SEEK_SET;
-  if ($pagescmt) {
-    fcopy($pagescmt, @ignorelist);
+  if ($psinfo->{pagescmt}) {
+    fcopy($psinfo->{pagescmt}, @ignorelist);
     my $line;
     die("I/O error in header\n") if !($line = <$infile>);
     if (defined($width)) {
@@ -497,25 +439,25 @@ sub pstops {
     }
     say $outfile "%%Pages: $p 0";
   }
-  fcopy($headerpos, @ignorelist);
+  fcopy($psinfo->{headerpos}, @ignorelist);
   say $outfile "%%BeginProcSet: PStoPS" . ($nobind ? "-nobind" : "") . " 1 15\n" .
     $procset . ($nobind ? "/bind{}def\n" : "") . # desperation measures
     "%%EndProcSet"
     if $use_procset;
 
   # Write prologue to end of setup section
-  fcopy($beginprocset) if $beginprocset;
+  fcopy($psinfo->{beginprocset}) if $psinfo->{beginprocset};
   # Skip any existing procset if we're using ours
-  seek $infile, $endprocset, SEEK_SET if $endprocset && $use_procset;
-  fcopy($endsetup);
+  seek $infile, $psinfo->{endprocset}, SEEK_SET if $psinfo->{endprocset} && $use_procset;
+  fcopy($psinfo->{endsetup});
 
   # Save transformation from original to current matrix
   say $outfile "userdict/PStoPSxform PStoPSmatrix matrix currentmatrix\
  matrix invertmatrix matrix concatmatrix\
- matrix invertmatrix put" if !$beginprocset && $use_procset;
+ matrix invertmatrix put" if !$psinfo->{beginprocset} && $use_procset;
 
   # Write from end of setup to start of pages
-  fcopy($pageptr[0]);
+  fcopy(${$psinfo->{pageptr}}[0]);
 
   my $pageindex = 0;
   for (my $pagebase = 0; $pagebase < $maxpage; $pagebase += $modulo) {
@@ -523,10 +465,10 @@ sub pstops {
       my $spec_page_number = 0;
       foreach my $ps (@$page) {
         my $real_page = page_index_to_real_page($ps, $maxpage, $modulo, $signature, $pagebase);
-        if ($real_page < $pages_to_output && &$page_to_real_page($real_page) < $pages) {
+        if ($real_page < $pages_to_output && &$page_to_real_page($real_page) < $psinfo->{pages}) {
           # Seek the page
           my $p = &$page_to_real_page($real_page);
-          seek $infile, $pageptr[$p], SEEK_SET;
+          seek $infile, ${$psinfo->{pageptr}}[$p], SEEK_SET;
           my $line = <$infile>;
           die("I/O error seeking page $p\n") unless $line && iscomment($line, "Page:");
           $line =~ /%%Page:[[:space:]]*(?:\((\d+)\)?[[:space:]]*(\d+))/;
@@ -540,7 +482,7 @@ sub pstops {
           }
           $pagelabel = "(" . (join ",", @pagelabels) . ")";
           # Write page comment
-          my $page_label_number = $real_page < $pages_to_output && &$page_to_real_page($real_page) < $pages ? ++$pageindex : -1;
+          my $page_label_number = $real_page < $pages_to_output && &$page_to_real_page($real_page) < $psinfo->{pages} ? ++$pageindex : -1;
           print STDERR "[" . ($page_label_number < 0 ? "*" : $page_label_number) . "] " if $verbose;
           say $outfile sprintf("%%%%Page: %s %d", $page_label_number < 0 ? "*" : $pagelabel, ++$outputpage);
         }
@@ -566,7 +508,7 @@ sub pstops {
           }
         }
         say $outfile "/PStoPSenablepage false def" if $spec_page_number < $#{$page};
-        if ($beginprocset && $real_page < $pages_to_output && &$page_to_real_page($real_page) < $pages) {
+        if ($psinfo->{beginprocset} && $real_page < $pages_to_output && &$page_to_real_page($real_page) < $psinfo->{pages}) {
           # Search for page setup
           for (;;) {
             my $line = <$infile>;
@@ -575,10 +517,10 @@ sub pstops {
             print $outfile $line or die("I/O error writing page setup $outputpage\n");
           }
         }
-        say $outfile "PStoPSxform concat" if !$beginprocset && $use_procset;
-        if ($real_page < $pages_to_output && &$page_to_real_page($real_page) < $pages) {
+        say $outfile "PStoPSxform concat" if !$psinfo->{beginprocset} && $use_procset;
+        if ($real_page < $pages_to_output && &$page_to_real_page($real_page) < $psinfo->{pages}) {
           # Write the body of a page
-          fcopy($pageptr[&$page_to_real_page($real_page) + 1]);
+          fcopy(${$psinfo->{pageptr}}[&$page_to_real_page($real_page) + 1]);
         } else {
           say $outfile "showpage";
         }
@@ -589,7 +531,7 @@ sub pstops {
   }
 
   # Write trailer
-  seek $infile, $pageptr[$pages], SEEK_SET;
+  seek $infile, ${$psinfo->{pageptr}}[$psinfo->{pages}], SEEK_SET;
   while (<$infile>) { print $outfile $_; }
   say STDERR "Wrote $outputpage pages" if $verbose;
 }
