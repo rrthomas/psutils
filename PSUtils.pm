@@ -13,7 +13,7 @@ use POSIX qw(strtod locale_h);
 use IPC::Run3 qw(run3);
 
 use base qw(Exporter);
-our @EXPORT = qw(singledimen paper_size parsepaper iscomment parse_file
+our @EXPORT = qw(singledimen paper_size parsepaper comment parse_file
                  setup_input_and_output extn type filename);
 
 
@@ -91,38 +91,39 @@ sub parse_file {
   seek $infile, 0, SEEK_SET;
   for (my $record = 0; my $buffer = <$infile>; $record = tell $infile) {
     if ($buffer =~ /^%%/) {
-      if ($nesting == 0 && iscomment($buffer, "Page:")) {
+      my ($keyword, $value) = comment($buffer);
+      if ($nesting == 0 && $keyword eq "Page:") {
         push @{$psinfo->{pageptr}}, $record;
       } elsif ($psinfo->{headerpos} == 0 && $explicit_output_paper &&
-                 (iscomment($buffer, "BoundingBox:") ||
-                  iscomment($buffer, "HiResBoundingBox:") ||
-                  iscomment($buffer, "DocumentPaperSizes:") ||
-                  iscomment($buffer, "DocumentMedia:"))) {
+                 ($keyword eq "BoundingBox:" ||
+                  $keyword eq "HiResBoundingBox:" ||
+                  $keyword eq "DocumentPaperSizes:" ||
+                  $keyword eq "DocumentMedia:")) {
         # FIXME: read input paper size (from DocumentMedia comment?) if not
         # set on command line.
         push @{$psinfo->{sizeheaders}}, $record;
-      } elsif ($psinfo->{headerpos} == 0 && iscomment($buffer, "Pages:")) {
+      } elsif ($psinfo->{headerpos} == 0 && $keyword eq "Pages:") {
         $psinfo->{pagescmt} = $record;
-      } elsif ($psinfo->{headerpos} == 0 && iscomment($buffer, "EndComments")) {
+      } elsif ($psinfo->{headerpos} == 0 && $keyword eq "EndComments") {
         $psinfo->{headerpos} = tell $infile;
-      } elsif (iscomment($buffer, "BeginDocument") ||
-                 iscomment($buffer, "BeginBinary") ||
-                 iscomment($buffer, "BeginFile")) {
+      } elsif ($keyword eq "BeginDocument" ||
+                 $keyword eq "BeginBinary" ||
+                 $keyword eq "BeginFile") {
         $nesting++;
-      } elsif (iscomment($buffer, "EndDocument") ||
-                 iscomment($buffer, "EndBinary") ||
-                 iscomment($buffer, "EndFile")) {
+      } elsif ($keyword eq "EndDocument" ||
+                 $keyword eq "EndBinary" ||
+                 $keyword eq "EndFile") {
         $nesting--;
-      } elsif ($nesting == 0 && iscomment($buffer, "EndSetup")) {
+      } elsif ($nesting == 0 && $keyword eq "EndSetup") {
         $psinfo->{endsetup} = $record;
-      } elsif ($nesting == 0 && iscomment($buffer, "BeginProlog")) {
+      } elsif ($nesting == 0 && $keyword eq "BeginProlog") {
         $psinfo->{headerpos} = tell $infile;
-      } elsif ($nesting == 0 && iscomment($buffer, "BeginProcSet: PStoPS")) {
+      } elsif ($nesting == 0 && $buffer eq "%%BeginProcSet: PStoPS") {
         $psinfo->{beginprocset} = $record;
-      } elsif ($psinfo->{beginprocset} && !$psinfo->{endprocset} && iscomment($buffer, "EndProcSet")) {
+      } elsif ($psinfo->{beginprocset} && !$psinfo->{endprocset} && $keyword eq "EndProcSet") {
         $psinfo->{endprocset} = tell $infile;
-      } elsif ($nesting == 0 && (iscomment($buffer, "Trailer") ||
-                                   iscomment($buffer, "EOF"))) {
+      } elsif ($nesting == 0 && ($keyword eq "Trailer" ||
+                                   $keyword eq "EOF")) {
         seek $infile, $record, SEEK_SET;
         last;
       }
@@ -138,10 +139,11 @@ sub parse_file {
   return $psinfo;
 }
 
-# Return true if $x is a DSC comment starting with $y
-sub iscomment {
-  my ($x, $y) = @_;
-  return substr($x, 2, length($y)) eq $y;
+# Return comment keyword and value if $line is a DSC comment
+sub comment {
+  my ($line) = @_;
+  $line =~ /^%%(\S+)\s+?(.*\S?)\s*$/;
+  return ($1, $2);
 }
 
 # Set up input and output files

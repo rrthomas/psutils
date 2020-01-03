@@ -470,7 +470,7 @@ sub pstops {
           my $p = &$page_to_real_page($real_page);
           seek $infile, ${$psinfo->{pageptr}}[$p], SEEK_SET;
           my $line = <$infile>;
-          die("I/O error seeking page $p\n") unless $line && iscomment($line, "Page:");
+          die("I/O error seeking page $p\n") unless $line && (comment($line))[0] eq "Page:";
           $line =~ /%%Page:[[:space:]]*(?:\((\d+)\)?[[:space:]]*(\d+))/;
           $pageno = $2;
           $pagelabel = defined($1) ? $1 : $pageno;
