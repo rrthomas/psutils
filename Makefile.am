@@ -49,13 +49,12 @@ includeres: includeres.in
 pstops psbook psjoin psresize psselect psnup epsffit extractres includeres: Makefile
 	$(AM_V_GEN)rm -f $@ $@-t \
 ## Common substitutions.
-	 && in=$@.in && $(do_subst) <$(srcdir)/$$in >$@-t
+	 && in=$(builddir)/$@.in && $(do_subst) <$$in >$@-t
 	$(generated_file_finalize)
 
 EXTRA_DIST = \
 	COPYING \
 	PSUtils.pm \
-	pstops.in psbook.in psjoin.in psresize.in psselect.in psnup.in epsffit.in extractres.in includeres.in \
 	$(man_MANS)
 
 DISTCLEANFILES = $(bin_SCRIPTS)
