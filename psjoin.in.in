@@ -3,7 +3,7 @@
 my $version_banner = <<END;
 psjoin @VERSION@
 Copyright (c) Tom Sato 2002-2003.
-Copyright (c) Reuben Thomas 2013-2017.
+Copyright (c) Reuben Thomas 2013-2020.
 Released under the GPL version 3, or (at your option) any later version.
 END
 
@@ -41,13 +41,15 @@ my $pkgdatadir = &relocate("@pkgdatadir@");
 use File::Basename;
 use Getopt::Long;
 
-my $prog = basename($0);
+use PSUtils;
+
+our $program_name = basename($0);
 
 sub usage {
   my ($exit_code) = @_;
   print STDOUT <<END;
-Usage: $prog [OPTION...] FILE...
-Concatenate PostScript files
+Usage: $program_name [OPTION...] FILE...
+Concatenate PostScript files.
 
   -e, --even          force each file to an even number of pages
   -s, --save          try to close unclosed save operators

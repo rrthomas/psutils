@@ -39,13 +39,13 @@ my $pkgdatadir = &relocate("@pkgdatadir@");
 use File::Basename;
 use Getopt::Long;
 
-my $prog = basename($0);
+our $program_name = basename($0);
 my ($help_flag, $version_flag);
 
 sub usage {
   my ($exit_code) = @_;
   print STDOUT <<END;
-Usage: $prog [OPTION...] [INFILE [OUTFILE]]
+Usage: $program_name [OPTION...] [INFILE [OUTFILE]]
 Change the page size of a PostScript document.
 
   -p, --paper=PAPER    output paper size
@@ -79,4 +79,4 @@ if ($version_flag) {
 usage(0) if $help_flag;
 
 # Resize pages
-exec("psnup", "-1", @psnup_args, @ARGV) or die("error running pstops\n");
+exec("psnup", "-1", @psnup_args, @ARGV) or Die("error running pstops");

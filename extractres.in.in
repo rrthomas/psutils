@@ -66,14 +66,14 @@ use Getopt::Long;
 
 use PSUtils;
 
-my $prog = basename($0);
+our $program_name = basename($0);
 my ($help_flag, $version_flag, $merge);
 
 sub usage {
   my ($exit_code) = @_;
   print STDOUT <<END;
-Usage: $prog [OPTION...] [INFILE [OUTFILE]]
-Filter to extract resources from a PostScript document.
+Usage: $program_name [OPTION...] [INFILE [OUTFILE]]
+Extract resources from a PostScript document.
 
   -m, --merge          merge resources of the same name into one file
                        (needed e.g. for fonts output in multiple blocks)
@@ -119,7 +119,7 @@ while (<$infile>) {
     if (!defined($resources{$name})) {
       $prolog .= "%%IncludeResource: $type " . join(" ", @res) . "\n";
       if (!-e $name) {
-        open RES, ">$name" || die "$prog: can't write file `$name'\n";
+        open RES, ">$name" || Die("can't write file `$name'");
         $resources{$name} = "";
         $merge{$name} = $merge;
         $output = \$resources{$name};
@@ -128,7 +128,7 @@ while (<$infile>) {
         undef $output;
       }
     } elsif ($merge{$name}) {
-      open RES, ">>$name" || die "$prog: can't append to file `$name'\n";
+      open RES, ">>$name" || Die("can't append to file `$name'");
       $resources{$name} = "";
       $output = \$resources{$name};
     } else {			# resource already included

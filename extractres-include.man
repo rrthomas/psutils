@@ -1,5 +1,5 @@
 [NAME]
-extractres - filter to extract resources from a PostScript document
+extractres - extract resources from a PostScript document
 
 [>DESCRIPTION]
 .PP

@@ -15,9 +15,20 @@ use POSIX qw(strtod locale_h);
 use IPC::Run3 qw(run3);
 
 use base qw(Exporter);
-our @EXPORT = qw(singledimen paper_size parsepaper comment parse_file
+our @EXPORT = qw(Warn Die singledimen paper_size parsepaper comment parse_file
                  setup_input_and_output extn type filename);
 
+
+sub Warn {
+  my ($msg) = @_;
+  say STDERR "$main::program_name: $msg";
+}
+
+sub Die {
+  my ($msg, $code) = @_;
+  Warn($msg);
+  exit($code || 1);
+}
 
 # Argument parsers
 sub singledimen {
@@ -32,14 +43,14 @@ sub singledimen {
     $num *= 28.346456692913385211 when /^cm/;
     $num *= 2.8346456692913385211 when /^mm/;
     when (/^w/) {
-      die("paper size not set\n") if !defined($width);
+      Die("paper size not set") if !defined($width);
       $num *= $width;
     }
     when (/^h/) {
-      die("paper size not set\n") if !defined($width);
+      Die("paper size not set") if !defined($width);
       $num *= $height;
     }
-    default { die("bad dimension\n") if $str ne ""; };
+    default { Die("bad dimension") if $str ne ""; };
   }
   setlocale(LC_ALL, $old_locale);
   return $num;
@@ -51,7 +62,7 @@ sub paper {
   unshift @{$cmd}, "paper";
   my $out;
   run3 $cmd, undef, \$out, $silent ? \undef : undef, {return_if_system_error=>1};
-  die("could not run `paper' command\n") if $? == -1;
+  Die("could not run `paper' command") if $? == -1;
   if ($? == 0) {
     chomp $out;
     return $out;
@@ -71,7 +82,7 @@ sub parsepaper {
   if (!defined($width)) {
     my ($w, $h) = split /x/, $_[0];
     eval { ($width, $height) = (singledimen($w), singledimen($h)); }
-      or die("paper size '$_[0]' unknown\n");
+      or Die("paper size '$_[0]' unknown");
   }
   return $width, $height;
 }
@@ -158,16 +169,16 @@ sub setup_input_and_output {
 
   if ($#ARGV >= 0) {            # User specified an input file
     my $file = shift @ARGV;
-    open($infile, $file) or die("cannot open input file $file\n");
-    binmode($infile) or die("could not set input to binary mode\n");
-    $infile = seekable($infile) or die("cannot make input seekable\n")
+    open($infile, $file) or Die("cannot open input file $file");
+    binmode($infile) or Die("could not set input to binary mode");
+    $infile = seekable($infile) or Die("cannot make input seekable")
       if $seekable;
   }
 
   if ($#ARGV >= 0) {            # User specified an output file
     my $file = shift @ARGV;
-    open($outfile, $file) or die("cannot open output file $file\n");
-    binmode($outfile) or die("could not set output to binary mode\n");
+    open($outfile, $file) or Die("cannot open output file $file");
+    binmode($outfile) or Die("could not set output to binary mode");
   }
 
   return $infile, $outfile;
@@ -211,7 +222,7 @@ sub filename {			# make filename for resource in @_
     $name .= $_;
   }
   $name =~ s@.*/@@;		# drop directories
-  die("filename not found for resource " . join(" ", @_) . "\n")
+  Die("filename not found for resource " . join(" ", @_))
     if $name =~ /^$/;
   return $name;
 }

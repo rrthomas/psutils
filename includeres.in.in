@@ -67,14 +67,14 @@ use Getopt::Long;
 
 use PSUtils;
 
-my $prog = basename($0);
+our $program_name = basename($0);
 my ($help_flag, $version_flag);
 
 sub usage {
   my ($exit_code) = @_;
   print STDOUT <<END;
-Usage: $prog [OPTION...] [INFILE [OUTFILE]]
-Filter to include resources in a PostScript document.
+Usage: $program_name [OPTION...] [INFILE [OUTFILE]]
+Include resources in a PostScript document.
 
       --help           display this help and exit
       --version        display version information and exit
@@ -110,7 +110,7 @@ while (<$infile>) {
       close(RES);
     } else {
       say $outfile "%%IncludeResource: ", join(" ", $type, @res);
-      say STDERR "$prog: resource `$name' not found";
+      Warn("resource `$name' not found");
     }
   } else {
     print $outfile $_;

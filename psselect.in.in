@@ -39,14 +39,16 @@ my $pkgdatadir = &relocate("@pkgdatadir@");
 use File::Basename;
 use Getopt::Long;
 
-my $prog = basename($0);
+use PSUtils;
+
+our $program_name = basename($0);
 my ($help_flag, $version_flag, $pages, $even_flag, $odd_flag, $reverse_flag, $quiet_flag);
 $odd_flag = $even_flag = 0;
 
 sub usage {
   my ($exit_code) = @_;
   print STDOUT <<END;
-Usage: $prog [OPTION...] [INFILE [OUTFILE]]
+Usage: $program_name [OPTION...] [INFILE [OUTFILE]]
 Select pages from a PostScript file.
 
   -R, --pages=PAGES    select the given page ranges
@@ -96,4 +98,4 @@ my @arg = ();
 push @arg, "-r" if $reverse_flag;
 push @arg, "-e" if $even_flag;
 push @arg, "-o" if $odd_flag;
-exec("pstops", "-R$pages", @arg, @ARGV) or die("error running pstops\n");
+exec("pstops", "-R$pages", @arg, @ARGV) or Die("error running pstops");

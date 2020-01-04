@@ -44,15 +44,14 @@ use List::Util qw(min);
 
 use PSUtils;
 
-my $prog = basename($0);
+our $program_name = basename($0);
 my ($help_flag, $version_flag);
 
 sub usage {
   my ($exit_code) = @_;
   print STDOUT <<END;
-Usage: $prog [OPTION...] -NUP [INFILE [OUTFILE]]
-
-Put multiple pages of a PostScript file on to one page
+Usage: $program_name [OPTION...] -NUP [INFILE [OUTFILE]]
+Put multiple pages of a PostScript file on to one page.
 
   -NUMBER                  number of pages to impose on each output page
   -p, --paper=PAPER        output paper name or dimensions
@@ -98,9 +97,9 @@ my ($iwidth, $iheight);			# input paper size
 my $tolerance = 100000;			# layout tolerance
 
 sub parsenup {
-  die("option $_[0] requires an argument\n") unless $_[1] ne "";
-  die("value \"$nup\" invalid for -NUP (number expected)\n") unless $_[1] =~ /^\d+$/;
-  die("number of pages per sheet must be positive\n") if $_[1] == 0;
+  Die("option $_[0] requires an argument") unless $_[1] ne "";
+  Die("value \"$nup\" invalid for -NUP (number expected)") unless $_[1] =~ /^\d+$/;
+  Die("number of pages per sheet must be positive") if $_[1] == 0;
   $nup = $_[1];
 }
 
@@ -145,9 +144,9 @@ if ($version_flag) {
 }
 usage(0) if $help_flag;
 
-die("output page width and height must both be set, or neither\n")
+Die("output page width and height must both be set, or neither")
   if !defined($owidth) xor !defined($oheight);
-die("input page width and height must both be set, or neither\n")
+Die("input page width and height must both be set, or neither")
   if !defined($iwidth) xor !defined($iheight);
 
 # Find next larger exact divisor > $n of $m, or 0 if none; return divisor
@@ -167,7 +166,7 @@ sub nextdiv {
 
 # Ensure output paper size is set
 ($owidth, $oheight) = paper_size()
-  or die("output paper size not set, and could not get default paper size\n")
+  or Die("output paper size not set, and could not get default paper size")
   if !defined($owidth);
 
 # Set input height/width from corresponding output value if undefined
@@ -181,8 +180,8 @@ push @pstops_args, "-P${iwidth}x${iheight}" if $owidth != $iwidth || $oheight !=
 
 # Calculate paper dimensions, subtracting paper margin from height & width
 my ($ppwid, $pphgt) = ($owidth - $margin * 2, $oheight - $margin * 2);
-die("margin is too large\n") if $ppwid <= 0 || $pphgt <= 0;
-die("border is too large\n") if $border > min($ppwid, $pphgt);
+Die("margin is too large") if $ppwid <= 0 || $pphgt <= 0;
+Die("border is too large") if $border > min($ppwid, $pphgt);
 
 # Finding the best layout is an optimisation problem. We try all of the
 # combinations of width*height in both normal and rotated form, and
@@ -203,7 +202,7 @@ for (my ($hor, $ver) = (1, $nup); $hor != 0; ($hor, $ver) = (nextdiv($hor, $nup)
 }
 
 # Fail if nothing better than tolerance was found
-die("can't find acceptable layout for $nup-up\n") if $best == $tolerance;
+Die("can't find acceptable layout for $nup-up") if $best == $tolerance;
 
 # Take account of rotation
 ($topbottom, $leftright, $rowmajor, $iwidth, $iheight) = (!$leftright, $topbottom, !$rowmajor, $iheight, $iwidth) if $rotate;
@@ -229,4 +228,4 @@ for (my $page = 0; $page < $nup; $page++) {
 }
 
 # Rearrange pages
-exec("pstops", @pstops_args, "$nup:" . join("+", @specs), @ARGV) or die("error running pstops\n");
+exec("pstops", @pstops_args, "$nup:" . join("+", @specs), @ARGV) or Die("error running pstops");

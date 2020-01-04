@@ -41,14 +41,14 @@ use Getopt::Long;
 
 use PSUtils;
 
-my $prog = basename($0);
+our $program_name = basename($0);
 my ($help_flag, $version_flag);
 my $signature = 0;
 
 sub usage {
   my ($exit_code) = @_;
   print STDOUT <<END;
-Usage: $prog [OPTION...] [INFILE [OUTFILE]]
+Usage: $program_name [OPTION...] [INFILE [OUTFILE]]
 Rearrange pages in a PostScript file for printing in signatures.
 
   -s, --signature=N    number of pages per signature;
@@ -78,7 +78,7 @@ if ($version_flag) {
   exit 0;
 }
 usage(0) if $help_flag;
-die("signature must be a multiple of 4\n") if $signature > 1 && $signature % 4 != 0;
+Die("signature must be a multiple of 4") if $signature > 1 && $signature % 4 != 0;
 
 my ($infile, $outfile) = setup_input_and_output(1);
 usage(1) if $#ARGV != -1; # Check no more arguments were given
@@ -116,4 +116,4 @@ for (my $page = 0; $page < $maxpage; $page++) {
 }
 
 # Rearrange pages
-exec("psselect", "-R" . join(',', @page_list), @pstops_args, @ARGV) or die("error running pstops\n");
+exec("psselect", "-R" . join(',', @page_list), @pstops_args, @ARGV) or Die("error running pstops");

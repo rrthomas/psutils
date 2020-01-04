@@ -48,7 +48,7 @@ use POSIX qw(BUFSIZ);
 
 use PSUtils;
 
-my $prog = basename($0);
+our $program_name = basename($0);
 my ($help_flag, $version_flag);
 my ($specs, $pagerange);
 my $nobinding = 0;
@@ -110,7 +110,7 @@ my $pagespecs_syntax = "  PAGESPECS = [MODULO:]SPEC\
 sub usage {
   my ($exit_code) = @_;
   print STDOUT <<END;
-Usage: $prog [OPTION...] [INFILE [OUTFILE]]
+Usage: $program_name [OPTION...] [INFILE [OUTFILE]]
 
 Rearrange pages of a PostScript document.
 
@@ -139,11 +139,9 @@ END
 }
 
 sub specerror {
-  # Use exit rather than die to avoid full usage message
-  say STDERR "bad page specification:
+  Die("bad page specification:
 
-$pagespecs_syntax";
-  exit(1);
+$pagespecs_syntax");
 }
 
 sub parsespecs {
@@ -237,9 +235,9 @@ if ($version_flag) {
 }
 usage(0) if $help_flag;
 
-die("output page width and height must both be set, or neither\n")
+Die("output page width and height must both be set, or neither")
   if !defined($width) xor !defined($height);
-die("input page width and height must both be set, or neither\n")
+Die("input page width and height must both be set, or neither")
   if !defined($iwidth) xor !defined($iheight);
 
 # Get pagespecs if we don't have them yet
@@ -256,7 +254,7 @@ usage(1) if $#ARGV != -1; # Check no more arguments were given
 
 ($iwidth, $iheight) = ($width, $height) if !defined($iwidth) && defined($width);
 
-die("input page size must be set to flip the page\n")
+Die("input page size must be set to flip the page")
   if !defined($iwidth) and $flipping;
 
 # Parse input
@@ -275,7 +273,7 @@ sub fcopy {
   while ($#ignorelist >= 0 && $ignorelist[0] < $upto) {
     shift @ignorelist while $#ignorelist >= 0 && $ignorelist[0] < $here;
     fcopy($ignorelist[0]);
-    die("I/O error\n") if !<$infile>;
+    Die("I/O error") if !<$infile>;
     shift @ignorelist;
     $here = tell $infile;
   }
@@ -283,7 +281,7 @@ sub fcopy {
   my ($numtocopy, $buffer);
   for (my $bytes_left = $upto - $here; $bytes_left > 0; $bytes_left -= $numtocopy) {
     $numtocopy = min($bytes_left, BUFSIZ);
-    die("I/O error\n")
+    Die("I/O error")
       if ((read $infile, $buffer, $numtocopy) < $numtocopy ||
           !(print $outfile $buffer));
   }
@@ -299,7 +297,7 @@ sub parserange {
     if ($range_text eq "_") {
       $range = { from => 0, to => 0 };
     } else {
-      die("invalid page range: $range_text\n") unless $range_text =~ m/^(_?\d+)?(?:(-)(_?\d+))?$/;
+      Die("invalid page range: $range_text") unless $range_text =~ m/^(_?\d+)?(?:(-)(_?\d+))?$/;
       $range = { from => $1 || 1, to => $2 ? ($3 || -1) : $1 };
       $range->{from} =~ s/^_/-/;
       $range->{to} =~ s/^_/-/;
@@ -357,7 +355,7 @@ sub pstops {
   foreach my $range (@$pagerange) {
     my $inc = $range->{to} < $range->{from} ? -1 : 1;
     for (my $currentpg = $range->{from}; $range->{to} - $currentpg != -$inc; $currentpg += $inc) {
-      die("page range $range->{text} is invalid\n") if $currentpg > $psinfo->{pages};
+      Die("page range $range->{text} is invalid") if $currentpg > $psinfo->{pages};
       if (!($odd && !$even && $currentpg % 2 == 0) && !($even && !$odd && $currentpg % 2 == 1)) {
         push @page_to_real_page, $currentpg - 1;
       }
@@ -395,7 +393,7 @@ sub pstops {
   if ($psinfo->{pagescmt}) {
     fcopy($psinfo->{pagescmt}, @ignorelist);
     my $line;
-    die("I/O error in header\n") if !($line = <$infile>);
+    Die("I/O error in header") if !($line = <$infile>);
     if (defined($width)) {
       say $outfile "%%DocumentMedia: plain " . int($width) . " " . int($height) . " 0 () ()";
       say $outfile "%%BoundingBox: 0 0 " . int($width) . " " . int($height);
@@ -433,7 +431,7 @@ sub pstops {
           my $p = &$page_to_real_page($real_page);
           seek $infile, ${$psinfo->{pageptr}}[$p], SEEK_SET;
           my $line = <$infile>;
-          die("I/O error seeking page $p\n") unless $line && (comment($line))[0] eq "Page:";
+          Die("I/O error seeking page $p") unless $line && (comment($line))[0] eq "Page:";
           $line =~ /%%Page:[[:space:]]*(?:\((\d+)\)?[[:space:]]*(\d+))/;
           $pageno = $2;
           $pagelabel = defined($1) ? $1 : $pageno;
@@ -475,9 +473,9 @@ sub pstops {
           # Search for page setup
           for (;;) {
             my $line = <$infile>;
-            die("I/O error reading page setup $outputpage\n") if !defined($line);
+            Die("I/O error reading page setup $outputpage") if !defined($line);
             last if $line !~ /^PStoPSxform/;
-            print $outfile $line or die("I/O error writing page setup $outputpage\n");
+            print $outfile $line or Die("I/O error writing page setup $outputpage");
           }
         }
         say $outfile "PStoPSxform concat" if !$psinfo->{beginprocset} && $use_procset;

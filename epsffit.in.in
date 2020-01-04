@@ -43,13 +43,13 @@ use List::Util qw(min);
 
 use PSUtils;
 
-my $prog = basename($0);
+our $program_name = basename($0);
 my ($help_flag, $version_flag, $center, $rotate, $aspect, $maximize, $showpage);
 
 sub usage {
   my ($exit_code) = @_;
   print STDOUT <<END;
-Usage: $prog [OPTION...] LLX LLY URX URY [INFILE [OUTFILE]]
+Usage: $program_name [OPTION...] LLX LLY URX URY [INFILE [OUTFILE]]
 Fit an Encapsulated PostScript file to a given bounding box.
 
   -c, --center         center the image in the given bounding box
@@ -121,7 +121,7 @@ while (<$infile>) {
   }
 }
 
-die("no %%BoundingBox:\n") unless $bbfound;
+Die("no %%BoundingBox:") unless $bbfound;
 
 # put BB, followed by scale & translate
 my ($xoffset, $yoffset) = ($fllx, $flly);

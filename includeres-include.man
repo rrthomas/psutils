@@ -1,5 +1,5 @@
 [NAME]
-includeres - filter to include resources in a PostScript document
+includeres - include resources in a PostScript document
 
 [>DESCRIPTION]
 .PP
