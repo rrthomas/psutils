@@ -1,6 +1,20 @@
 [AUTHOR]
 Written by Angus J. C. Duggan and Reuben Thomas.
 
+[>DESCRIPTION]
+.SS "Exit status:"
+.TP
+0
+if OK,
+.TP
+1
+if arguments or options are incorrect, or there is some other problem
+starting up,
+.TP
+2
+if there is some problem during processing, typically an error reading or
+writing an input or output file.
+
 [>COPYRIGHT]
 .SH TRADEMARKS
 .B PostScript

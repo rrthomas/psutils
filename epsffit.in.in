@@ -121,7 +121,7 @@ while (<$infile>) {
   }
 }
 
-Die("no %%BoundingBox:") unless $bbfound;
+Die("no %%BoundingBox:", 2) unless $bbfound;
 
 # put BB, followed by scale & translate
 my ($xoffset, $yoffset) = ($fllx, $flly);

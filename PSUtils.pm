@@ -222,7 +222,7 @@ sub filename {			# make filename for resource in @_
     $name .= $_;
   }
   $name =~ s@.*/@@;		# drop directories
-  Die("filename not found for resource " . join(" ", @_))
+  Die("filename not found for resource " . join(" ", @_), 2)
     if $name =~ /^$/;
   return $name;
 }
