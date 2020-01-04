@@ -97,6 +97,7 @@ my $furx = singledimen(shift);
 my $fury = singledimen(shift);
 
 my ($infile, $outfile) = setup_input_and_output();
+usage(1) if $#ARGV != -1; # Check no more arguments were given
 
 while (<$infile>) {
   if (/^%[%!]/) {

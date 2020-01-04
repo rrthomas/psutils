@@ -148,6 +148,9 @@ sub comment {
 
 # Set up input and output files
 sub setup_input_and_output {
+  my ($seekable) = @_;
+  $seekable = 0 if !defined($seekable);
+
   my $infile = \*STDIN;
   my $outfile = \*STDOUT;
 
@@ -155,6 +158,8 @@ sub setup_input_and_output {
     my $file = shift @ARGV;
     open($infile, $file) or die("cannot open input file $file\n");
     binmode($infile) or die("could not set input to binary mode\n");
+    $infile = seekable($infile) or die("cannot make input seekable\n")
+      if $seekable;
   }
 
   if ($#ARGV >= 0) {            # User specified an output file
@@ -163,9 +168,23 @@ sub setup_input_and_output {
     binmode($outfile) or die("could not set output to binary mode\n");
   }
 
-  usage(1) if $#ARGV != -1; # Check no more arguments were given
-
   return $infile, $outfile;
+}
+
+# Make a file seekable, using temporary files if necessary
+sub seekable {
+  my ($fp) = @_;
+
+  # If fp is seekable, we're OK
+  return $fp if seek $fp, 0, SEEK_CUR;
+
+  # Otherwise, copy fp to a temporary file
+  my $ft = tempfile() or return;
+  copy($fp, $ft) or return;
+
+  # Discard the input file, and rewind the temporary
+  close $fp;
+  return $ft if seek $ft, 0, SEEK_SET;
 }
 
 # Resource extensions

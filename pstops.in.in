@@ -212,22 +212,6 @@ for (my $i = 0; $i <= $#ARGV; ) {
   $i++;
 }
 
-# Make a file seekable, using temporary files if necessary
-sub seekable {
-  my ($fp) = @_;
-
-  # If fp is seekable, we're OK
-  return $fp if seek $fp, 0, SEEK_CUR;
-
-  # Otherwise, copy fp to a temporary file
-  my $ft = tempfile() or return;
-  copy($fp, $ft) or return;
-
-  # Discard the input file, and rewind the temporary
-  close $fp;
-  return $ft if seek $ft, 0, SEEK_SET;
-}
-
 
 # Get arguments
 Getopt::Long::Configure("bundling");
@@ -274,9 +258,8 @@ if (!defined($specs)) {
   $specs = parsespecs("0") unless defined($specs);
 }
 
-my ($infile, $outfile) = setup_input_and_output();
-
-$infile = seekable($infile) or die("cannot make input seekable\n");
+my ($infile, $outfile) = setup_input_and_output(1);
+usage(1) if $#ARGV != -1; # Check no more arguments were given
 
 ($iwidth, $iheight) = ($width, $height) if !defined($iwidth) && defined($width);
 

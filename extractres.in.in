@@ -99,6 +99,7 @@ usage(0) if $help_flag;
 usage(1) if $#ARGV > 1;
 
 my ($infile, $outfile) = setup_input_and_output();
+usage(1) if $#ARGV != -1; # Check no more arguments were given
 
 # Extract resources
 my %resources = ();             # list of resources included
