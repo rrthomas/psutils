@@ -116,5 +116,4 @@ for (my $page = 0; $page < $maxpage; $page++) {
 }
 
 # Rearrange pages
-say STDERR "page_list: ".join(',', @page_list);
 exec("psselect", "-R" . join(',', @page_list), @pstops_args, @ARGV) or die("error running pstops\n");
