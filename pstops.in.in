@@ -59,7 +59,6 @@ my $draw = 0;
 my ($width, $height); # output paper size
 my ($iwidth, $iheight);
 my $flipping = 0; # any spec includes page flip
-my $signature = 1;
 my $modulo = 1;
 my $pagesperspec = 1;
 my $verbose = 1;
@@ -125,10 +124,6 @@ Rearrange pages of a PostScript document.
   -d, --draw[=DIMENSION]  draw a line of given width (relative to original
                           page) around each page [argument defaults to 1;
                           default is 0]
-  -s, --signature=N       number of pages per signature;
-                          0 = all pages in one signature,
-                          1 = one page per signature [default],
-                          otherwise, a multiple of 4
   -b, --nobind            disable PostScript bind operators in prolog;
                           may be needed for complex page rearrangements
   -q, --quiet             don't show page numbers being output
@@ -230,8 +225,6 @@ GetOptions(
   "inpaper|P=s" => sub { ($iwidth, $iheight) = parsepaper($_[1]); },
   "inwidth|W=s" => sub { $iwidth = singledimen($_[1], $width, $height); },
   "inheight|H=s" => sub { $iheight = singledimen($_[1], $width, $height); },
-  "signature|s=i" => sub { $signature = $_[1];
-                           usage(1) if $signature > 1 && $signature % 4 != 0; },
   "draw|d:s" => sub { $draw = singledimen($_[1] || "1"); },
   "nobind|b" => \$nobinding,
   "quiet|q" => sub { $verbose = 0; },
@@ -270,7 +263,7 @@ die("input page size must be set to flip the page\n")
 my $psinfo = parse_file($infile, defined($width));
 
 # Output the pages
-pstops($pagerange, $signature, $modulo, $pagesperspec, $odd, $even, $reverse, $nobinding, $specs, $draw, @{$psinfo->{sizeheaders}});
+pstops($pagerange, $modulo, $pagesperspec, $odd, $even, $reverse, $nobinding, $specs, $draw, @{$psinfo->{sizeheaders}});
 
 
 # Copy input file from current position up to new position to output file,
@@ -327,17 +320,9 @@ sub abs_page {
 }
 
 sub page_index_to_real_page {
-  my ($ps, $maxpage, $modulo, $signature, $pagebase) = @_;
+  my ($ps, $maxpage, $modulo, $pagebase) = @_;
   my $page_number = ($ps->{reversed} ? $maxpage - $pagebase - $modulo : $pagebase) + $ps->{pageno};
-  my $real_page = $page_number - $page_number % $signature;
-  my $page_on_sheet = $page_number % 4;
-  my $recto_verso = int(($page_number % $signature) / 2);
-  if ($page_on_sheet == 0 || $page_on_sheet == 3) {
-    $real_page += $signature - 1 - $recto_verso;
-  } else {
-    $real_page += $recto_verso;
-  }
-  return $real_page;
+  return $page_number;
 }
 
 sub gcd {
@@ -351,7 +336,7 @@ sub ps_transform {
 }
 
 sub pstops {
-  my ($pagerange, $signature, $modulo, $pps, $odd, $even, $reverse,
+  my ($pagerange, $modulo, $pps, $odd, $even, $reverse,
       $nobind, $specs, $draw, @ignorelist) = @_;
 
   # If no page range given, select all pages
@@ -380,17 +365,12 @@ sub pstops {
   }
   my $pages_to_output = $#page_to_real_page + 1;
 
+  # Calculate highest page number output (including any blanks)
+  my $maxpage = $pages_to_output + ($modulo - $pages_to_output % $modulo) % $modulo;
+
   # Reverse page list if reversing pages
   @page_to_real_page = reverse @page_to_real_page if $reverse;
 
-  # Adjust for signature size
-  my $maxpage = (int($pages_to_output + $modulo - 1) / $modulo) * $modulo;
-  if ($signature == 0) {
-    $signature = $maxpage = $pages_to_output + (4 - $pages_to_output % 4) % 4;
-  } else {
-    my $lcm = ($signature / gcd($signature, $modulo)) * $modulo;
-    $maxpage = $pages_to_output + ($lcm - $pages_to_output % $lcm) % $lcm;
-  }
 
   # Work out whether we need procset
   my $global_transform = $scale != 1.0 || $rotate != 0;
@@ -447,8 +427,8 @@ sub pstops {
     foreach my $page (@$specs) {
       my $spec_page_number = 0;
       foreach my $ps (@$page) {
-        my $real_page = page_index_to_real_page($ps, $maxpage, $modulo, $signature, $pagebase);
-        if ($real_page < $pages_to_output && &$page_to_real_page($real_page) < $psinfo->{pages}) {
+        my $real_page = page_index_to_real_page($ps, $maxpage, $modulo, $pagebase);
+        if ($real_page < $pages_to_output && &$page_to_real_page($real_page) >= 0 && &$page_to_real_page($real_page) < $psinfo->{pages}) {
           # Seek the page
           my $p = &$page_to_real_page($real_page);
           seek $infile, ${$psinfo->{pageptr}}[$p], SEEK_SET;
@@ -461,7 +441,7 @@ sub pstops {
         if ($spec_page_number == 0) {	# page label contains original pages
           my @pagelabels = ();
           foreach my $spec (@$page) {
-            push @pagelabels, &$page_to_real_page(page_index_to_real_page($spec, $maxpage, $modulo, $signature, $pagebase)) + 1;
+            push @pagelabels, &$page_to_real_page(page_index_to_real_page($spec, $maxpage, $modulo, $pagebase)) + 1;
           }
           $pagelabel = "(" . (join ",", @pagelabels) . ")";
           # Write page comment
