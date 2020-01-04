@@ -2,7 +2,7 @@
 # -*- perl -*-
 my $version_banner = <<END;
 pstops @VERSION@
-Copyright (c) Reuben Thomas 2017-2019.
+Copyright (c) Reuben Thomas 2017-2020.
 Released under the GPL version 3, or (at your option) any later version.
 END
 
