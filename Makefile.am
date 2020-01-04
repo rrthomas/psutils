@@ -83,6 +83,8 @@ include tests/Makefile.am
 
 loc:
 	$(CLOC) $(PRODUCTIONSOURCES)
+	echo "Subtract 9 times the following total:"
+	$(CLOC) --force-lang=perl build-aux/relocatable.pl.in
 
 release: distcheck
 	git diff --exit-code && \
