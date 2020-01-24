@@ -49,7 +49,7 @@ sub usage {
   my ($exit_code) = @_;
   print STDOUT <<END;
 Usage: $program_name [OPTION...] [INFILE [OUTFILE]]
-Select pages from a PostScript file.
+Select pages from a PostScript document.
 
   -R, --pages=PAGES    select the given page ranges
   -e, --even           select even-numbered pages

@@ -49,7 +49,7 @@ sub usage {
   my ($exit_code) = @_;
   print STDOUT <<END;
 Usage: $program_name [OPTION...] [INFILE [OUTFILE]]
-Rearrange pages in a PostScript file for printing in signatures.
+Rearrange pages in a PostScript document into signatures.
 
   -s, --signature=N    number of pages per signature;
                        0 = all pages in one signature [default];

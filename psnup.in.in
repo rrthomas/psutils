@@ -51,7 +51,7 @@ sub usage {
   my ($exit_code) = @_;
   print STDOUT <<END;
 Usage: $program_name [OPTION...] -NUP [INFILE [OUTFILE]]
-Put multiple pages of a PostScript file on to one page.
+Put multiple pages of a PostScript document on to one page.
 
   -NUMBER                  number of pages to impose on each output page
   -p, --paper=PAPER        output paper name or dimensions

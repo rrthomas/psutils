@@ -49,7 +49,7 @@ sub usage {
   my ($exit_code) = @_;
   print STDOUT <<END;
 Usage: $program_name [OPTION...] FILE...
-Concatenate PostScript files.
+Concatenate PostScript documents.
 
   -e, --even          force each file to an even number of pages
   -s, --save          try to close unclosed save operators

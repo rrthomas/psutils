@@ -1,5 +1,5 @@
 [NAME]
-psnup - multiple pages per sheet
+psnup - put multiple pages of a PostScript document on to one page
 
 [>DESCRIPTION]
 .PP

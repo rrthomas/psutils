@@ -1,5 +1,5 @@
 [NAME]
-pstops - shuffle pages in a PostScript file
+pstops - rearrange pages of a PostScript document
 
 /Rearrange pages of a PostScript document/
 The input PostScript file should follow the Adobe Document Structuring
