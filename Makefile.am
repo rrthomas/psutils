@@ -67,7 +67,9 @@ PRODUCTIONSOURCES = \
 
 install-exec-hook:
 	if test "x$(EXEEXT)" != "x"; then \
-	  mv $(DESTDIR)$(bindir)/paper $(DESTDIR)$(bindir)/paper$(PERL_EXEEXT); \
+	  for script in $(bin_SCRIPTS); do \
+	    mv $(DESTDIR)$(bindir)/$$script $(DESTDIR)$(bindir)/$$script$(PERL_EXEEXT); \
+	  done; \
 	fi
 
 %.1: % %-include.man man-include.man
