@@ -17,43 +17,25 @@ COPYRIGHT in that directory.)
 If you simply want to use PSUtils, you will find it in most GNU/Linux
 distributions; it is available in brew for macOS and Cygwin for Windows.
 
-PSUtils intentionally does not check its input is DSC-conformant, as some
-programs produce non-conforming output that can be successfully processed
-anyway. If PSUtils does not work for you, check whether your software needs
-to be configured to produce DSC-conformant PostScript. The old-scripts
-directory contains some scripts that fix the output of certain obsolete
-programs.
-
-
-PROGRAMS
-
-psbook          rearrange pages into signatures
-psselect        select pages and page ranges
-pstops          perform general page rearrangement and selection
-psnup           put multiple pages on to one page
-psresize        alter document paper size
-psjoin          concatenate multiple PostScript files
-epsffit         fit an EPSF file to a given bounding box
-extractres      filter to extract resources from PostScript files
-includeres      filter to include resources into PostScript files
-
-psselect in modeled on Chris Torek's dviselect, as is psbook, via Angus
-Duggan's dvibook; pstops is modeled on Tom Rokicki's dvidvi. psjoin was
-originally written by Tom Sato: http://t-sato.in.coocan.jp
+The PSUtils utilities intentionally do not check their input is
+DSC-conformant, as some programs produce non-conforming output that can be
+successfully processed anyway. If PSUtils does not work for you, check
+whether your software needs to be configured to produce DSC-conformant
+PostScript. The old-scripts directory contains some scripts that fix the
+output of certain obsolete programs.
 
 
 PREREQUISITES
 
 PSUtils requires Perl 5.14 or later plus the IPC::Run3 module, and also
-"paper", which allows a sensible default paper size to be discovered, and
-configured by the user:
+"paper", which allows named paper sizes to be used and configured:
 
 paper: https://github.com/rrthomas/paper
 
 
 INSTALLATION FROM SOURCE
 
-You need a standard POSIX environment and bash.
+You need a standard POSIX environment.
 
 Having unpacked the source tarball, run:
 
@@ -71,9 +53,7 @@ INSTALLATION FROM GIT
 
 To build from git, you need the following extra programs installed:
 
-  automake, autoconf, git, bash, paper
-
-(paper can be found at: https://github.com/rrthomas/paper )
+  automake, autoconf, git
 
 Then run:
 
@@ -92,6 +72,10 @@ ACKNOWLEDGEMENTS
 
 PSUtils was written by Angus Duggan, who maintained it up to release 1
 patchlevel 17, and Reuben Thomas.
+
+psselect in modeled on Chris Torek's dviselect, as is psbook, via Angus
+Duggan's dvibook; pstops is modeled on Tom Rokicki's dvidvi. psjoin was
+originally written by Tom Sato: http://t-sato.in.coocan.jp
 
 Bug fixes and suggestions for improvements to PSUtils have come from many
 people, including:
