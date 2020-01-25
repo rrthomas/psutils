@@ -55,7 +55,28 @@ pstops psbook psjoin psresize psselect psnup epsffit extractres includeres: Make
 EXTRA_DIST = \
 	COPYING \
 	PSUtils.pm \
-	$(man_MANS)
+	$(man_MANS) \
+	old-scripts/README \
+	old-scripts/fixdlsrps \
+	old-scripts/fixdlsrps.1 \
+	old-scripts/fixfmps \
+	old-scripts/fixfmps.1 \
+	old-scripts/fixpsditps \
+	old-scripts/fixpsditps.1 \
+	old-scripts/fixpspps \
+	old-scripts/fixpspps.1 \
+	old-scripts/fixscribeps \
+	old-scripts/fixscribeps.1 \
+	old-scripts/fixtpps \
+	old-scripts/fixtpps.1 \
+	old-scripts/fixwfwps \
+	old-scripts/fixwfwps.1 \
+	old-scripts/fixwpps \
+	old-scripts/fixwpps.1 \
+	old-scripts/fixwwps \
+	old-scripts/fixwwps.1 \
+	old-scripts/psmerge \
+	old-scripts/psmerge.1
 
 DISTCLEANFILES = $(bin_SCRIPTS)
 
