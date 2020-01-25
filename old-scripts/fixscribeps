@@ -1,4 +1,4 @@
-#!/usr/bin/env perl
+#!/usr/bin/perl
 # fixscribeps: get conforming PostScript out of Scribe
 #
 # Copyright (C) Angus J. C. Duggan 1991-1995

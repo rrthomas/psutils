@@ -1,4 +1,4 @@
-#!/usr/bin/env perl
+#!/usr/bin/perl
 # fixwpps: get semi-conforming PostScript out of WordPerfect 5.0 file
 #
 # Copyright (C) Angus J. C. Duggan 1991-1995

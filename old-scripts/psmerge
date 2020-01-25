@@ -1,4 +1,4 @@
-#!/usr/bin/env perl
+#!/usr/bin/perl
 # psmerge: use Ghostscript to merge PostScript files produced by same application and setup
 #
 # (c) Reuben Thomas 2012

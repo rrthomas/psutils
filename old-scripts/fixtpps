@@ -1,4 +1,4 @@
-#!/usr/bin/env perl
+#!/usr/bin/perl
 # fixtpps: fix tpscript document to work with PSUtils
 #
 # Copyright (C) Angus J. C. Duggan 1991-1995
