@@ -1,0 +1,34 @@
+.TH PSMERGE 1 "PSUtils"
+.SH NAME
+psmerge \- filter to merge several PostScript files into one
+.SH SYNOPSIS
+.B psmerge 
+[
+.B \-o\fIout.ps\fB
+]
+.I file.ps ...
+.SH DESCRIPTION
+.I Psmerge
+uses Ghostscript to merge PostScript documents into a single document.
+It only works in the specific case the the files were created using
+the same application, with the same device setup and resources (fonts,
+procsets, patterns, files, etc) loaded.
+
+If the
+.B \-o
+option is used, output will be sent to the file named, otherwise it will go to
+standard output.
+
+.I Psmerge
+will merge multiple files concatenated into a single file as if they
+were in separate files.
+.SH AUTHOR
+Written by Angus J. C. Duggan.
+.SH "SEE ALSO"
+psutils(1)
+.SH TRADEMARKS
+.B PostScript
+is a trademark of Adobe Systems Incorporated.
+.SH BUGS
+.I psmerge
+is for a very specific case; it does not merge files in the general case.
