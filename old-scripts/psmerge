@@ -25,5 +25,5 @@ our ($opt_o);
 usage() unless @ARGV and getopts('o:');
 $opt_o ||= '-';
 
-exec +(qw(gs -q -dNOPAUSE -dBATCH -sDEVICE=pswrite), "-sOutputFile=$opt_o", '-f', @ARGV);
+exec +(qw(gs -q -dNOPAUSE -dBATCH -sDEVICE=ps2write), "-sOutputFile=$opt_o", '-f', @ARGV);
 die "$prog: Couldn't find Ghostscript (is it installed?), or it failed\n";
