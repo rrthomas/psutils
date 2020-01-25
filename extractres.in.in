@@ -71,7 +71,7 @@ my ($help_flag, $version_flag, $merge);
 
 sub usage {
   my ($exit_code) = @_;
-  print STDOUT <<END;
+  print STDERR <<END;
 Usage: $program_name [OPTION...] [INFILE [OUTFILE]]
 Extract resources from a PostScript document.
 
@@ -92,7 +92,7 @@ my $opts = GetOptions(
   "version" => \$version_flag,
  ) or usage(1);
 if ($version_flag) {
-  print STDOUT $version_banner;
+  print STDERR $version_banner;
   exit 0;
 }
 usage(0) if $help_flag;

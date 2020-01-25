@@ -49,7 +49,7 @@ my ($help_flag, $version_flag);
 
 sub usage {
   my ($exit_code) = @_;
-  print STDOUT <<END;
+  print STDERR <<END;
 Usage: $program_name [OPTION...] -NUP [INFILE [OUTFILE]]
 Put multiple pages of a PostScript document on to one page.
 
@@ -139,7 +139,7 @@ GetOptions(
   "n=s" => \&parsenup, # for compatibility with other psnup implementations
  ) or usage(1);
 if ($version_flag) {
-  print STDOUT $version_banner;
+  print STDERR $version_banner;
   exit 0;
 }
 usage(0) if $help_flag;

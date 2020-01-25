@@ -48,7 +48,7 @@ my ($help_flag, $version_flag, $center, $rotate, $aspect, $maximize, $showpage);
 
 sub usage {
   my ($exit_code) = @_;
-  print STDOUT <<END;
+  print STDERR <<END;
 Usage: $program_name [OPTION...] LLX LLY URX URY [INFILE [OUTFILE]]
 Fit an Encapsulated PostScript file to a given bounding box.
 
@@ -82,7 +82,7 @@ my $opts = GetOptions(
   "version" => \$version_flag,
  ) or usage(1);
 if ($version_flag) {
-  print STDOUT $version_banner;
+  print STDERR $version_banner;
   exit 0;
 }
 usage(0) if $help_flag;

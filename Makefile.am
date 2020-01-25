@@ -74,6 +74,7 @@ install-exec-hook:
 ## Exit gracefully if $@ is not writeable, such as during distcheck!
 	$(AM_V_GEN)if ( touch $@.w && rm -f $@.w; ) >/dev/null 2>&1; then \
 	  $(srcdir)/pre-inst-env $(top_srcdir)/build-aux/missing --run $(HELP2MAN) --no-info \
+		--no-discard-stderr \
 		--include=$(srcdir)/$*-include.man \
 		--include=$(srcdir)/man-include.man \
 		--output=$@ ./$*; \
