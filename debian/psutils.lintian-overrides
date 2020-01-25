@@ -1,0 +1,3 @@
+# The copyright file mentions the GPL, but the GPL is not the actual
+# license for this package.
+psutils: copyright-should-refer-to-common-license-file-for-gpl

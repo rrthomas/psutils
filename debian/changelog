@@ -1,0 +1,386 @@
+psutils (2.0-1) unstable; urgency=low
+
+  * New upstream release.
+
+ -- Reuben Thomas <rrt@sc3d.org>  Sat, 25 Jan 2020 13:29:55 +0000
+
+psutils (1.17.dfsg-4) unstable; urgency=medium
+
+  [ Antony Pavlov ]
+  * psmerge: Use ps2write.  (pswrite is gone from gs.)
+    Closes:#797528.
+
+  [ Bjarni Ingi Gislason ]
+  * psnup(1): Fix manpage syntax error.  Closes:#663258.
+  * pstops(1): Remove unneeded backslash.  Closes:#726468.
+
+  [ Helmut Grohne <helmut@subdivi.de> ]
+  * Fix FTCBFS: Pass CC as a cmdline option to make.  Closes:#838205.
+
+  [ Reuben Thomas ]
+  * psnup(1): Remove a confusing and unnecessary qualification
+    about units.  Apropos of #695179.
+
+  [ Ian Jackson ]
+  * Make myself the maintainer.  Closes:#777699.
+  * Fix the upstream URL to refer to Reuben Thomas's github.
+    Closes:#752161.
+
+ -- Ian Jackson <ijackson@chiark.greenend.org.uk>  Sat, 21 Jan 2017 19:39:50 +0000
+
+psutils (1.17.dfsg-3) unstable; urgency=medium
+
+  * Orphan package
+
+ -- Jay Berkenbilt <qjb@debian.org>  Fri, 26 Aug 2016 21:59:27 -0400
+
+psutils (1.17.dfsg-2) unstable; urgency=medium
+
+  * Replace hardening with dpkg-buildflags
+  * Update standards to 3.9.5
+
+ -- Jay Berkenbilt <qjb@debian.org>  Sat, 26 Jul 2014 19:09:32 -0400
+
+psutils (1.17.dfsg-1) unstable; urgency=low
+
+  * Repackage without files with unclear copyright.  See copyright file
+    and README.source for details.  (Closes: #682708)
+
+ -- Jay Berkenbilt <qjb@debian.org>  Sat, 25 Aug 2012 06:10:34 -0400
+
+psutils (1.17-32) unstable; urgency=low
+
+  * Hardening, update standards version
+
+ -- Jay Berkenbilt <qjb@debian.org>  Fri, 29 Jun 2012 21:23:03 -0400
+
+psutils (1.17-31) unstable; urgency=low
+
+  * Mark psutils Multi-Arch: foreign.  (Closes: #649693)
+
+ -- Jay Berkenbilt <qjb@debian.org>  Mon, 28 Nov 2011 10:33:39 -0500
+
+psutils (1.17-30) unstable; urgency=low
+
+  * debian/patches/bboxesandsizes.patch: add page headers to output
+    according to parameters (LP #396025).  Thanks Michael Braun.
+    (Closes: #632182)
+  * Update standards to 3.9.2
+
+ -- Jay Berkenbilt <qjb@debian.org>  Sat, 03 Sep 2011 10:40:07 -0400
+
+psutils (1.17-29) unstable; urgency=low
+
+  * Update large file patch to correct regression caused on kfreebsd-i386.
+    Thanks Guillem Jover. (Closes: #617872)
+  * Remove -Werror from compilation flags as per correct suggestion from
+    Guillem Jover.
+
+ -- Jay Berkenbilt <qjb@debian.org>  Sat, 02 Apr 2011 18:54:02 -0400
+
+psutils (1.17-28) unstable; urgency=low
+
+  * Change source format to '3.0 (quilt)'
+  * Remove README.source
+  * Update standards to 3.9.1
+  * Accept patch from daniele giacomini to allow psutils to work on files
+    larger than 2 GiB.  (Closes: #595239)
+  * Accept psutils-flip.patch from Peter Korsgaard.  This patch has been
+    in SUSE for some time.  (Closes: #534455)
+  * Add public domain psjoin script.  (Closes: #253866)
+
+ -- Jay Berkenbilt <qjb@debian.org>  Sun, 17 Oct 2010 12:39:12 -0400
+
+psutils (1.17-27) unstable; urgency=low
+
+  * Housekeeping: add README.source, convert patches to quilt, add
+    homepage to control file, update standards version to 3.8.3.
+
+ -- Jay Berkenbilt <qjb@debian.org>  Wed, 19 Aug 2009 19:17:51 -0400
+
+psutils (1.17-26) unstable; urgency=low
+
+  * Change Recommends on gs | gs-esp to one on ghostscript.
+
+ -- Jay Berkenbilt <qjb@debian.org>  Mon, 30 Jun 2008 16:59:26 -0400
+
+psutils (1.17-25) unstable; urgency=low
+
+  * Update standards version to 3.7.3.  No changes required.
+  * Fix error in psmerge manual page.  (Closes: #464785)
+  * Include patch from Bernhard R. Link to remove paper size information
+    and bounding boxes from psnup and psresize.  This removes bugs
+    resulting in having usually incorrect information in files when the
+    paper size has changed, reasoning that having no information is better
+    than having incorrect information.  (Closes: #368331, #434500)
+  * Honor DEB_BUILD_OPTIONS=nostrip by not explicitly calling install -s
+    to strip executables and instead letting dh_strip do it for us.
+    (Closes: #437832)
+
+ -- Jay Berkenbilt <qjb@debian.org>  Sun, 08 Jun 2008 11:16:42 -0400
+
+psutils (1.17-24) unstable; urgency=low
+
+  * Yet another fix to the pstops manual page involving handling of quotes
+    around examples. (Closes: #392737)
+
+ -- Jay Berkenbilt <qjb@debian.org>  Sat, 18 Nov 2006 13:16:01 -0500
+
+psutils (1.17-23) unstable; urgency=low
+
+  * Correction to quotation changes in manual pages to work better in
+    multiple locales.
+  * Add watch file
+  * Update URL in copyright file
+
+ -- Jay Berkenbilt <qjb@debian.org>  Fri, 23 Jun 2006 14:47:32 -0400
+
+psutils (1.17-22) unstable; urgency=low
+
+  * From Ian Jackson <iwj@ubuntu.com>: Make psnup (pstops, etc. etc.) cope
+    with output from Gnome printing system, which does `/showpage load',
+    thus defeating attempts to redefine showpage from virtual page to
+    virtual page.  Instead, we redefine showpage to a procedure which
+    looks at PStoPSenablepage, a new variable, which is what changes from
+    page to page.  Malone #28311.  (Closes: #360606)
+  * List binaries in description.  I had removed these but have been
+    convinced that they belong after all.  (Closes: #357560)
+  * Add quotation marks to examples with parentheses in pstops manual
+    page.  Thanks Danai SAE-HAN.  (Closes: #363092)
+  * Updated standards version to 3.7.2.  No changes required.
+
+ -- Jay Berkenbilt <qjb@debian.org>  Mon, 29 May 2006 10:40:58 -0400
+
+psutils (1.17-21) unstable; urgency=low
+
+  * Fix packaging bug that prevented /etc/papersize from being inspected.
+    (Closes: #339506)
+
+ -- Jay Berkenbilt <qjb@debian.org>  Sat, 19 Nov 2005 11:57:43 -0500
+
+psutils (1.17-20) unstable; urgency=low
+
+  * New maintainer.  Thanks Rob!  (Closes: #329425)
+  * Bring package to current Standards-Version; make other miscellaneous
+    fixes to control file
+  * No longer Provide postscript-previewer
+  * Modify psmerge to use gs if available; make this package Recommmend
+    (rather than Suggest) some version of gs (Closes: #159888, #35328)
+  * The -thorough option to psmerge doesn't do anything; remove it from
+    the help message.  (Closes: #252052, #252054)
+  * Convert package to use cdbs.
+
+ -- Jay Berkenbilt <qjb@debian.org>  Sun, 13 Nov 2005 21:27:03 -0500
+
+psutils (1.17-19) unstable; urgency=low
+
+  * Add Build-Depends on debhelper. (closes: #329609)
+
+ -- Rob Browning <rlb@defaultvalue.org>  Thu, 22 Sep 2005 11:09:21 -0700
+
+psutils (1.17-18) unstable; urgency=low
+
+  * Fix psmerge usage message.  Thanks to Gregor Hoffleit
+    <flight@debian.org> and Helge Kreutzmann
+    <kreutzm@itp.uni-hannover.de>. (closes: #252053, #252610)
+    - debian/patches/fix-psmerge-usage.diff
+
+  * Add showchar manpage.  Thanks to Uwe Hermann <uh1763@hermann-uwe.de>.
+    (closes: #118068)
+    - debian/patches/showchar-manpage.diff
+
+  * Convert package to use quilt.  There are now no modifications outside
+    ./debian.
+    - debian/rules
+    - debian/patches/misc.diff
+
+  * Convert package to use debhelper.
+
+  * Add ${misc:Depends} to debian/control.
+    - debian/control
+
+  * Update Standards-Version to 3.5.6.
+
+ -- Rob Browning <rlb@defaultvalue.org>  Wed, 21 Sep 2005 11:38:14 -0700
+
+psutils (1.17-17) unstable; urgency=low
+
+  * fix handling of pstops '@0.99(0.1cm,0.1cm)' to follow manpage
+    (i.e. allow omission of pageno when only one spec.
+    (closes: Bug#183508)
+
+ -- Rob Browning <rlb@defaultvalue.org>  Sun, 30 Mar 2003 23:54:32 -0600
+
+psutils (1.17-16) unstable; urgency=low
+
+  * be more careful about return values from libpaper functions.
+  (closes: Bug#170503)
+  * list binaries in description.  (closes: Bug#143529)
+  * fix problem handling binary input. (closes: Bug#166908)
+  * build-depend on libpaper-dev, not libpaperg-dev.
+
+ -- Rob Browning <rlb@defaultvalue.org>  Tue,  3 Dec 2002 21:36:32 -0600
+
+psutils (1.17-15) unstable; urgency=low
+
+  * include string.h in psnup.c. (closes: Bug#134267)
+
+ -- Rob Browning <rlb@defaultvalue.org>  Mon, 18 Feb 2002 12:13:17 -0600
+
+psutils (1.17-14) unstable; urgency=low
+
+  * add clarification to pstops manpage. (closes: Bug#132011, Bug#113796)
+  * add clarification to psresize manpage description. (closes: Bug#122567)
+  * note Debian systems use /etc/papersize in psnup manpage.
+  (closes: Bug#122840, Bug#46329)
+  * add Build-Depends: libpaperg-dev.
+  * add -Werror and fix all resulting (minor) bugs.
+
+ -- Rob Browning <rlb@defaultvalue.org>  Fri, 15 Feb 2002 10:23:02 -0600
+
+psutils (1.17-13) unstable; urgency=low
+
+  * update my email address.
+  * modify Makefile to call install with -s for binaries so we get "Debian
+    approved" stripping.
+
+ -- Rob Browning <rlb@defaultvalue.org>  Tue, 17 Jul 2001 13:13:14 -0500
+
+psutils (1.17-12) unstable; urgency=low
+
+  * Fixed typo in postinst (ouch).
+
+ -- Rob Browning <rlb@cs.utexas.edu>  Mon, 25 Dec 2000 14:10:56 -0600
+
+psutils (1.17-11) unstable; urgency=low
+
+  * updated to Standards-Version: 3.2.1.0.
+  * added /usr/doc symlink maintenance.
+  * moved manpages and docs to /usr/share.
+  * added poster support to maintainer version.  Thanks to
+    joey@infodrom.north.de (Martin Schulze) (Closes: Bug#65531).
+  * I think args bug was fixed way back in 1.17-3 (Closes: Bug#64007).
+
+ -- Rob Browning <rlb@cs.utexas.edu>  Sun, 24 Dec 2000 18:19:03 -0600
+
+psutils (1.17-9.1) unstable; urgency=low
+
+  * Non-maintainer release
+  * Added support for A2, A1 and A0 sizes, needed for large posters
+
+ -- Martin Schulze <joey@finlandia.infodrom.ffis.de>  Sun, 11 Jun 2000 22:45:16 +0200
+
+psutils (1.17-10) unstable; urgency=low
+
+  * Add patch to fix segfault in pstops.c.  Thanks to Falk Hueffner
+    <falk@debian.org> (Closes: Bug#75835).
+
+ -- Rob Browning <rlb@cs.utexas.edu>  Mon, 30 Oct 2000 11:48:44 -0600
+
+psutils (1.17-9) unstable; urgency=low
+
+  * Fixed psselect no-args segfault.  (Closes: Bug #47346)
+
+ -- Rob Browning <rlb@cs.utexas.edu>  Thu, 14 Oct 1999 15:56:54 -0500
+
+psutils (1.17-8) unstable; urgency=low
+
+  * Fixed -16 parsing bug.  -n16 would work, -16 wouldn't (Closes: Bug#36535)
+  * Added Freetype 1.2 getafm patch from Anthony Fok <foka@debian.org>
+    (Closes: Bug#35919)
+
+ -- Rob Browning <rlb@cs.utexas.edu>  Thu, 29 Apr 1999 21:21:03 -0500
+
+psutils (1.17-7) unstable; urgency=low
+
+  * Added support for libpaper.  (Closes: Bug#17049, Bug#23212, Bug#17039)
+
+ -- Rob Browning <rlb@cs.utexas.edu>  Wed, 25 Nov 1998 21:31:55 -0600
+
+psutils (1.17-6) frozen unstable; urgency=low
+
+  * Fixed problem with cflags that kept default paper size from being
+    set.
+
+ -- Rob Browning <rlb@cs.utexas.edu>  Mon, 23 Nov 1998 17:36:15 -0600
+
+psutils (1.17-5) unstable; urgency=low
+
+  * Fix -m flag in epsffit argument parsing (Closes: Bug#25726).
+  * Fix segmentation faults when r/w stdin/stdout (Closes: Bug#25725).
+
+ -- Rob Browning <rlb@cs.utexas.edu>  Wed, 23 Sep 1998 00:18:15 -0500
+
+psutils (1.17-4) unstable; urgency=low
+
+  * fixed config problem that made all executable scripts unusable.
+    (Closes Bug#16211, Bug#16624, Bug#16945, Bug#18825, Bug#19263,
+            Bug#23428, Bug#23827) Sheesh.
+  
+ -- Rob Browning <rlb@cs.utexas.edu>  Wed,  1 Jul 1998 23:44:20 -0500
+
+psutils (1.17-3) unstable; urgency=low
+
+  * ****WARNING**** THIS VERSION COULD EAT YOUR DATA.
+    Fixed command line parsing surprises with getopt(3) (closes Bug#5846)
+    Use with caution.  I tried to be careful, but you never know.
+  * Some code cleanup.
+
+ -- Rob Browning <rlb@cs.utexas.edu>  Fri, 27 Feb 1998 11:33:17 -0600
+
+psutils (1.17-2) unstable; urgency=low
+
+  * New maintainer
+  * New command line parsing code.
+
+ -- Rob Browning <rlb@cs.utexas.edu>  Fri, 27 Feb 1998 10:55:10 -0600
+
+psutils (1.17-1) unstable; urgency=low
+
+  * New maintainer
+  * New upstream release
+
+ -- Paul Seelig <pseelig@goofy.zdv.uni-mainz.de>  Thu,  4 Dec 1997 10:08:07 +0100
+
+psutils (1.16-4) unstable stable; urgency=low
+
+  * Upgraded to Standards-Version: 2.1.0.0
+  * added -s to the install binary section of the make file.
+
+ -- Dale Scheetz <dwarf@polaris.net>  Mon, 14 Oct 1996 17:51:54 -0400
+
+psutils 1.16 Debian 3 - dcs
+
+* Added patch for seek on pipes fix
+
+psutils 1.16 Debian 2 - dcs
+
+* Rebuilt to replace corrupted previous version
+
+psutils 1.16 Debian 1 - dcs
+
+* Upgraded to follow latest release from upstream
+
+psutils 1.13 Debian 5 - dcs
+
+* Rebuilt as ELF
+* New package maintainer: Dale Scheetz <dwarf@polaris.net>
+
+psutils 1.13 Debian 4 - iwj
+
+* Removed dependency on Perl (this is a base system package, so
+  we don't need to list it).
+
+psutils 1.13 Debian 3 - iwj
+
+* Added Package_Revision field to `control' file.
+* Sundry improvements to debian.rules, and removal of `install'.
+* Added this Changelog.
+
+psutils 1.13 Debian 2 - iwj
+* Empty fixfmps file in binary .deb file fixed.
+
+psutils 1.13 Debian 1 - iwj
+Initial release.
+
+

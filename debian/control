@@ -1,0 +1,26 @@
+Source: psutils
+Section: text
+Priority: optional
+Maintainer: Ian Jackson <ijackson@chiark.greenend.org.uk>
+Build-Depends: dpkg-dev (>= 1.16.1~), debhelper (>= 9), dh-autoreconf, paper
+Standards-Version: 4.4.1
+Homepage: https://github.com/rrthomas/psutils
+
+Package: psutils
+Architecture: all
+Depends: ${misc:Depends}, paper
+Recommends: ghostscript
+Description: PostScript document handling utilities
+ This collection of utilities is for manipulating PostScript
+ documents.  Page selection and rearrangement are supported, including
+ arrangement into signatures for booklet printing, and page merging
+ for n-up printing.
+ .
+ The following programs are included in psutils: epsffit, extractres,
+ includeres, psbook, psmerge, psnup, psresize, psselect, pstops.
+ .
+ The following legacy programs are also included: fixdlsrps, fixfmps,
+ fixmacps, fixpsditps, fixpspps, fixscribeps, fixtpps, fixwfwps,
+ fixwpps, fixwwps, psmerge.
+ .
+ psmerge needs gs to work.
