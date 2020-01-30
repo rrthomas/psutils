@@ -213,7 +213,7 @@ RESULTS = \
 
 EXTRA_DIST += %D%/mktestfile $(SH_LOG_COMPILER) $(TESTS) $(INPUTS) $(RESULTS)
 
-AM_TESTS_ENVIRONMENT = srcdir=$(srcdir)/tests PATH=$(abs_top_builddir):$(PATH)
+AM_TESTS_ENVIRONMENT = srcdir=$(srcdir)/tests
 
 DISTCLEANFILES += ISO-8859-1Encoding.enc a2ps-a2ps-hdr2.02.ps a2ps-black+white-Prolog2.01.ps
 

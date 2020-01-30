@@ -19,5 +19,6 @@ PSUTILS_UNINSTALLED=1
 export PSUTILS_UNINSTALLED
 PERL5LIB=@abs_top_srcdir@
 export PERL5LIB
+PATH="@abs_top_builddir@:$PATH"
 
 exec "$@"
