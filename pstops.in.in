@@ -39,8 +39,6 @@ my $pkgdatadir = &relocate("@pkgdatadir@");
 }
 
 use File::Basename;
-use File::Temp qw(tempfile);
-use File::Copy;
 use Fcntl qw(:seek);
 use Getopt::Long;
 use List::Util qw(min max);

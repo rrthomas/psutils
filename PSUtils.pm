@@ -10,6 +10,8 @@ use warnings;
 no if $] >= 5.018, warnings => "experimental::smartmatch";
 
 use Fcntl qw(:seek);
+use File::Copy;
+use File::Temp qw(tempfile);
 use POSIX qw(strtod locale_h);
 
 use IPC::Run3 qw(run3);
@@ -170,16 +172,16 @@ sub setup_input_and_output {
   if ($#ARGV >= 0) {            # User specified an input file
     my $file = shift @ARGV;
     open($infile, $file) or Die("cannot open input file $file");
-    binmode($infile) or Die("could not set input to binary mode");
-    $infile = seekable($infile) or Die("cannot make input seekable")
-      if $seekable;
   }
+  binmode($infile) or Die("could not set input to binary mode");
+  $infile = seekable($infile) or Die("cannot make input seekable")
+    if $seekable;
 
   if ($#ARGV >= 0) {            # User specified an output file
     my $file = shift @ARGV;
     open($outfile, $file) or Die("cannot open output file $file");
-    binmode($outfile) or Die("could not set output to binary mode");
   }
+  binmode($outfile) or Die("could not set output to binary mode");
 
   return $infile, $outfile;
 }
