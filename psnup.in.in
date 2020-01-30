@@ -9,7 +9,6 @@ END
 use v5.14;
 use warnings;
 use strict;
-no if $] >= 5.018, warnings => "experimental::smartmatch";
 
 BEGIN
 {

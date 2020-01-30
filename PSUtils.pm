@@ -7,7 +7,6 @@ package PSUtils;
 use v5.14;
 use strict;
 use warnings;
-no if $] >= 5.018, warnings => "experimental::smartmatch";
 
 use Fcntl qw(:seek);
 use File::Copy;

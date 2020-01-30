@@ -10,7 +10,6 @@ use v5.14;
 use feature "switch";
 use warnings;
 use strict;
-no if $] >= 5.018, warnings => "experimental::smartmatch";
 
 BEGIN {
 # Relocatable header
