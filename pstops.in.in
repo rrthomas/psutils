@@ -168,9 +168,9 @@ sub parsespecs {
       return undef if $spec->{pageno} >= $modulo;
       if (defined($3)) {
         foreach (split '', $3) {
-          when (/[LRU]/i) { $spec->{rotate} += $angle{lc($_)} }
-          when (/H/i)     { $spec->{hflip} ^= 1 }
-          when (/V/i)     { $spec->{vflip} ^= 1 }
+          $spec->{rotate} += $angle{lc($_)} if /[LRU]/i;
+          $spec->{hflip} ^= 1 if /H/i;
+          $spec->{vflip} ^= 1 if /V/i;
         }
       }
       # Normalize rotation and flips

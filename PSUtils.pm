@@ -39,19 +39,19 @@ sub singledimen {
   my ($num, $unparsed) = strtod($str);
   $str = substr($str, length($str) - $unparsed);
   for ($str) {
-    $num *= 1 when /^pt/;
-    $num *= 72 when /^in/;
-    $num *= 28.346456692913385211 when /^cm/;
-    $num *= 2.8346456692913385211 when /^mm/;
-    when (/^w/) {
+    if (/^pt/) { $num *= 1; }
+    elsif (/^in/) { $num *= 72; }
+    elsif (/^cm/) { $num *= 28.346456692913385211; }
+    elsif (/^mm/) { $num *= 2.8346456692913385211; }
+    elsif (/^w/) {
       Die("paper size not set") if !defined($width);
       $num *= $width;
     }
-    when (/^h/) {
+    elsif (/^h/) {
       Die("paper size not set") if !defined($width);
       $num *= $height;
     }
-    default { Die("bad dimension") if $str ne ""; };
+    else { Die("bad dimension") if $str ne ""; };
   }
   setlocale(LC_ALL, $old_locale);
   return $num;
