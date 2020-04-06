@@ -1,10 +1,11 @@
 # Tests Makefile.am
 #
-# Copyright (C) Reuben Thomas 2016-2019
+# Copyright (C) Reuben Thomas 2016-2020
 # See LICENSE for license
 
 TEST_EXTENSIONS = .sh
 SH_LOG_COMPILER = ./pre-inst-env $(srcdir)/tests/run-test
+check_DATA = pre-inst-env
 
 EMPTY =
 
