@@ -398,11 +398,12 @@ sub pstops {
     "%%EndProcSet"
     if $use_procset;
 
-  # Write prologue to end of setup section
-  fcopy($psinfo->{beginprocset}) if $psinfo->{beginprocset};
-
-  # Skip any existing procset if we're using ours
-  seek $infile, $psinfo->{endprocset}, SEEK_SET if $psinfo->{endprocset} && $use_procset;
+  # Write prologue to end of setup section, skipping our procset if present
+  # and we're outputting it (this allows us to upgrade our procset)
+  if ($psinfo->{endprocset} && $use_procset) {
+    fcopy($psinfo->{beginprocset});
+    seek $infile, $psinfo->{endprocset}, SEEK_SET;
+  }
   fcopy($psinfo->{endsetup});
 
   # Save transformation from original to current matrix
