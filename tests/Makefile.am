@@ -10,6 +10,16 @@ check_DATA = pre-inst-env
 EMPTY =
 
 TESTS = \
+	%D%/pstops-odd.sh \
+	%D%/pstops-even.sh \
+	%D%/pstops-reverse.sh \
+	%D%/pstops-even-reverse.sh \
+	%D%/pstops-positive-range.sh \
+	%D%/pstops-negative-range.sh \
+	%D%/pstops-positive-negative-range.sh \
+	%D%/pstops-individual-pages.sh \
+	%D%/pstops-options-and-complex-pagerange.sh \
+	%D%/pstops-invalid-pagerange.sh \
 	%D%/pstops-invalid-pagespecs.sh \
 	%D%/pstops-offsets.sh \
 	%D%/pstops-negative-offsets.sh \
@@ -51,16 +61,6 @@ TESTS = \
 	%D%/psresize-20-Letter.sh \
 	%D%/psresize-20-A5in-A4.sh \
 	%D%/psresize-20-A3in-A4.sh \
-	%D%/psselect-odd.sh \
-	%D%/psselect-even.sh \
-	%D%/psselect-reverse.sh \
-	%D%/psselect-even-reverse.sh \
-	%D%/psselect-positive-range.sh \
-	%D%/psselect-negative-range.sh \
-	%D%/psselect-positive-negative-range.sh \
-	%D%/psselect-individual-pages-and-dash-p.sh \
-	%D%/psselect-options-and-complex-pagerange.sh \
-	%D%/psselect-invalid-pagerange.sh \
 	%D%/epsffit.sh \
 	%D%/epsffit-center.sh \
 	%D%/epsffit-rotate.sh \
@@ -79,7 +79,7 @@ TESTS = \
 XFAIL_TESTS = \
 	%D%/pstops-invalid-pagespecs.sh \
 	%D%/psbook-invalid-signature-size.sh \
-	%D%/psselect-invalid-pagerange.sh \
+	%D%/pstops-invalid-pagerange.sh \
 	%D%/psnup-20-3-impossible-tolerance.sh \
 	%D%/psnup-20-4-impossible-margin.sh \
 	%D%/psnup-20-4-impossible-border.sh \
@@ -123,15 +123,15 @@ INPUTS = \
 	%D%/psresize-20-Letter-input.ps \
 	%D%/psresize-20-A5in-A4-input.ps \
 	%D%/psresize-20-A3in-A4-input.ps \
-	%D%/psselect-odd-input.ps \
-	%D%/psselect-even-input.ps \
-	%D%/psselect-reverse-input.ps \
-	%D%/psselect-even-reverse-input.ps \
-	%D%/psselect-positive-range-input.ps \
-	%D%/psselect-negative-range-input.ps \
-	%D%/psselect-positive-negative-range-input.ps \
-	%D%/psselect-individual-pages-and-dash-p-input.ps \
-	%D%/psselect-options-and-complex-pagerange-input.ps \
+	%D%/pstops-odd-input.ps \
+	%D%/pstops-even-input.ps \
+	%D%/pstops-reverse-input.ps \
+	%D%/pstops-even-reverse-input.ps \
+	%D%/pstops-positive-range-input.ps \
+	%D%/pstops-negative-range-input.ps \
+	%D%/pstops-positive-negative-range-input.ps \
+	%D%/pstops-individual-pages-input.ps \
+	%D%/pstops-options-and-complex-pagerange-input.ps \
 	%D%/epsffit-input.ps \
 	%D%/epsffit-center-input.ps \
 	%D%/epsffit-rotate-input.ps \
@@ -184,15 +184,15 @@ RESULTS = \
 	%D%/psresize-20-Letter-expected.ps \
 	%D%/psresize-20-A5in-A4-expected.ps \
 	%D%/psresize-20-A3in-A4-expected.ps \
-	%D%/psselect-odd-expected.ps \
-	%D%/psselect-even-expected.ps \
-	%D%/psselect-reverse-expected.ps \
-	%D%/psselect-even-reverse-expected.ps \
-	%D%/psselect-positive-range-expected.ps \
-	%D%/psselect-negative-range-expected.ps \
-	%D%/psselect-positive-negative-range-expected.ps \
-	%D%/psselect-individual-pages-and-dash-p-expected.ps \
-	%D%/psselect-options-and-complex-pagerange-expected.ps \
+	%D%/pstops-odd-expected.ps \
+	%D%/pstops-even-expected.ps \
+	%D%/pstops-reverse-expected.ps \
+	%D%/pstops-even-reverse-expected.ps \
+	%D%/pstops-positive-range-expected.ps \
+	%D%/pstops-negative-range-expected.ps \
+	%D%/pstops-positive-negative-range-expected.ps \
+	%D%/pstops-individual-pages-expected.ps \
+	%D%/pstops-options-and-complex-pagerange-expected.ps \
 	%D%/epsffit-expected.ps \
 	%D%/epsffit-center-expected.ps \
 	%D%/epsffit-rotate-expected.ps \
