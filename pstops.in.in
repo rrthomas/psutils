@@ -292,7 +292,7 @@ sub parserange {
   foreach my $range_text (split /,/, $ranges_text) {
     my $range;
     if ($range_text eq "_") {
-      $range = { from => 0, to => 0 };
+      $range = { from => 0, to => 0 }; # so &$page_to_real_page returns -1
     } else {
       Die("`$range_text' is not a page range") unless $range_text =~ m/^(_?\d+)?(?:(-)(_?\d+))?$/;
       $range = { from => $1 || 1, to => $2 ? ($3 || -1) : $1 };
@@ -314,7 +314,7 @@ sub abs_page {
   return $n;
 }
 
-sub page_index_to_real_page {
+sub page_index_to_page_number {
   my ($ps, $maxpage, $modulo, $pagebase) = @_;
   my $page_number = ($ps->{reversed} ? $maxpage - $pagebase - $modulo : $pagebase) + $ps->{pageno};
   return $page_number;
@@ -346,7 +346,8 @@ sub pstops {
   # Get list of pages
   my @page_to_real_page = ();
   my $page_to_real_page = sub {
-   return $page_to_real_page[$_[0]] || 0;
+    # Returns -1 for an inserted blank page (page number '_')
+    return $page_to_real_page[$_[0]] || 0;
   };
 
   foreach my $range (@$pagerange) {
@@ -422,10 +423,11 @@ sub pstops {
     foreach my $page (@$specs) {
       my $spec_page_number = 0;
       foreach my $ps (@$page) {
-        my $real_page = page_index_to_real_page($ps, $maxpage, $modulo, $pagebase);
-        if ($real_page < $pages_to_output && &$page_to_real_page($real_page) >= 0 && &$page_to_real_page($real_page) < $psinfo->{pages}) {
+        my $page_number = page_index_to_page_number($ps, $maxpage, $modulo, $pagebase);
+        my $real_page = &$page_to_real_page($page_number);
+        if ($page_number < $pages_to_output && $real_page >= 0 && $real_page < $psinfo->{pages}) {
           # Seek the page
-          my $p = &$page_to_real_page($real_page);
+          my $p = $real_page;
           seek $infile, ${$psinfo->{pageptr}}[$p], SEEK_SET;
           my $line = <$infile>;
           Die("I/O error seeking page $p", 2) unless $line && (comment($line))[0] eq "Page:";
@@ -436,11 +438,11 @@ sub pstops {
         if ($spec_page_number == 0) {	# page label contains original pages
           my @pagelabels = ();
           foreach my $spec (@$page) {
-            push @pagelabels, &$page_to_real_page(page_index_to_real_page($spec, $maxpage, $modulo, $pagebase)) + 1;
+            push @pagelabels, &$page_to_real_page(page_index_to_page_number($spec, $maxpage, $modulo, $pagebase)) + 1;
           }
           $pagelabel = "(" . (join ",", @pagelabels) . ")";
           # Write page comment
-          my $page_label_number = $real_page < $pages_to_output && &$page_to_real_page($real_page) < $psinfo->{pages} ? ++$pageindex : -1;
+          my $page_label_number = $page_number < $pages_to_output && $real_page < $psinfo->{pages} ? ++$pageindex : -1;
           print STDERR "[" . ($page_label_number < 0 ? "*" : $page_label_number) . "] " if $verbose;
           say $outfile sprintf("%%%%Page: %s %d", $page_label_number < 0 ? "*" : $pagelabel, ++$outputpage);
         }
@@ -466,7 +468,7 @@ sub pstops {
           }
         }
         say $outfile "/PStoPSenablepage false def" if $spec_page_number < $#{$page};
-        if ($psinfo->{beginprocset} && $real_page < $pages_to_output && &$page_to_real_page($real_page) < $psinfo->{pages}) {
+        if ($psinfo->{beginprocset} && $page_number < $pages_to_output && $real_page < $psinfo->{pages}) {
           # Search for page setup
           for (;;) {
             my $line = <$infile>;
@@ -476,9 +478,9 @@ sub pstops {
           }
         }
         say $outfile "PStoPSxform concat" if !$psinfo->{beginprocset} && $use_procset;
-        if ($real_page < $pages_to_output && &$page_to_real_page($real_page) < $psinfo->{pages}) {
+        if ($page_number < $pages_to_output && $real_page >= 0 && $real_page < $psinfo->{pages}) {
           # Write the body of a page
-          fcopy(${$psinfo->{pageptr}}[&$page_to_real_page($real_page) + 1]);
+          fcopy(${$psinfo->{pageptr}}[$real_page + 1]);
         } else {
           say $outfile "showpage";
         }
