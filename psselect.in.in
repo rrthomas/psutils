@@ -51,13 +51,13 @@ sub usage {
 Usage: $program_name [OPTION...] [INFILE [OUTFILE]]
 Select pages from a PostScript document.
 
-  -R, --pages=PAGES    select the given page ranges
-  -e, --even           select even-numbered pages
-  -o, --odd            select odd-numbered pages
-  -r, --reverse        reverse the order of the pages
-  -q, --quiet          don't show page numbers being output
-      --help           display this help and exit
-      --version        display version information and exit
+  -R, -p, --pages=PAGES  select the given page ranges
+  -e, --even             select even-numbered pages
+  -o, --odd              select odd-numbered pages
+  -r, --reverse          reverse the order of the pages
+  -q, --quiet            don't show page numbers being output
+      --help             display this help and exit
+      --version          display version information and exit
 
 PAGES is a comma-separated list of pages and page ranges; see
 pstops(1) for more details.
@@ -83,14 +83,10 @@ if ($version_flag) {
 }
 usage(0) if $help_flag;
 
-# If we haven't gotten a page range yet, we'd better get one now
-if (!$pages) {
-  usage(1) if $#ARGV == -1;
-  if (!$reverse_flag && !$even_flag && !$odd_flag && $#ARGV > -1) {
-    $pages = shift @ARGV;
-  } else {
-    $pages = "1-_1";
-  }
+# If we haven't gotten a page range yet and there's a non-flag argument, use
+# that (backwards compatibility).
+if (!$pages && !$reverse_flag && !$even_flag && !$odd_flag && $#ARGV > -1) {
+  $pages = shift @ARGV;
 }
 
 # Rearrange the pages
@@ -98,4 +94,5 @@ my @arg = ();
 push @arg, "-r" if $reverse_flag;
 push @arg, "-e" if $even_flag;
 push @arg, "-o" if $odd_flag;
-exec("pstops", "-R$pages", @arg, @ARGV) or Die("error running pstops");
+push @arg, "-R$pages" if $pages;
+exec("pstops", @arg, @ARGV) or Die("error running pstops");
