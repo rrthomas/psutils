@@ -103,7 +103,9 @@ sub parse_file {
     pageptr => [],
   };
   seek $infile, 0, SEEK_SET;
-  for (my $record = 0; my $buffer = <$infile>; $record = tell $infile) {
+  my ($record, $next_record);
+  for ($record = 0; my $buffer = <$infile>; $record = $next_record) {
+    $next_record = tell $infile;
     if ($buffer =~ /^%%/) {
       my ($keyword, $value) = comment($buffer);
       if (defined($keyword)) {
@@ -120,7 +122,7 @@ sub parse_file {
         } elsif ($psinfo->{headerpos} == 0 && $keyword eq "Pages:") {
           $psinfo->{pagescmt} = $record;
         } elsif ($psinfo->{headerpos} == 0 && $keyword eq "EndComments") {
-          $psinfo->{headerpos} = tell $infile;
+          $psinfo->{headerpos} = $next_record;
         } elsif ($keyword eq "BeginDocument" ||
                    $keyword eq "BeginBinary" ||
                    $keyword eq "BeginFile") {
@@ -132,14 +134,12 @@ sub parse_file {
         } elsif ($nesting == 0 && $keyword eq "EndSetup") {
           $psinfo->{endsetup} = $record;
         } elsif ($nesting == 0 && $keyword eq "BeginProlog") {
-          $psinfo->{headerpos} = tell $infile;
+          $psinfo->{headerpos} = $next_record;
         } elsif ($nesting == 0 && $buffer eq "%%BeginProcSet: PStoPS") {
           $psinfo->{beginprocset} = $record;
         } elsif ($psinfo->{beginprocset} && !$psinfo->{endprocset} && $keyword eq "EndProcSet") {
-          $psinfo->{endprocset} = tell $infile;
-        } elsif ($nesting == 0 && ($keyword eq "Trailer" ||
-                                     $keyword eq "EOF")) {
-          seek $infile, $record, SEEK_SET;
+          $psinfo->{endprocset} = $next_record;
+        } elsif ($nesting == 0 && ($keyword eq "Trailer" || $keyword eq "EOF")) {
           last;
         }
       }
@@ -147,7 +147,7 @@ sub parse_file {
       $psinfo->{headerpos} = $record;
     }
   }
-  push @{$psinfo->{pageptr}}, tell $infile;
+  push @{$psinfo->{pageptr}}, $record;
   $psinfo->{pages} = $#{$psinfo->{pageptr}};
   $psinfo->{endsetup} = ${$psinfo->{pageptr}}[0]
     if $psinfo->{endsetup} == 0 || $psinfo->{endsetup} > ${$psinfo->{pageptr}}[0];
