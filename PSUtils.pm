@@ -210,13 +210,6 @@ sub extn {
   return $exts{$_[0]};
 }
 
-# Resource types
-sub type {
-  my %types = ("%%BeginFile:" => "file", "%%BeginProcSet:" => "procset",
-               "%%BeginFont:" => "font");
-  return $types{$_[0]};
-}
-
 # Resource filename
 sub filename {			# make filename for resource in @_
   my $name;

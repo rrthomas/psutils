@@ -101,6 +101,13 @@ usage(1) if $#ARGV > 1;
 my ($infile, $outfile) = setup_input_and_output();
 usage(1) if $#ARGV != -1; # Check no more arguments were given
 
+# Resource types
+sub type {
+  my %types = ("%%BeginFile:" => "file", "%%BeginProcSet:" => "procset",
+               "%%BeginFont:" => "font");
+  return $types{$_[0]};
+}
+
 # Extract resources
 my %resources = ();             # list of resources included
 my %merge = ();                 # list of resources extracted this time
