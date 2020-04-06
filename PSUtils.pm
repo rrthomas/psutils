@@ -106,40 +106,42 @@ sub parse_file {
   for (my $record = 0; my $buffer = <$infile>; $record = tell $infile) {
     if ($buffer =~ /^%%/) {
       my ($keyword, $value) = comment($buffer);
-      if ($nesting == 0 && $keyword eq "Page:") {
-        push @{$psinfo->{pageptr}}, $record;
-      } elsif ($psinfo->{headerpos} == 0 && $explicit_output_paper &&
-                 ($keyword eq "BoundingBox:" ||
-                  $keyword eq "HiResBoundingBox:" ||
-                  $keyword eq "DocumentPaperSizes:" ||
-                  $keyword eq "DocumentMedia:")) {
-        # FIXME: read input paper size (from DocumentMedia comment?) if not
-        # set on command line.
-        push @{$psinfo->{sizeheaders}}, $record;
-      } elsif ($psinfo->{headerpos} == 0 && $keyword eq "Pages:") {
-        $psinfo->{pagescmt} = $record;
-      } elsif ($psinfo->{headerpos} == 0 && $keyword eq "EndComments") {
-        $psinfo->{headerpos} = tell $infile;
-      } elsif ($keyword eq "BeginDocument" ||
-                 $keyword eq "BeginBinary" ||
-                 $keyword eq "BeginFile") {
-        $nesting++;
-      } elsif ($keyword eq "EndDocument" ||
-                 $keyword eq "EndBinary" ||
-                 $keyword eq "EndFile") {
-        $nesting--;
-      } elsif ($nesting == 0 && $keyword eq "EndSetup") {
-        $psinfo->{endsetup} = $record;
-      } elsif ($nesting == 0 && $keyword eq "BeginProlog") {
-        $psinfo->{headerpos} = tell $infile;
-      } elsif ($nesting == 0 && $buffer eq "%%BeginProcSet: PStoPS") {
-        $psinfo->{beginprocset} = $record;
-      } elsif ($psinfo->{beginprocset} && !$psinfo->{endprocset} && $keyword eq "EndProcSet") {
-        $psinfo->{endprocset} = tell $infile;
-      } elsif ($nesting == 0 && ($keyword eq "Trailer" ||
-                                   $keyword eq "EOF")) {
-        seek $infile, $record, SEEK_SET;
-        last;
+      if (defined($keyword)) {
+        if ($nesting == 0 && $keyword eq "Page:") {
+          push @{$psinfo->{pageptr}}, $record;
+        } elsif ($psinfo->{headerpos} == 0 && $explicit_output_paper &&
+                   ($keyword eq "BoundingBox:" ||
+                    $keyword eq "HiResBoundingBox:" ||
+                    $keyword eq "DocumentPaperSizes:" ||
+                    $keyword eq "DocumentMedia:")) {
+          # FIXME: read input paper size (from DocumentMedia comment?) if not
+          # set on command line.
+          push @{$psinfo->{sizeheaders}}, $record;
+        } elsif ($psinfo->{headerpos} == 0 && $keyword eq "Pages:") {
+          $psinfo->{pagescmt} = $record;
+        } elsif ($psinfo->{headerpos} == 0 && $keyword eq "EndComments") {
+          $psinfo->{headerpos} = tell $infile;
+        } elsif ($keyword eq "BeginDocument" ||
+                   $keyword eq "BeginBinary" ||
+                   $keyword eq "BeginFile") {
+          $nesting++;
+        } elsif ($keyword eq "EndDocument" ||
+                   $keyword eq "EndBinary" ||
+                   $keyword eq "EndFile") {
+          $nesting--;
+        } elsif ($nesting == 0 && $keyword eq "EndSetup") {
+          $psinfo->{endsetup} = $record;
+        } elsif ($nesting == 0 && $keyword eq "BeginProlog") {
+          $psinfo->{headerpos} = tell $infile;
+        } elsif ($nesting == 0 && $buffer eq "%%BeginProcSet: PStoPS") {
+          $psinfo->{beginprocset} = $record;
+        } elsif ($psinfo->{beginprocset} && !$psinfo->{endprocset} && $keyword eq "EndProcSet") {
+          $psinfo->{endprocset} = tell $infile;
+        } elsif ($nesting == 0 && ($keyword eq "Trailer" ||
+                                     $keyword eq "EOF")) {
+          seek $infile, $record, SEEK_SET;
+          last;
+        }
       }
     } elsif ($psinfo->{headerpos} == 0) {
       $psinfo->{headerpos} = $record;
