@@ -294,7 +294,7 @@ sub parserange {
     if ($range_text eq "_") {
       $range = { from => 0, to => 0 };
     } else {
-      Die("invalid page range: $range_text") unless $range_text =~ m/^(_?\d+)?(?:(-)(_?\d+))?$/;
+      Die("`$range_text' is not a page range") unless $range_text =~ m/^(_?\d+)?(?:(-)(_?\d+))?$/;
       $range = { from => $1 || 1, to => $2 ? ($3 || -1) : $1 };
       $range->{from} =~ s/^_/-/;
       $range->{to} =~ s/^_/-/;
