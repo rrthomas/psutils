@@ -320,11 +320,6 @@ sub page_index_to_page_number {
   return $page_number;
 }
 
-sub gcd {
-  my ($a, $b) = @_;
-  return $b ? gcd($b, $a % $b) : $a;
-}
-
 sub ps_transform {
   my ($ps) = @_;
   return $ps->{rotate} != 0 || $ps->{hflip} != 0 || $ps->{vflip} != 0 || $ps->{scale} != 1.0 || defined($ps->{xoff});
