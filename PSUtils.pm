@@ -198,9 +198,9 @@ sub seekable {
   my $ft = tempfile() or return;
   copy($fp, $ft) or return;
 
-  # Discard the input file, and rewind the temporary
-  close $fp;
-  return $ft if seek $ft, 0, SEEK_SET;
+  # Reopen the input stream from the temporary, and rewind it
+  open($fp, "<&=", $ft);
+  return $fp if seek $fp, 0, SEEK_SET;
 }
 
 # Resource extensions
