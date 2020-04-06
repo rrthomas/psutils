@@ -251,7 +251,7 @@ usage(1) if $#ARGV != -1; # Check no more arguments were given
 
 ($iwidth, $iheight) = ($width, $height) if !defined($iwidth) && defined($width);
 
-Die("input page size must be set to flip the page")
+Die("input page size must be set when flipping the page")
   if !defined($iwidth) and $flipping;
 
 # Parse input
