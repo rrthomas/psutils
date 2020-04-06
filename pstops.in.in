@@ -367,7 +367,6 @@ sub pstops {
   # Reverse page list if reversing pages
   @page_to_real_page = reverse @page_to_real_page if $reverse;
 
-
   # Work out whether we need procset
   my $global_transform = $scale != 1.0 || $rotate != 0;
   my $use_procset = $global_transform;
@@ -406,6 +405,7 @@ sub pstops {
 
   # Write prologue to end of setup section
   fcopy($psinfo->{beginprocset}) if $psinfo->{beginprocset};
+
   # Skip any existing procset if we're using ours
   seek $infile, $psinfo->{endprocset}, SEEK_SET if $psinfo->{endprocset} && $use_procset;
   fcopy($psinfo->{endsetup});
