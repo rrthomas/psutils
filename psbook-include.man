@@ -5,7 +5,7 @@ psbook - rearrange pages in a PostScript document into signatures
 .PP
 .B Psbook
 uses
-.B Psselect
+.B Pstops
 to rearrange pages from a PostScript document into \[oq]signatures\[cq] for
 printing books or booklets, creating a new PostScript file.
 The signature size is the number of sides which will be folded and bound
