@@ -1,7 +1,7 @@
 # configure.ac for psutils
 # Process this file with autoconf to produce a configure script
 
-AC_INIT(psutils, 2.0, rrt@sc3d.org)
+AC_INIT(psutils, 2.01, rrt@sc3d.org)
 AC_CONFIG_AUX_DIR([build-aux])
 AM_INIT_AUTOMAKE([-Wall foreign 1.11])
 
