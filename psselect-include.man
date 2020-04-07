@@ -1,8 +1,8 @@
 [NAME]
 psselect - select pages from a PostScript document
 
-[DESCRIPTION]
+[>DESCRIPTION]
 .B Psselect
-is provided for backwards compatibility with earlier versions of PSUtils. It just calls
-.BR Pstops,
-which should be used instead.
+calls
+.B Pstops
+to do the rearrangement.
