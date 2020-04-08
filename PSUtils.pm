@@ -180,7 +180,7 @@ sub setup_input_and_output {
 
   if ($#ARGV >= 0) {            # User specified an output file
     my $file = shift @ARGV;
-    open($outfile, $file) or Die("cannot open output file $file");
+    open($outfile, ">", $file) or Die("cannot open output file $file");
   }
   binmode($outfile) or Die("could not set output to binary mode");
 
