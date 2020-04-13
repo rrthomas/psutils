@@ -74,8 +74,13 @@ sub paper_size {
   my ($paper_name) = @_;
   chomp($paper_name = paper([])) unless defined($paper_name);
   my $dimensions = paper(["--unit=pt", "--size", "$paper_name"], 1) or return;
-  $dimensions =~ /^([\d.]+) ([\d.]+)/;
-  return int($1 + 0.5), int($2 + 0.5); # round dimensions to nearest point
+  $dimensions =~ /^(\S+) (\S+)/;
+  my $old_locale = setlocale(LC_ALL);
+  setlocale(LC_ALL, "");
+  my ($w, $w_unparsed) = strtod($1);
+  my ($h, $h_unparsed) = strtod($2);
+  setlocale(LC_ALL, $old_locale);
+  return int($w + 0.5), int($h + 0.5); # round dimensions to nearest point
 }
 
 sub parsepaper {
