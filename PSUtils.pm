@@ -17,7 +17,7 @@ use IPC::Run3 qw(run3);
 
 use base qw(Exporter);
 our @EXPORT = qw(Warn Die singledimen paper_size parsepaper comment parse_file
-                 setup_input_and_output extn type filename);
+                 setup_input_and_output extn filename);
 
 
 sub Warn {
