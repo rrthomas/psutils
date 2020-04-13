@@ -14,6 +14,7 @@ The pipeline
 .RS
 extractres file.ps | includeres >out.ps
 .RE
+.sp
 will move all resources appearing in a document to the document prologue,
 removing redundant copies.
 The output file can then be put through page re-arrangement filters such as

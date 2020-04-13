@@ -2,8 +2,8 @@
 # -*- perl -*-
 my $version_banner = <<END;
 extractres @VERSION@
-Copyright (c) Reuben Thomas 2012-2019
-Copyright (c) Angus J. C. Duggan 1991-1997
+Copyright (c) Reuben Thomas 2012-2019.
+Copyright (c) Angus J. C. Duggan 1991-1997.
 END
 # This program is distributed under the following license (effectively, BSD
 # 3-clause):
