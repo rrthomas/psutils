@@ -194,7 +194,7 @@ for (my $i = 0; $i <= $#ARGV; ) {
     if (!defined($specs)) {
       $specs = parsespecs($ARGV[$i]);
       specerror() unless defined($specs);
-      splice(@ARGV, $i, 1)
+      splice(@ARGV, $i, 1);
     } else {
       usage(1);
     }
