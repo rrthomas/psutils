@@ -162,7 +162,7 @@ sub parsespecs {
         hflip => 0,
         vflip => 0,
         scale => defined($4) ? $4 : 1.0,
-        xoff => defined($5) ? singledimen($5) : undef, yoff => defined($6) ? singledimen($6) : undef
+        xoff => defined($5) ? singledimen($5, $width, $height) : undef, yoff => defined($6) ? singledimen($6, $width, $height) : undef
        };
       return undef if $spec->{pageno} >= $modulo;
       if (defined($3)) {
@@ -219,7 +219,7 @@ GetOptions(
   "inpaper|P=s" => sub { ($iwidth, $iheight) = parsepaper($_[1]); },
   "inwidth|W=s" => sub { $iwidth = singledimen($_[1], $width, $height); },
   "inheight|H=s" => sub { $iheight = singledimen($_[1], $width, $height); },
-  "draw|d:s" => sub { $draw = singledimen($_[1] || "1"); },
+  "draw|d:s" => sub { $draw = singledimen($_[1] || "1", $width, $height); },
   "nobind|b" => \$nobinding,
   "quiet|q" => sub { $verbose = 0; },
   "help" => \$help_flag,
