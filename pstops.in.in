@@ -268,7 +268,7 @@ sub fcopy {
   my $here = tell $infile;
   while ($#ignorelist >= 0 && $ignorelist[0] < $upto) {
     shift @ignorelist while $#ignorelist >= 0 && $ignorelist[0] < $here;
-    fcopy($ignorelist[0]);
+    fcopy($ignorelist[0]) if defined($ignorelist[0]);
     Die("I/O error", 2) if !<$infile>;
     shift @ignorelist;
     $here = tell $infile;
