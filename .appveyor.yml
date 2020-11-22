@@ -1,0 +1,37 @@
+image:
+  - Ubuntu
+  - macos
+
+version: "{build}"
+
+environment:
+  global:
+    VERBOSE: 1 # Get test logs in output
+
+test: off
+
+for:
+-
+  matrix:
+    only:
+      - image: Ubuntu
+  init:
+    - sudo apt-get -y install libipc-run3-perl help2man
+-
+  matrix:
+    only:
+      - image: macos
+  init:
+    - brew install help2man
+    - sudo cpan -i IPC::Run3
+  cache:
+    - '/usr/local/Cellar/'
+
+# Install paper
+install:
+  - git clone https://github.com/rrthomas/paper.git
+  - cd paper && ./bootstrap && ./configure --quiet --enable-silent-rules && sudo make install && cd ..
+
+build_script:
+  - ./bootstrap && ./configure --enable-silent-rules
+  - make distcheck
