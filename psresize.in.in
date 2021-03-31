@@ -2,13 +2,14 @@
 # -*- perl -*-
 my $version_banner = <<END;
 psresize @VERSION@
-Copyright (c) Reuben Thomas 2016.
+Copyright (c) Reuben Thomas 2016-2021.
 Released under the GPL version 3, or (at your option) any later version.
 END
 
 use warnings;
 use strict;
 
+my $bindir;
 BEGIN
 {
 # Relocatable header
@@ -30,12 +31,15 @@ if ("@RELOCATABLE@" eq "yes") {
 
 # Relocate the directory variables that we use.
 my $pkgdatadir = &relocate("@pkgdatadir@");
+$bindir = &relocate("@bindir@");
 
 # End of relocatable header; "real" Perl starts here.
 
-  unshift (@INC, '@pkgdatadir@') unless $ENV{PSUTILS_UNINSTALLED};
+unshift (@INC, '@pkgdatadir@') unless $ENV{PSUTILS_UNINSTALLED};
+$bindir = '@abs_top_builddir@' if $ENV{PSUTILS_UNINSTALLED};
 }
 
+use File::Spec::Functions 'catfile';
 use File::Basename;
 use Getopt::Long;
 
@@ -79,4 +83,4 @@ if ($version_flag) {
 usage(0) if $help_flag;
 
 # Resize pages
-exec("psnup", "-1", @psnup_args, @ARGV) or Die("error running pstops");
+exec(catfile($bindir, "psnup"), "-1", @psnup_args, @ARGV) or Die("error running pstops");

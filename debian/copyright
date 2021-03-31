@@ -6,7 +6,7 @@ Source: https://github.com/rrthomas/psutils/
 Files: *
 License: GPL-3+
 Copyright: 1991-1995, Angus J. C. Duggan
-	   2013-2020, Reuben Thomas <rrt@sc3d.org>
+	   2013-2021, Reuben Thomas <rrt@sc3d.org>
 
 Files: psjoin.in.in
 License: GPL-3+
