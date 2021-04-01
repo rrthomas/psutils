@@ -51,7 +51,7 @@ sub singledimen {
       Die("paper size not set") if !defined($width);
       $num *= $height;
     }
-    else { Die("bad dimension") if $str ne ""; };
+    else { Die("bad dimension `$str'") if $str ne ""; };
   }
   setlocale(LC_ALL, $old_locale);
   return $num;
