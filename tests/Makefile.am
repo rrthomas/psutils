@@ -1,11 +1,10 @@
 # Tests Makefile.am
 #
-# Copyright (C) Reuben Thomas 2016-2020
+# Copyright (C) Reuben Thomas 2016-2021
 # See LICENSE for license
 
 TEST_EXTENSIONS = .sh
-SH_LOG_COMPILER = ./pre-inst-env $(srcdir)/tests/run-test
-check_DATA = pre-inst-env
+SH_LOG_COMPILER = $(top_builddir)/pre-inst-env $(srcdir)/tests/run-test
 
 EMPTY =
 
@@ -212,7 +211,7 @@ RESULTS = \
 	%D%/includeres-expected.ps \
 	$(EMPTY)
 
-EXTRA_DIST += %D%/mktestfile $(SH_LOG_COMPILER) $(TESTS) $(INPUTS) $(RESULTS)
+EXTRA_DIST += %D%/mktestfile $(srcdir)/tests/run-test $(TESTS) $(INPUTS) $(RESULTS)
 
 AM_TESTS_ENVIRONMENT = srcdir=$(srcdir)/tests
 
