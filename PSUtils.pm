@@ -87,8 +87,10 @@ sub parsepaper {
   my ($width, $height) = paper_size($_[0]);
   if (!defined($width)) {
     my ($w, $h) = split /x/, $_[0];
-    eval { ($width, $height) = (singledimen($w), singledimen($h)); }
-      or Die("paper size '$_[0]' unknown");
+    if (defined($w) && defined($h)) {
+      eval { ($width, $height) = (singledimen($w), singledimen($h)); }
+        or Die("paper size '$_[0]' unknown");
+    }
   }
   return $width, $height;
 }
