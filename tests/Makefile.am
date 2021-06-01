@@ -14,6 +14,7 @@ TESTS = \
 	%D%/pstops-negative-offsets.sh \
 	%D%/pstops-multiple-pages.sh \
 	%D%/pstops-multiple-turns-and-flips.sh \
+	%D%/pstops-correct-angles.sh \
 	%D%/psbook-20.sh \
 	%D%/psbook-20-signature-4.sh \
 	%D%/psbook-3.sh \
@@ -90,6 +91,7 @@ INPUTS = \
 	%D%/pstops-negative-offsets-input.ps \
 	%D%/pstops-multiple-pages-input.ps \
 	%D%/pstops-multiple-turns-and-flips-input.ps \
+	%D%/pstops-correct-angles-input.ps \
 	%D%/psbook-20-input.ps \
 	%D%/psbook-20-signature-4-input.ps \
 	%D%/psbook-3-input.ps \
@@ -151,6 +153,7 @@ RESULTS = \
 	%D%/pstops-negative-offsets-expected.ps \
 	%D%/pstops-multiple-pages-expected.ps \
 	%D%/pstops-multiple-turns-and-flips-expected.ps \
+	%D%/pstops-correct-angles-expected.ps \
 	%D%/psbook-20-expected.ps \
 	%D%/psbook-20-signature-4-expected.ps \
 	%D%/psbook-3-expected.ps \

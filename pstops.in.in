@@ -178,7 +178,6 @@ sub parsespecs {
         $spec->{rotate} += 180;
       }
       $spec->{rotate} %= 360;
-      $spec->{rotate} -= 180 if $spec->{rotate} > 180;
       $flipping = 1 if $spec->{hflip} == 1 || $spec->{vflip} == 1;
       push @specs, $spec;
     }
