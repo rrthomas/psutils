@@ -130,9 +130,9 @@ sub parse_file {
           $psinfo->{pagescmt} = $record;
         } elsif ($psinfo->{headerpos} == 0 && $keyword eq "EndComments") {
           $psinfo->{headerpos} = $next_record;
-        } elsif ($keyword eq "BeginDocument" ||
-                   $keyword eq "BeginBinary" ||
-                   $keyword eq "BeginFile") {
+        } elsif ($keyword eq "BeginDocument:" ||
+                   $keyword eq "BeginBinary:" ||
+                   $keyword eq "BeginFile:") {
           $nesting++;
         } elsif ($keyword eq "EndDocument" ||
                    $keyword eq "EndBinary" ||
