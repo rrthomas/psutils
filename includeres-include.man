@@ -3,7 +3,7 @@ includeres - include resources in a PostScript document
 
 [>DESCRIPTION]
 .PP
-.B Includeres
+.B includeres
 includes resources (fonts, procsets, patterns, files, etc.) in place of
 .B %%IncludeResource
 comments in a PostScript document.

@@ -2,7 +2,7 @@
 psselect - select pages from a PostScript document
 
 [>DESCRIPTION]
-.B Psselect
+.B psselect
 calls
-.B Pstops
+.B pstops
 to do the rearrangement.

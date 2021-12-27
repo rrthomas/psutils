@@ -3,9 +3,9 @@ psnup - put multiple pages of a PostScript document on to one page
 
 [>DESCRIPTION]
 .PP
-.B Psnup
+.B psnup
 uses
-.B Pstops
+.B pstops
 to impose multiple logical pages on to each physical sheet of paper.
 .PP
 Paper sizes can be given either as a name (see

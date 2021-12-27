@@ -3,7 +3,7 @@ extractres - extract resources from a PostScript document
 
 [>DESCRIPTION]
 .PP
-.B Extractres
+.B extractres
 extracts resources (fonts, procsets, patterns, files, etc) appearing in a
 PostScript document, and puts appropriate
 .B %%IncludeResource

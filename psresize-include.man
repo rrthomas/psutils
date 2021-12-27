@@ -3,9 +3,9 @@ psresize - change the page size of a PostScript document
 
 [>DESCRIPTION]
 .PP
-.B Psresize
+.B psresize
 uses
-.B Psnup
+.B psnup
 to change the page size of a document, scaling and centering it appropriately.
 See
 .BR psutils (1)

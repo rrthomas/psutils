@@ -142,5 +142,5 @@ for the reverse sides (or join them with a comma for duplex printing).
 
 [>AUTHOR]
 .SH BUGS
-.B Pstops
+.B pstops
 does not accept all DSC comments.
