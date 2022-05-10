@@ -12,6 +12,10 @@ AC_PATH_PROG(PERL, perl)
 # Require GNU Make
 AX_CHECK_GNU_MAKE([], [AC_MSG_ERROR([make must be GNU Make])])
 
+# Require libpaper
+AC_PATH_PROG(PAPER, paper)
+AS_IF([test -z "$ac_cv_path_PAPER"], AC_MSG_ERROR([psutils needs libpaper to work]))
+
 # help2man
 # Set a value even if not found, so that an invocation via build-aux/missing works
 AC_PATH_PROG([HELP2MAN], [help2man], [help2man])
