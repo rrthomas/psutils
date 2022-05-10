@@ -2,7 +2,7 @@
 # -*- perl -*-
 my $version_banner = <<END;
 psresize @VERSION@
-Copyright (c) Reuben Thomas 2016-2021.
+Copyright (c) Reuben Thomas 2016-2022.
 Released under the GPL version 3, or (at your option) any later version.
 END
 
@@ -56,7 +56,7 @@ Change the page size of a PostScript document.
   -P, --inpaper=PAPER  input paper size
   -q, --quiet          don't show page numbers being output
       --help           display this help and exit
-      --version        display version information and exit
+  -v, --version        display version information and exit
 END
   exit $exit_code;
 }
@@ -74,7 +74,7 @@ GetOptions(
   "inheight|H=s" => sub { push @psnup_args, "-H", $_[1]; },
   "quiet|q" => sub { push @psnup_args, "-q"; },
   "help" => \$help_flag,
-  "version" => \$version_flag,
+  "version|v" => \$version_flag,
  ) or usage(1);
 if ($version_flag) {
   print STDERR $version_banner;

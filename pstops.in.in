@@ -2,7 +2,7 @@
 # -*- perl -*-
 my $version_banner = <<END;
 pstops @VERSION@
-Copyright (c) Reuben Thomas 2017-2020.
+Copyright (c) Reuben Thomas 2017-2022.
 Released under the GPL version 3, or (at your option) any later version.
 END
 
@@ -124,7 +124,7 @@ Rearrange pages of a PostScript document.
                           may be needed for complex page rearrangements
   -q, --quiet             don't show page numbers being output
       --help              display this help and exit
-      --version           display version information and exit
+  -v, --version           display version information and exit
 
 PAGES is a comma-separated list of pages and page ranges.
 
@@ -222,7 +222,7 @@ GetOptions(
   "nobind|b" => \$nobinding,
   "quiet|q" => sub { $verbose = 0; },
   "help" => \$help_flag,
-  "version" => \$version_flag,
+  "version|v" => \$version_flag,
  ) or usage(1);
 if ($version_flag) {
   print STDERR $version_banner;

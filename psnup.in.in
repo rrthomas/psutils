@@ -2,7 +2,7 @@
 # -*- perl -*-
 my $version_banner = <<END;
 psnup @VERSION@
-Copyright (c) Reuben Thomas 2016-2021.
+Copyright (c) Reuben Thomas 2016-2022.
 Released under the GPL version 3, or (at your option) any later version.
 END
 
@@ -73,7 +73,7 @@ Put multiple pages of a PostScript document on to one page.
   -t, --tolerance=NUMBER   maximum wasted area in square pt [default: 100,000]
   -q, --quiet              don't show page numbers being output
       --help               display this help and exit
-      --version            display version information and exit
+  -v, --version            display version information and exit
 
 psnup aborts with an error if it cannot arrange the input pages so as to
 waste less than the given tolerance.
@@ -138,7 +138,7 @@ GetOptions(
   "tolerance|t=i" => \$tolerance,
   "quiet|q" => sub { push @pstops_args, "-q"; },
   "help" => \$help_flag,
-  "version" => \$version_flag,
+  "version|v" => \$version_flag,
   "n=s" => \&parsenup, # for compatibility with other psnup implementations
  ) or usage(1);
 if ($version_flag) {

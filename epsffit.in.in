@@ -2,7 +2,7 @@
 # -*- perl -*-
 my $version_banner = <<END;
 epsffit @VERSION@
-Copyright (c) Reuben Thomas 2016.
+Copyright (c) Reuben Thomas 2016-2022.
 Released under the GPL version 3, or (at your option) any later version.
 END
 
@@ -58,7 +58,7 @@ Fit an Encapsulated PostScript file to a given bounding box.
   -m, --maximize       rotate the image to fill more of the page if possible
   -s, --showpage       append a /showpage to the file to force printing
       --help           display this help and exit
-      --version        display version information and exit
+  -v, --version        display version information and exit
 
 (LLX, LLY) are the coordinates of the lower left corner of the box, and
 (URX, URY) the upper right.
@@ -79,7 +79,7 @@ my $opts = GetOptions(
   "maximize|maximise|m" => \$maximize,
   "showpage|s" => \$showpage,
   "help" => \$help_flag,
-  "version" => \$version_flag,
+  "version|v" => \$version_flag,
  ) or usage(1);
 if ($version_flag) {
   print STDERR $version_banner;

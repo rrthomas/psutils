@@ -3,7 +3,7 @@
 my $version_banner = <<END;
 psjoin @VERSION@
 Copyright (c) Tom Sato 2002-2003.
-Copyright (c) Reuben Thomas 2013-2020.
+Copyright (c) Reuben Thomas 2013-2022.
 Released under the GPL version 3, or (at your option) any later version.
 END
 
@@ -55,7 +55,7 @@ Concatenate PostScript documents.
   -s, --save          try to close unclosed save operators
   -n, --nostrip       do not strip prolog or trailer from input files
       --help          display this help and exit
-      --version       display version information and exit
+  -v, --version       display version information and exit
 END
   exit $exit_code;
 }
@@ -74,7 +74,7 @@ GetOptions(
   "save|s" => \$force_save,
   "nostrip|n|p" => \$nostrip,
   "help" => \$help_flag,
-  "version" => \$version_flag,
+  "version|v" => \$version_flag,
  ) or usage(1);
 if ($version_flag) {
   print STDERR $version_banner;

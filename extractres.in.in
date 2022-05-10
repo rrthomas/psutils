@@ -2,7 +2,7 @@
 # -*- perl -*-
 my $version_banner = <<END;
 extractres @VERSION@
-Copyright (c) Reuben Thomas 2012-2019.
+Copyright (c) Reuben Thomas 2012-2022.
 Copyright (c) Angus J. C. Duggan 1991-1997.
 END
 # This program is distributed under the following license (effectively, BSD
@@ -78,7 +78,7 @@ Extract resources from a PostScript document.
   -m, --merge          merge resources of the same name into one file
                        (needed e.g. for fonts output in multiple blocks)
       --help           display this help and exit
-      --version        display version information and exit
+  -v, --version        display version information and exit
 END
   exit $exit_code;
 }
@@ -89,7 +89,7 @@ Getopt::Long::Configure("bundling");
 my $opts = GetOptions(
   "merge|m" => \$merge,
   "help" => \$help_flag,
-  "version" => \$version_flag,
+  "version|v" => \$version_flag,
  ) or usage(1);
 if ($version_flag) {
   print STDERR $version_banner;
