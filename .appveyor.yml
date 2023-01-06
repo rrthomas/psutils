@@ -23,6 +23,7 @@ for:
       - image: macos
   init:
     - brew install help2man
+    - export PATH="/usr/local/opt/m4/bin:$PATH"
     - sudo cpan -i IPC::Run3
   cache:
     - '/usr/local/Cellar/'
