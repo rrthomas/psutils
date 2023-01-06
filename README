@@ -78,37 +78,11 @@ Duggan's dvibook; pstops is modeled on Tom Rokicki's dvidvi. psjoin was
 originally written by Tom Sato: http://t-sato.in.coocan.jp
 
 Bug fixes and suggestions for improvements to PSUtils have come from many
-people, including:
-
-        Brian Colfer            brianc@labmed.ucsf.edu
-        Charles A. Finnell      finnell@org.mitre.lear
-        Conrad Kimball          cek@com.boeing.sdc
-        J. W. Hawtin
-        Jochen Schwarze         schwarze@de.isa
-        Ken Carpenter           khc@edu.ksu.eece
-        Kristian Jorg           etxkrjg@se.ericsson.solsta
-        Larry Weissman          larryw@nsr.bioeng.washington.edu 
-        Michael L. Brown        brown@wi.extrel.com
-        Hunter Goatley	        goathunter@wkuvx1.bitnet
-        John Interrante         interran@uluru.Stanford.edu
-        Maurizio Cremonesi      MAUCREM@imiclvx.earn
-        Matthew Stier           Matthew.Stier@East.Sun.com
-        Gerry Pratt             cca13@seq1.kl.ac.uk
-        Robert Joop             rj@rainbow.in-berlin.de
-	Johan Vromans		jv@mh.nl
-	Bryan Faubion		bryanf@tc.fluke.com
-	Chris Ritson		C.R.Ritson@ncl.ac.uk
-	Michele Marziani	MARZIANI@VAXFE.INFN.IT
-	Michael I. Schwartz	mschwart@diana.cair.du.edu
-	Chris Ritson		C.R.Ritson@newcastle.ac.uk
-	Joerg Eisenreich
-	Andreas Borchert	borchert@mathematik.uni-ulm.de
-	Mike Coleman
-	Dale Scheetz		dwarf@polaris.net
-	Yves Arrouye		arrouye@marin.fdn.fr
-	Stanislav Brabec	utx@penguin.cz
-        Peter Breitenlohner
-        Jiri Popelka
-        Eric S. Raymond
-
-(Apologies to anyone left out; it was not intentional.)
+people (apologies to anyone omitted!), including: Brian Colfer, Charles A.
+Finnell, Conrad Kimball, J. W. Hawtin, Jochen Schwarze, Ken Carpenter,
+Kristian Jorg, Larry Weissman, Michael L. Brown, Hunter Goatley, John
+Interrante, Maurizio Cremonesi, Matthew Stier, Gerry Pratt, Robert Joop,
+Johan Vromans, Bryan Faubion, Chris Ritson, Michele Marziani, Michael I.
+Schwartz, Joerg Eisenreich, Andreas Borchert, Mike Coleman, Dale Scheetz,
+Yves Arrouye, Stanislav Brabec, Peter Breitenlohner, Jiri Popelka, Eric S.
+Raymond.
