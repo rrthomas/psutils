@@ -48,7 +48,7 @@ sub singledimen {
       $num *= $width;
     }
     elsif (/^h/) {
-      Die("paper size not set") if !defined($width);
+      Die("paper size not set") if !defined($height);
       $num *= $height;
     }
     else { Die("bad dimension `$str'") if $str ne ""; };
