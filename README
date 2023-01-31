@@ -27,8 +27,8 @@ output of certain obsolete programs.
 
 PREREQUISITES
 
-PSUtils requires Perl 5.14 or later plus the IPC::Run3 module, and also
-libpaper, which allows named paper sizes to be used and configured:
+PSUtils requires Python 3, and libpaper, which allows named paper sizes to be
+used and configured:
 
 libpaper: https://github.com/rrthomas/libpaper
 

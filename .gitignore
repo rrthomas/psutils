@@ -1,5 +1,6 @@
 /*.1
 *~
+__pycache__/
 psutils*.tar.gz
 /.gitmodules
 Makefile
@@ -24,15 +25,6 @@ Makefile.in
 /psresize
 /psselect
 /pstops
-/epsffit.in
-/extractres.in
-/includeres.in
-/psbook.in
-/psjoin.in
-/psnup.in
-/psresize.in
-/psselect.in
-/pstops.in
 /test-suite.log
 /ISO-8859-1Encoding.enc
 /a2ps-a2ps-hdr2.02.ps

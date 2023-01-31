@@ -1,0 +1,87 @@
+#!/usr/bin/env python3
+version_banner='''\
+%(prog)s @VERSION@
+Copyright (c) Reuben Thomas 2023.
+Released under the GPL version 3, or (at your option) any later version.
+'''
+
+from psutils import *
+
+# Command-line arguments
+parser = argparse.ArgumentParser(
+    description='Extract resources from a PostScript document.',
+    formatter_class=HelpFormatter,
+    usage='%(prog)s [OPTION...] [INFILE [OUTFILE]]',
+    add_help=False,
+)
+parser.add_argument('-m', '--merge', action='store_true',
+                    help='''merge resources of the same name into one file
+(needed e.g. for fonts output in multiple blocks)''')
+parser.add_argument('--help', action='help',
+                    help='show this help message and exit')
+parser.add_argument('-v', '--version', action='version',
+                    version=version_banner)
+parser.add_argument('infile', metavar='INFILE', nargs='?',
+                    help="`-' or no INFILE argument means standard input")
+parser.add_argument('outfile', metavar='OUTFILE', nargs='?',
+                    help="`-' or no OUTFILE argument means standard output")
+args = parser.parse_intermixed_args()
+
+infile, outfile = setup_input_and_output(args.infile, args.outfile)
+
+# Resource types
+def get_type(comment):
+    types = {'%%BeginFile:': 'file', '%%BeginProcSet:': 'procset',
+             '%%BeginFont:': 'font'}
+    return types.get(comment, None)
+
+# Extract resources
+resources = {} # resources included
+merge = {} # resources extracted this time
+prolog = []
+body = []
+output = prolog
+fh = None
+
+for line in infile:
+    if re.match(r'%%Begin(Resource|Font|ProcSet):', line):
+        comment, *res = line.split() # look at resource type
+        type = get_type(comment) or res.pop(0)
+        name = filename(*res, extn(type)) # make file name
+        saveout = output
+        if resources.get(name) is None:
+            prolog.append(f'%%IncludeResource: {type} {" ".join(res)}\n')
+            if not os.path.exists(name):
+                try:
+                    fh = open(name, 'w')
+                except IOError:
+                    die("can't write file `$name'", 2)
+                resources[name] = []
+                merge[name] = merge
+                output = resources[name]
+            else: # resource already exists
+                if fh is not None:
+                    fh.close()
+                output = None
+        elif merge.get(name):
+            try:
+                fh = open(name, 'a+')
+            except IOError:
+                die("can't append to file `$name'", 2)
+            resources[name] = []
+            output = resources[name]
+        else: # resource already included
+            output = None
+    elif re.match(r'%%End(Resource|Font|ProcSet)', line):
+        if output is not None:
+            output.append(line)
+            fh.writelines(output)
+        output = saveout
+        continue
+    elif re.match(r'%%End(Prolog|Setup)', line) or line.startswith('%%Page:'):
+        output = body
+    if output is not None:
+        output.append(line)
+
+outfile.writelines(prolog)
+outfile.writelines(body)

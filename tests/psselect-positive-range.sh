@@ -1,1 +1,1 @@
-test a4 20 psselect 1-5
+test a4 20 psselect --pages 1-5
