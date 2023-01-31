@@ -57,9 +57,9 @@ sub singledimen {
   return $num;
 }
 
-# Get the size of the given paper, or the default paper if no argument given.
 sub paper {
   my ($cmd, $silent) = @_;
+  unshift @{$cmd}, "--no-size" if $#{$cmd} == -1;
   unshift @{$cmd}, "paper";
   my $out;
   run3 $cmd, undef, \$out, $silent ? \undef : undef, {return_if_system_error=>1};
@@ -70,6 +70,7 @@ sub paper {
   }
 }
 
+# Get the size of the given paper, or the default paper if no argument given.
 sub paper_size {
   my ($paper_name) = @_;
   $paper_name = paper([]) unless defined($paper_name);
