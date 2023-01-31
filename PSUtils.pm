@@ -76,7 +76,7 @@ sub paper_size {
   my $dimensions = paper(["--unit=pt", $paper_name], 1) or return;
   $dimensions =~ / ([.0-9]+)x([.0-9]+) pt$/;
   my $old_locale = setlocale(LC_ALL);
-  setlocale(LC_ALL, "");
+  setlocale(LC_ALL, "C");
   my ($w, $w_unparsed) = strtod($1);
   my ($h, $h_unparsed) = strtod($2);
   setlocale(LC_ALL, $old_locale);
