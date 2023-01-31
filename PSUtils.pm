@@ -72,7 +72,7 @@ sub paper {
 
 sub paper_size {
   my ($paper_name) = @_;
-  chomp($paper_name = paper([])) unless defined($paper_name);
+  $paper_name = paper([]) unless defined($paper_name);
   my $dimensions = paper(["--unit=pt", "$paper_name"], 1) or return;
   $dimensions =~ / ([.0-9]+)x([.0-9]+) pt$/;
   my $old_locale = setlocale(LC_ALL);
