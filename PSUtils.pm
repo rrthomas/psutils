@@ -182,9 +182,9 @@ sub setup_input_and_output {
     my $file = shift @ARGV;
     open($infile, $file) or Die("cannot open input file $file");
   }
-  binmode($infile) or Die("could not set input to binary mode");
   $infile = seekable($infile) or Die("cannot make input seekable")
     if $seekable;
+  binmode($infile) or Die("could not set input to binary mode");
 
   if ($#ARGV >= 0) {            # User specified an output file
     my $file = shift @ARGV;
@@ -195,7 +195,7 @@ sub setup_input_and_output {
   return $infile, $outfile;
 }
 
-# Make a file seekable, using temporary files if necessary
+# Make a file seekable, using a temporary file if necessary
 sub seekable {
   my ($fp) = @_;
 
@@ -206,9 +206,8 @@ sub seekable {
   my $ft = tempfile() or return;
   copy($fp, $ft) or return;
 
-  # Reopen the input stream from the temporary, and rewind it
-  open($fp, "<&=", $ft);
-  return $fp if seek $fp, 0, SEEK_SET;
+  # Rewind and return the new file handle
+  return $ft if seek $ft, 0, SEEK_SET;
 }
 
 # Resource extensions
