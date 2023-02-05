@@ -128,8 +128,8 @@ Rearrange pages of a PostScript document.
 
 PAGES is a comma-separated list of pages and page ranges.
 
-PAGESPECS is a list of page specifications [default is "0", which
-selects each page in its normal order].
+SPECS is a list of page specifications [default is "0", which selects
+each page in its normal order].
 END
   exit $exit_code;
 }
