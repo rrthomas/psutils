@@ -320,7 +320,7 @@ sub page_index_to_page_number {
 
 sub ps_transform {
   my ($ps) = @_;
-  return $ps->{rotate} != 0 || $ps->{hflip} != 0 || $ps->{vflip} != 0 || $ps->{scale} != 1.0 || defined($ps->{xoff});
+  return $ps->{rotate} != 0 || $ps->{hflip} != 0 || $ps->{vflip} != 0 || $ps->{scale} != 1.0 || $ps->{xoff} || $ps->{yoff};
 }
 
 sub pstops {
