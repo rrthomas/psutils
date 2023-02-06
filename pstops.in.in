@@ -364,14 +364,10 @@ sub pstops {
   my $global_transform = $scale != 1.0 || $rotate != 0;
   my $use_procset = $global_transform;
   if ($use_procset == 0) {
-    PAGE: foreach my $page (@$specs) {
-      if ($#{$page} > 0) {
+    foreach my $page (@$specs) {
+      if ($#{$page} > 0 || ps_transform(${$page}[0])) {
         $use_procset = 1;
-        last PAGE;
-      }
-      foreach my $ps (@$page) {
-        $use_procset |= ps_transform($ps);
-        last PAGE if $use_procset;
+        last;
       }
     }
   }
