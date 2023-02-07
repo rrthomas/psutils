@@ -153,8 +153,7 @@ if ($nostrip) {
   }
 }
 
-my @files = @ARGV;
-@files = map basename($_), @ARGV;
+my @files = map basename($_), @ARGV;
 
 print <<END;
 %!PS-Adobe-3.0
