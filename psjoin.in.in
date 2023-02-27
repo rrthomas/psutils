@@ -3,7 +3,7 @@
 my $version_banner = <<END;
 psjoin @VERSION@
 Copyright (c) Tom Sato 2002-2003.
-Copyright (c) Reuben Thomas 2013-2022.
+Copyright (c) Reuben Thomas 2013-2023.
 Released under the GPL version 3, or (at your option) any later version.
 END
 
