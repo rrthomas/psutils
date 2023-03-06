@@ -113,7 +113,6 @@ my %resources = ();             # list of resources included
 my %merge = ();                 # list of resources extracted this time
 my $prolog = "";
 my $body = "";
-my $resource = "";
 my $output = \$prolog;
 my $saveout;
 
