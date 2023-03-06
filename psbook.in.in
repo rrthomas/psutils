@@ -57,7 +57,7 @@ Rearrange pages in a PostScript document into signatures.
 
   -s, --signature=N    number of pages per signature;
                        0 = all pages in one signature [default];
-                       1 = one page per signature;
+                       1 = do not rearrange the pages;
                        otherwise, a multiple of 4
   -q, --quiet          don't show page numbers being output
       --help           display this help and exit
