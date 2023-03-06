@@ -21,8 +21,7 @@ The PSUtils utilities intentionally do not check their input is
 DSC-conformant, as some programs produce non-conforming output that can be
 successfully processed anyway. If PSUtils does not work for you, check
 whether your software needs to be configured to produce DSC-conformant
-PostScript. The old-scripts directory contains some scripts that fix the
-output of certain obsolete programs.
+PostScript.
 
 
 PREREQUISITES
