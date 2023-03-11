@@ -1,0 +1,11 @@
+include psutils.1
+include man-include.man
+include pstops-include.man
+include psbook-include.man
+include psselect-include.man
+include psnup-include.man
+include psresize-include.man
+include psjoin-include.man
+include extractres-include.man
+include includeres-include.man
+include epsffit-include.man

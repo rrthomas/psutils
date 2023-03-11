@@ -3,26 +3,23 @@
 
 set -e
 
-test_file=$1
-name=${1%.sh}
-basename=$(basename $name)
-
 # Test files are checked in to avoid problems with changes in a2ps
-# Uncomment the last line of the function to regenerate the files
+# Uncomment the last two lines of the function to regenerate the files
 function generate_input() {
     local paper=$1
     local pages=$2
     shift 2
-    #"$srcdir/mktestfile" "$paper" "$pages" "$basename" > "tests/$basename-input.ps"
+    #testname=$(basename $(dirname $0))
+    #../../mktestfile "$paper" "$pages" "$testname" > input.ps
 }
 
 function do_test() {
-    eval "$@" "$srcdir/$basename-input.ps" > "tests/$basename-output.ps"
+    eval "$@" input.ps > output.ps
 }
 
 function custom_input_test() {
     do_test "$@"
-    diff -u --ignore-matching-lines="^\(% \)\?%%CreationDate" "$srcdir/$basename-expected.ps" "tests/$basename-output.ps"
+    diff -u --ignore-matching-lines="^\(% \)\?%%CreationDate" expected.ps output.ps
 }
 
 # Arguments are command to run
@@ -38,4 +35,4 @@ function no_output_test() {
     do_test "$@"
 }
 
-source $test_file
+source test.sh
