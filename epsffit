@@ -2,7 +2,7 @@
 import pkg_resources
 VERSION = pkg_resources.require('psutils')[0].version
 version_banner=f'''\
-%(prog)s ''' + '{VERSION}' + '''
+%(prog)s {VERSION}
 Copyright (c) Reuben Thomas 2023.
 Released under the GPL version 3, or (at your option) any later version.
 '''
