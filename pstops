@@ -231,11 +231,11 @@ def pstops(pagerange, modulo, pps, odd, even, reverse, nobind, specs, draw, igno
         r['to'] = abs_page(r['to'])
 
     # Get list of pages
-    page_map: List[int] = []
+    page_list: List[int] = []
     # Returns -1 for an inserted blank page (page number '_')
     def page_to_real_page(p: int) -> int:
         try:
-            return page_map[p]
+            return page_list[p]
         except:
             return 0
 
@@ -246,16 +246,16 @@ def pstops(pagerange, modulo, pps, odd, even, reverse, nobind, specs, draw, igno
             if currentpg > psinfo['pages']:
                 die(f"page range {r['text']} is invalid", 2)
             if not(odd and (not even) and currentpg % 2 == 0) and not(even and not odd and currentpg % 2 == 1):
-                page_map.append(currentpg - 1)
+                page_list.append(currentpg - 1)
             currentpg += inc
-    pages_to_output = len(page_map)
+    pages_to_output = len(page_list)
 
     # Calculate highest page number output (including any blanks)
     maxpage = pages_to_output + (modulo - pages_to_output % modulo) % modulo
 
     # Reverse page list if reversing pages
     if reverse:
-        page_map.reverse()
+        page_list.reverse()
 
     # Work out whether we need procset
     global_transform = scale != 1.0 or rotate != 0
