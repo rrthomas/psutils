@@ -14,7 +14,7 @@ function generate_input() {
 }
 
 function do_test() {
-    eval "$@" input.ps > output.ps
+    eval "$@" input.ps > output.ps 2> stderr.txt
 }
 
 function custom_input_test() {
