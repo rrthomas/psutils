@@ -48,11 +48,11 @@ fh = None
 for line in infile:
     if re.match(r'%%Begin(Resource|Font|ProcSet):', line):
         comment, *res = line.split() # look at resource type
-        type = get_type(comment) or res.pop(0)
-        name = filename(*res, extn(type)) # make file name
+        resource_type = get_type(comment) or res.pop(0)
+        name = filename(*res, extn(resource_type)) # make file name
         saveout = output
         if resources.get(name) is None:
-            prolog.append(f'%%IncludeResource: {type} {" ".join(res)}\n')
+            prolog.append(f'%%IncludeResource: {resource_type} {" ".join(res)}\n')
             if not os.path.exists(name):
                 try:
                     fh = open(name, 'w')

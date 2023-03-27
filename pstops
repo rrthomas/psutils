@@ -29,7 +29,6 @@ iwidth, iheight = None, None
 flipping = 0 # any spec includes page flip
 modulo = 1
 pagesperspec = 1
-pagelabel = None
 pageno = None
 outputpage = 0
 scale = 1.0 # global scale factor
@@ -37,20 +36,20 @@ rotate = 0 # global rotation
 
 # Command-line parsing helper functions
 def specerror():
-    die(f'''bad page specification:
+    die('''bad page specification:
 
   PAGESPECS = [MODULO:]SPEC
-  SPEC      = [-]PAGENO[\@SCALE][L|R|U|H|V][(XOFF,YOFF)][,SPEC|+SPEC]
+  SPEC      = [-]PAGENO[@SCALE][L|R|U|H|V][(XOFF,YOFF)][,SPEC|+SPEC]
               MODULO >= 1; 0 <= PAGENO < MODULO''')
 
 def parsespecs(s: str):
-    global modulo, pagesperspec
+    global modulo, pagesperspec, flipping
     m = re.match(r'(?:([^:]+):)?(.*)', s)
     if not m:
         specerror()
-    modulo, specs_text = int(m[1] or '1'), m[2];
+    modulo, specs_text = int(m[1] or '1'), m[2]
     # Split on commas but not inside parentheses.
-    pages_text = re.split(',(?![^()]*\))', specs_text)
+    pages_text = re.split(r',(?![^()]*\))', specs_text)
     pagesperspec = len(pages_text)
     pages = []
     angle = {'l': 90, 'r': -90, 'u': 180}
@@ -236,7 +235,7 @@ def pstops(pagerange, modulo, pps, odd, even, reverse, nobind, specs, draw, igno
     def page_to_real_page(p: int) -> int:
         try:
             return page_list[p]
-        except:
+        except IndexError:
             return 0
 
     for r in pagerange:
@@ -305,7 +304,7 @@ def pstops(pagerange, modulo, pps, odd, even, reverse, nobind, specs, draw, igno
             for ps in page:
                 page_number = page_index_to_page_number(ps, maxpage, modulo, pagebase)
                 real_page = page_to_real_page(page_number)
-                if page_number < pages_to_output and real_page >= 0 and real_page < psinfo['pages']:
+                if page_number < pages_to_output and 0 <= real_page < psinfo['pages']:
                     # Seek the page
                     p = real_page
                     infile.seek(psinfo['pageptr'][p])
@@ -344,6 +343,7 @@ def pstops(pagerange, modulo, pps, odd, even, reverse, nobind, specs, draw, igno
                         print(f"{ps['scale'] * scale:f} dup scale", file=outfile)
                     print('userdict/PStoPSmatrix matrix currentmatrix put', file=outfile)
                     if iwidth is not None:
+                        # pylint: disable=invalid-unary-operand-type
                         print(f'''userdict/PStoPSclip{{0 0 moveto
  {iwidth:f} 0 rlineto 0 {iheight:f} rlineto {-iwidth:f} 0 rlineto
  closepath}}put initclip''', file=outfile)
@@ -378,6 +378,7 @@ def pstops(pagerange, modulo, pps, odd, even, reverse, nobind, specs, draw, igno
         pagebase += modulo
 
     # Write trailer
+    # pylint: disable=invalid-sequence-index
     infile.seek(psinfo['pageptr'][psinfo['pages']])
     shutil.copyfileobj(infile, outfile)
     if args.verbose:

@@ -48,11 +48,11 @@ infile, outfile = setup_input_and_output(args.infile, args.outfile, True)
 psinfo = parse_file(infile)
 input_pages = psinfo['pages']
 
-def page_index_to_real_page(maxpage: int, signature: int, page_number: int) -> int:
+def page_index_to_real_page(signature: int, page_number: int) -> int:
     real_page = page_number - page_number % signature
     page_on_sheet = page_number % 4
     recto_verso = (page_number % signature) // 2
-    if page_on_sheet == 0 or page_on_sheet == 3:
+    if page_on_sheet in (0, 3):
         real_page += signature - 1 - recto_verso
     else:
         real_page += recto_verso
@@ -69,8 +69,8 @@ else:
 # Compute page list
 page_list = []
 for page in range(maxpage):
-  real_page = page_index_to_real_page(maxpage, signature, page)
-  page_list.append(str(real_page) if real_page <= input_pages else '_')
+    real_page = page_index_to_real_page(signature, page)
+    page_list.append(str(real_page) if real_page <= input_pages else '_')
 
 # Rearrange pages
 cmd = ['pstops']

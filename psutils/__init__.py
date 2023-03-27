@@ -14,7 +14,7 @@ import re
 import warnings
 from warnings import warn
 from typing import (
-    Any, List, Optional, Union, Type, NoReturn,
+    Any, List, Optional, Union, Type, NoReturn, IO, TextIO,
 )
 
 import __main__
@@ -26,22 +26,21 @@ class HelpFormatter(argparse.RawTextHelpFormatter):
         if not action.option_strings:
             metavar, = self._metavar_formatter(action, action.dest)(1)
             return metavar
+        parts = []
+        if action.nargs == 0:
+            # Option takes no argument, output: -s, --long
+            parts.extend(action.option_strings)
         else:
-            parts = []
-            if action.nargs == 0:
-                # Option takes no argument, output: -s, --long
-                parts.extend(action.option_strings)
-            else:
-                # Option takes an argument, output: -s, --long ARGUMENT
-                default = action.dest.upper()
-                args_string = self._format_args(action, default)
-                for option_string in action.option_strings:
-                    parts.append(option_string)
-                parts[-1] += f' {args_string}'
-            # Add space at start of format string if there is no short option
-            if len(action.option_strings) > 0 and action.option_strings[0][1] == '-':
-                parts[-1] = '    ' + parts[-1]
-            return ', '.join(parts)
+            # Option takes an argument, output: -s, --long ARGUMENT
+            default = action.dest.upper()
+            args_string = self._format_args(action, default)
+            for option_string in action.option_strings:
+                parts.append(option_string)
+            parts[-1] += f' {args_string}'
+        # Add space at start of format string if there is no short option
+        if len(action.option_strings) > 0 and action.option_strings[0][1] == '-':
+            parts[-1] = '    ' + parts[-1]
+        return ', '.join(parts)
 
 # Error messages
 def simple_warning( # pylint: disable=too-many-arguments
@@ -52,6 +51,7 @@ def simple_warning( # pylint: disable=too-many-arguments
         file: Optional[TextIO] = sys.stderr, # pylint: disable=redefined-outer-name
         line: Optional[str] = None # pylint: disable=unused-argument
 ) -> None:
+    # pylint: disable=c-extension-no-member
     print(f'\n{__main__.parser.prog}: {message}', file=file or sys.stderr)
 warnings.showwarning = simple_warning
 
@@ -101,14 +101,14 @@ def singledimen(s: str, width: Optional[float] = None, height: Optional[float] =
     return num
 
 # Get the size of the given paper, or the default paper if no argument given.
-def paper(cmd: List[str], silent: bool):
+def paper(cmd: List[str], silent: bool = False):
     cmd.insert(0, 'paper')
     try:
         out = subprocess.check_output(cmd, stderr=subprocess.DEVNULL if silent else None, text=True)
         return out.rstrip()
     except subprocess.CalledProcessError:
         return None
-    except:
+    except: # pylint: disable=bare-except
         die("could not run `paper' command")
 
 def paper_size(paper_name: Optional[str] = None):
@@ -129,14 +129,14 @@ def parsepaper(paper: str):
             if width and height:
                 width, height = singledimen(width), singledimen(height)
         return width, height
-    except:
+    except: # pylint: disable=bare-except
         die(f"paper size '{paper}' unknown")
 
 def parse_input_paper(s: str):
-  __main__.iwidth, __main__.iheight = parsepaper(s)
+    __main__.iwidth, __main__.iheight = parsepaper(s)
 
 def parse_output_paper(s: str):
-  __main__.width, __main__.height = parsepaper(s)
+    __main__.width, __main__.height = parsepaper(s)
 
 def parsedimen(s: str):
     return singledimen(s, __main__.width, __main__.height)
@@ -149,6 +149,7 @@ def comment(line: str) -> Optional[(str, str)]:
     m = re.match(r'%%(\S+)\s+?(.*\S?)\s*$', line)
     if m:
         return m[1], m[2]
+    return None
 
 # Build array of pointers to start/end of pages
 def parse_file(infile: IO, explicit_output_paper: bool = False):
@@ -168,7 +169,7 @@ def parse_file(infile: IO, explicit_output_paper: bool = False):
     for buffer in infile:
         next_record += len(buffer)
         if buffer.startswith('%%'):
-            keyword, value = comment(buffer)
+            keyword, _ = comment(buffer)
             if keyword is not None:
                 if nesting == 0 and keyword == 'Page:':
                     psinfo['pageptr'].append(record)
@@ -210,7 +211,7 @@ def setup_input_and_output(infile_name: str, outfile_name: str, make_seekable: b
     if infile_name is not None:
         try:
             infile = open(infile_name)
-        except:
+        except IOError:
             die(f'cannot open input file {infile_name}')
     else:
         infile = sys.stdin
@@ -223,7 +224,7 @@ def setup_input_and_output(infile_name: str, outfile_name: str, make_seekable: b
     if outfile_name is not None:
         try:
             outfile = open(outfile_name, 'w')
-        except:
+        except IOError:
             die(f'cannot open output file {outfile_name}')
     else:
         outfile = sys.stdout

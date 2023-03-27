@@ -53,7 +53,7 @@ bbfound = False # %%BoundingBox: found
 for line in infile:
     if re.match(r'%[%!]', line): # still in comment section
         if line.startswith('%%BoundingBox:'):
-            m = re.match('%%BoundingBox: +([\d.]+) +([\d.]+) +([\d.]+) +([\d.]+)$', line)
+            m = re.match(r'%%BoundingBox: +([\d.]+) +([\d.]+) +([\d.]+) +([\d.]+)$', line)
             if m:
                 bbfound = True
                 llx = int(m[1]) # accept doubles, but convert to int
@@ -92,12 +92,12 @@ if not args.aspect: # preserve aspect ratio?
 width *= xscale # actual width and height after scaling
 height *= yscale
 if args.center:
-   if rotate:
-      xoffset += (fheight - height) / 2
-      yoffset += (fwidth - width) / 2
-   else:
-      xoffset += (fwidth - width) / 2
-      yoffset += (fheight - height) / 2
+    if rotate:
+        xoffset += (fheight - height) / 2
+        yoffset += (fwidth - width) / 2
+    else:
+        xoffset += (fwidth - width) / 2
+        yoffset += (fheight - height) / 2
 print(f'%%BoundingBox: {int(xoffset)} {int(yoffset)} {int(xoffset + (height if rotate else width))} {int(yoffset + (width if rotate else height))}', file=outfile)
 if rotate: # compensate for original image shift
     xoffset += height + lly * yscale # displacement for rotation

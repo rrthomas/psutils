@@ -72,7 +72,7 @@ else:
                     in_comment = False
                 comments[i] += line
                 continue
-            elif in_prolog:
+            if in_prolog:
                 if line.startswith('%%Page:'):
                     in_prolog = False
                 else:
@@ -97,7 +97,7 @@ else:
                     break
 
     largest = 0
-    prolog_inx = 0;
+    prolog_inx = 0
     for i, file in enumerate(args.file):
         size = len(prolog[i]) * pages[i]
         if largest < size:
@@ -177,7 +177,7 @@ for i in range(len(args.file)):
                 elif args.save:
                     print(save, end='')
             else:
-                print(re.sub(r'^(%[%!])', r'% \1', line), end='');
+                print(re.sub(r'^(%[%!])', r'% \1', line), end='')
 
     fh.close()
 

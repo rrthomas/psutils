@@ -31,16 +31,16 @@ infile, outfile = setup_input_and_output(args.infile, args.outfile)
 # Include resources
 for line in infile:
     if line.startswith('%%IncludeResource:'):
-        comment, type, *res = line.split()
+        comment, resource_type, *res = line.split()
         name = filename(*res)
         fullname = name
         if not os.path.exists(fullname):
-            fullname += extn(type)
+            fullname += extn(resource_type)
         try:
             with open(fullname) as fh:
                 outfile.write(fh.read())
         except IOError:
-            print(f'%%IncludeResource: {" ".join([type, *res])}', file=outfile)
+            print(f'%%IncludeResource: {" ".join([resource_type, *res])}', file=outfile)
             warn(f"resource `{name}' not found")
     else:
         outfile.write(line)
