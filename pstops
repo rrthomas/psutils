@@ -320,14 +320,14 @@ def pstops(pagerange, modulo, pps, odd, even, reverse, nobind, specs, draw, igno
                 if spec_page_number == 0: # page label contains original pages
                     pagelabels = []
                     for spec in page:
-                        pagelabels.append(page_to_real_page(page_index_to_page_number(spec, maxpage, modulo, pagebase)) + 1)
-                    pagelabel = f'{",".join([str(l) for l in pagelabels])}'
+                        n = page_to_real_page(page_index_to_page_number(spec, maxpage, modulo, pagebase))
+                        pagelabels.append(str(n + 1) if n >= 0 else '*')
+                    pagelabel = ",".join(pagelabels)
                     # Write page comment
-                    use_page_label = page_number < pages_to_output and 0 <= real_page < psinfo['pages']
-                    if args.verbose:
-                        print(f'[{pagelabel if use_page_label else "*"}] ', end='', file=sys.stderr)
                     outputpage += 1
-                    print(f'%%Page: {"(" + pagelabel + ")" if use_page_label else "*"} {outputpage}', file=outfile)
+                    print(f'%%Page: ({pagelabel}) {outputpage}', file=outfile)
+                    if args.verbose:
+                        sys.stderr.write(f'[{pagelabel}] ')
                 if use_procset:
                     print('userdict/PStoPSsaved save put', file=outfile)
                 if global_transform or ps_transform(ps):
