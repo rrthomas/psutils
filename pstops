@@ -339,11 +339,8 @@ def pstops(pagerange: List[Range], modulo: int, pps: int, odd: bool, even: bool,
                         assert comment(line)[0] == 'Page:'
                     except IOError:
                         die(f'I/O error seeking page {p}', 2)
-                    m = re.match(r'%%Page:\s*(?:\((\d+)\)?\s*(\d+))', line)
-                    assert m
-                    pageno = int(m[2])
-                    pagelabel = m[1] if m[1] is not None else pageno
-                if spec_page_number == 0: # page label contains original pages
+                if spec_page_number == 0: # We are on a new output page
+                    # Construct the page label from the input page numbers
                     pagelabels = []
                     for spec in page:
                         n = page_to_real_page(page_index_to_page_number(spec, maxpage, modulo, pagebase))
