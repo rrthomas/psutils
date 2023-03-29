@@ -2,8 +2,6 @@
 # Copyright (c) Reuben Thomas 2023.
 # Released under the GPL version 3, or (at your option) any later version.
 
-from __future__ import annotations
-
 import os
 import sys
 import argparse
@@ -14,7 +12,7 @@ import re
 import warnings
 from warnings import warn
 from typing import (
-    Any, List, Tuple, Dict, Optional, Union, Type, NoReturn, IO, TextIO,
+    Any, List, Tuple, Optional, Union, Type, NoReturn, IO, TextIO,
 )
 
 import __main__

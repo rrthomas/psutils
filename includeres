@@ -12,7 +12,7 @@ import argparse
 import os
 from warnings import warn
 
-from psutils import *
+from psutils import HelpFormatter, extn, filename, setup_input_and_output
 
 # Command-line arguments
 parser = argparse.ArgumentParser(

@@ -13,7 +13,7 @@ import os
 import re
 from typing import Dict, List, Optional
 
-from psutils import *
+from psutils import HelpFormatter, die, extn, filename, setup_input_and_output
 
 # Command-line arguments
 parser = argparse.ArgumentParser(

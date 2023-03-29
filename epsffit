@@ -10,7 +10,7 @@ Released under the GPL version 3, or (at your option) any later version.
 import argparse
 import re
 
-from psutils import *
+from psutils import HelpFormatter, die, parsedimen, setup_input_and_output
 
 # Command-line arguments
 width, height = None, None # Paper size is unknown, can't use w/h dimensions

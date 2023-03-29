@@ -11,7 +11,7 @@ Released under the GPL version 3, or (at your option) any later version.
 import argparse
 import subprocess
 
-from psutils import *
+from psutils import HelpFormatter, die
 
 # Command-line arguments
 parser = argparse.ArgumentParser(

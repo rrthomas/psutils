@@ -14,7 +14,10 @@ import shutil
 import sys
 from typing import List, NoReturn
 
-from psutils import *
+from psutils import (
+    HelpFormatter, comment, die, parsedraw, parse_file,
+    parse_input_paper, parse_output_paper, setup_input_and_output, singledimen,
+)
 
 # Command-line arguments
 parser = argparse.ArgumentParser(

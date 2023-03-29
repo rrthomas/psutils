@@ -12,7 +12,7 @@ import argparse
 import os
 import re
 
-from psutils import *
+from psutils import HelpFormatter, die
 
 # Command-line arguments
 parser = argparse.ArgumentParser(
