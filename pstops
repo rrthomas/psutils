@@ -40,7 +40,6 @@ flipping = False # any spec includes page flip
 modulo = 1
 pagesperspec = 1
 pageno = None
-outputpage = 0
 scale = 1.0 # global scale factor
 rotate = 0 # global rotation
 
@@ -246,7 +245,7 @@ def ps_transform(ps: PageSpec) -> bool:
     return ps.rotate != 0 or ps.hflip or ps.vflip or ps.scale != 1.0 or ps.xoff != 0.0 or ps.yoff != 0.0
 
 def pstops(pagerange: List[Range], modulo: int, pps: int, odd: bool, even: bool, reverse: bool, nobind: bool, specs: List[List[PageSpec]], draw: bool, ignorelist: List[int]) -> None:
-    global outputpage
+    outputpage = 0
     # If no page range given, select all pages
     if pagerange is None:
         pagerange = parserange('1-_1')
