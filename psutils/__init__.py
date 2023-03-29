@@ -14,7 +14,7 @@ import re
 import warnings
 from warnings import warn
 from typing import (
-    Any, List, Optional, Union, Type, NoReturn, IO, TextIO,
+    Any, List, Tuple, Dict, Optional, Union, Type, NoReturn, IO, TextIO,
 )
 
 import __main__
@@ -22,11 +22,11 @@ import __main__
 # Help output
 # Adapted from https://stackoverflow.com/questions/23936145/python-argparse-help-message-disable-metavar-for-short-options
 class HelpFormatter(argparse.RawTextHelpFormatter):
-    def _format_action_invocation(self, action):
+    def _format_action_invocation(self, action: argparse.Action) -> str:
         if not action.option_strings:
             metavar, = self._metavar_formatter(action, action.dest)(1)
             return metavar
-        parts = []
+        parts: List[str] = []
         if action.nargs == 0:
             # Option takes no argument, output: -s, --long
             parts.extend(action.option_strings)
@@ -68,14 +68,14 @@ strtod_parser = re.compile(r'''    # A numeric string consists of:
     (?:E[-+]?\d+)? # and an optional exponent
 ''', re.VERBOSE | re.IGNORECASE).match
 
-def strtod(s: str):
+def strtod(s: str) -> Tuple[float, int]:
     m = strtod_parser(s)
     if m is None:
         raise ValueError('invalid numeric string')
     return float(m[0]), m.end()
 
 # Argument parsers
-def singledimen(s: str, width: Optional[float] = None, height: Optional[float] = None):
+def singledimen(s: str, width: Optional[float] = None, height: Optional[float] = None) -> float:
     num, unparsed = strtod(s)
     s = s[unparsed:]
 
@@ -101,7 +101,7 @@ def singledimen(s: str, width: Optional[float] = None, height: Optional[float] =
     return num
 
 # Get the size of the given paper, or the default paper if no argument given.
-def paper(cmd: List[str], silent: bool = False):
+def paper(cmd: List[str], silent: bool = False) -> Optional[str]:
     cmd.insert(0, 'paper')
     try:
         out = subprocess.check_output(cmd, stderr=subprocess.DEVNULL if silent else None, text=True)
@@ -111,59 +111,62 @@ def paper(cmd: List[str], silent: bool = False):
     except: # pylint: disable=bare-except
         die("could not run `paper' command")
 
-def paper_size(paper_name: Optional[str] = None):
+def paper_size(paper_name: Optional[str] = None) -> Tuple[Optional[float], Optional[float]]:
     if paper_name is None:
         paper_name = paper([])
-    dimensions = paper(['--unit=pt', paper_name], True)
+    if paper_name is not None:
+        dimensions = paper(['--unit=pt', paper_name], True)
     if dimensions is None:
         return None, None
     m = re.search(' ([.0-9]+)x([.0-9]+) pt$', dimensions)
+    assert m
     w, h = float(m[1]), float(m[2])
     return int(w + 0.5), int(h + 0.5) # round dimensions to nearest point
 
-def parsepaper(paper: str):
+def parsepaper(paper: str) -> Tuple[Optional[float], Optional[float]]:
     try:
         (width, height) = paper_size(paper)
         if width is None:
-            [width, height] = paper.split('x')
-            if width and height:
-                width, height = singledimen(width), singledimen(height)
+            [width_text, height_text] = paper.split('x')
+            if width_text and height_text:
+                width, height = singledimen(width_text), singledimen(height_text)
         return width, height
     except: # pylint: disable=bare-except
         die(f"paper size '{paper}' unknown")
 
-def parse_input_paper(s: str):
-    __main__.iwidth, __main__.iheight = parsepaper(s)
+def parse_input_paper(s: str) -> None:
+    __main__.iwidth, __main__.iheight = parsepaper(s) # type: ignore
 
-def parse_output_paper(s: str):
-    __main__.width, __main__.height = parsepaper(s)
+def parse_output_paper(s: str) -> None:
+    __main__.width, __main__.height = parsepaper(s) # type: ignore
 
-def parsedimen(s: str):
-    return singledimen(s, __main__.width, __main__.height)
+def parsedimen(s: str) -> int:
+    return singledimen(s, __main__.width, __main__.height) # type: ignore
 
-def parsedraw(s: str):
+def parsedraw(s: str) -> int:
     return parsedimen(s or '1')
 
 # Return comment keyword and value if `line' is a DSC comment
-def comment(line: str) -> Optional[(str, str)]:
+def comment(line: str) -> Tuple[Optional[str], Optional[str]]:
     m = re.match(r'%%(\S+)\s+?(.*\S?)\s*$', line)
     if m:
         return m[1], m[2]
-    return None
+    return None, None
+
+class PSInfo:
+    headerpos: int = 0
+    pagescmt: int = 0
+    endsetup: int = 0
+    beginprocset: int = 0 # start and end of pstops procset
+    endprocset: int = 0
+    pages: int = 0
+    sizeheaders: List[int] = []
+    pageptr: List[int] = []
 
 # Build array of pointers to start/end of pages
-def parse_file(infile: IO, explicit_output_paper: bool = False):
+def parse_file(infile: IO[Any], explicit_output_paper: bool = False) -> PSInfo:
     nesting = 0
-    psinfo = {
-        'headerpos': 0,
-        'pagescmt': 0,
-        'endsetup': 0,
-        'beginprocset': 0,          # start and end of pstops procset
-        'endprocset': 0,
-        'pages': None,
-        'sizeheaders': [],
-        'pageptr': [],
-    }
+    psinfo = PSInfo()
     infile.seek(0)
     record, next_record, buffer = 0, 0, None
     for buffer in infile:
@@ -172,42 +175,43 @@ def parse_file(infile: IO, explicit_output_paper: bool = False):
             keyword, _ = comment(buffer)
             if keyword is not None:
                 if nesting == 0 and keyword == 'Page:':
-                    psinfo['pageptr'].append(record)
-                elif psinfo['headerpos'] == 0 and explicit_output_paper and \
+                    psinfo.pageptr.append(record)
+                elif psinfo.headerpos == 0 and explicit_output_paper and \
                     keyword in ['BoundingBox:', 'HiResBoundingBox:', 'DocumentPaperSizes:', 'DocumentMedia:']:
                     # FIXME: read input paper size (from DocumentMedia comment?) if not
                     # set on command line.
-                    psinfo['sizeheaders'].append(record)
-                elif psinfo['headerpos'] == 0 and keyword == 'Pages:':
-                    psinfo['pagescmt'] = record
-                elif psinfo['headerpos'] == 0 and keyword == 'EndComments':
-                    psinfo['headerpos'] = next_record
+                    psinfo.sizeheaders.append(record)
+                elif psinfo.headerpos == 0 and keyword == 'Pages:':
+                    psinfo.pagescmt = record
+                elif psinfo.headerpos == 0 and keyword == 'EndComments':
+                    psinfo.headerpos = next_record
                 elif keyword in ['BeginDocument:', 'BeginBinary:', 'BeginFile:']:
                     nesting += 1
                 elif keyword in ['EndDocument', 'EndBinary', 'EndFile']:
                     nesting -= 1
                 elif nesting == 0 and keyword == 'EndSetup':
-                    psinfo['endsetup'] = record
+                    psinfo.endsetup = record
                 elif nesting == 0 and keyword == 'BeginProlog':
-                    psinfo['headerpos'] = next_record
+                    psinfo.headerpos = next_record
                 elif nesting == 0 and buffer == '%%BeginProcSet: PStoPS':
-                    psinfo['beginprocset'] = record
-                elif psinfo['beginprocset'] is not None and \
-                     psinfo['endprocset'] is None and keyword == 'EndProcSet':
-                    psinfo['endprocset'] = next_record
+                    psinfo.beginprocset = record
+                elif psinfo.beginprocset is not None and \
+                     psinfo.endprocset is None and keyword == 'EndProcSet':
+                    psinfo.endprocset = next_record
                 elif nesting == 0 and keyword in ['Trailer', 'EOF']:
                     break
-        elif psinfo['headerpos'] == 0:
-            psinfo['headerpos'] = record
+        elif psinfo.headerpos == 0:
+            psinfo.headerpos = record
         record = next_record
-    psinfo['pages'] = len(psinfo['pageptr'])
-    psinfo['pageptr'].append(record)
-    if psinfo['endsetup'] == 0 or psinfo['endsetup'] > psinfo['pageptr'][0]:
-        psinfo['endsetup'] = psinfo['pageptr'][0]
+    psinfo.pages = len(psinfo.pageptr)
+    psinfo.pageptr.append(record)
+    if psinfo.endsetup == 0 or psinfo.endsetup > psinfo.pageptr[0]:
+        psinfo.endsetup = psinfo.pageptr[0]
     return psinfo
 
 # Set up input and output files
-def setup_input_and_output(infile_name: str, outfile_name: str, make_seekable: bool = False) -> (IO, IO):
+def setup_input_and_output(infile_name: str, outfile_name: str, make_seekable: bool = False) -> Tuple[IO[Any], IO[Any]]:
+    infile: Optional[IO[Any]] = None
     if infile_name is not None:
         try:
             infile = open(infile_name)
@@ -233,7 +237,7 @@ def setup_input_and_output(infile_name: str, outfile_name: str, make_seekable: b
     return infile, outfile
 
 # Make a file handle seekable, using a temporary file if necessary
-def seekable(fp: IO) -> Optional[IO]:
+def seekable(fp: IO[Any]) -> Optional[IO[Any]]:
     if fp.seekable():
         return fp
 
@@ -246,13 +250,13 @@ def seekable(fp: IO) -> Optional[IO]:
         return None
 
 # Resource extensions
-def extn(ext):
+def extn(ext: str) -> str:
     exts = {'font': '.pfa', 'file': '.ps', 'procset': '.ps',
             'pattern': '.pat', 'form': '.frm', 'encoding': '.enc'}
     return exts.get(ext, '')
 
 # Resource filename
-def filename(*components): # make filename for resource in 'components'
+def filename(*components: str) -> str: # make filename for resource in 'components'
     name = ''
     for c in components: # sanitise name
         c = re.sub(r'[!()\$\#*&\\\|\`\'\"\~\{\}\[\]\<\>\?]', '', c)

@@ -1,11 +1,17 @@
 #!/usr/bin/env python3
 import pkg_resources
+
 VERSION = pkg_resources.require('psutils')[0].version
 version_banner=f'''\
 %(prog)s {VERSION}
 Copyright (c) Reuben Thomas 2023.
 Released under the GPL version 3, or (at your option) any later version.
 '''
+
+import argparse
+import re
+import subprocess
+from typing import Any, List, Optional, Sequence, Tuple, Union
 
 from psutils import *
 
@@ -43,11 +49,11 @@ def parsenup(s: str) -> int:
     return n
 
 class ToggleAction(argparse.Action):
-    def __init__(self, option_strings, dest, nargs=None, default=False, **kwargs):
+    def __init__(self, option_strings: List[str], dest: str, nargs: Optional[str]=None, default: bool=False, **kwargs: Any) -> None:
         if nargs is not None:
             raise ValueError("nargs not allowed")
         super().__init__(option_strings, dest, nargs=0, default=default, **kwargs)
-    def __call__(self, parser, namespace, values, option_string=None):
+    def __call__(self, parser: argparse.ArgumentParser, namespace: argparse.Namespace, values: Union[str, Sequence[Any], None], option_string: Optional[str]=None) -> None:
         setattr(namespace, self.dest, not getattr(namespace, self.dest))
 
 # Command-line parser
@@ -124,6 +130,8 @@ if width is None:
 # Set input height/width from corresponding output value if undefined
 if iwidth is None:
     iwidth, iheight = width, height
+assert iwidth
+assert iheight
 
 # Take account of flip
 if args.flip:
@@ -133,11 +141,11 @@ if args.flip:
 # and dividend.
 # There is probably a much more efficient method of doing this, but the
 # numbers involved are small.
-def nextdiv(n: int, m: int) -> (int, int):
+def nextdiv(n: int, m: int) -> Tuple[int, int]:
     while n < m:
         n += 1
         if m % n == 0:
-            return n, m / n
+            return n, m // n
     return 0, 0
 
 # Command line for pstops
@@ -158,9 +166,11 @@ if args.border > min(ppwid, pphgt):
 # combinations of width*height in both normal and rotated form, and
 # minimise the wasted space.
 best = args.tolerance
-horiz, vert, rotate = None, None, None
+horiz: float
+vert: float
+rotate: float
 
-def reduce_waste(hor: float, ver: float, iwid: float, ihgt: float, rot: float):
+def reduce_waste(hor: float, ver: float, iwid: float, ihgt: float, rot: float) -> None:
     global best, horiz, vert, rotate
     scl = min(pphgt / (ihgt * ver), ppwid / (iwid * hor))
     waste = (ppwid - scl * iwid * hor) ** 2 + (pphgt - scl * ihgt * ver) ** 2

@@ -1,11 +1,18 @@
 #!/usr/bin/env python3
 import pkg_resources
+
 VERSION = pkg_resources.require('psutils')[0].version
 version_banner=f'''\
 %(prog)s {VERSION}
 Copyright (c) Reuben Thomas 2023.
 Released under the GPL version 3, or (at your option) any later version.
 '''
+
+import argparse
+import re
+import shutil
+import sys
+from typing import List, NoReturn
 
 from psutils import *
 
@@ -26,7 +33,7 @@ each page in its normal order].
 # Globals
 width, height = None, None # output paper size
 iwidth, iheight = None, None
-flipping = 0 # any spec includes page flip
+flipping = False # any spec includes page flip
 modulo = 1
 pagesperspec = 1
 pageno = None
@@ -35,14 +42,24 @@ scale = 1.0 # global scale factor
 rotate = 0 # global rotation
 
 # Command-line parsing helper functions
-def specerror():
+def specerror() -> NoReturn:
     die('''bad page specification:
 
   PAGESPECS = [MODULO:]SPEC
   SPEC      = [-]PAGENO[@SCALE][L|R|U|H|V][(XOFF,YOFF)][,SPEC|+SPEC]
               MODULO >= 1; 0 <= PAGENO < MODULO''')
 
-def parsespecs(s: str):
+class PageSpec:
+    reversed: bool = False
+    pageno: int = 0
+    rotate: int = 0
+    hflip: bool = False
+    vflip: bool = False
+    scale: float = 1.0
+    xoff: float = 0.0
+    yoff: float = 0.0
+
+def parsespecs(s: str) -> List[List[PageSpec]]:
     global modulo, pagesperspec, flipping
     m = re.match(r'(?:([^:]+):)?(.*)', s)
     if not m:
@@ -57,55 +74,62 @@ def parsespecs(s: str):
         specs = []
         specs_text = page.split('+')
         for spec_text in specs_text:
-            s = re.match(r'(-)?(\d+)([LRUHV]+)?(?:@([^()]+))?(?:\((-?[\d.a-z]+),(-?[\d.a-z]+)\))?$', spec_text, re.IGNORECASE | re.ASCII)
-            if not s:
+            m = re.match(r'(-)?(\d+)([LRUHV]+)?(?:@([^()]+))?(?:\((-?[\d.a-z]+),(-?[\d.a-z]+)\))?$', spec_text, re.IGNORECASE | re.ASCII)
+            if not m:
                 specerror()
-            spec = {
-                'reversed': s[1] is not None,
-                'pageno': int(s[2]) if s[2] is not None else 0,
-                'rotate': 0,
-                'hflip': False,
-                'vflip': False,
-                'scale': float(s[4]) if s[4] is not None else 1.0,
-                'xoff' : singledimen(s[5], width, height) if s[5] is not None else None,
-                'yoff' : singledimen(s[6], width, height) if s[6] is not None else None,
-            }
-            if spec['pageno'] >= modulo:
+            spec = PageSpec()
+            if m[1] is not None:
+                spec.reversed = True
+            if m[2] is not None:
+                spec.pageno = int(m[2])
+            if m[4] is not None:
+                spec.scale = float(m[4])
+            if m[5] is not None:
+                spec.xoff = singledimen(m[5], width, height)
+            if m[6] is not None:
+                spec.yoff = singledimen(m[6], width, height)
+            if spec.pageno >= modulo:
                 specerror()
-            if s[3] is not None:
-                for mod in s[3]:
+            if m[3] is not None:
+                for mod in m[3]:
                     if re.match(r'[LRU]', mod, re.IGNORECASE):
-                        spec['rotate'] += angle[mod.lower()]
+                        spec.rotate += angle[mod.lower()]
                     elif re.match(r'H', mod, re.IGNORECASE):
-                        spec['hflip'] ^= 1
+                        spec.hflip = not spec.hflip
                     elif re.match(r'V', mod, re.IGNORECASE):
-                        spec['vflip'] ^= 1
+                        spec.vflip = not spec.vflip
             # Normalize rotation and flips
-            if spec['hflip'] == spec['vflip'] == 1:
-                spec['hflip'], spec['vflip'] = 0, 0
-                spec['rotate'] += 180
-            spec['rotate'] %= 360
-            if spec['hflip'] == 1 or spec['vflip'] == 1:
-                flipping = 1
+            if spec.hflip == spec.vflip == 1:
+                spec.hflip, spec.vflip = False, False
+                spec.rotate += 180
+            spec.rotate %= 360
+            if spec.hflip or spec.vflip:
+                flipping = True
             specs.append(spec)
         pages.append(specs)
     return pages
 
-def parserange(ranges_text: str):
+class Range:
+    start: int
+    end: int
+    text: str
+
+def parserange(ranges_text: str) -> List[Range]:
     ranges = []
     for range_text in ranges_text.split(','):
+        r = Range()
         if range_text == '_':
-            r = {'from': 0, 'to': 0 } # so page_to_real_page() returns -1
+            r.start, r.end = 0, 0 # so page_to_real_page() returns -1
         else:
             m = re.match(r'(_?\d+)?(?:(-)(_?\d+))?$', range_text)
             if not m:
                 die(f"`{range_text}' is not a page range")
-            r = {'from': m[1] or '1', 'to': (m[3] or '-1') if m[2] else m[1]}
-            r['from'] = re.sub('^_', '-', r['from'])
-            r['to'] = re.sub('^_', '-', r['to'])
-        r['text'] = range_text
-        r['from'] = int(r['from'])
-        r['to'] = int(r['to'])
+            start = m[1] or '1'
+            end = (m[3] or '-1') if m[2] else m[1]
+            start = re.sub('^_', '-', start)
+            end = re.sub('^_', '-', end)
+            r.start, r.end = int(start), int(end)
+        r.text = range_text
         ranges.append(r)
     return ranges
 
@@ -186,7 +210,7 @@ end\n'''
 # Copy input file from current position up to new position to output file,
 # ignoring the lines starting at something ignorelist points to.
 # Updates ignorelist.
-def fcopy(upto: int, ignorelist: List[int]):
+def fcopy(upto: int, ignorelist: List[int]) -> None:
     here = infile.tell()
     while len(ignorelist) > 0 and ignorelist[0] < upto:
         while len(ignorelist) > 0 and ignorelist[0] < here:
@@ -208,17 +232,17 @@ def fcopy(upto: int, ignorelist: List[int]):
 # Page spec routines for page rearrangement
 def abs_page(n: int) -> int:
     if n < 0:
-        n += psinfo['pages'] + 1
+        n += psinfo.pages + 1
         n = max(n, 1)
     return n
 
-def page_index_to_page_number(ps: dict[str, Any], maxpage: int, modulo: int, pagebase: int) -> int:
-    return (maxpage - pagebase - modulo if ps['reversed'] else pagebase) + ps['pageno']
+def page_index_to_page_number(ps: PageSpec, maxpage: int, modulo: int, pagebase: int) -> int:
+    return (maxpage - pagebase - modulo if ps.reversed else pagebase) + ps.pageno
 
-def ps_transform(ps: dict[str, Any]) -> bool:
-    return ps['rotate'] != 0 or ps['hflip'] or ps['vflip'] or ps['scale'] != 1.0 or ps['xoff'] or ps['yoff']
+def ps_transform(ps: PageSpec) -> bool:
+    return ps.rotate != 0 or ps.hflip or ps.vflip or ps.scale != 1.0 or ps.xoff != 0.0 or ps.yoff != 0.0
 
-def pstops(pagerange, modulo, pps, odd, even, reverse, nobind, specs, draw, ignorelist):
+def pstops(pagerange: List[Range], modulo: int, pps: int, odd: bool, even: bool, reverse: bool, nobind: bool, specs: List[List[PageSpec]], draw: bool, ignorelist: List[int]) -> None:
     global outputpage
     # If no page range given, select all pages
     if pagerange is None:
@@ -226,8 +250,8 @@ def pstops(pagerange, modulo, pps, odd, even, reverse, nobind, specs, draw, igno
 
     # Normalize end-relative pageranges
     for r in pagerange:
-        r['from'] = abs_page(r['from'])
-        r['to'] = abs_page(r['to'])
+        r.start = abs_page(r.start)
+        r.end = abs_page(r.end)
 
     # Get list of pages
     page_list: List[int] = []
@@ -239,11 +263,11 @@ def pstops(pagerange, modulo, pps, odd, even, reverse, nobind, specs, draw, igno
             return 0
 
     for r in pagerange:
-        inc = -1 if r['to'] < r['from'] else 1
-        currentpg = r['from']
-        while r['to'] - currentpg != -inc:
-            if currentpg > psinfo['pages']:
-                die(f"page range {r['text']} is invalid", 2)
+        inc = -1 if r.end < r.start else 1
+        currentpg = r.start
+        while r.end - currentpg != -inc:
+            if currentpg > psinfo.pages:
+                die(f"page range {r.text} is invalid", 2)
             if not(odd and (not even) and currentpg % 2 == 0) and not(even and not odd and currentpg % 2 == 1):
                 page_list.append(currentpg - 1)
             currentpg += inc
@@ -264,8 +288,8 @@ def pstops(pagerange, modulo, pps, odd, even, reverse, nobind, specs, draw, igno
     # FIXME: doesn't cope properly with loaded definitions
     p = int(maxpage / modulo) * pps
     infile.seek(0)
-    if psinfo['pagescmt']:
-        fcopy(psinfo['pagescmt'], ignorelist)
+    if psinfo.pagescmt:
+        fcopy(psinfo.pagescmt, ignorelist)
         try:
             line = infile.readline()
         except IOError:
@@ -274,7 +298,7 @@ def pstops(pagerange, modulo, pps, odd, even, reverse, nobind, specs, draw, igno
             print(f'%%DocumentMedia: plain {int(width)} {int(height)} 0 () ()', file=outfile)
             print(f'%%BoundingBox: 0 0 {int(width)} {int(height)}', file=outfile)
         print(f'%%Pages: {p} 0', file=outfile)
-    fcopy(psinfo['headerpos'], ignorelist)
+    fcopy(psinfo.headerpos, ignorelist)
     if use_procset: # Redefining '/bind' is a desperation measure!
         outfile.write(f'%%BeginProcSet: PStoPS{"-nobind" if nobind else ""} 1 15\n{procset}')
         if nobind:
@@ -283,19 +307,19 @@ def pstops(pagerange, modulo, pps, odd, even, reverse, nobind, specs, draw, igno
 
     # Write prologue to end of setup section, skipping our procset if present
     # and we're outputting it (this allows us to upgrade our procset)
-    if psinfo['endprocset'] and use_procset:
-        fcopy(psinfo['beginprocset'], [])
-        infile.seek(psinfo['endprocset'])
-    fcopy(psinfo['endsetup'], [])
+    if psinfo.endprocset and use_procset:
+        fcopy(psinfo.beginprocset, [])
+        infile.seek(psinfo.endprocset)
+    fcopy(psinfo.endsetup, [])
 
     # Save transformation from original to current matrix
-    if not psinfo['beginprocset'] and use_procset:
+    if not psinfo.beginprocset and use_procset:
         print('''userdict/PStoPSxform PStoPSmatrix matrix currentmatrix
  matrix invertmatrix matrix concatmatrix
  matrix invertmatrix put''', file=outfile)
 
     # Write from end of setup to start of pages
-    fcopy(psinfo['pageptr'][0], [])
+    fcopy(psinfo.pageptr[0], [])
 
     pagebase = 0
     while pagebase < maxpage:
@@ -304,16 +328,17 @@ def pstops(pagerange, modulo, pps, odd, even, reverse, nobind, specs, draw, igno
             for ps in page:
                 page_number = page_index_to_page_number(ps, maxpage, modulo, pagebase)
                 real_page = page_to_real_page(page_number)
-                if page_number < pages_to_output and 0 <= real_page < psinfo['pages']:
+                if page_number < pages_to_output and 0 <= real_page < psinfo.pages:
                     # Seek the page
                     p = real_page
-                    infile.seek(psinfo['pageptr'][p])
+                    infile.seek(psinfo.pageptr[p])
                     try:
                         line = infile.readline()
                         assert comment(line)[0] == 'Page:'
                     except IOError:
                         die(f'I/O error seeking page {p}', 2)
                     m = re.match(r'%%Page:\s*(?:\((\d+)\)?\s*(\d+))', line)
+                    assert m
                     pageno = int(m[2])
                     pagelabel = m[1] if m[1] is not None else pageno
                 if spec_page_number == 0: # page label contains original pages
@@ -331,16 +356,18 @@ def pstops(pagerange, modulo, pps, odd, even, reverse, nobind, specs, draw, igno
                     print('userdict/PStoPSsaved save put', file=outfile)
                 if global_transform or ps_transform(ps):
                     print('PStoPSmatrix setmatrix', file=outfile)
-                    if ps['xoff'] is not None:
-                        print(f"{ps['xoff']:f} {ps['yoff']:f} translate", file=outfile)
-                    if ps['rotate'] != 0:
-                        print(f"{(ps['rotate'] + rotate) % 360} rotate", file=outfile)
-                    if ps['hflip'] == 1:
-                        print(f"[ -1 0 0 1 {iwidth * ps['scale'] * scale:g} 0 ] concat", file=outfile)
-                    if ps['vflip'] == 1:
-                        print(f"[ 1 0 0 -1 0 {iheight * ps['scale'] * scale:g} ] concat", file=outfile)
-                    if ps['scale'] != 1.0:
-                        print(f"{ps['scale'] * scale:f} dup scale", file=outfile)
+                    if ps.xoff is not None:
+                        print(f"{ps.xoff:f} {ps.yoff:f} translate", file=outfile)
+                    if ps.rotate != 0:
+                        print(f"{(ps.rotate + rotate) % 360} rotate", file=outfile)
+                    if ps.hflip == 1:
+                        assert iwidth is not None
+                        print(f"[ -1 0 0 1 {iwidth * ps.scale * scale:g} 0 ] concat", file=outfile)
+                    if ps.vflip == 1:
+                        assert iheight is not None
+                        print(f"[ 1 0 0 -1 0 {iheight * ps.scale * scale:g} ] concat", file=outfile)
+                    if ps.scale != 1.0:
+                        print(f"{ps.scale * scale:f} dup scale", file=outfile)
                     print('userdict/PStoPSmatrix matrix currentmatrix put', file=outfile)
                     if iwidth is not None:
                         # pylint: disable=invalid-unary-operand-type
@@ -351,7 +378,7 @@ def pstops(pagerange, modulo, pps, odd, even, reverse, nobind, specs, draw, igno
                             print(f'gsave clippath 0 setgray {draw} setlinewidth stroke grestore', file=outfile)
                 if spec_page_number < len(page) - 1:
                     print('/PStoPSenablepage false def', file=outfile)
-                if psinfo['beginprocset'] and page_number < pages_to_output and real_page < psinfo['pages']:
+                if psinfo.beginprocset and page_number < pages_to_output and real_page < psinfo.pages:
                     # Search for page setup
                     while True:
                         try:
@@ -364,11 +391,11 @@ def pstops(pagerange, modulo, pps, odd, even, reverse, nobind, specs, draw, igno
                             print(line, file=outfile)
                         except IOError:
                             die(f'I/O error writing page setup {outputpage}', 2)
-                if not psinfo['beginprocset'] and use_procset:
+                if not psinfo.beginprocset and use_procset:
                     print('PStoPSxform concat' , file=outfile)
-                if page_number < pages_to_output and 0 <= real_page < psinfo['pages']:
+                if page_number < pages_to_output and 0 <= real_page < psinfo.pages:
                     # Write the body of a page
-                    fcopy(psinfo['pageptr'][real_page + 1], [])
+                    fcopy(psinfo.pageptr[real_page + 1], [])
                 else:
                     print('showpage', file=outfile)
                 if use_procset:
@@ -379,7 +406,7 @@ def pstops(pagerange, modulo, pps, odd, even, reverse, nobind, specs, draw, igno
 
     # Write trailer
     # pylint: disable=invalid-sequence-index
-    infile.seek(psinfo['pageptr'][psinfo['pages']])
+    infile.seek(psinfo.pageptr[psinfo.pages])
     shutil.copyfileobj(infile, outfile)
     if args.verbose:
         print(f'\nWrote {outputpage} pages', file=sys.stderr)
@@ -400,4 +427,4 @@ if iwidth is None and flipping:
 psinfo = parse_file(infile, width is not None)
 
 # Output the pages
-pstops(args.pagerange, modulo, pagesperspec, args.odd, args.even, args.reverse, args.nobinding, args.specs, args.draw, psinfo['sizeheaders'])
+pstops(args.pagerange, modulo, pagesperspec, args.odd, args.even, args.reverse, args.nobinding, args.specs, args.draw, psinfo.sizeheaders)

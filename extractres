@@ -1,11 +1,17 @@
 #!/usr/bin/env python3
 import pkg_resources
+
 VERSION = pkg_resources.require('psutils')[0].version
 version_banner=f'''\
 %(prog)s {VERSION}
 Copyright (c) Reuben Thomas 2023.
 Released under the GPL version 3, or (at your option) any later version.
 '''
+
+import argparse
+import os
+import re
+from typing import Dict, List, Optional
 
 from psutils import *
 
@@ -32,23 +38,23 @@ args = parser.parse_intermixed_args()
 infile, outfile = setup_input_and_output(args.infile, args.outfile)
 
 # Resource types
-def get_type(comment):
+def get_type(comment: str) -> Optional[str]:
     types = {'%%BeginFile:': 'file', '%%BeginProcSet:': 'procset',
              '%%BeginFont:': 'font'}
     return types.get(comment, None)
 
 # Extract resources
-resources = {} # resources included
-merge = {} # resources extracted this time
-prolog = []
-body = []
-output = prolog
-fh = None
+resources: Dict[str, List[str]] = {} # resources included
+merge: Dict[str, bool] = {} # resources extracted this time
+prolog: List[str] = []
+body: List[str] = []
+output: Optional[List[str]] = prolog
 
 for line in infile:
     if re.match(r'%%Begin(Resource|Font|ProcSet):', line):
-        comment, *res = line.split() # look at resource type
-        resource_type = get_type(comment) or res.pop(0)
+        # FIXME: Rename 'comm' to 'comment' once we import only needed symbols from psutils
+        comm, *res = line.split() # look at resource type
+        resource_type = get_type(comm) or res.pop(0)
         name = filename(*res, extn(resource_type)) # make file name
         saveout = output
         if resources.get(name) is None:
@@ -59,7 +65,7 @@ for line in infile:
                 except IOError:
                     die("can't write file `$name'", 2)
                 resources[name] = []
-                merge[name] = merge
+                merge[name] = args.merge
                 output = resources[name]
             else: # resource already exists
                 if fh is not None:
