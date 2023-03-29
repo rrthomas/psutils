@@ -1,4 +1,4 @@
-PostScript Utilities
+# PostScript Utilities
 
 Web site: https://github.com/rrthomas/psutils
 Maintainer: Reuben Thomas <rrt@sc3d.org>
@@ -24,7 +24,7 @@ whether your software needs to be configured to produce DSC-conformant
 PostScript.
 
 
-PREREQUISITES
+## Prerequisites
 
 PSUtils requires Python 3, and libpaper, which allows named paper sizes to be
 used and configured:
@@ -32,7 +32,7 @@ used and configured:
 libpaper: https://github.com/rrthomas/libpaper
 
 
-INSTALLATION FROM SOURCE
+## Installation from source
 
 You need a standard POSIX environment.
 
@@ -48,7 +48,7 @@ with pre-inst-env; for example:
 ./pre-inst-env ./psnup -2 foo.ps
 
 
-INSTALLATION FROM GIT
+## Installation from git
 
 To build from git, you need the following extra programs installed:
 
@@ -61,27 +61,17 @@ Then run:
 Now follow the normal installation instructions above.
 
 
-BUGS
+## Bugs
 
 Please send bug reports, patches and suggestions to the bug tracker or
 maintainer (see the top of this file).
 
 
-ACKNOWLEDGEMENTS
+## Acknowledgements
 
-PSUtils was written by Angus Duggan, who maintained it up to release 1
-patchlevel 17, and Reuben Thomas.
+PSUtils is written and maintained by Reuben Thomas. Version 1 was written by
+Angus Duggan.
 
 psselect in modeled on Chris Torek's dviselect, as is psbook, via Angus
 Duggan's dvibook; pstops is modeled on Tom Rokicki's dvidvi. psjoin was
-originally written by Tom Sato: http://t-sato.in.coocan.jp
-
-Bug fixes and suggestions for improvements to PSUtils have come from many
-people (apologies to anyone omitted!), including: Brian Colfer, Charles A.
-Finnell, Conrad Kimball, J. W. Hawtin, Jochen Schwarze, Ken Carpenter,
-Kristian Jorg, Larry Weissman, Michael L. Brown, Hunter Goatley, John
-Interrante, Maurizio Cremonesi, Matthew Stier, Gerry Pratt, Robert Joop,
-Johan Vromans, Bryan Faubion, Chris Ritson, Michele Marziani, Michael I.
-Schwartz, Joerg Eisenreich, Andreas Borchert, Mike Coleman, Dale Scheetz,
-Yves Arrouye, Stanislav Brabec, Peter Breitenlohner, Jiri Popelka, Eric S.
-Raymond.
+originally written by Tom Sato.
