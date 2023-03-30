@@ -1,0 +1,193 @@
+# PSUtils utility library
+# Copyright (c) Reuben Thomas 2023.
+# Released under the GPL version 3, or (at your option) any later version.
+
+import os
+import sys
+import argparse
+import shutil
+import tempfile
+import subprocess
+import re
+import warnings
+from warnings import warn
+from typing import (
+    Any, List, Tuple, Optional, Union, Type, NoReturn, IO, TextIO,
+)
+
+import __main__
+
+# Help output
+# Adapted from https://stackoverflow.com/questions/23936145/python-argparse-help-message-disable-metavar-for-short-options
+class HelpFormatter(argparse.RawTextHelpFormatter):
+    def _format_action_invocation(self, action: argparse.Action) -> str:
+        if not action.option_strings:
+            metavar, = self._metavar_formatter(action, action.dest)(1)
+            return metavar
+        parts: List[str] = []
+        if action.nargs == 0:
+            # Option takes no argument, output: -s, --long
+            parts.extend(action.option_strings)
+        else:
+            # Option takes an argument, output: -s, --long ARGUMENT
+            default = action.dest.upper()
+            args_string = self._format_args(action, default)
+            for option_string in action.option_strings:
+                parts.append(option_string)
+            parts[-1] += f' {args_string}'
+        # Add space at start of format string if there is no short option
+        if len(action.option_strings) > 0 and action.option_strings[0][1] == '-':
+            parts[-1] = '    ' + parts[-1]
+        return ', '.join(parts)
+
+# Error messages
+def simple_warning( # pylint: disable=too-many-arguments
+        message: Union[Warning, str],
+        category: Type[Warning], # pylint: disable=unused-argument
+        filename: str, # pylint: disable=unused-argument
+        lineno: int, # pylint: disable=unused-argument
+        file: Optional[TextIO] = sys.stderr, # pylint: disable=redefined-outer-name
+        line: Optional[str] = None # pylint: disable=unused-argument
+) -> None:
+    # pylint: disable=c-extension-no-member
+    print(f'\n{__main__.parser.prog}: {message}', file=file or sys.stderr)
+warnings.showwarning = simple_warning
+
+def die(msg: str, code: Optional[int] = 1) -> NoReturn:
+    warn(msg)
+    sys.exit(code)
+
+# Adapted from https://github.com/python/cpython/blob/main/Lib/test/test_strtod.py
+strtod_parser = re.compile(r'''    # A numeric string consists of:
+    [-+]?          # an optional sign, followed by
+    (?=\d|\.\d)    # a number with at least one digit
+    \d*            # having a (possibly empty) integer part
+    (?:\.(\d*))?   # followed by an optional fractional part
+    (?:E[-+]?\d+)? # and an optional exponent
+''', re.VERBOSE | re.IGNORECASE).match
+
+def strtod(s: str) -> Tuple[float, int]:
+    m = strtod_parser(s)
+    if m is None:
+        raise ValueError('invalid numeric string')
+    return float(m[0]), m.end()
+
+# Argument parsers
+def singledimen(s: str, width: Optional[float] = None, height: Optional[float] = None) -> float:
+    num, unparsed = strtod(s)
+    s = s[unparsed:]
+
+    if s.startswith('pt'):
+        pass
+    elif s.startswith('in'):
+        num *= 72
+    elif s.startswith('cm'):
+        num *= 28.346456692913385211
+    elif s.startswith('mm'):
+        num *= 2.8346456692913385211
+    elif s.startswith('w'):
+        if width is None:
+            die('paper size not set')
+        num *= width
+    elif s.startswith('h'):
+        if height is None:
+            die('paper size not set')
+        num *= height
+    elif s != '':
+        die(f"bad dimension `{s}'")
+
+    return num
+
+# Get the size of the given paper, or the default paper if no argument given.
+def paper(cmd: List[str], silent: bool = False) -> Optional[str]:
+    cmd.insert(0, 'paper')
+    try:
+        out = subprocess.check_output(cmd, stderr=subprocess.DEVNULL if silent else None, text=True)
+        return out.rstrip()
+    except subprocess.CalledProcessError:
+        return None
+    except: # pylint: disable=bare-except
+        die("could not run `paper' command")
+
+def paper_size(paper_name: Optional[str] = None) -> Tuple[Optional[float], Optional[float]]:
+    if paper_name is None:
+        paper_name = paper([])
+    if paper_name is not None:
+        dimensions = paper(['--unit=pt', paper_name], True)
+    if dimensions is None:
+        return None, None
+    m = re.search(' ([.0-9]+)x([.0-9]+) pt$', dimensions)
+    assert m
+    w, h = float(m[1]), float(m[2])
+    return int(w + 0.5), int(h + 0.5) # round dimensions to nearest point
+
+def parsepaper(paper: str) -> Tuple[Optional[float], Optional[float]]:
+    try:
+        (width, height) = paper_size(paper)
+        if width is None:
+            [width_text, height_text] = paper.split('x')
+            if width_text and height_text:
+                width, height = singledimen(width_text), singledimen(height_text)
+        return width, height
+    except: # pylint: disable=bare-except
+        die(f"paper size '{paper}' unknown")
+
+def parse_input_paper(s: str) -> None:
+    __main__.iwidth, __main__.iheight = parsepaper(s) # type: ignore
+
+def parse_output_paper(s: str) -> None:
+    __main__.width, __main__.height = parsepaper(s) # type: ignore
+
+def parsedimen(s: str) -> int:
+    return singledimen(s, __main__.width, __main__.height) # type: ignore
+
+def parsedraw(s: str) -> int:
+    return parsedimen(s or '1')
+
+class PSInfo:
+    headerpos: int = 0
+    pagescmt: int = 0
+    endsetup: int = 0
+    beginprocset: int = 0 # start and end of pstops procset
+    endprocset: int = 0
+    pages: int = 0
+    sizeheaders: List[int] = []
+    pageptr: List[int] = []
+
+# Set up input and output files
+def setup_input_and_output(infile_name: str, outfile_name: str, make_seekable: bool = False) -> Tuple[IO[Any], IO[Any]]:
+    infile: Optional[IO[Any]] = None
+    if infile_name is not None:
+        try:
+            infile = open(infile_name, 'rb')
+        except IOError:
+            die(f'cannot open input file {infile_name}')
+    else:
+        infile = os.fdopen(sys.stdin.fileno(), 'rb', closefd=False)
+    if make_seekable:
+        infile = seekable(infile)
+    if infile is None:
+        die('cannot make input seekable')
+
+    if outfile_name is not None:
+        try:
+            outfile = open(outfile_name, 'wb')
+        except IOError:
+            die(f'cannot open output file {outfile_name}')
+    else:
+        outfile = os.fdopen(sys.stdout.fileno(), 'wb', closefd=False)
+
+    return infile, outfile
+
+# Make a file handle seekable, using a temporary file if necessary
+def seekable(fp: IO[Any]) -> Optional[IO[Any]]:
+    if fp.seekable():
+        return fp
+
+    try:
+        ft = tempfile.TemporaryFile()
+        shutil.copyfileobj(fp, ft)
+        ft.seek(0)
+        return ft
+    except IOError:
+        return None

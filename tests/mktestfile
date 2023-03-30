@@ -8,13 +8,17 @@
 
 # Configuration
 LINES_PER_PAGE=4
+BORDER=1
 
 # Command-line arguments
 PAPER=$1
 PAGES=$2
 TITLE="$3"
+if test "$4" != ""; then
+    BORDER=$4
+fi
 
 # Produce output
 separator=$(printf '\n%.0s' $(eval echo {1..$LINES_PER_PAGE}); printf x); separator=${separator%x}
 seq --separator="$separator" 1 $PAGES | \
-    a2ps --medium=$PAPER --title="$TITLE" --lines-per-page=$LINES_PER_PAGE --portrait --columns=1 --rows=1 --no-header --output=-
+    a2ps --medium=$PAPER --title="$TITLE" --lines-per-page=$LINES_PER_PAGE --portrait --columns=1 --rows=1 --border=$BORDER --no-header --output=-

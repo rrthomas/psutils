@@ -1,0 +1,68 @@
+#!/usr/bin/env python3
+import pkg_resources
+
+VERSION = pkg_resources.require('psutils')[0].version
+version_banner=f'''\
+%(prog)s {VERSION}
+Copyright (c) Reuben Thomas 2023.
+Released under the GPL version 3, or (at your option) any later version.
+'''
+
+import argparse
+import subprocess
+
+from pdfutils import HelpFormatter, die
+
+# Command-line arguments
+parser = argparse.ArgumentParser(
+    description='Select pages from a PDF document.',
+    formatter_class=HelpFormatter,
+    usage='%(prog)s [OPTION...] [INFILE [OUTFILE]]',
+    add_help=False,
+    epilog='''
+PAGES is a comma-separated list of pages and page ranges; see
+pstops(1) for more details.
+''',
+)
+
+# Command-line parser
+parser.add_argument('-R', '-p', '--pages',
+                    help='select the given page ranges')
+parser.add_argument('-e', '--even', action='store_true',
+                    help='select even-numbered output pages')
+parser.add_argument('-o', '--odd', action='store_true',
+                    help='select odd-numbered output pages')
+parser.add_argument('-r', '--reverse', action='store_true',
+                    help='reverse the order of the output pages')
+parser.add_argument('-q', '--quiet', action='store_false', dest='verbose',
+                    help="don't show page numbers being output")
+parser.add_argument('--help', action='help',
+                    help='show this help message and exit')
+parser.add_argument('-v', '--version', action='version',
+                    version=version_banner)
+parser.add_argument('infile', metavar='INFILE', nargs='?',
+                    help="`-' or no INFILE argument means standard input")
+parser.add_argument('outfile', metavar='OUTFILE', nargs='?',
+                    help="`-' or no OUTFILE argument means standard output")
+args = parser.parse_intermixed_args()
+
+# Rearrange the pages
+cmd = ['pdftopdf']
+if not args.verbose:
+    cmd.append('--quiet')
+if args.reverse:
+    cmd.append('-r')
+if args.even:
+    cmd.append('-e')
+if args.odd:
+    cmd.append('-o')
+if args.pages is not None:
+    cmd.append(f'-R{args.pages}')
+if args.infile is not None:
+    cmd.append(args.infile)
+if args.outfile is not None:
+    cmd.append(args.outfile)
+try:
+    subprocess.check_call(cmd)
+except subprocess.CalledProcessError:
+    die(f'error running {cmd[0]}')

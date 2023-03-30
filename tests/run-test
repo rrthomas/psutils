@@ -3,28 +3,46 @@
 
 set -e
 
+# Parse test name
+testname=$(basename $(pwd))
+if [[ "$testname" = pdf* ]]; then
+    suffix=pdf
+else
+    suffix=ps
+fi
+
 # Test files are checked in to avoid problems with changes in a2ps
-# Uncomment the last two lines of the function to regenerate the files
+# Uncomment the lines at the end of the function to regenerate the files
+# FIXME: make regeneration switchable
 function generate_input() {
     local paper=$1
     local pages=$2
-    shift 2
-    #testname=$(basename $(dirname $0))
-    #../../mktestfile "$paper" "$pages" "$testname" > input.ps
+    local draw=$3
+    #../../tests/mktestfile "$paper" "$pages" "$testname" "$draw" > input.ps
+    #if [[ "$suffix" = "pdf" ]]; then
+    #    ps2pdf input.ps input.pdf
+    #    rm input.ps
+    #fi
 }
 
 function do_test() {
-    eval "$@" input.ps > output.ps 2> stderr.txt
+    eval "$@" input.$suffix > output.$suffix 2> stderr.txt
 }
 
 function custom_input_test() {
     do_test "$@"
-    diff -u --ignore-matching-lines="^\(% \)\?%%CreationDate" expected.ps output.ps
+    diff -u --ignore-matching-lines="^\(% \)\?%%CreationDate" expected.$suffix output.$suffix
 }
 
 # Arguments are command to run
 function test() {
     generate_input "$1" "$2"
+    shift 2
+    custom_input_test "$@"
+}
+
+function test_no_border() {
+    generate_input "$1" "$2" 0
     shift 2
     custom_input_test "$@"
 }
