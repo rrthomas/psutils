@@ -158,6 +158,12 @@ cmd = ['pstops']
 if width != iwidth or height != iheight:
     cmd.append(f'-P{iwidth}x{iheight}')
 
+# Add flags from our own input flags
+if not args.verbose:
+    cmd.append('--quiet')
+if args.draw is not None:
+    cmd.extend(['--draw', f'{args.draw}'])
+
 # Calculate paper dimensions, subtracting paper margin from height & width
 ppwid, pphgt = width - args.margin * 2, height - args.margin * 2
 if ppwid <= 0 or pphgt <= 0:
