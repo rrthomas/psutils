@@ -1,2 +1,2 @@
-test a4 20 pdfselect --pages 5-15
+test a4 20 pdfselect 5-15
 diff stderr-expected.txt stderr.txt

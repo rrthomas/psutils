@@ -17,7 +17,7 @@ from pdfutils import HelpFormatter, die
 parser = argparse.ArgumentParser(
     description='Select pages from a PDF document.',
     formatter_class=HelpFormatter,
-    usage='%(prog)s [OPTION...] [INFILE [OUTFILE]]',
+    usage='%(prog)s [OPTION...] [PAGES] [INFILE [OUTFILE]]',
     add_help=False,
     epilog='''
 PAGES is a comma-separated list of pages and page ranges; see
@@ -40,6 +40,8 @@ parser.add_argument('--help', action='help',
                     help='show this help message and exit')
 parser.add_argument('-v', '--version', action='version',
                     version=version_banner)
+parser.add_argument('alt_pages', metavar='PAGES', nargs='?',
+                    help=argparse.SUPPRESS)
 parser.add_argument('infile', metavar='INFILE', nargs='?',
                     help="`-' or no INFILE argument means standard input")
 parser.add_argument('outfile', metavar='OUTFILE', nargs='?',
@@ -56,6 +58,17 @@ if args.even:
     cmd.append('-e')
 if args.odd:
     cmd.append('-o')
+if args.alt_pages is not None:
+    if args.pages is None and args.even is False and args.odd is False and args.reverse is False:
+        args.pages = args.alt_pages
+    else:
+        if args.outfile is not None:
+            if args.pages is not None:
+                die('PAGES specified both with and without an option flag')
+            else:
+                die('--pages must be used when --even, --odd or --reverse is used')
+        args.outfile = args.infile
+        args.infile = args.alt_pages
 if args.pages is not None:
     cmd.append(f'-R{args.pages}')
 if args.infile is not None:
