@@ -13,7 +13,7 @@ import re
 import subprocess
 from typing import Any, List, Optional, Sequence, Tuple, Union
 
-from pdfutils import (
+from psutils import (
     HelpFormatter, die, paper_size, parsedimen, parsedraw,
     parse_input_paper, parse_output_paper,
 )

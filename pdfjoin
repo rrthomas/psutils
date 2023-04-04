@@ -14,7 +14,7 @@ import sys
 
 from pypdf import PdfReader, PdfWriter
 
-from pdfutils import HelpFormatter
+from psutils import HelpFormatter
 
 # Command-line arguments
 parser = argparse.ArgumentParser(

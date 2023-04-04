@@ -208,16 +208,18 @@ def parse_file(infile: IO[Any], explicit_output_paper: bool = False) -> PSInfo:
     return psinfo
 
 # Set up input and output files
-def setup_input_and_output(infile_name: str, outfile_name: str, make_seekable: bool = False) -> Tuple[IO[Any], IO[Any]]:
+def setup_input_and_output(infile_name: str, outfile_name: str, make_seekable: bool = False, binary: bool = False) -> Tuple[IO[Any], IO[Any]]:
     infile: Optional[IO[Any]] = None
     if infile_name is not None:
         try:
-            infile = open(infile_name)
+            infile = open(infile_name, f'r{"b" if binary else ""}')
         except IOError:
             die(f'cannot open input file {infile_name}')
+    elif binary:
+        infile = os.fdopen(sys.stdin.fileno(), 'rb', closefd=False)
     else:
         infile = sys.stdin
-    infile.reconfigure(newline=None)
+        infile.reconfigure(newline=None)
     if make_seekable:
         infile = seekable(infile)
     if infile is None:
@@ -225,12 +227,14 @@ def setup_input_and_output(infile_name: str, outfile_name: str, make_seekable: b
 
     if outfile_name is not None:
         try:
-            outfile = open(outfile_name, 'w')
+            outfile = open(outfile_name, f'w{"b" if binary else ""}')
         except IOError:
             die(f'cannot open output file {outfile_name}')
+    elif binary:
+        outfile = os.fdopen(sys.stdout.fileno(), 'wb', closefd=False)
     else:
         outfile = sys.stdout
-    outfile.reconfigure(newline=None)
+        outfile.reconfigure(newline=None)
 
     return infile, outfile
 

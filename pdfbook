@@ -13,7 +13,7 @@ import subprocess
 
 from pypdf import PdfReader
 
-from pdfutils import HelpFormatter, die, setup_input_and_output
+from psutils import HelpFormatter, die, setup_input_and_output
 
 # Command-line arguments
 parser = argparse.ArgumentParser(
@@ -48,7 +48,7 @@ args = parser.parse_intermixed_args()
 if args.signature > 1 and args.signature % 4 != 0:
     die('signature must be a multiple of 4')
 
-infile, outfile = setup_input_and_output(args.infile, args.outfile, True)
+infile, outfile = setup_input_and_output(args.infile, args.outfile, True, True)
 
 # Get number of pages
 pdfinfo = PdfReader(infile)

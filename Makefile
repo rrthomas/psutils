@@ -18,7 +18,7 @@ release: distcheck
 
 # FIXME: Set this list automatically from setup.cfg:
 # options.scripts + options.packages contents
-SOURCES = psutils/__init__.py pdfutils/__init__.py \
+SOURCES = psutils/__init__.py \
     pstops psbook psjoin psresize psselect psnup \
     pdftopdf pdfbook pdfjoin pdfresize pdfselect pdfnup \
     epsffit extractres includeres

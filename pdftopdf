@@ -17,7 +17,7 @@ from pypdf import PdfReader, PdfWriter, Transformation
 from pypdf.generic import AnnotationBuilder
 from pypdf._utils import matrix_multiply
 
-from pdfutils import (
+from psutils import (
     HelpFormatter, die, parse_input_paper,
     parse_output_paper, parsedraw, setup_input_and_output,
     singledimen,
@@ -300,7 +300,7 @@ if (width is None) ^ (height is None):
 if (iwidth is None) ^ (iheight is None):
     die('input page width and height must both be set, or neither')
 
-infile, outfile = setup_input_and_output(args.infile, args.outfile, True)
+infile, outfile = setup_input_and_output(args.infile, args.outfile, True, True)
 
 pdf = PdfReader(infile)
 
