@@ -38,6 +38,6 @@ setup(
 # Test we have 'paper' (from libpaper) installed
 import subprocess
 try:
-    subprocess.call(['paper'])
+    subprocess.check_output(['paper'])
 except OSError:
     raise SystemExit('psutils needs libpaper >= 2 to work')
