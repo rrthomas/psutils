@@ -15,28 +15,11 @@ from typing import List, NoReturn, Optional
 
 from pypdf import PdfReader, PdfWriter, Transformation
 from pypdf.generic import AnnotationBuilder
-from pypdf._utils import matrix_multiply
 
 from psutils import (
     HelpFormatter, die, parsepaper, parsedraw,
     setup_input_and_output, singledimen, simple_warning,
 )
-
-# Add `transform` method to pypdf's Transformation
-def transform(self: Transformation, m: Transformation) -> Transformation:
-    """
-    Apply one transformation to another.
-
-    Args:
-        m: a Transformation to apply.
-
-    Returns:
-        A new ``Transformation`` instance
-    """
-    ctm = Transformation.compress(matrix_multiply(self.matrix, m.matrix))
-    return Transformation(ctm)
-
-Transformation.transform = transform # type: ignore
 
 # Globals
 flipping = False # any spec includes page flip
