@@ -1,1 +1,1 @@
-test a4 1 pdftopdf -p a4 --specs='0L\(1w,0\)+0R\(0,1h\)'
+test a4 1 pdftopdf -p a4 --specs='0L(1w,0)+0R(0,1h)'

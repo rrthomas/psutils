@@ -9,10 +9,9 @@ import shutil
 import tempfile
 import subprocess
 import re
-import warnings
 from warnings import warn
 from typing import (
-    Any, List, Tuple, Optional, Union, Type, NoReturn, IO, TextIO,
+    Any, Callable, List, Tuple, Optional, Union, Type, NoReturn, IO, TextIO,
 )
 
 import __main__
@@ -41,17 +40,18 @@ class HelpFormatter(argparse.RawTextHelpFormatter):
         return ', '.join(parts)
 
 # Error messages
-def simple_warning( # pylint: disable=too-many-arguments
+def simple_warning(prog:str) -> Callable[..., None]:
+    def _warning( # pylint: disable=too-many-arguments
         message: Union[Warning, str],
         category: Type[Warning], # pylint: disable=unused-argument
         filename: str, # pylint: disable=unused-argument
         lineno: int, # pylint: disable=unused-argument
         file: Optional[TextIO] = sys.stderr, # pylint: disable=redefined-outer-name
         line: Optional[str] = None # pylint: disable=unused-argument
-) -> None:
-    # pylint: disable=c-extension-no-member
-    print(f'\n{__main__.parser.prog}: {message}', file=file or sys.stderr)
-warnings.showwarning = simple_warning
+    ) -> None:
+        # pylint: disable=c-extension-no-member
+        print(f'\n{prog}: {message}', file=file or sys.stderr)
+    return _warning
 
 def die(msg: str, code: Optional[int] = 1) -> NoReturn:
     warn(msg)
@@ -132,16 +132,10 @@ def parsepaper(paper: str) -> Tuple[Optional[float], Optional[float]]:
     except: # pylint: disable=bare-except
         die(f"paper size '{paper}' unknown")
 
-def parse_input_paper(s: str) -> None:
-    __main__.iwidth, __main__.iheight = parsepaper(s) # type: ignore
+def parsedimen(s: str) -> float:
+    return singledimen(s, None, None)
 
-def parse_output_paper(s: str) -> None:
-    __main__.width, __main__.height = parsepaper(s) # type: ignore
-
-def parsedimen(s: str) -> int:
-    return singledimen(s, __main__.width, __main__.height) # type: ignore
-
-def parsedraw(s: str) -> int:
+def parsedraw(s: str) -> float:
     return parsedimen(s or '1')
 
 # Return comment keyword and value if `line' is a DSC comment

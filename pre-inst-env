@@ -1,8 +1,0 @@
-#! /bin/sh
-# Copyright © Reuben Thomas 2023.
-#
-# Released under the GPL version 3, or (at your option) any later version.
-
-# Run a PSUtils script in-place.
-export PATH="$(pwd):$PATH"
-exec "$@"

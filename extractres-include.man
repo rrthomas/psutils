@@ -1,6 +1,3 @@
-[NAME]
-extractres - extract resources from a PostScript document
-
 [>DESCRIPTION]
 .PP
 .B extractres
@@ -20,7 +17,7 @@ will move all resources appearing in a document to the document prologue,
 removing redundant copies.
 The output file can then be put through page re-arrangement filters such as
 .B psnup
-or 
+or
 .B pstops
 safely.
 

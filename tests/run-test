@@ -20,13 +20,15 @@ function generate_input() {
     local draw=$3
     #../../tests/mktestfile "$paper" "$pages" "$testname" "$draw" > input.ps
     #if [[ "$suffix" = "pdf" ]]; then
-    #    ps2pdf input.ps input.pdf
+    #    PYTHONPATH=. python -m psutils.ps2pdf input.ps input.pdf
     #    rm input.ps
     #fi
 }
 
 function do_test() {
-    eval "$@" input.$suffix > output.$suffix 2> stderr.txt
+    module=$1
+    shift
+    PYTHONPATH=$TOPDIR python -m psutils.$module "$@" input.$suffix > output.$suffix 2> stderr.txt
 }
 
 function custom_input_test() {

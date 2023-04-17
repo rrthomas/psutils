@@ -1,3 +1,0 @@
-[submodule "build_manpages"]
-	path = build_manpages
-	url = https://github.com/praiskup/build_manpages

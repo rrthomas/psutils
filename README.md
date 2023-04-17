@@ -38,15 +38,18 @@ You need a standard POSIX environment.
 
 Having unpacked the source tarball, run:
 
+```
 ./configure && make check && [sudo] make install
+```
 
 For build options, see ./configure --help
 
 Note that to use the scripts before installing them, you need to run them
-with pre-inst-env; for example:
+as Python modules; for example:
 
-./pre-inst-env ./psnup -2 foo.ps
-
+```
+python -m psutils.psnup -2 foo.ps
+```
 
 ## Installation from git
 
@@ -56,7 +59,9 @@ To build from git, you need the following extra programs installed:
 
 Then run:
 
+```
 ./bootstrap
+```
 
 Now follow the normal installation instructions above.
 
