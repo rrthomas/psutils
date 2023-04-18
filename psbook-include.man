@@ -1,6 +1,3 @@
-[NAME]
-psbook - rearrange pages in a PostScript document into signatures
-
 [>DESCRIPTION]
 .PP
 .B psbook

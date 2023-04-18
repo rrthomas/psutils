@@ -1,6 +1,3 @@
-[NAME]
-psselect - select pages from a PostScript document
-
 [>DESCRIPTION]
 .B psselect
 calls

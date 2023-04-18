@@ -1,6 +1,3 @@
-[NAME]
-psnup - put multiple pages of a PostScript document on to one page
-
 [>DESCRIPTION]
 .PP
 .B psnup
@@ -15,19 +12,19 @@ or as \fBwidth\fRx\fBheight\fR (see
 for the available units).
 
 [EXAMPLES]
-The potential use of this utility is varied but one particular 
-use is in conjunction with 
+The potential use of this utility is varied but one particular
+use is in conjunction with
 .BR psbook (1).
-For example, using groff to create a PostScript document and lpr as 
-the 
-.SM UNIX 
-print spooler a typical command line might look like this: 
+For example, using groff to create a PostScript document and lpr as
+the
+.SM UNIX
+print spooler a typical command line might look like this:
 .sp
 groff -Tps -ms \fIfile\fP | psbook | psnup -2 | lpr
 .sp
-where file is a 4 page document this command will result in a 
+where file is a 4 page document this command will result in a
 two page document printing two pages of \fIfile\fP per page and
-rearranges the page order to match the input pages 4 and 1 
+rearranges the page order to match the input pages 4 and 1
 on the first output page and
-pages 2 then 3 of the input document 
+pages 2 then 3 of the input document
 on the second output page.

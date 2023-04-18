@@ -1,2 +1,2 @@
 [build-system]
-requires = ["argparse-manpage[setuptools] @ git+https://github.com/rrthomas/argparse-manpage-fix-include.git"]
+requires = ["argparse-manpage[setuptools] @ git+https://github.com/rrthomas/argparse-manpage.git"]

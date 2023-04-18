@@ -1,6 +1,3 @@
-[NAME]
-psresize - change the page size of a PostScript document
-
 [>DESCRIPTION]
 .PP
 .B psresize

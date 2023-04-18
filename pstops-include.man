@@ -1,6 +1,3 @@
-[NAME]
-pstops - rearrange pages of a PostScript document
-
 /Rearrange pages of a PostScript document/
 The input PostScript file should follow the Adobe Document Structuring
 Conventions.
