@@ -112,6 +112,7 @@ def paper(cmd: List[str], silent: bool = False) -> Optional[str]:
 def paper_size(paper_name: Optional[str] = None) -> Tuple[Optional[float], Optional[float]]:
     if paper_name is None:
         paper_name = paper([])
+    dimensions: Optional[str] = None
     if paper_name is not None:
         dimensions = paper(['--unit=pt', paper_name], True)
     if dimensions is None:
