@@ -82,7 +82,7 @@ def parsespecs(s: str, width: Optional[float], height: Optional[float]) -> List[
                     elif re.match(r'V', mod, re.IGNORECASE):
                         spec.vflip = not spec.vflip
             # Normalize rotation and flips
-            if spec.hflip == spec.vflip == 1:
+            if spec.hflip and spec.vflip:
                 spec.hflip, spec.vflip = False, False
                 spec.rotate += 180
             spec.rotate %= 360
