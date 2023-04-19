@@ -17,7 +17,7 @@ from typing import List, NoReturn, Optional
 from psutils import (
     HelpFormatter, die, parsepaper, parsedraw,
     setup_input_and_output, singledimen, simple_warning,
-    procset, parse_file, comment,
+    procset, parse_file, fcopy, comment,
 )
 
 # Globals
@@ -200,28 +200,6 @@ def main(argv: List[str]=sys.argv[1:]) -> None: # pylint: disable=dangerous-defa
     # Parse input
     psinfo = parse_file(infile, width is not None)
 
-    # Copy input file from current position up to new position to output file,
-    # ignoring the lines starting at something ignorelist points to.
-    # Updates ignorelist.
-    def fcopy(upto: int, ignorelist: List[int]) -> None:
-        here = infile.tell()
-        while len(ignorelist) > 0 and ignorelist[0] < upto:
-            while len(ignorelist) > 0 and ignorelist[0] < here:
-                ignorelist.pop(0)
-            if len(ignorelist) > 0:
-                fcopy(ignorelist[0], [])
-            try:
-                infile.readline()
-            except IOError:
-                die('I/O error', 2)
-            ignorelist.pop(0)
-            here = infile.tell()
-
-        try:
-            outfile.write(infile.read(upto - here))
-        except IOError:
-            die('I/O error', 2)
-
     # Page spec routines for page rearrangement
     def abs_page(n: int) -> int:
         if n < 0:
@@ -281,7 +259,7 @@ def main(argv: List[str]=sys.argv[1:]) -> None: # pylint: disable=dangerous-defa
         # FIXME: doesn't cope properly with loaded definitions
         infile.seek(0)
         if psinfo.pagescmt:
-            fcopy(psinfo.pagescmt, ignorelist)
+            fcopy(infile, outfile, psinfo.pagescmt, ignorelist)
             try:
                 line = infile.readline()
             except IOError:
@@ -291,7 +269,7 @@ def main(argv: List[str]=sys.argv[1:]) -> None: # pylint: disable=dangerous-defa
                 print(f'%%BoundingBox: 0 0 {int(width)} {int(height)}', file=outfile)
             pagesperspec = len(specs)
             print(f'%%Pages: {int(maxpage / modulo) * pagesperspec} 0', file=outfile)
-        fcopy(psinfo.headerpos, ignorelist)
+        fcopy(infile, outfile, psinfo.headerpos, ignorelist)
         if use_procset: # Redefining '/bind' is a desperation measure!
             outfile.write(f'%%BeginProcSet: PStoPS{"-nobind" if nobind else ""} 1 15\n{procset}')
             if nobind:
@@ -301,9 +279,9 @@ def main(argv: List[str]=sys.argv[1:]) -> None: # pylint: disable=dangerous-defa
         # Write prologue to end of setup section, skipping our procset if present
         # and we're outputting it (this allows us to upgrade our procset)
         if psinfo.endprocset and use_procset:
-            fcopy(psinfo.beginprocset, [])
+            fcopy(infile, outfile, psinfo.beginprocset, [])
             infile.seek(psinfo.endprocset)
-        fcopy(psinfo.endsetup, [])
+        fcopy(infile, outfile, psinfo.endsetup, [])
 
         # Save transformation from original to current matrix
         if not psinfo.beginprocset and use_procset:
@@ -312,7 +290,7 @@ def main(argv: List[str]=sys.argv[1:]) -> None: # pylint: disable=dangerous-defa
  matrix invertmatrix put''', file=outfile)
 
         # Write from end of setup to start of pages
-        fcopy(psinfo.pageptr[0], [])
+        fcopy(infile, outfile, psinfo.pageptr[0], [])
 
         pagebase = 0
         while pagebase < maxpage:
@@ -385,7 +363,7 @@ def main(argv: List[str]=sys.argv[1:]) -> None: # pylint: disable=dangerous-defa
                         print('PStoPSxform concat' , file=outfile)
                     if page_number < pages_to_output and 0 <= real_page < psinfo.pages:
                         # Write the body of a page
-                        fcopy(psinfo.pageptr[real_page + 1], [])
+                        fcopy(infile, outfile, psinfo.pageptr[real_page + 1], [])
                     else:
                         print('showpage', file=outfile)
                     if use_procset:

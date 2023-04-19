@@ -192,6 +192,28 @@ procset = '''userdict begin
  10 setmiterlimit}bind def
 end\n'''
 
+# Copy input file from current position up to new position to output file,
+# ignoring the lines starting at something ignorelist points to.
+# Updates ignorelist.
+def fcopy(infile: IO[Any], outfile: IO[Any], upto: int, ignorelist: List[int]) -> None:
+    here = infile.tell()
+    while len(ignorelist) > 0 and ignorelist[0] < upto:
+        while len(ignorelist) > 0 and ignorelist[0] < here:
+            ignorelist.pop(0)
+        if len(ignorelist) > 0:
+            fcopy(infile, outfile, ignorelist[0], [])
+        try:
+            infile.readline()
+        except IOError:
+            die('I/O error', 2)
+        ignorelist.pop(0)
+        here = infile.tell()
+
+    try:
+        outfile.write(infile.read(upto - here))
+    except IOError:
+        die('I/O error', 2)
+
 # Build array of pointers to start/end of pages
 def parse_file(infile: IO[Any], explicit_output_paper: bool = False) -> PSInfo:
     nesting = 0
