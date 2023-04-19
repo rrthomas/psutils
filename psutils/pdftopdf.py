@@ -13,12 +13,13 @@ import sys
 import warnings
 from typing import List, NoReturn, Optional
 
-from pypdf import PdfReader, PdfWriter, Transformation
+from pypdf import Transformation
 from pypdf.generic import AnnotationBuilder
 
 from psutils import (
     HelpFormatter, die, parsepaper, parsedraw,
-    setup_input_and_output, singledimen, simple_warning,
+    singledimen, simple_warning,
+    PdfDocument,
 )
 
 # Globals
@@ -187,12 +188,10 @@ def main(argv: List[str]=sys.argv[1:]) -> None: # pylint: disable=dangerous-defa
     if (iwidth is None) ^ (iheight is None):
         die('input page width and height must both be set, or neither')
 
-    infile, outfile = setup_input_and_output(args.infile, args.outfile, True, True)
-
-    pdf = PdfReader(infile)
+    doc = PdfDocument(args.infile, args.outfile)
 
     if iwidth is None:
-        mediabox = pdf.pages[0].mediabox
+        mediabox = doc.reader.pages[0].mediabox
         iwidth, iheight = mediabox.width, mediabox.height
     if width is None:
         width, height = iwidth, iheight
@@ -200,7 +199,7 @@ def main(argv: List[str]=sys.argv[1:]) -> None: # pylint: disable=dangerous-defa
     # Page spec routines for page rearrangement
     def abs_page(n: int) -> int:
         if n < 0:
-            n += len(pdf.pages) + 1
+            n += doc.pages() + 1
             n = max(n, 1)
         return n
 
@@ -210,8 +209,7 @@ def main(argv: List[str]=sys.argv[1:]) -> None: # pylint: disable=dangerous-defa
     def ps_transform(ps: PageSpec) -> bool:
         return ps.rotate != 0 or ps.hflip or ps.vflip or ps.scale != 1.0 or ps.xoff != 0.0 or ps.yoff != 0.0
 
-    def transform_pages(in_pdf: PdfReader, pagerange: List[Range], modulo: int, odd: bool, even: bool, reverse: bool, specs: List[List[PageSpec]], draw: bool) -> None:
-        out_pdf = PdfWriter()
+    def transform_pages(pagerange: List[Range], modulo: int, odd: bool, even: bool, reverse: bool, specs: List[List[PageSpec]], draw: bool) -> None:
         outputpage = 0
         # If no page range given, select all pages
         if pagerange is None:
@@ -235,7 +233,7 @@ def main(argv: List[str]=sys.argv[1:]) -> None: # pylint: disable=dangerous-defa
             inc = -1 if r.end < r.start else 1
             currentpg = r.start
             while r.end - currentpg != -inc:
-                if currentpg > len(in_pdf.pages):
+                if currentpg > doc.pages():
                     die(f"page range {r.text} is invalid", 2)
                 if not(odd and (not even) and currentpg % 2 == 0) and not(even and not odd and currentpg % 2 == 1):
                     page_list.append(currentpg - 1)
@@ -263,15 +261,15 @@ def main(argv: List[str]=sys.argv[1:]) -> None: # pylint: disable=dangerous-defa
                     sys.stderr.write(f'[{pagelabel}] ')
                 page_number = page_index_to_page_number(page[0], maxpage, modulo, pagebase)
                 real_page = page_to_real_page(page_number)
-                if len(page) == 1 and not ps_transform(page[0]) and page_number < pages_to_output and 0 <= real_page < len(in_pdf.pages) and args.draw == 0:
-                    out_pdf.add_page(in_pdf.pages[real_page])
+                if len(page) == 1 and not ps_transform(page[0]) and page_number < pages_to_output and 0 <= real_page < len(doc.reader.pages) and args.draw == 0:
+                    doc.writer.add_page(doc.reader.pages[real_page])
                 else:
                     # Add a blank page of the correct size to the end of the document
-                    outpdf_page = out_pdf.add_blank_page(width, height)
+                    outpdf_page = doc.writer.add_blank_page(width, height)
                     for ps in page:
                         page_number = page_index_to_page_number(ps, maxpage, modulo, pagebase)
                         real_page = page_to_real_page(page_number)
-                        if page_number < pages_to_output and 0 <= real_page < len(in_pdf.pages):
+                        if page_number < pages_to_output and 0 <= real_page < len(doc.reader.pages):
                             # Calculate input page transformation
                             t = Transformation()
                             if ps.hflip:
@@ -287,9 +285,9 @@ def main(argv: List[str]=sys.argv[1:]) -> None: # pylint: disable=dangerous-defa
                             if ps.xoff is not None:
                                 t = t.translate(ps.xoff, ps.yoff)
                             # Merge input page into the output document
-                            outpdf_page.merge_transformed_page(in_pdf.pages[real_page], t)
+                            outpdf_page.merge_transformed_page(doc.reader.pages[real_page], t)
                             if draw > 0: # FIXME: draw the line at the requested width
-                                mediabox = in_pdf.pages[real_page].mediabox
+                                mediabox = doc.reader.pages[real_page].mediabox
                                 line = AnnotationBuilder.polyline(
                                     vertices=[
                                         (mediabox.left + ps.xoff, mediabox.bottom + ps.yoff),
@@ -299,16 +297,16 @@ def main(argv: List[str]=sys.argv[1:]) -> None: # pylint: disable=dangerous-defa
                                         (mediabox.left + ps.xoff, mediabox.bottom + ps.yoff),
                                     ],
                                 )
-                                out_pdf.add_annotation(outpdf_page, line)
+                                doc.writer.add_annotation(outpdf_page, line)
 
             pagebase += modulo
 
-        out_pdf.write(outfile)
+        doc.finalize()
         if args.verbose:
             print(f'\nWrote {outputpage} pages', file=sys.stderr)
 
     # Output the pages
-    transform_pages(pdf, args.pagerange, modulo, args.odd, args.even, args.reverse, specs, args.draw)
+    transform_pages(args.pagerange, modulo, args.odd, args.even, args.reverse, specs, args.draw)
 
 
 if __name__ == '__main__':

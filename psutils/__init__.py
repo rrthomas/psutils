@@ -14,6 +14,8 @@ from typing import (
     Any, Callable, List, Tuple, Optional, Union, Type, NoReturn, IO, TextIO,
 )
 
+from pypdf import PdfReader, PdfWriter
+
 import __main__
 
 # Help output
@@ -146,20 +148,14 @@ def comment(line: str) -> Tuple[Optional[str], Optional[str]]:
         return m[1], m[2]
     return None, None
 
-class PSInfo:
-    headerpos: int = 0
-    pagescmt: int = 0
-    endsetup: int = 0
-    beginprocset: int = 0 # start and end of pstops procset
-    endprocset: int = 0
-    pages: int = 0
-    sizeheaders: List[int] = []
-    pageptr: List[int] = []
+class Document:
+    pass
 
-# PStoPS procset
-# Wrap showpage, erasepage and copypage in our own versions.
-# Nullify paper size operators.
-procset = '''userdict begin
+class PsDocument(Document):
+    # PStoPS procset
+    # Wrap showpage, erasepage and copypage in our own versions.
+    # Nullify paper size operators.
+    procset = '''userdict begin
 [/showpage/erasepage/copypage]{dup where{pop dup load
  type/operatortype eq{ /PStoPSenablepage cvx 1 index
  load 1 array astore cvx {} bind /ifelse cvx 4 array
@@ -192,6 +188,82 @@ procset = '''userdict begin
  10 setmiterlimit}bind def
 end\n'''
 
+    def __init__(self, infile_name: str, outfile_name: str, explicit_output_paper: bool = False):
+        self.infile, self.outfile = setup_input_and_output(infile_name, outfile_name, True)
+
+        self.headerpos: int = 0
+        self.pagescmt: int = 0
+        self.endsetup: int = 0
+        self.beginprocset: int = 0 # start and end of pstops procset
+        self.endprocset: int = 0
+        self.num_pages: int = 0
+        self.sizeheaders: List[int] = []
+        self.pageptr: List[int] = []
+
+        nesting = 0
+        self.infile.seek(0)
+        record, next_record, buffer = 0, 0, None
+        for buffer in self.infile:
+            next_record += len(buffer)
+            if buffer.startswith('%%'):
+                keyword, _ = comment(buffer)
+                if keyword is not None:
+                    if nesting == 0 and keyword == 'Page:':
+                        self.pageptr.append(record)
+                    elif self.headerpos == 0 and explicit_output_paper and \
+                        keyword in ['BoundingBox:', 'HiResBoundingBox:', 'DocumentPaperSizes:', 'DocumentMedia:']:
+                        # FIXME: read input paper size (from DocumentMedia comment?) if not
+                        # set on command line.
+                        self.sizeheaders.append(record)
+                    elif self.headerpos == 0 and keyword == 'Pages:':
+                        self.pagescmt = record
+                    elif self.headerpos == 0 and keyword == 'EndComments':
+                        self.headerpos = next_record
+                    elif keyword in ['BeginDocument:', 'BeginBinary:', 'BeginFile:']:
+                        nesting += 1
+                    elif keyword in ['EndDocument', 'EndBinary', 'EndFile']:
+                        nesting -= 1
+                    elif nesting == 0 and keyword == 'EndSetup':
+                        self.endsetup = record
+                    elif nesting == 0 and keyword == 'BeginProlog':
+                        self.headerpos = next_record
+                    elif nesting == 0 and buffer == '%%BeginProcSet: PStoPS':
+                        self.beginprocset = record
+                    elif self.beginprocset is not None and \
+                        self.endprocset is None and keyword == 'EndProcSet':
+                        self.endprocset = next_record
+                    elif nesting == 0 and keyword in ['Trailer', 'EOF']:
+                        break
+            elif self.headerpos == 0:
+                self.headerpos = record
+            record = next_record
+        self.num_pages = len(self.pageptr)
+        self.pageptr.append(record)
+        if self.endsetup == 0 or self.endsetup > self.pageptr[0]:
+            self.endsetup = self.pageptr[0]
+
+    def pages(self) -> int:
+        return self.num_pages
+
+    def finalize(self) -> None:
+        # Write trailer
+        # pylint: disable=invalid-sequence-index
+        self.infile.seek(self.pageptr[self.pages()])
+        shutil.copyfileobj(self.infile, self.outfile)
+
+
+class PdfDocument(Document):
+    def __init__(self, infile_name: str, outfile_name: str):
+        self.infile, self.outfile = setup_input_and_output(infile_name, outfile_name, True, True)
+        self.reader = PdfReader(self.infile)
+        self.writer = PdfWriter(self.outfile)
+
+    def pages(self) -> int:
+        return len(self.reader.pages)
+
+    def finalize(self) -> None:
+        self.writer.write(self.outfile)
+
 # Copy input file from current position up to new position to output file,
 # ignoring the lines starting at something ignorelist points to.
 # Updates ignorelist.
@@ -213,52 +285,6 @@ def fcopy(infile: IO[Any], outfile: IO[Any], upto: int, ignorelist: List[int]) -
         outfile.write(infile.read(upto - here))
     except IOError:
         die('I/O error', 2)
-
-# Build array of pointers to start/end of pages
-def parse_file(infile: IO[Any], explicit_output_paper: bool = False) -> PSInfo:
-    nesting = 0
-    psinfo = PSInfo()
-    infile.seek(0)
-    record, next_record, buffer = 0, 0, None
-    for buffer in infile:
-        next_record += len(buffer)
-        if buffer.startswith('%%'):
-            keyword, _ = comment(buffer)
-            if keyword is not None:
-                if nesting == 0 and keyword == 'Page:':
-                    psinfo.pageptr.append(record)
-                elif psinfo.headerpos == 0 and explicit_output_paper and \
-                    keyword in ['BoundingBox:', 'HiResBoundingBox:', 'DocumentPaperSizes:', 'DocumentMedia:']:
-                    # FIXME: read input paper size (from DocumentMedia comment?) if not
-                    # set on command line.
-                    psinfo.sizeheaders.append(record)
-                elif psinfo.headerpos == 0 and keyword == 'Pages:':
-                    psinfo.pagescmt = record
-                elif psinfo.headerpos == 0 and keyword == 'EndComments':
-                    psinfo.headerpos = next_record
-                elif keyword in ['BeginDocument:', 'BeginBinary:', 'BeginFile:']:
-                    nesting += 1
-                elif keyword in ['EndDocument', 'EndBinary', 'EndFile']:
-                    nesting -= 1
-                elif nesting == 0 and keyword == 'EndSetup':
-                    psinfo.endsetup = record
-                elif nesting == 0 and keyword == 'BeginProlog':
-                    psinfo.headerpos = next_record
-                elif nesting == 0 and buffer == '%%BeginProcSet: PStoPS':
-                    psinfo.beginprocset = record
-                elif psinfo.beginprocset is not None and \
-                     psinfo.endprocset is None and keyword == 'EndProcSet':
-                    psinfo.endprocset = next_record
-                elif nesting == 0 and keyword in ['Trailer', 'EOF']:
-                    break
-        elif psinfo.headerpos == 0:
-            psinfo.headerpos = record
-        record = next_record
-    psinfo.pages = len(psinfo.pageptr)
-    psinfo.pageptr.append(record)
-    if psinfo.endsetup == 0 or psinfo.endsetup > psinfo.pageptr[0]:
-        psinfo.endsetup = psinfo.pageptr[0]
-    return psinfo
 
 # Set up input and output files
 def setup_input_and_output(infile_name: str, outfile_name: str, make_seekable: bool = False, binary: bool = False) -> Tuple[IO[Any], IO[Any]]:

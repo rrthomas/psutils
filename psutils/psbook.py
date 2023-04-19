@@ -13,8 +13,8 @@ import warnings
 from typing import List
 
 from psutils import (
-    HelpFormatter, die, parse_file, setup_input_and_output,
-    simple_warning,
+    HelpFormatter, die, simple_warning,
+    PsDocument,
 )
 from psutils.pstops import main as pstops
 
@@ -56,11 +56,9 @@ def main(argv: List[str]=sys.argv[1:]) -> None: # pylint: disable=dangerous-defa
     if args.signature > 1 and args.signature % 4 != 0:
         die('signature must be a multiple of 4')
 
-    infile, _ = setup_input_and_output(args.infile, args.outfile, True)
-
     # Get number of pages
-    psinfo = parse_file(infile)
-    input_pages = psinfo.pages
+    psinfo = PsDocument(args.infile, args.outfile)
+    input_pages = psinfo.pages()
 
     def page_index_to_real_page(signature: int, page_number: int) -> int:
         real_page = page_number - page_number % signature

@@ -9,15 +9,14 @@ Released under the GPL version 3, or (at your option) any later version.
 
 import argparse
 import re
-import shutil
 import sys
 import warnings
 from typing import List, NoReturn, Optional
 
 from psutils import (
     HelpFormatter, die, parsepaper, parsedraw,
-    setup_input_and_output, singledimen, simple_warning,
-    procset, parse_file, fcopy, comment,
+    singledimen, simple_warning,
+    PsDocument, fcopy, comment,
 )
 
 # Globals
@@ -190,20 +189,18 @@ def main(argv: List[str]=sys.argv[1:]) -> None: # pylint: disable=dangerous-defa
     if (iwidth is None) ^ (iheight is None):
         die('input page width and height must both be set, or neither')
 
-    infile, outfile = setup_input_and_output(args.infile, args.outfile, True)
+    doc = PsDocument(args.infile, args.outfile, width is not None)
+
     if iwidth is None and width is not None:
         iwidth, iheight = width, height
 
     if iwidth is None and flipping:
         die('input page size must be set when flipping the page')
 
-    # Parse input
-    psinfo = parse_file(infile, width is not None)
-
     # Page spec routines for page rearrangement
     def abs_page(n: int) -> int:
         if n < 0:
-            n += psinfo.pages + 1
+            n += doc.pages() + 1
             n = max(n, 1)
         return n
 
@@ -237,7 +234,7 @@ def main(argv: List[str]=sys.argv[1:]) -> None: # pylint: disable=dangerous-defa
             inc = -1 if r.end < r.start else 1
             currentpg = r.start
             while r.end - currentpg != -inc:
-                if currentpg > psinfo.pages:
+                if currentpg > doc.pages():
                     die(f"page range {r.text} is invalid", 2)
                 if not(odd and (not even) and currentpg % 2 == 0) and not(even and not odd and currentpg % 2 == 1):
                     page_list.append(currentpg - 1)
@@ -257,40 +254,40 @@ def main(argv: List[str]=sys.argv[1:]) -> None: # pylint: disable=dangerous-defa
 
         # Rearrange pages
         # FIXME: doesn't cope properly with loaded definitions
-        infile.seek(0)
-        if psinfo.pagescmt:
-            fcopy(infile, outfile, psinfo.pagescmt, ignorelist)
+        doc.infile.seek(0)
+        if doc.pagescmt:
+            fcopy(doc.infile, doc.outfile, doc.pagescmt, ignorelist)
             try:
-                line = infile.readline()
+                line = doc.infile.readline()
             except IOError:
                 die('I/O error in header', 2)
             if width is not None and height is not None:
-                print(f'%%DocumentMedia: plain {int(width)} {int(height)} 0 () ()', file=outfile)
-                print(f'%%BoundingBox: 0 0 {int(width)} {int(height)}', file=outfile)
+                print(f'%%DocumentMedia: plain {int(width)} {int(height)} 0 () ()', file=doc.outfile)
+                print(f'%%BoundingBox: 0 0 {int(width)} {int(height)}', file=doc.outfile)
             pagesperspec = len(specs)
-            print(f'%%Pages: {int(maxpage / modulo) * pagesperspec} 0', file=outfile)
-        fcopy(infile, outfile, psinfo.headerpos, ignorelist)
+            print(f'%%Pages: {int(maxpage / modulo) * pagesperspec} 0', file=doc.outfile)
+        fcopy(doc.infile, doc.outfile, doc.headerpos, ignorelist)
         if use_procset: # Redefining '/bind' is a desperation measure!
-            outfile.write(f'%%BeginProcSet: PStoPS{"-nobind" if nobind else ""} 1 15\n{procset}')
+            doc.outfile.write(f'%%BeginProcSet: PStoPS{"-nobind" if nobind else ""} 1 15\n{doc.procset}')
             if nobind:
-                print('/bind{}def', file=outfile)
-            print("%%EndProcSet", file=outfile)
+                print('/bind{}def', file=doc.outfile)
+            print("%%EndProcSet", file=doc.outfile)
 
         # Write prologue to end of setup section, skipping our procset if present
         # and we're outputting it (this allows us to upgrade our procset)
-        if psinfo.endprocset and use_procset:
-            fcopy(infile, outfile, psinfo.beginprocset, [])
-            infile.seek(psinfo.endprocset)
-        fcopy(infile, outfile, psinfo.endsetup, [])
+        if doc.endprocset and use_procset:
+            fcopy(doc.infile, doc.outfile, doc.beginprocset, [])
+            doc.infile.seek(doc.endprocset)
+        fcopy(doc.infile, doc.outfile, doc.endsetup, [])
 
         # Save transformation from original to current matrix
-        if not psinfo.beginprocset and use_procset:
+        if not doc.beginprocset and use_procset:
             print('''userdict/PStoPSxform PStoPSmatrix matrix currentmatrix
  matrix invertmatrix matrix concatmatrix
- matrix invertmatrix put''', file=outfile)
+ matrix invertmatrix put''', file=doc.outfile)
 
         # Write from end of setup to start of pages
-        fcopy(infile, outfile, psinfo.pageptr[0], [])
+        fcopy(doc.infile, doc.outfile, doc.pageptr[0], [])
 
         pagebase = 0
         while pagebase < maxpage:
@@ -299,12 +296,12 @@ def main(argv: List[str]=sys.argv[1:]) -> None: # pylint: disable=dangerous-defa
                 for ps in page:
                     page_number = page_index_to_page_number(ps, maxpage, modulo, pagebase)
                     real_page = page_to_real_page(page_number)
-                    if page_number < pages_to_output and 0 <= real_page < psinfo.pages:
+                    if page_number < pages_to_output and 0 <= real_page < doc.pages():
                         # Seek the page
                         p = real_page
-                        infile.seek(psinfo.pageptr[p])
+                        doc.infile.seek(doc.pageptr[p])
                         try:
-                            line = infile.readline()
+                            line = doc.infile.readline()
                             assert comment(line)[0] == 'Page:'
                         except IOError:
                             die(f'I/O error seeking page {p}', 2)
@@ -317,70 +314,67 @@ def main(argv: List[str]=sys.argv[1:]) -> None: # pylint: disable=dangerous-defa
                         pagelabel = ",".join(pagelabels)
                         # Write page comment
                         outputpage += 1
-                        print(f'%%Page: ({pagelabel}) {outputpage}', file=outfile)
+                        print(f'%%Page: ({pagelabel}) {outputpage}', file=doc.outfile)
                         if args.verbose:
                             sys.stderr.write(f'[{pagelabel}] ')
                     if use_procset:
-                        print('userdict/PStoPSsaved save put', file=outfile)
+                        print('userdict/PStoPSsaved save put', file=doc.outfile)
                     if global_transform or ps_transform(ps):
-                        print('PStoPSmatrix setmatrix', file=outfile)
+                        print('PStoPSmatrix setmatrix', file=doc.outfile)
                         if ps.xoff is not None:
-                            print(f"{ps.xoff:f} {ps.yoff:f} translate", file=outfile)
+                            print(f"{ps.xoff:f} {ps.yoff:f} translate", file=doc.outfile)
                         if ps.rotate != 0:
-                            print(f"{(ps.rotate + rotate) % 360} rotate", file=outfile)
+                            print(f"{(ps.rotate + rotate) % 360} rotate", file=doc.outfile)
                         if ps.hflip == 1:
                             assert iwidth is not None
-                            print(f"[ -1 0 0 1 {iwidth * ps.scale * scale:g} 0 ] concat", file=outfile)
+                            print(f"[ -1 0 0 1 {iwidth * ps.scale * scale:g} 0 ] concat", file=doc.outfile)
                         if ps.vflip == 1:
                             assert iheight is not None
-                            print(f"[ 1 0 0 -1 0 {iheight * ps.scale * scale:g} ] concat", file=outfile)
+                            print(f"[ 1 0 0 -1 0 {iheight * ps.scale * scale:g} ] concat", file=doc.outfile)
                         if ps.scale != 1.0:
-                            print(f"{ps.scale * scale:f} dup scale", file=outfile)
-                        print('userdict/PStoPSmatrix matrix currentmatrix put', file=outfile)
+                            print(f"{ps.scale * scale:f} dup scale", file=doc.outfile)
+                        print('userdict/PStoPSmatrix matrix currentmatrix put', file=doc.outfile)
                         if iwidth is not None:
                             # pylint: disable=invalid-unary-operand-type
                             print(f'''userdict/PStoPSclip{{0 0 moveto
  {iwidth:f} 0 rlineto 0 {iheight:f} rlineto {-iwidth:f} 0 rlineto
- closepath}}put initclip''', file=outfile)
+ closepath}}put initclip''', file=doc.outfile)
                             if draw > 0:
-                                print(f'gsave clippath 0 setgray {draw} setlinewidth stroke grestore', file=outfile)
+                                print(f'gsave clippath 0 setgray {draw} setlinewidth stroke grestore', file=doc.outfile)
                     if spec_page_number < len(page) - 1:
-                        print('/PStoPSenablepage false def', file=outfile)
-                    if psinfo.beginprocset and page_number < pages_to_output and real_page < psinfo.pages:
+                        print('/PStoPSenablepage false def', file=doc.outfile)
+                    if doc.beginprocset and page_number < pages_to_output and real_page < doc.pages():
                         # Search for page setup
                         while True:
                             try:
-                                line = infile.readline()
+                                line = doc.infile.readline()
                             except IOError:
                                 die(f'I/O error reading page setup {outputpage}', 2)
                             if line.startswith('PStoPSxform'):
                                 break
                             try:
-                                print(line, file=outfile)
+                                print(line, file=doc.outfile)
                             except IOError:
                                 die(f'I/O error writing page setup {outputpage}', 2)
-                    if not psinfo.beginprocset and use_procset:
-                        print('PStoPSxform concat' , file=outfile)
-                    if page_number < pages_to_output and 0 <= real_page < psinfo.pages:
+                    if not doc.beginprocset and use_procset:
+                        print('PStoPSxform concat' , file=doc.outfile)
+                    if page_number < pages_to_output and 0 <= real_page < doc.pages():
                         # Write the body of a page
-                        fcopy(infile, outfile, psinfo.pageptr[real_page + 1], [])
+                        fcopy(doc.infile, doc.outfile, doc.pageptr[real_page + 1], [])
                     else:
-                        print('showpage', file=outfile)
+                        print('showpage', file=doc.outfile)
                     if use_procset:
-                        print('PStoPSsaved restore', file=outfile)
+                        print('PStoPSsaved restore', file=doc.outfile)
                     spec_page_number += 1
 
             pagebase += modulo
 
-        # Write trailer
-        # pylint: disable=invalid-sequence-index
-        infile.seek(psinfo.pageptr[psinfo.pages])
-        shutil.copyfileobj(infile, outfile)
+        doc.finalize()
         if args.verbose:
             print(f'\nWrote {outputpage} pages', file=sys.stderr)
 
     # Output the pages
-    transform_pages(args.pagerange, modulo, args.odd, args.even, args.reverse, args.nobinding, specs, args.draw, psinfo.sizeheaders)
+    transform_pages(args.pagerange, modulo, args.odd, args.even, args.reverse, args.nobinding, specs, args.draw, doc.sizeheaders)
 
 
 if __name__ == '__main__':
