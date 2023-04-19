@@ -22,7 +22,6 @@ from psutils import (
 # Globals
 flipping = False # any spec includes page flip
 modulo = 1
-pagesperspec = 1
 scale = 1.0 # global scale factor
 rotate = 0 # global rotation
 
@@ -45,14 +44,13 @@ class PageSpec:
     yoff: float = 0.0
 
 def parsespecs(s: str, width: Optional[float], height: Optional[float]) -> List[List[PageSpec]]:
-    global modulo, pagesperspec, flipping
+    global modulo, flipping
     m = re.match(r'(?:([^:]+):)?(.*)', s)
     if not m:
         specerror()
     modulo, specs_text = int(m[1] or '1'), m[2]
     # Split on commas but not inside parentheses.
     pages_text = re.split(r',(?![^()]*\))', specs_text)
-    pagesperspec = len(pages_text)
     pages = []
     angle = {'l': 90, 'r': -90, 'u': 180}
     for page in pages_text:
@@ -272,7 +270,7 @@ def main(argv: List[str]=sys.argv[1:]) -> None: # pylint: disable=dangerous-defa
     def ps_transform(ps: PageSpec) -> bool:
         return ps.rotate != 0 or ps.hflip or ps.vflip or ps.scale != 1.0 or ps.xoff != 0.0 or ps.yoff != 0.0
 
-    def pstops(pagerange: List[Range], modulo: int, pps: int, odd: bool, even: bool, reverse: bool, nobind: bool, specs: List[List[PageSpec]], draw: bool, ignorelist: List[int]) -> None:
+    def pstops(pagerange: List[Range], modulo: int, odd: bool, even: bool, reverse: bool, nobind: bool, specs: List[List[PageSpec]], draw: bool, ignorelist: List[int]) -> None:
         outputpage = 0
         # If no page range given, select all pages
         if pagerange is None:
@@ -316,7 +314,6 @@ def main(argv: List[str]=sys.argv[1:]) -> None: # pylint: disable=dangerous-defa
 
         # Rearrange pages
         # FIXME: doesn't cope properly with loaded definitions
-        p = int(maxpage / modulo) * pps
         infile.seek(0)
         if psinfo.pagescmt:
             fcopy(psinfo.pagescmt, ignorelist)
@@ -327,7 +324,8 @@ def main(argv: List[str]=sys.argv[1:]) -> None: # pylint: disable=dangerous-defa
             if width is not None and height is not None:
                 print(f'%%DocumentMedia: plain {int(width)} {int(height)} 0 () ()', file=outfile)
                 print(f'%%BoundingBox: 0 0 {int(width)} {int(height)}', file=outfile)
-            print(f'%%Pages: {p} 0', file=outfile)
+            pagesperspec = len(specs)
+            print(f'%%Pages: {int(maxpage / modulo) * pagesperspec} 0', file=outfile)
         fcopy(psinfo.headerpos, ignorelist)
         if use_procset: # Redefining '/bind' is a desperation measure!
             outfile.write(f'%%BeginProcSet: PStoPS{"-nobind" if nobind else ""} 1 15\n{procset}')
@@ -439,7 +437,7 @@ def main(argv: List[str]=sys.argv[1:]) -> None: # pylint: disable=dangerous-defa
             print(f'\nWrote {outputpage} pages', file=sys.stderr)
 
     # Output the pages
-    pstops(args.pagerange, modulo, pagesperspec, args.odd, args.even, args.reverse, args.nobinding, specs, args.draw, psinfo.sizeheaders)
+    pstops(args.pagerange, modulo, args.odd, args.even, args.reverse, args.nobinding, specs, args.draw, psinfo.sizeheaders)
 
 
 if __name__ == '__main__':
