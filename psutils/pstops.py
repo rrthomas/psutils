@@ -15,8 +15,9 @@ import warnings
 from typing import List, NoReturn, Optional
 
 from psutils import (
-    HelpFormatter, comment, die, parsedraw, parse_file,
-    parsepaper, setup_input_and_output, singledimen, simple_warning,
+    HelpFormatter, die, parsepaper, parsedraw,
+    setup_input_and_output, singledimen, simple_warning,
+    procset, parse_file, comment,
 )
 
 # Globals
@@ -119,7 +120,7 @@ def parserange(ranges_text: str) -> List[Range]:
 def get_parser() -> argparse.ArgumentParser:
     # Command-line arguments
     parser = argparse.ArgumentParser(
-        description='Rearrange pages of a PostScript document.',
+        description='Rearrange pages of a PDF or PostScript document.',
         formatter_class=HelpFormatter,
         usage='%(prog)s [OPTION...] [INFILE [OUTFILE]]',
         add_help=False,
@@ -169,42 +170,6 @@ may be needed for complex page rearrangements''')
                         help="`-' or no OUTFILE argument means standard output")
 
     return parser
-
-# PStoPS procset
-# Wrap showpage, erasepage and copypage in our own versions.
-# Nullify paper size operators.
-procset = '''userdict begin
-[/showpage/erasepage/copypage]{dup where{pop dup load
- type/operatortype eq{ /PStoPSenablepage cvx 1 index
- load 1 array astore cvx {} bind /ifelse cvx 4 array
- astore cvx def}{pop}ifelse}{pop}ifelse}forall
- /PStoPSenablepage true def
-[/letter/legal/executivepage/a4/a4small/b5/com10envelope
- /monarchenvelope/c5envelope/dlenvelope/lettersmall/note
- /folio/quarto/a5]{dup where{dup wcheck{exch{}put}
- {pop{}def}ifelse}{pop}ifelse}forall
-/setpagedevice {pop}bind 1 index where{dup wcheck{3 1 roll put}
- {pop def}ifelse}{def}ifelse
-/PStoPSmatrix matrix currentmatrix def
-/PStoPSxform matrix def/PStoPSclip{clippath}def
-/defaultmatrix{PStoPSmatrix exch PStoPSxform exch concatmatrix}bind def
-/initmatrix{matrix defaultmatrix setmatrix}bind def
-/initclip[{matrix currentmatrix PStoPSmatrix setmatrix
- [{currentpoint}stopped{$error/newerror false put{newpath}}
- {/newpath cvx 3 1 roll/moveto cvx 4 array astore cvx}ifelse]
- {[/newpath cvx{/moveto cvx}{/lineto cvx}
- {/curveto cvx}{/closepath cvx}pathforall]cvx exch pop}
- stopped{$error/errorname get/invalidaccess eq{cleartomark
- $error/newerror false put cvx exec}{stop}ifelse}if}bind aload pop
- /initclip dup load dup type dup/operatortype eq{pop exch pop}
- {dup/arraytype eq exch/packedarraytype eq or
-  {dup xcheck{exch pop aload pop}{pop cvx}ifelse}
-  {pop cvx}ifelse}ifelse
- {newpath PStoPSclip clip newpath exec setmatrix} bind aload pop]cvx def
-/initgraphics{initmatrix newpath initclip 1 setlinewidth
- 0 setlinecap 0 setlinejoin []0 setdash 0 setgray
- 10 setmiterlimit}bind def
-end\n'''
 
 def main(argv: List[str]=sys.argv[1:]) -> None: # pylint: disable=dangerous-default-value
     global modulo
@@ -270,7 +235,7 @@ def main(argv: List[str]=sys.argv[1:]) -> None: # pylint: disable=dangerous-defa
     def ps_transform(ps: PageSpec) -> bool:
         return ps.rotate != 0 or ps.hflip or ps.vflip or ps.scale != 1.0 or ps.xoff != 0.0 or ps.yoff != 0.0
 
-    def pstops(pagerange: List[Range], modulo: int, odd: bool, even: bool, reverse: bool, nobind: bool, specs: List[List[PageSpec]], draw: bool, ignorelist: List[int]) -> None:
+    def transform_pages(pagerange: List[Range], modulo: int, odd: bool, even: bool, reverse: bool, nobind: bool, specs: List[List[PageSpec]], draw: bool, ignorelist: List[int]) -> None:
         outputpage = 0
         # If no page range given, select all pages
         if pagerange is None:
@@ -437,7 +402,7 @@ def main(argv: List[str]=sys.argv[1:]) -> None: # pylint: disable=dangerous-defa
             print(f'\nWrote {outputpage} pages', file=sys.stderr)
 
     # Output the pages
-    pstops(args.pagerange, modulo, args.odd, args.even, args.reverse, args.nobinding, specs, args.draw, psinfo.sizeheaders)
+    transform_pages(args.pagerange, modulo, args.odd, args.even, args.reverse, args.nobinding, specs, args.draw, psinfo.sizeheaders)
 
 
 if __name__ == '__main__':

@@ -121,7 +121,7 @@ def parserange(ranges_text: str) -> List[Range]:
 def get_parser() -> argparse.ArgumentParser:
     # Command-line arguments
     parser = argparse.ArgumentParser(
-        description='Rearrange pages of a PDF document.',
+        description='Rearrange pages of a PDF or PostScript document.',
         formatter_class=HelpFormatter,
         usage='%(prog)s [OPTION...] [INFILE [OUTFILE]]',
         add_help=False,
@@ -210,7 +210,7 @@ def main(argv: List[str]=sys.argv[1:]) -> None: # pylint: disable=dangerous-defa
     def ps_transform(ps: PageSpec) -> bool:
         return ps.rotate != 0 or ps.hflip or ps.vflip or ps.scale != 1.0 or ps.xoff != 0.0 or ps.yoff != 0.0
 
-    def pdftopdf(in_pdf: PdfReader, pagerange: List[Range], modulo: int, odd: bool, even: bool, reverse: bool, specs: List[List[PageSpec]], draw: bool) -> None:
+    def transform_pages(in_pdf: PdfReader, pagerange: List[Range], modulo: int, odd: bool, even: bool, reverse: bool, specs: List[List[PageSpec]], draw: bool) -> None:
         out_pdf = PdfWriter()
         outputpage = 0
         # If no page range given, select all pages
@@ -308,7 +308,7 @@ def main(argv: List[str]=sys.argv[1:]) -> None: # pylint: disable=dangerous-defa
             print(f'\nWrote {outputpage} pages', file=sys.stderr)
 
     # Output the pages
-    pdftopdf(pdf, args.pagerange, modulo, args.odd, args.even, args.reverse, specs, args.draw)
+    transform_pages(pdf, args.pagerange, modulo, args.odd, args.even, args.reverse, specs, args.draw)
 
 
 if __name__ == '__main__':
