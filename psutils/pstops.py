@@ -153,10 +153,7 @@ each page in its normal order].
 draw a line of given width (relative to original
 page) around each page [argument defaults to 1pt;
 default is no line]''')
-    parser.add_argument('-b', '--nobind', dest='nobinding', action='store_true',
-                        help='''\
-disable PostScript bind operators in prolog;
-may be needed for complex page rearrangements''')
+    parser.add_argument('-b', '--nobind', help=argparse.SUPPRESS)
     parser.add_argument('-q', '--quiet', action='store_false', dest='verbose',
                         help="don't show page numbers being output")
     parser.add_argument('--help', action='help',
@@ -210,7 +207,7 @@ def main(argv: List[str]=sys.argv[1:]) -> None: # pylint: disable=dangerous-defa
     def ps_transform(ps: PageSpec) -> bool:
         return ps.rotate != 0 or ps.hflip or ps.vflip or ps.scale != 1.0 or ps.xoff != 0.0 or ps.yoff != 0.0
 
-    def transform_pages(pagerange: List[Range], modulo: int, odd: bool, even: bool, reverse: bool, nobind: bool, specs: List[List[PageSpec]], draw: bool, ignorelist: List[int]) -> None:
+    def transform_pages(pagerange: List[Range], modulo: int, odd: bool, even: bool, reverse: bool, specs: List[List[PageSpec]], draw: bool) -> None:
         outputpage = 0
         # If no page range given, select all pages
         if pagerange is None:
@@ -256,7 +253,7 @@ def main(argv: List[str]=sys.argv[1:]) -> None: # pylint: disable=dangerous-defa
         # FIXME: doesn't cope properly with loaded definitions
         doc.infile.seek(0)
         if doc.pagescmt:
-            fcopy(doc.infile, doc.outfile, doc.pagescmt, ignorelist)
+            fcopy(doc.infile, doc.outfile, doc.pagescmt, doc.sizeheaders)
             try:
                 line = doc.infile.readline()
             except IOError:
@@ -266,11 +263,9 @@ def main(argv: List[str]=sys.argv[1:]) -> None: # pylint: disable=dangerous-defa
                 print(f'%%BoundingBox: 0 0 {int(width)} {int(height)}', file=doc.outfile)
             pagesperspec = len(specs)
             print(f'%%Pages: {int(maxpage / modulo) * pagesperspec} 0', file=doc.outfile)
-        fcopy(doc.infile, doc.outfile, doc.headerpos, ignorelist)
-        if use_procset: # Redefining '/bind' is a desperation measure!
-            doc.outfile.write(f'%%BeginProcSet: PStoPS{"-nobind" if nobind else ""} 1 15\n{doc.procset}')
-            if nobind:
-                print('/bind{}def', file=doc.outfile)
+        fcopy(doc.infile, doc.outfile, doc.headerpos, doc.sizeheaders)
+        if use_procset:
+            doc.outfile.write(f'%%BeginProcSet: PStoPS 1 15\n{doc.procset}')
             print("%%EndProcSet", file=doc.outfile)
 
         # Write prologue to end of setup section, skipping our procset if present
@@ -374,7 +369,7 @@ def main(argv: List[str]=sys.argv[1:]) -> None: # pylint: disable=dangerous-defa
             print(f'\nWrote {outputpage} pages', file=sys.stderr)
 
     # Output the pages
-    transform_pages(args.pagerange, modulo, args.odd, args.even, args.reverse, args.nobinding, specs, args.draw, doc.sizeheaders)
+    transform_pages(args.pagerange, modulo, args.odd, args.even, args.reverse, specs, args.draw)
 
 
 if __name__ == '__main__':

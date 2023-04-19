@@ -156,6 +156,7 @@ each page in its normal order].
 draw a line of given width (relative to original
 page) around each page [argument defaults to 1pt;
 default is no line]''')
+    parser.add_argument('-b', '--nobind', help=argparse.SUPPRESS)
     parser.add_argument('-q', '--quiet', action='store_false', dest='verbose',
                         help="don't show page numbers being output")
     parser.add_argument('--help', action='help',
