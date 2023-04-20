@@ -15,8 +15,8 @@ from typing import List, NoReturn, Optional
 
 from psutils import (
     HelpFormatter, die, parsepaper, parsedraw,
-    singledimen, simple_warning,
-    PsDocument as Document
+    singledimen, simple_warning, PageSpec,
+    PsDocumentTransform as DocumentTransform,
 )
 
 # Globals
@@ -32,16 +32,6 @@ def specerror() -> NoReturn:
   PAGESPECS = [MODULO:]SPEC
   SPEC      = [-]PAGENO[@SCALE][L|R|U|H|V][(XOFF,YOFF)][,SPEC|+SPEC]
               MODULO >= 1; 0 <= PAGENO < MODULO''')
-
-class PageSpec:
-    reversed: bool = False
-    pageno: int = 0
-    rotate: int = 0
-    hflip: bool = False
-    vflip: bool = False
-    scale: float = 1.0
-    xoff: float = 0.0
-    yoff: float = 0.0
 
 def parsespecs(s: str, width: Optional[float], height: Optional[float]) -> List[List[PageSpec]]:
     global modulo, flipping
@@ -186,7 +176,8 @@ def main(argv: List[str]=sys.argv[1:]) -> None: # pylint: disable=dangerous-defa
     if (iwidth is None) ^ (iheight is None):
         die('input page width and height must both be set, or neither')
 
-    doc = Document(args.infile, args.outfile, width, height, iwidth, iheight)
+    global_transform = scale != 1.0 or rotate != 0
+    doc = DocumentTransform(args.infile, args.outfile, width, height, iwidth, iheight, specs, global_transform)
 
     if doc.iwidth is None and flipping:
         die('input page size must be set when flipping the page')
@@ -201,10 +192,7 @@ def main(argv: List[str]=sys.argv[1:]) -> None: # pylint: disable=dangerous-defa
     def page_index_to_page_number(ps: PageSpec, maxpage: int, modulo: int, pagebase: int) -> int:
         return (maxpage - pagebase - modulo if ps.reversed else pagebase) + ps.pageno
 
-    def ps_transform(ps: PageSpec) -> bool:
-        return ps.rotate != 0 or ps.hflip or ps.vflip or ps.scale != 1.0 or ps.xoff != 0.0 or ps.yoff != 0.0
-
-    def transform_pages(pagerange: List[Range], modulo: int, odd: bool, even: bool, reverse: bool, specs: List[List[PageSpec]], draw: bool) -> None:
+    def transform_pages(pagerange: List[Range], modulo: int, odd: bool, even: bool, reverse: bool, draw: bool) -> None:
         outputpage = 0
         # If no page range given, select all pages
         if pagerange is None:
@@ -242,10 +230,6 @@ def main(argv: List[str]=sys.argv[1:]) -> None: # pylint: disable=dangerous-defa
         if reverse:
             page_list.reverse()
 
-        # Work out whether we need procset
-        global_transform = scale != 1.0 or rotate != 0
-        use_procset = global_transform or any(len(page) > 1 or ps_transform(page[0]) for page in specs)
-
         # Rearrange pages
         # FIXME: doesn't cope properly with loaded definitions
         doc.infile.seek(0)
@@ -258,22 +242,22 @@ def main(argv: List[str]=sys.argv[1:]) -> None: # pylint: disable=dangerous-defa
             if doc.width is not None and doc.height is not None:
                 print(f'%%DocumentMedia: plain {int(doc.width)} {int(doc.height)} 0 () ()', file=doc.outfile)
                 print(f'%%BoundingBox: 0 0 {int(doc.width)} {int(doc.height)}', file=doc.outfile)
-            pagesperspec = len(specs)
+            pagesperspec = len(doc.specs)
             print(f'%%Pages: {int(maxpage / modulo) * pagesperspec} 0', file=doc.outfile)
         doc.fcopy(doc.headerpos, doc.sizeheaders)
-        if use_procset:
+        if doc.use_procset:
             doc.outfile.write(f'%%BeginProcSet: PStoPS 1 15\n{doc.procset}')
             print("%%EndProcSet", file=doc.outfile)
 
         # Write prologue to end of setup section, skipping our procset if present
         # and we're outputting it (this allows us to upgrade our procset)
-        if doc.endprocset and use_procset:
+        if doc.endprocset and doc.use_procset:
             doc.fcopy(doc.beginprocset, [])
             doc.infile.seek(doc.endprocset)
         doc.fcopy(doc.endsetup, [])
 
         # Save transformation from original to current matrix
-        if not doc.beginprocset and use_procset:
+        if not doc.beginprocset and doc.use_procset:
             print('''userdict/PStoPSxform PStoPSmatrix matrix currentmatrix
  matrix invertmatrix matrix concatmatrix
  matrix invertmatrix put''', file=doc.outfile)
@@ -283,7 +267,7 @@ def main(argv: List[str]=sys.argv[1:]) -> None: # pylint: disable=dangerous-defa
 
         pagebase = 0
         while pagebase < maxpage:
-            for page in specs:
+            for page in doc.specs:
                 spec_page_number = 0
                 # Construct the page label from the input page numbers
                 pagelabels = []
@@ -308,9 +292,9 @@ def main(argv: List[str]=sys.argv[1:]) -> None: # pylint: disable=dangerous-defa
                             assert doc.comment_keyword(line) == 'Page:'
                         except IOError:
                             die(f'I/O error seeking page {p}', 2)
-                    if use_procset:
+                    if doc.use_procset:
                         print('userdict/PStoPSsaved save put', file=doc.outfile)
-                    if global_transform or ps_transform(ps):
+                    if global_transform or ps.has_transform():
                         print('PStoPSmatrix setmatrix', file=doc.outfile)
                         if ps.xoff is not None:
                             print(f"{ps.xoff:f} {ps.yoff:f} translate", file=doc.outfile)
@@ -347,14 +331,14 @@ def main(argv: List[str]=sys.argv[1:]) -> None: # pylint: disable=dangerous-defa
                                 print(line, file=doc.outfile)
                             except IOError:
                                 die(f'I/O error writing page setup {outputpage}', 2)
-                    if not doc.beginprocset and use_procset:
+                    if not doc.beginprocset and doc.use_procset:
                         print('PStoPSxform concat' , file=doc.outfile)
                     if page_number < pages_to_output and 0 <= real_page < doc.pages():
                         # Write the body of a page
                         doc.fcopy(doc.pageptr[real_page + 1], [])
                     else:
                         print('showpage', file=doc.outfile)
-                    if use_procset:
+                    if doc.use_procset:
                         print('PStoPSsaved restore', file=doc.outfile)
                     spec_page_number += 1
 
@@ -365,7 +349,7 @@ def main(argv: List[str]=sys.argv[1:]) -> None: # pylint: disable=dangerous-defa
             print(f'\nWrote {outputpage} pages', file=sys.stderr)
 
     # Output the pages
-    transform_pages(args.pagerange, modulo, args.odd, args.even, args.reverse, specs, args.draw)
+    transform_pages(args.pagerange, modulo, args.odd, args.even, args.reverse, args.draw)
 
 
 if __name__ == '__main__':

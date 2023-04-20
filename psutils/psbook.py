@@ -14,7 +14,7 @@ from typing import List
 
 from psutils import (
     HelpFormatter, die, simple_warning,
-    PsDocument,
+    PsDocumentTransform,
 )
 from psutils.pstops import main as pstops
 
@@ -57,7 +57,7 @@ def main(argv: List[str]=sys.argv[1:]) -> None: # pylint: disable=dangerous-defa
         die('signature must be a multiple of 4')
 
     # Get number of pages
-    psinfo = PsDocument(args.infile, args.outfile, None, None, None, None)
+    psinfo = PsDocumentTransform(args.infile, args.outfile, None, None, None, None, [], False)
     input_pages = psinfo.pages()
 
     def page_index_to_real_page(signature: int, page_number: int) -> int:

@@ -18,8 +18,8 @@ from pypdf.generic import AnnotationBuilder
 
 from psutils import (
     HelpFormatter, die, parsepaper, parsedraw,
-    singledimen, simple_warning,
-    PdfDocument as Document,
+    singledimen, simple_warning, PageSpec,
+    PdfDocumentTransform as DocumentTransform,
 )
 
 # Globals
@@ -35,16 +35,6 @@ def specerror() -> NoReturn:
   PAGESPECS = [MODULO:]SPEC
   SPEC      = [-]PAGENO[@SCALE][L|R|U|H|V][(XOFF,YOFF)][,SPEC|+SPEC]
               MODULO >= 1; 0 <= PAGENO < MODULO''')
-
-class PageSpec:
-    reversed: bool = False
-    pageno: int = 0
-    rotate: int = 0
-    hflip: bool = False
-    vflip: bool = False
-    scale: float = 1.0
-    xoff: float = 0.0
-    yoff: float = 0.0
 
 def parsespecs(s: str, width: Optional[float], height: Optional[float]) -> List[List[PageSpec]]:
     global modulo, flipping
@@ -189,7 +179,8 @@ def main(argv: List[str]=sys.argv[1:]) -> None: # pylint: disable=dangerous-defa
     if (iwidth is None) ^ (iheight is None):
         die('input page width and height must both be set, or neither')
 
-    doc = Document(args.infile, args.outfile, width, height, iwidth, iheight)
+    global_transform = scale != 1.0 or rotate != 0
+    doc = DocumentTransform(args.infile, args.outfile, width, height, iwidth, iheight, specs, global_transform)
 
     if doc.iwidth is None and flipping:
         die('input page size must be set when flipping the page')
@@ -204,10 +195,7 @@ def main(argv: List[str]=sys.argv[1:]) -> None: # pylint: disable=dangerous-defa
     def page_index_to_page_number(ps: PageSpec, maxpage: int, modulo: int, pagebase: int) -> int:
         return (maxpage - pagebase - modulo if ps.reversed else pagebase) + ps.pageno
 
-    def ps_transform(ps: PageSpec) -> bool:
-        return ps.rotate != 0 or ps.hflip or ps.vflip or ps.scale != 1.0 or ps.xoff != 0.0 or ps.yoff != 0.0
-
-    def transform_pages(pagerange: List[Range], modulo: int, odd: bool, even: bool, reverse: bool, specs: List[List[PageSpec]], draw: bool) -> None:
+    def transform_pages(pagerange: List[Range], modulo: int, odd: bool, even: bool, reverse: bool, draw: bool) -> None:
         outputpage = 0
         # If no page range given, select all pages
         if pagerange is None:
@@ -248,7 +236,7 @@ def main(argv: List[str]=sys.argv[1:]) -> None: # pylint: disable=dangerous-defa
         # Rearrange pages
         pagebase = 0
         while pagebase < maxpage:
-            for page in specs:
+            for page in doc.specs:
                 # Construct the page label from the input page numbers
                 pagelabels = []
                 for spec in page:
@@ -260,7 +248,7 @@ def main(argv: List[str]=sys.argv[1:]) -> None: # pylint: disable=dangerous-defa
                     sys.stderr.write(f'[{pagelabel}] ')
                 page_number = page_index_to_page_number(page[0], maxpage, modulo, pagebase)
                 real_page = page_to_real_page(page_number)
-                if len(page) == 1 and not ps_transform(page[0]) and page_number < pages_to_output and 0 <= real_page < len(doc.reader.pages) and args.draw == 0:
+                if len(page) == 1 and not global_transform and not page[0].has_transform() and page_number < pages_to_output and 0 <= real_page < len(doc.reader.pages) and args.draw == 0:
                     doc.writer.add_page(doc.reader.pages[real_page])
                 else:
                     # Add a blank page of the correct size to the end of the document
@@ -303,7 +291,7 @@ def main(argv: List[str]=sys.argv[1:]) -> None: # pylint: disable=dangerous-defa
             print(f'\nWrote {outputpage} pages', file=sys.stderr)
 
     # Output the pages
-    transform_pages(args.pagerange, modulo, args.odd, args.even, args.reverse, specs, args.draw)
+    transform_pages(args.pagerange, modulo, args.odd, args.even, args.reverse, args.draw)
 
 
 if __name__ == '__main__':

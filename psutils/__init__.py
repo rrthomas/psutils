@@ -141,10 +141,23 @@ def parsedimen(s: str) -> float:
 def parsedraw(s: str) -> float:
     return parsedimen(s or '1')
 
-class Document:
+class PageSpec:
+    reversed: bool = False
+    pageno: int = 0
+    rotate: int = 0
+    hflip: bool = False
+    vflip: bool = False
+    scale: float = 1.0
+    xoff: float = 0.0
+    yoff: float = 0.0
+
+    def has_transform(self) -> bool:
+        return self.rotate != 0 or self.hflip or self.vflip or self.scale != 1.0 or self.xoff != 0.0 or self.yoff != 0.0
+
+class DocumentTransform:
     pass
 
-class PsDocument(Document):
+class PsDocumentTransform(DocumentTransform):
     # PStoPS procset
     # Wrap showpage, erasepage and copypage in our own versions.
     # Nullify paper size operators.
@@ -181,21 +194,24 @@ class PsDocument(Document):
  10 setmiterlimit}bind def
 end\n'''
 
-    def __init__(self, infile_name: str, outfile_name: str, width: Optional[float], height: Optional[float], iwidth: Optional[float], iheight: Optional[float]):
+    def __init__(self, infile_name: str, outfile_name: str, width: Optional[float], height: Optional[float], iwidth: Optional[float], iheight: Optional[float], specs: List[List[PageSpec]], global_transform: bool):
         self.infile, self.outfile = setup_input_and_output(infile_name, outfile_name, True)
+        self.global_transform = global_transform
+        self.specs = specs
+
+        self.use_procset = self.global_transform or any(len(page) > 1 or page[0].has_transform() for page in specs)
 
         self.headerpos: int = 0
         self.pagescmt: int = 0
         self.endsetup: int = 0
-        self.beginprocset: int = 0 # start and end of pstops procset
-        self.endprocset: int = 0
+        self.beginprocset: int = 0 # start of pstops procset
+        self.endprocset: int = 0 # end of pstopsprocset
         self.num_pages: int = 0
         self.sizeheaders: List[int] = []
         self.pageptr: List[int] = []
 
         if iwidth is None and width is not None:
             iwidth, iheight = width, height
-
         self.width, self.height = width, height
         self.iwidth, self.iheight = iwidth, iheight
 
@@ -278,11 +294,13 @@ end\n'''
             die('I/O error', 2)
 
 
-class PdfDocument(Document):
-    def __init__(self, infile_name: str, outfile_name: str, width: Optional[float], height: Optional[float], iwidth: Optional[float], iheight: Optional[float]):
+class PdfDocumentTransform(DocumentTransform):
+    def __init__(self, infile_name: str, outfile_name: str, width: Optional[float], height: Optional[float], iwidth: Optional[float], iheight: Optional[float], specs: List[List[PageSpec]], global_transform: bool):
         self.infile, self.outfile = setup_input_and_output(infile_name, outfile_name, True, True)
         self.reader = PdfReader(self.infile)
         self.writer = PdfWriter(self.outfile)
+        self.global_transform = global_transform
+        self.specs = specs
 
         if iwidth is None or iheight is None:
             mediabox = self.reader.pages[0].mediabox
