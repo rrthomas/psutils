@@ -13,12 +13,9 @@ import sys
 import warnings
 from typing import List, NoReturn, Optional
 
-from pypdf import Transformation
-from pypdf.generic import AnnotationBuilder
-
 from psutils import (
     HelpFormatter, die, parsepaper, parsedraw,
-    singledimen, simple_warning, PageSpec,
+    singledimen, simple_warning, PageSpec, Range, PageList, page_index_to_page_number,
     PdfDocumentTransform as DocumentTransform,
 )
 
@@ -84,11 +81,6 @@ def parsespecs(s: str, width: Optional[float], height: Optional[float]) -> List[
             specs.append(spec)
         pages.append(specs)
     return pages
-
-class Range:
-    start: int
-    end: int
-    text: str
 
 def parserange(ranges_text: str) -> List[Range]:
     ranges = []
@@ -179,8 +171,7 @@ def main(argv: List[str]=sys.argv[1:]) -> None: # pylint: disable=dangerous-defa
     if (iwidth is None) ^ (iheight is None):
         die('input page width and height must both be set, or neither')
 
-    global_transform = scale != 1.0 or rotate != 0
-    doc = DocumentTransform(args.infile, args.outfile, width, height, iwidth, iheight, specs, global_transform)
+    doc = DocumentTransform(args.infile, args.outfile, width, height, iwidth, iheight, specs, rotate, scale, args.draw)
 
     if doc.iwidth is None and flipping:
         die('input page size must be set when flipping the page')
@@ -192,10 +183,7 @@ def main(argv: List[str]=sys.argv[1:]) -> None: # pylint: disable=dangerous-defa
             n = max(n, 1)
         return n
 
-    def page_index_to_page_number(ps: PageSpec, maxpage: int, modulo: int, pagebase: int) -> int:
-        return (maxpage - pagebase - modulo if ps.reversed else pagebase) + ps.pageno
-
-    def transform_pages(pagerange: List[Range], modulo: int, odd: bool, even: bool, reverse: bool, draw: bool) -> None:
+    def transform_pages(pagerange: List[Range], modulo: int, odd: bool, even: bool, reverse: bool) -> None:
         outputpage = 0
         # If no page range given, select all pages
         if pagerange is None:
@@ -207,82 +195,27 @@ def main(argv: List[str]=sys.argv[1:]) -> None: # pylint: disable=dangerous-defa
             r.end = abs_page(r.end)
 
         # Get list of pages
-        page_list: List[int] = []
-        # Returns -1 for an inserted blank page (page number '_')
-        def page_to_real_page(p: int) -> int:
-            try:
-                return page_list[p]
-            except IndexError:
-                return 0
-
-        for r in pagerange:
-            inc = -1 if r.end < r.start else 1
-            currentpg = r.start
-            while r.end - currentpg != -inc:
-                if currentpg > doc.pages():
-                    die(f"page range {r.text} is invalid", 2)
-                if not(odd and (not even) and currentpg % 2 == 0) and not(even and not odd and currentpg % 2 == 1):
-                    page_list.append(currentpg - 1)
-                currentpg += inc
-        pages_to_output = len(page_list)
+        page_list = PageList(doc.pages(), pagerange, reverse, odd, even)
 
         # Calculate highest page number output (including any blanks)
-        maxpage = pages_to_output + (modulo - pages_to_output % modulo) % modulo
-
-        # Reverse page list if reversing pages
-        if reverse:
-            page_list.reverse()
+        maxpage = page_list.num_pages() + (modulo - page_list.num_pages() % modulo) % modulo
 
         # Rearrange pages
+        doc.write_header(maxpage, modulo)
         pagebase = 0
         while pagebase < maxpage:
             for page in doc.specs:
                 # Construct the page label from the input page numbers
                 pagelabels = []
                 for spec in page:
-                    n = page_to_real_page(page_index_to_page_number(spec, maxpage, modulo, pagebase))
+                    n = page_list.real_page(page_index_to_page_number(spec, maxpage, modulo, pagebase))
                     pagelabels.append(str(n + 1) if n >= 0 else '*')
                 pagelabel = ",".join(pagelabels)
                 outputpage += 1
+                doc.write_page_comment(pagelabel, outputpage)
                 if args.verbose:
                     sys.stderr.write(f'[{pagelabel}] ')
-                page_number = page_index_to_page_number(page[0], maxpage, modulo, pagebase)
-                real_page = page_to_real_page(page_number)
-                if len(page) == 1 and not global_transform and not page[0].has_transform() and page_number < pages_to_output and 0 <= real_page < len(doc.reader.pages) and args.draw == 0:
-                    doc.writer.add_page(doc.reader.pages[real_page])
-                else:
-                    # Add a blank page of the correct size to the end of the document
-                    outpdf_page = doc.writer.add_blank_page(doc.width, doc.height)
-                    for ps in page:
-                        page_number = page_index_to_page_number(ps, maxpage, modulo, pagebase)
-                        real_page = page_to_real_page(page_number)
-                        if page_number < pages_to_output and 0 <= real_page < len(doc.reader.pages):
-                            # Calculate input page transformation
-                            t = Transformation()
-                            if ps.hflip:
-                                t = t.transform(Transformation((-1, 0, 0, 1, doc.iwidth, 0)))
-                            elif ps.vflip:
-                                t = t.transform(Transformation((1, 0, 0, -1, 0, doc.iheight)))
-                            if ps.rotate != 0:
-                                t = t.rotate((ps.rotate + rotate) % 360)
-                            if ps.scale != 1.0:
-                                t = t.scale(ps.scale, ps.scale)
-                            if ps.xoff is not None:
-                                t = t.translate(ps.xoff, ps.yoff)
-                            # Merge input page into the output document
-                            outpdf_page.merge_transformed_page(doc.reader.pages[real_page], t)
-                            if draw > 0: # FIXME: draw the line at the requested width
-                                mediabox = doc.reader.pages[real_page].mediabox
-                                line = AnnotationBuilder.polyline(
-                                    vertices=[
-                                        (mediabox.left + ps.xoff, mediabox.bottom + ps.yoff),
-                                        (mediabox.left + ps.xoff, mediabox.top + ps.yoff),
-                                        (mediabox.right + ps.xoff, mediabox.top + ps.yoff),
-                                        (mediabox.right + ps.xoff, mediabox.bottom + ps.yoff),
-                                        (mediabox.left + ps.xoff, mediabox.bottom + ps.yoff),
-                                    ],
-                                )
-                                doc.writer.add_annotation(outpdf_page, line)
+                doc.write_page(page_list, outputpage, page, maxpage, modulo, pagebase)
 
             pagebase += modulo
 
@@ -291,7 +224,7 @@ def main(argv: List[str]=sys.argv[1:]) -> None: # pylint: disable=dangerous-defa
             print(f'\nWrote {outputpage} pages', file=sys.stderr)
 
     # Output the pages
-    transform_pages(args.pagerange, modulo, args.odd, args.even, args.reverse, args.draw)
+    transform_pages(args.pagerange, modulo, args.odd, args.even, args.reverse)
 
 
 if __name__ == '__main__':
