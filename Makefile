@@ -10,7 +10,7 @@ dist:
 	mkdir dist && \
 	python -m build
 
-release: distcheck
+release: dist
 	git diff --exit-code && \
 	git tag -a -m "Release tag" "v$(VERSION)" && \
 	git push && git push --tags && \
