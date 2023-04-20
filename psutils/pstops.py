@@ -285,6 +285,17 @@ def main(argv: List[str]=sys.argv[1:]) -> None: # pylint: disable=dangerous-defa
         while pagebase < maxpage:
             for page in specs:
                 spec_page_number = 0
+                # Construct the page label from the input page numbers
+                pagelabels = []
+                for spec in page:
+                    n = page_to_real_page(page_index_to_page_number(spec, maxpage, modulo, pagebase))
+                    pagelabels.append(str(n + 1) if n >= 0 else '*')
+                pagelabel = ",".join(pagelabels)
+                outputpage += 1
+                # Write page comment
+                print(f'%%Page: ({pagelabel}) {outputpage}', file=doc.outfile)
+                if args.verbose:
+                    sys.stderr.write(f'[{pagelabel}] ')
                 for ps in page:
                     page_number = page_index_to_page_number(ps, maxpage, modulo, pagebase)
                     real_page = page_to_real_page(page_number)
@@ -297,18 +308,6 @@ def main(argv: List[str]=sys.argv[1:]) -> None: # pylint: disable=dangerous-defa
                             assert doc.comment_keyword(line) == 'Page:'
                         except IOError:
                             die(f'I/O error seeking page {p}', 2)
-                    if spec_page_number == 0: # We are on a new output page
-                        # Construct the page label from the input page numbers
-                        pagelabels = []
-                        for spec in page:
-                            n = page_to_real_page(page_index_to_page_number(spec, maxpage, modulo, pagebase))
-                            pagelabels.append(str(n + 1) if n >= 0 else '*')
-                        pagelabel = ",".join(pagelabels)
-                        # Write page comment
-                        outputpage += 1
-                        print(f'%%Page: ({pagelabel}) {outputpage}', file=doc.outfile)
-                        if args.verbose:
-                            sys.stderr.write(f'[{pagelabel}] ')
                     if use_procset:
                         print('userdict/PStoPSsaved save put', file=doc.outfile)
                     if global_transform or ps_transform(ps):

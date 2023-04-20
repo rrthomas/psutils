@@ -249,13 +249,14 @@ def main(argv: List[str]=sys.argv[1:]) -> None: # pylint: disable=dangerous-defa
         pagebase = 0
         while pagebase < maxpage:
             for page in specs:
-                if args.verbose: # Construct the page label from the input page numbers
-                    pagelabels = []
-                    for spec in page:
-                        n = page_to_real_page(page_index_to_page_number(spec, maxpage, modulo, pagebase))
-                        pagelabels.append(str(n + 1) if n >= 0 else '*')
-                    pagelabel = ",".join(pagelabels)
-                    outputpage += 1
+                # Construct the page label from the input page numbers
+                pagelabels = []
+                for spec in page:
+                    n = page_to_real_page(page_index_to_page_number(spec, maxpage, modulo, pagebase))
+                    pagelabels.append(str(n + 1) if n >= 0 else '*')
+                pagelabel = ",".join(pagelabels)
+                outputpage += 1
+                if args.verbose:
                     sys.stderr.write(f'[{pagelabel}] ')
                 page_number = page_index_to_page_number(page[0], maxpage, modulo, pagebase)
                 real_page = page_to_real_page(page_number)
