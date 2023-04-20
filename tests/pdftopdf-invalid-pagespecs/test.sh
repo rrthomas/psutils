@@ -1,1 +1,1 @@
-no_output_test a4 1 pdftopdf --specs=foo
+no_output_test a4 1 pstops --specs=foo

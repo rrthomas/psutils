@@ -15,7 +15,7 @@ from warnings import warn
 from typing import List
 
 from psutils import (
-    HelpFormatter, extn, filename, setup_input_and_output, simple_warning,
+    HelpFormatter, die, extn, filename, setup_input_and_output, simple_warning,
 )
 
 def get_parser() -> argparse.ArgumentParser:
@@ -41,22 +41,24 @@ def get_parser() -> argparse.ArgumentParser:
 def main(argv: List[str]=sys.argv[1:]) -> None: # pylint: disable=dangerous-default-value
     args = get_parser().parse_intermixed_args(argv)
 
-    infile, outfile = setup_input_and_output(args.infile, args.outfile)
+    infile, file_type, outfile = setup_input_and_output(args.infile, args.outfile)
+    if file_type not in ('.ps', '.eps'):
+        die(f"incompatible file type `{args.infile}'")
 
     # Include resources
     for line in infile:
-        if line.startswith('%%IncludeResource:'):
+        if line.startswith(b'%%IncludeResource:'):
             _, resource_type, *res = line.split()
             name = filename(*res)
             fullname = name
             if not os.path.exists(fullname):
                 fullname += extn(resource_type)
             try:
-                with open(fullname) as fh:
+                with open(fullname, 'rb') as fh:
                     outfile.write(fh.read())
             except IOError:
-                print(f'%%IncludeResource: {" ".join([resource_type, *res])}', file=outfile)
-                warn(f"resource `{name}' not found")
+                outfile.write(f'%%IncludeResource: {b" ".join([resource_type, *res]).decode()}\n'.encode())
+                warn(f"resource `{name.decode()}' not found")
         else:
             outfile.write(line)
 

@@ -14,16 +14,22 @@ import sys
 import warnings
 from typing import List
 
+from pypdf import PdfReader, PdfWriter
+import puremagic # type: ignore
+
 from psutils import HelpFormatter, die, simple_warning
 
 def get_parser() -> argparse.ArgumentParser:
     # Command-line arguments
     parser = argparse.ArgumentParser(
-        description='Concatenate PostScript documents.',
+        description='Concatenate PDF or PostScript documents.',
         formatter_class=HelpFormatter,
         usage='%(prog)s [OPTION...] FILE...',
         add_help=False,
-    )
+        epilog='''
+The --save and --nostrip options only apply to PostScript files.
+''',
+)
     warnings.showwarning = simple_warning(parser.prog)
 
     # Command-line parser
@@ -42,9 +48,20 @@ def get_parser() -> argparse.ArgumentParser:
 
     return parser
 
-def main(argv: List[str]=sys.argv[1:]) -> None: # pylint: disable=dangerous-default-value
-    args = get_parser().parse_intermixed_args(argv)
+def pdfjoin(args: argparse.Namespace) -> None:
+    # Merge input files
+    out_pdf = PdfWriter()
+    for file in args.file:
+        in_pdf = PdfReader(file)
+        out_pdf.append(in_pdf)
+        if args.even and len(in_pdf.pages) % 2 == 1:
+            out_pdf.add_blank_page()
 
+    # Write output
+    outfile = os.fdopen(sys.stdout.fileno(), 'wb', closefd=False)
+    out_pdf.write(outfile)
+
+def psjoin(args: argparse.Namespace) -> None:
     save = 'save %psjoin\n'
     restore = 'restore %psjoin\n'
 
@@ -212,6 +229,31 @@ showpage''')
     print(trailer[prolog_inx], end='')
     print(f'\n%%Pages: {total_pages}\n%%EOF', end='')
 
+def normalize_types(types: List[str]) -> List[str]:
+    normalized_types = []
+    for t in types:
+        if t == '.eps':
+            normalized_types.append('.ps')
+        else:
+            normalized_types.append(t)
+    return normalized_types
+
+def main(argv: List[str]=sys.argv[1:]) -> None: # pylint: disable=dangerous-default-value
+    args = get_parser().parse_intermixed_args(argv)
+
+    # Check types of files
+    types = list(map(puremagic.from_file, args.file))
+    types = normalize_types(types)
+    if not all(t == types[0] for t in types):
+        die('files are not all of the same type')
+
+    # Process the files
+    if types[0] == '.pdf':
+        pdfjoin(args)
+    elif types[0] == '.ps':
+        psjoin(args)
+    else:
+        die(f"unknown file type `{types[0]}'")
 
 if __name__ == '__main__':
     main()

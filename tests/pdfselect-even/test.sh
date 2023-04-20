@@ -1,1 +1,1 @@
-test a4 20 pdfselect -e
+test a4 20 psselect -e

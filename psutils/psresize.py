@@ -18,7 +18,7 @@ from psutils.psnup import main as psnup
 def get_parser() -> argparse.ArgumentParser:
     # Command-line arguments
     parser = argparse.ArgumentParser(
-        description='Change the page size of a PostScript document.',
+        description='Change the page size of a PDF or PostScript document.',
         formatter_class=HelpFormatter,
         usage='%(prog)s [OPTION...] [INFILE [OUTFILE]]',
         add_help=False,

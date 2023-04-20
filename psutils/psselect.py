@@ -18,7 +18,7 @@ from psutils.pstops import main as pstops
 def get_parser() -> argparse.ArgumentParser:
     # Command-line arguments
     parser = argparse.ArgumentParser(
-        description='Select pages from a PostScript document.',
+        description='Select pages from a PDF or PostScript document.',
         formatter_class=HelpFormatter,
         usage='%(prog)s [OPTION...] [PAGES] [INFILE [OUTFILE]]',
         add_help=False,

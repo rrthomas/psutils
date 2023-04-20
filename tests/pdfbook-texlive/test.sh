@@ -1,2 +1,2 @@
-test a4 11 pdfbook -s4
+test a4 11 psbook -s4
 diff stderr-expected.txt stderr.txt

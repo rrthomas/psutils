@@ -16,7 +16,7 @@ from typing import List, NoReturn, Optional
 from psutils import (
     HelpFormatter, die, parsepaper, parsedraw,
     singledimen, simple_warning, PageSpec, Range, PageList, page_index_to_page_number,
-    PsDocumentTransform as DocumentTransform,
+    documentTransform,
 )
 
 # Globals
@@ -171,7 +171,7 @@ def main(argv: List[str]=sys.argv[1:]) -> None: # pylint: disable=dangerous-defa
     if (iwidth is None) ^ (iheight is None):
         die('input page width and height must both be set, or neither')
 
-    doc = DocumentTransform(args.infile, args.outfile, width, height, iwidth, iheight, specs, rotate, scale, args.draw)
+    doc = documentTransform(args.infile, args.outfile, width, height, iwidth, iheight, specs, rotate, scale, args.draw)
 
     if doc.iwidth is None and flipping:
         die('input page size must be set when flipping the page')

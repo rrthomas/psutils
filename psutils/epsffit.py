@@ -60,20 +60,25 @@ def main(argv: List[str]=sys.argv[1:]) -> None: # pylint: disable=dangerous-defa
 
     urx, ury, llx, lly = 0, 0, 0, 0
 
-    infile, outfile = setup_input_and_output(args.infile, args.outfile)
+    infile, file_type, outfile = setup_input_and_output(args.infile, args.outfile)
+    if file_type not in ('.ps', '.eps'):
+        die(f"incompatible file type `{args.infile}'")
+
+    def output(s: str) -> None:
+        outfile.write((s + '\n').encode('utf-8'))
 
     bbfound = False # %%BoundingBox: found
     for line in infile:
-        if re.match(r'%[%!]', line): # still in comment section
-            if line.startswith('%%BoundingBox:'):
-                m = re.match(r'%%BoundingBox: +([\d.]+) +([\d.]+) +([\d.]+) +([\d.]+)$', line)
+        if re.match(b'%[%!]', line): # still in comment section
+            if line.startswith(b'%%BoundingBox:'):
+                m = re.match(b'%%BoundingBox: +([\\d.]+) +([\\d.]+) +([\\d.]+) +([\\d.]+)$', line)
                 if m:
                     bbfound = True
                     llx = int(m[1]) # accept doubles, but convert to int
                     lly = int(m[2])
                     urx = int(float(m[3]) + 0.5)
                     ury = int(float(m[4]) + 0.5)
-            elif line.startswith('%%EndComments'): # don't repeat %%EndComments
+            elif line.startswith(b'%%EndComments'): # don't repeat %%EndComments
                 break
             else:
                 outfile.write(line)
@@ -111,28 +116,28 @@ def main(argv: List[str]=sys.argv[1:]) -> None: # pylint: disable=dangerous-defa
         else:
             xoffset += (fwidth - width) / 2
             yoffset += (fheight - height) / 2
-    print(f'%%BoundingBox: {int(xoffset)} {int(yoffset)} {int(xoffset + (height if rotate else width))} {int(yoffset + (width if rotate else height))}', file=outfile)
+    output(f'%%BoundingBox: {int(xoffset)} {int(yoffset)} {int(xoffset + (height if rotate else width))} {int(yoffset + (width if rotate else height))}')
     if rotate: # compensate for original image shift
         xoffset += height + lly * yscale # displacement for rotation
         yoffset -= llx * xscale
     else:
         xoffset -= llx * xscale
         yoffset -= lly * yscale
-    print('%%EndComments', file=outfile)
+    output('%%EndComments')
     if args.showpage:
-        print('save /showpage{}def /copypage{}def /erasepage{}def', file=outfile)
+        output('save /showpage{}def /copypage{}def /erasepage{}def')
     else:
-        print('%%BeginProcSet: epsffit 1 0', file=outfile)
-    print(f'gsave {xoffset:.3f} {yoffset:.3f} translate', file=outfile)
+        output('%%BeginProcSet: epsffit 1 0')
+    output(f'gsave {xoffset:.3f} {yoffset:.3f} translate')
     if rotate:
-        print('90 rotate', file=outfile)
-    print(f'{xscale:.3f} {yscale:.3f} scale', file=outfile)
+        output('90 rotate')
+    output(f'{xscale:.3f} {yscale:.3f} scale')
     if not args.showpage:
-        print('%%EndProcSet', file=outfile)
+        output('%%EndProcSet')
     outfile.write(infile.read())
-    print('grestore', file=outfile)
+    output('grestore')
     if args.showpage:
-        print('restore showpage', file=outfile) # just in case
+        output('restore showpage') # just in case
 
 
 if __name__ == '__main__':

@@ -20,8 +20,7 @@ release: distcheck
 # options.scripts + options.packages contents
 SOURCES = psutils/__init__.py \
     pstops psbook psjoin psresize psselect psnup \
-    pdftopdf pdfbook pdfjoin pdfresize pdfselect pdfnup \
-    epsffit extractres includeres
+    pdfjoin epsffit extractres includeres
 
 loc:
 	cloc $(SOURCES)

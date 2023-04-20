@@ -1,1 +1,1 @@
-test a4 1 pdfjoin input.pdf
+test a4 1 psjoin input.pdf

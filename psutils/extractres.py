@@ -45,32 +45,36 @@ def get_parser() -> argparse.ArgumentParser:
 def main(argv: List[str]=sys.argv[1:]) -> None: # pylint: disable=dangerous-default-value
     args = get_parser().parse_intermixed_args(argv)
 
-    infile, outfile = setup_input_and_output(args.infile, args.outfile)
+    infile, file_type, outfile = setup_input_and_output(args.infile, args.outfile)
+    if file_type not in ('.ps', '.eps'):
+        die(f"incompatible file type `{args.infile}'")
 
     # Resource types
-    def get_type(comment: str) -> Optional[str]:
-        types = {'%%BeginFile:': 'file', '%%BeginProcSet:': 'procset',
-                '%%BeginFont:': 'font'}
+    def get_type(comment: bytes) -> Optional[bytes]:
+        types = {
+            b'%%BeginFile:': b'file', b'%%BeginProcSet:': b'procset',
+            b'%%BeginFont:': b'font',
+        }
         return types.get(comment, None)
 
     # Extract resources
-    resources: Dict[str, List[str]] = {} # resources included
-    merge: Dict[str, bool] = {} # resources extracted this time
-    prolog: List[str] = []
-    body: List[str] = []
-    output: Optional[List[str]] = prolog
+    resources: Dict[bytes, List[bytes]] = {} # resources included
+    merge: Dict[bytes, bool] = {} # resources extracted this time
+    prolog: List[bytes] = []
+    body: List[bytes] = []
+    output: Optional[List[bytes]] = prolog
 
     for line in infile:
-        if re.match(r'%%Begin(Resource|Font|ProcSet):', line):
+        if re.match(b'%%Begin(Resource|Font|ProcSet):', line):
             comment, *res = line.split() # look at resource type
             resource_type = get_type(comment) or res.pop(0)
             name = filename(*res, extn(resource_type)) # make file name
             saveout = output
             if resources.get(name) is None:
-                prolog.append(f'%%IncludeResource: {resource_type} {" ".join(res)}\n')
+                prolog.append(b'%%IncludeResource: ' + resource_type + b' ' + b' '.join(res) + b'\n')
                 if not os.path.exists(name):
                     try:
-                        fh = open(name, 'w')
+                        fh = open(name, 'wb')
                     except IOError:
                         die("can't write file `$name'", 2)
                     resources[name] = []
@@ -82,20 +86,20 @@ def main(argv: List[str]=sys.argv[1:]) -> None: # pylint: disable=dangerous-defa
                     output = None
             elif merge.get(name):
                 try:
-                    fh = open(name, 'a+')
+                    fh = open(name, 'a+b')
                 except IOError:
                     die("can't append to file `$name'", 2)
                 resources[name] = []
                 output = resources[name]
             else: # resource already included
                 output = None
-        elif re.match(r'%%End(Resource|Font|ProcSet)', line):
+        elif re.match(b'%%End(Resource|Font|ProcSet)', line):
             if output is not None:
                 output.append(line)
                 fh.writelines(output)
             output = saveout
             continue
-        elif re.match(r'%%End(Prolog|Setup)', line) or line.startswith('%%Page:'):
+        elif re.match(b'%%End(Prolog|Setup)', line) or line.startswith(b'%%Page:'):
             output = body
         if output is not None:
             output.append(line)

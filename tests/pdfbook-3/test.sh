@@ -1,1 +1,1 @@
-test a4 3 pdfbook
+test a4 3 psbook

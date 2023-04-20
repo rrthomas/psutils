@@ -1,1 +1,1 @@
-test a5 20 pdfresize -P a5 -p a4
+test a5 20 psresize -P a5 -p a4
