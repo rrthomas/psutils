@@ -189,13 +189,10 @@ def main(argv: List[str]=sys.argv[1:]) -> None: # pylint: disable=dangerous-defa
     if (iwidth is None) ^ (iheight is None):
         die('input page width and height must both be set, or neither')
 
-    doc = PdfDocument(args.infile, args.outfile)
+    doc = PdfDocument(args.infile, args.outfile, width, height, iwidth, iheight)
 
-    if iwidth is None:
-        mediabox = doc.reader.pages[0].mediabox
-        iwidth, iheight = mediabox.width, mediabox.height
-    if width is None:
-        width, height = iwidth, iheight
+    if doc.iwidth is None and flipping:
+        die('input page size must be set when flipping the page')
 
     # Page spec routines for page rearrangement
     def abs_page(n: int) -> int:
@@ -266,7 +263,7 @@ def main(argv: List[str]=sys.argv[1:]) -> None: # pylint: disable=dangerous-defa
                     doc.writer.add_page(doc.reader.pages[real_page])
                 else:
                     # Add a blank page of the correct size to the end of the document
-                    outpdf_page = doc.writer.add_blank_page(width, height)
+                    outpdf_page = doc.writer.add_blank_page(doc.width, doc.height)
                     for ps in page:
                         page_number = page_index_to_page_number(ps, maxpage, modulo, pagebase)
                         real_page = page_to_real_page(page_number)
@@ -274,11 +271,9 @@ def main(argv: List[str]=sys.argv[1:]) -> None: # pylint: disable=dangerous-defa
                             # Calculate input page transformation
                             t = Transformation()
                             if ps.hflip:
-                                assert iwidth is not None
-                                t = t.transform(Transformation((-1, 0, 0, 1, iwidth, 0)))
+                                t = t.transform(Transformation((-1, 0, 0, 1, doc.iwidth, 0)))
                             elif ps.vflip:
-                                assert iheight is not None
-                                t = t.transform(Transformation((1, 0, 0, -1, 0, iheight)))
+                                t = t.transform(Transformation((1, 0, 0, -1, 0, doc.iheight)))
                             if ps.rotate != 0:
                                 t = t.rotate((ps.rotate + rotate) % 360)
                             if ps.scale != 1.0:

@@ -188,7 +188,7 @@ class PsDocument(Document):
  10 setmiterlimit}bind def
 end\n'''
 
-    def __init__(self, infile_name: str, outfile_name: str, explicit_output_paper: bool = False):
+    def __init__(self, infile_name: str, outfile_name: str, width: Optional[float], height: Optional[float], iwidth: Optional[float], iheight: Optional[float]):
         self.infile, self.outfile = setup_input_and_output(infile_name, outfile_name, True)
 
         self.headerpos: int = 0
@@ -200,6 +200,12 @@ end\n'''
         self.sizeheaders: List[int] = []
         self.pageptr: List[int] = []
 
+        if iwidth is None and width is not None:
+            iwidth, iheight = width, height
+
+        self.width, self.height = width, height
+        self.iwidth, self.iheight = iwidth, iheight
+
         nesting = 0
         self.infile.seek(0)
         record, next_record, buffer = 0, 0, None
@@ -210,7 +216,7 @@ end\n'''
                 if keyword is not None:
                     if nesting == 0 and keyword == 'Page:':
                         self.pageptr.append(record)
-                    elif self.headerpos == 0 and explicit_output_paper and \
+                    elif self.headerpos == 0 and width is not None and \
                         keyword in ['BoundingBox:', 'HiResBoundingBox:', 'DocumentPaperSizes:', 'DocumentMedia:']:
                         # FIXME: read input paper size (from DocumentMedia comment?) if not
                         # set on command line.
@@ -253,10 +259,21 @@ end\n'''
 
 
 class PdfDocument(Document):
-    def __init__(self, infile_name: str, outfile_name: str):
+    def __init__(self, infile_name: str, outfile_name: str, width: Optional[float], height: Optional[float], iwidth: Optional[float], iheight: Optional[float]):
         self.infile, self.outfile = setup_input_and_output(infile_name, outfile_name, True, True)
         self.reader = PdfReader(self.infile)
         self.writer = PdfWriter(self.outfile)
+
+        if iwidth is None or iheight is None:
+            mediabox = self.reader.pages[0].mediabox
+            iwidth, iheight = mediabox.width, mediabox.height
+        if width is None or height is None:
+            width, height = iwidth, iheight
+
+        assert width is not None and height is not None
+        self.width, self.height = width, height
+        assert iwidth is not None and iheight is not None
+        self.iwidth, self.iheight = iwidth, iheight
 
     def pages(self) -> int:
         return len(self.reader.pages)

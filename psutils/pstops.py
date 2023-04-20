@@ -186,12 +186,9 @@ def main(argv: List[str]=sys.argv[1:]) -> None: # pylint: disable=dangerous-defa
     if (iwidth is None) ^ (iheight is None):
         die('input page width and height must both be set, or neither')
 
-    doc = PsDocument(args.infile, args.outfile, width is not None)
+    doc = PsDocument(args.infile, args.outfile, width, height, iwidth, iheight)
 
-    if iwidth is None and width is not None:
-        iwidth, iheight = width, height
-
-    if iwidth is None and flipping:
+    if doc.iwidth is None and flipping:
         die('input page size must be set when flipping the page')
 
     # Page spec routines for page rearrangement
@@ -258,9 +255,9 @@ def main(argv: List[str]=sys.argv[1:]) -> None: # pylint: disable=dangerous-defa
                 line = doc.infile.readline()
             except IOError:
                 die('I/O error in header', 2)
-            if width is not None and height is not None:
-                print(f'%%DocumentMedia: plain {int(width)} {int(height)} 0 () ()', file=doc.outfile)
-                print(f'%%BoundingBox: 0 0 {int(width)} {int(height)}', file=doc.outfile)
+            if doc.width is not None and doc.height is not None:
+                print(f'%%DocumentMedia: plain {int(doc.width)} {int(doc.height)} 0 () ()', file=doc.outfile)
+                print(f'%%BoundingBox: 0 0 {int(doc.width)} {int(doc.height)}', file=doc.outfile)
             pagesperspec = len(specs)
             print(f'%%Pages: {int(maxpage / modulo) * pagesperspec} 0', file=doc.outfile)
         fcopy(doc.infile, doc.outfile, doc.headerpos, doc.sizeheaders)
@@ -321,18 +318,18 @@ def main(argv: List[str]=sys.argv[1:]) -> None: # pylint: disable=dangerous-defa
                         if ps.rotate != 0:
                             print(f"{(ps.rotate + rotate) % 360} rotate", file=doc.outfile)
                         if ps.hflip == 1:
-                            assert iwidth is not None
-                            print(f"[ -1 0 0 1 {iwidth * ps.scale * scale:g} 0 ] concat", file=doc.outfile)
+                            assert doc.iwidth is not None
+                            print(f"[ -1 0 0 1 {doc.iwidth * ps.scale * scale:g} 0 ] concat", file=doc.outfile)
                         if ps.vflip == 1:
-                            assert iheight is not None
-                            print(f"[ 1 0 0 -1 0 {iheight * ps.scale * scale:g} ] concat", file=doc.outfile)
+                            assert doc.iheight is not None
+                            print(f"[ 1 0 0 -1 0 {doc.iheight * ps.scale * scale:g} ] concat", file=doc.outfile)
                         if ps.scale != 1.0:
                             print(f"{ps.scale * scale:f} dup scale", file=doc.outfile)
                         print('userdict/PStoPSmatrix matrix currentmatrix put', file=doc.outfile)
-                        if iwidth is not None:
+                        if doc.iwidth is not None:
                             # pylint: disable=invalid-unary-operand-type
                             print(f'''userdict/PStoPSclip{{0 0 moveto
- {iwidth:f} 0 rlineto 0 {iheight:f} rlineto {-iwidth:f} 0 rlineto
+ {doc.iwidth:f} 0 rlineto 0 {doc.iheight:f} rlineto {-doc.iwidth:f} 0 rlineto
  closepath}}put initclip''', file=doc.outfile)
                             if draw > 0:
                                 print(f'gsave clippath 0 setgray {draw} setlinewidth stroke grestore', file=doc.outfile)
