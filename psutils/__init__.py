@@ -141,13 +141,6 @@ def parsedimen(s: str) -> float:
 def parsedraw(s: str) -> float:
     return parsedimen(s or '1')
 
-# Return comment keyword and value if `line' is a DSC comment
-def comment(line: str) -> Tuple[Optional[str], Optional[str]]:
-    m = re.match(r'%%(\S+)\s+?(.*\S?)\s*$', line)
-    if m:
-        return m[1], m[2]
-    return None, None
-
 class Document:
     pass
 
@@ -212,7 +205,7 @@ end\n'''
         for buffer in self.infile:
             next_record += len(buffer)
             if buffer.startswith('%%'):
-                keyword, _ = comment(buffer)
+                keyword = self.comment_keyword(buffer)
                 if keyword is not None:
                     if nesting == 0 and keyword == 'Page:':
                         self.pageptr.append(record)
@@ -257,6 +250,33 @@ end\n'''
         self.infile.seek(self.pageptr[self.pages()])
         shutil.copyfileobj(self.infile, self.outfile)
 
+    # Return comment keyword if `line' is a DSC comment
+    def comment_keyword(self, line: str) -> Optional[str]:
+        m = re.match(r'%%(\S+)', line)
+        return m[1] if m else None
+
+    # Copy input file from current position up to new position to output file,
+    # ignoring the lines starting at something ignorelist points to.
+    # Updates ignorelist.
+    def fcopy(self, upto: int, ignorelist: List[int]) -> None:
+        here = self.infile.tell()
+        while len(ignorelist) > 0 and ignorelist[0] < upto:
+            while len(ignorelist) > 0 and ignorelist[0] < here:
+                ignorelist.pop(0)
+            if len(ignorelist) > 0:
+                self.fcopy(ignorelist[0], [])
+            try:
+                self.infile.readline()
+            except IOError:
+                die('I/O error', 2)
+            ignorelist.pop(0)
+            here = self.infile.tell()
+
+        try:
+            self.outfile.write(self.infile.read(upto - here))
+        except IOError:
+            die('I/O error', 2)
+
 
 class PdfDocument(Document):
     def __init__(self, infile_name: str, outfile_name: str, width: Optional[float], height: Optional[float], iwidth: Optional[float], iheight: Optional[float]):
@@ -280,28 +300,6 @@ class PdfDocument(Document):
 
     def finalize(self) -> None:
         self.writer.write(self.outfile)
-
-# Copy input file from current position up to new position to output file,
-# ignoring the lines starting at something ignorelist points to.
-# Updates ignorelist.
-def fcopy(infile: IO[Any], outfile: IO[Any], upto: int, ignorelist: List[int]) -> None:
-    here = infile.tell()
-    while len(ignorelist) > 0 and ignorelist[0] < upto:
-        while len(ignorelist) > 0 and ignorelist[0] < here:
-            ignorelist.pop(0)
-        if len(ignorelist) > 0:
-            fcopy(infile, outfile, ignorelist[0], [])
-        try:
-            infile.readline()
-        except IOError:
-            die('I/O error', 2)
-        ignorelist.pop(0)
-        here = infile.tell()
-
-    try:
-        outfile.write(infile.read(upto - here))
-    except IOError:
-        die('I/O error', 2)
 
 # Set up input and output files
 def setup_input_and_output(infile_name: str, outfile_name: str, make_seekable: bool = False, binary: bool = False) -> Tuple[IO[Any], IO[Any]]:

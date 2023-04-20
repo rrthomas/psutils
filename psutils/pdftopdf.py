@@ -19,7 +19,7 @@ from pypdf.generic import AnnotationBuilder
 from psutils import (
     HelpFormatter, die, parsepaper, parsedraw,
     singledimen, simple_warning,
-    PdfDocument,
+    PdfDocument as Document,
 )
 
 # Globals
@@ -189,7 +189,7 @@ def main(argv: List[str]=sys.argv[1:]) -> None: # pylint: disable=dangerous-defa
     if (iwidth is None) ^ (iheight is None):
         die('input page width and height must both be set, or neither')
 
-    doc = PdfDocument(args.infile, args.outfile, width, height, iwidth, iheight)
+    doc = Document(args.infile, args.outfile, width, height, iwidth, iheight)
 
     if doc.iwidth is None and flipping:
         die('input page size must be set when flipping the page')

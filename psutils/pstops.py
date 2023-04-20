@@ -16,7 +16,7 @@ from typing import List, NoReturn, Optional
 from psutils import (
     HelpFormatter, die, parsepaper, parsedraw,
     singledimen, simple_warning,
-    PsDocument, fcopy, comment,
+    PsDocument as Document
 )
 
 # Globals
@@ -186,7 +186,7 @@ def main(argv: List[str]=sys.argv[1:]) -> None: # pylint: disable=dangerous-defa
     if (iwidth is None) ^ (iheight is None):
         die('input page width and height must both be set, or neither')
 
-    doc = PsDocument(args.infile, args.outfile, width, height, iwidth, iheight)
+    doc = Document(args.infile, args.outfile, width, height, iwidth, iheight)
 
     if doc.iwidth is None and flipping:
         die('input page size must be set when flipping the page')
@@ -250,7 +250,7 @@ def main(argv: List[str]=sys.argv[1:]) -> None: # pylint: disable=dangerous-defa
         # FIXME: doesn't cope properly with loaded definitions
         doc.infile.seek(0)
         if doc.pagescmt:
-            fcopy(doc.infile, doc.outfile, doc.pagescmt, doc.sizeheaders)
+            doc.fcopy(doc.pagescmt, doc.sizeheaders)
             try:
                 line = doc.infile.readline()
             except IOError:
@@ -260,7 +260,7 @@ def main(argv: List[str]=sys.argv[1:]) -> None: # pylint: disable=dangerous-defa
                 print(f'%%BoundingBox: 0 0 {int(doc.width)} {int(doc.height)}', file=doc.outfile)
             pagesperspec = len(specs)
             print(f'%%Pages: {int(maxpage / modulo) * pagesperspec} 0', file=doc.outfile)
-        fcopy(doc.infile, doc.outfile, doc.headerpos, doc.sizeheaders)
+        doc.fcopy(doc.headerpos, doc.sizeheaders)
         if use_procset:
             doc.outfile.write(f'%%BeginProcSet: PStoPS 1 15\n{doc.procset}')
             print("%%EndProcSet", file=doc.outfile)
@@ -268,9 +268,9 @@ def main(argv: List[str]=sys.argv[1:]) -> None: # pylint: disable=dangerous-defa
         # Write prologue to end of setup section, skipping our procset if present
         # and we're outputting it (this allows us to upgrade our procset)
         if doc.endprocset and use_procset:
-            fcopy(doc.infile, doc.outfile, doc.beginprocset, [])
+            doc.fcopy(doc.beginprocset, [])
             doc.infile.seek(doc.endprocset)
-        fcopy(doc.infile, doc.outfile, doc.endsetup, [])
+        doc.fcopy(doc.endsetup, [])
 
         # Save transformation from original to current matrix
         if not doc.beginprocset and use_procset:
@@ -279,7 +279,7 @@ def main(argv: List[str]=sys.argv[1:]) -> None: # pylint: disable=dangerous-defa
  matrix invertmatrix put''', file=doc.outfile)
 
         # Write from end of setup to start of pages
-        fcopy(doc.infile, doc.outfile, doc.pageptr[0], [])
+        doc.fcopy(doc.pageptr[0], [])
 
         pagebase = 0
         while pagebase < maxpage:
@@ -294,7 +294,7 @@ def main(argv: List[str]=sys.argv[1:]) -> None: # pylint: disable=dangerous-defa
                         doc.infile.seek(doc.pageptr[p])
                         try:
                             line = doc.infile.readline()
-                            assert comment(line)[0] == 'Page:'
+                            assert doc.comment_keyword(line) == 'Page:'
                         except IOError:
                             die(f'I/O error seeking page {p}', 2)
                     if spec_page_number == 0: # We are on a new output page
@@ -352,7 +352,7 @@ def main(argv: List[str]=sys.argv[1:]) -> None: # pylint: disable=dangerous-defa
                         print('PStoPSxform concat' , file=doc.outfile)
                     if page_number < pages_to_output and 0 <= real_page < doc.pages():
                         # Write the body of a page
-                        fcopy(doc.infile, doc.outfile, doc.pageptr[real_page + 1], [])
+                        doc.fcopy(doc.pageptr[real_page + 1], [])
                     else:
                         print('showpage', file=doc.outfile)
                     if use_procset:
