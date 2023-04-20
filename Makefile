@@ -16,13 +16,7 @@ release: distcheck
 	git push && git push --tags && \
 	woger github package=$(PACKAGE) version=$(VERSION) dist_type=tar.gz
 
-# FIXME: Set this list automatically from setup.cfg:
-# options.scripts + options.packages contents
-SOURCES = psutils/__init__.py \
-    pstops psbook psjoin psresize psselect psnup \
-    pdfjoin epsffit extractres includeres
-
 loc:
-	cloc $(SOURCES)
+	cloc psutils
 
 .PHONY:	dist
