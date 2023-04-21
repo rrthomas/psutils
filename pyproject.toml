@@ -1,2 +1,5 @@
 [build-system]
 requires = ["argparse-manpage[setuptools] @ git+https://github.com/rrthomas/argparse-manpage.git"]
+
+[tool.mypy]
+strict = true
