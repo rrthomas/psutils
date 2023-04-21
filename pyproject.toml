@@ -2,4 +2,9 @@
 requires = ["argparse-manpage[setuptools] @ git+https://github.com/rrthomas/argparse-manpage.git"]
 
 [tool.mypy]
+exclude = [
+    '^dist',
+    '^build',
+    '^tests-output',
+]
 strict = true
