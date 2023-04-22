@@ -405,6 +405,7 @@ end'''
         # pylint: disable=invalid-sequence-index
         self.infile.seek(self.pageptr[self.pages()])
         shutil.copyfileobj(self.infile, self.outfile) # type: ignore
+        self.outfile.flush()
 
     # Return comment keyword if `line' is a DSC comment
     def comment_keyword(self, line: bytes) -> Optional[bytes]:
@@ -504,6 +505,7 @@ class PdfDocumentTransform:
 
     def finalize(self) -> None:
         self.writer.write(self.outfile)
+        self.outfile.flush()
 
 def documentTransform(infile_name: str, outfile_name: str, width: Optional[float], height: Optional[float], iwidth: Optional[float], iheight: Optional[float], specs: List[List[PageSpec]], rotate: int, scale: float, draw: float) -> PdfDocumentTransform | PsDocumentTransform:
     infile, file_type, outfile = setup_input_and_output(infile_name, outfile_name, True)
