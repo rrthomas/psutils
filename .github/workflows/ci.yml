@@ -22,8 +22,8 @@ jobs:
         echo "/usr/local/opt/m4/bin:/usr/local/opt/python/libexec/bin" >> $GITHUB_PATH
     - name: Install libpaper
       run: |
-        git clone https://github.com/rrthomas/libpaper.git
-        cd libpaper && ./bootstrap && ./configure --quiet --enable-silent-rules && sudo make install
+        git clone https://github.com/rrthomas/libpaper.git ~/libpaper
+        cd ~/libpaper && ./bootstrap && ./configure --quiet --enable-silent-rules && sudo make install
         if test ${{ matrix.os }} = ubuntu-latest; then sudo ldconfig; fi
         paper --version
     - name: Build
