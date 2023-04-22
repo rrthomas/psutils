@@ -12,7 +12,7 @@ import subprocess
 import re
 from warnings import warn
 from typing import (
-    Any, Callable, List, Tuple, Optional, Union, Type, NoReturn, IO, TextIO,
+    Callable, List, Tuple, Optional, Union, Type, NoReturn, IO, TextIO,
 )
 
 from chainstream import ChainStream
@@ -507,7 +507,7 @@ class PdfDocumentTransform:
         self.writer.write(self.outfile)
         self.outfile.flush()
 
-def documentTransform(infile_name: str, outfile_name: str, width: Optional[float], height: Optional[float], iwidth: Optional[float], iheight: Optional[float], specs: List[List[PageSpec]], rotate: int, scale: float, draw: float) -> PdfDocumentTransform | PsDocumentTransform:
+def documentTransform(infile_name: str, outfile_name: str, width: Optional[float], height: Optional[float], iwidth: Optional[float], iheight: Optional[float], specs: List[List[PageSpec]], rotate: int, scale: float, draw: float) -> Union[PdfDocumentTransform, PsDocumentTransform]:
     infile, file_type, outfile = setup_input_and_output(infile_name, outfile_name, True)
     if file_type in ('.ps', '.eps'):
         return PsDocumentTransform(infile, outfile, width, height, iwidth, iheight, specs, rotate, scale, draw)
