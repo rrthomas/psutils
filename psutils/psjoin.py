@@ -1,6 +1,7 @@
-import pkg_resources
+import importlib.metadata
 
-VERSION = pkg_resources.require('psutils')[0].version
+VERSION = importlib.metadata.version('psutils')
+
 version_banner=f'''\
 %(prog)s {VERSION}
 Copyright (c) Reuben Thomas 2023.
