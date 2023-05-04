@@ -1,0 +1,6 @@
+
+pytest: bad page specification:
+
+  PAGESPECS = [MODULO:]SPEC
+  SPEC      = [-]PAGENO[@SCALE][L|R|U|H|V][(XOFF,YOFF)][,SPEC|+SPEC]
+              MODULO >= 1; 0 <= PAGENO < MODULO
