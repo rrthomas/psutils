@@ -59,8 +59,8 @@ def pdfjoin(args: argparse.Namespace) -> None:
             out_pdf.add_blank_page()
 
     # Write output
-    outfile = os.fdopen(sys.stdout.fileno(), 'wb', closefd=False)
-    out_pdf.write(outfile)
+    out_pdf.write(sys.stdout.buffer)
+    sys.stdout.buffer.flush()
 
 def psjoin(args: argparse.Namespace) -> None:
     save = 'save %psjoin\n'
