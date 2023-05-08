@@ -13,7 +13,7 @@ import os
 import re
 import sys
 import warnings
-from typing import Dict, List, Optional
+from typing import Dict, List, Optional, IO
 
 from psutils import (
     HelpFormatter, die, extn, filename, setup_input_and_output,
@@ -64,6 +64,7 @@ def main(argv: List[str]=sys.argv[1:]) -> None: # pylint: disable=dangerous-defa
     prolog: List[bytes] = []
     body: List[bytes] = []
     output: Optional[List[bytes]] = prolog
+    fh: Optional[IO[bytes]] = None
 
     for line in infile:
         if re.match(b'%%Begin(Resource|Font|ProcSet):', line):
@@ -97,6 +98,7 @@ def main(argv: List[str]=sys.argv[1:]) -> None: # pylint: disable=dangerous-defa
         elif re.match(b'%%End(Resource|Font|ProcSet)', line):
             if output is not None:
                 output.append(line)
+                assert fh is not None
                 fh.writelines(output)
             output = saveout
             continue
