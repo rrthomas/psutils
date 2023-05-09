@@ -1,8 +1,7 @@
 from pathlib import Path
 from typing import List, Tuple
 
-import pytest
-from pytest import CaptureFixture
+from pytest import mark, CaptureFixture
 
 from testutils import compare_str, compare_bytes
 from psutils.psjoin import main as psjoin
@@ -16,7 +15,7 @@ def run_psjoin(args: List[str], file_type: str, datafiles: Path, capsysbinary: C
     else:
         compare_str(capsysbinary.readouterr().out.decode('utf-8'), datafiles / Path('output').with_suffix(file_type), expected_file.with_suffix(file_type))
 
-@pytest.mark.files(
+@mark.files(
     FIXTURE_DIR / 'a4-1',
     FIXTURE_DIR / 'psjoin' / 'psjoin-1-2-expected',
 )
@@ -27,7 +26,7 @@ def test_psjoin_1_2(capsysbinary: CaptureFixture[bytes], files: Tuple[Path, ...]
         file_type, datafiles, capsysbinary, expected_file,
     )
 
-@pytest.mark.files(
+@mark.files(
     FIXTURE_DIR / 'a4-1',
     FIXTURE_DIR / 'psjoin' / 'psjoin-1-2-even-expected',
 )
@@ -38,7 +37,7 @@ def test_psjoin_1_2_even(capsysbinary: CaptureFixture[bytes], files: Tuple[Path,
         file_type, datafiles, capsysbinary, expected_file,
     )
 
-@pytest.mark.files(
+@mark.files(
     FIXTURE_DIR / 'a4-1.ps',
     FIXTURE_DIR / 'psjoin' / 'psjoin-1-2-nostrip-expected.ps',
 )
@@ -49,7 +48,7 @@ def test_psjoin_1_2_nostrip(capsysbinary: CaptureFixture[bytes], files: Tuple[Pa
         '.ps', datafiles, capsysbinary, expected_file,
     )
 
-@pytest.mark.files(
+@mark.files(
     FIXTURE_DIR / 'a4-1.ps',
     FIXTURE_DIR / 'psjoin' / 'psjoin-1-2-save-expected.ps',
 )

@@ -4,10 +4,19 @@ import difflib
 from contextlib import ExitStack
 from pathlib import Path
 from contextlib import contextmanager
-from typing import Callable, List, Optional, Iterator
+from typing import Callable, List, Optional, Iterator, Tuple
 
 import pytest
 from pytest import CaptureFixture
+
+@contextmanager
+def pushd(path: os.PathLike[str]) -> Iterator[None]:
+    old_dir = os.getcwd()
+    os.chdir(path)
+    try:
+        yield
+    finally:
+        os.chdir(old_dir)
 
 def compare(output_file: os.PathLike[str], expected_file: os.PathLike[str]) -> None:
     with ExitStack() as stack:
@@ -39,38 +48,27 @@ def compare_bytes(output: bytes, output_file: os.PathLike[str], expected_file: o
         fd.write(output)
     compare_binary(output_file, expected_file)
 
-def file_test(
-        test_function: Callable[[List[str]], None],
-        args: List[str],
-        datafiles: Path,
-        expected_file: Optional[os.PathLike[str]] = None,
-        capsys: Optional[CaptureFixture[str]] = None,
-        expected_stderr: Optional[os.PathLike[str]] = None,
-        expected_error: Optional[int] = None,
-) -> Path:
+def file_test(function: Callable[[List[str]], None], capsys: CaptureFixture[str], args: List[str], files: Tuple[Path, ...], file_type: str) -> Path:
+    datafiles, test_file, expected_file, *more_files = files
+    expected_stderr, expected_error = None, None
+    if len(more_files) > 0:
+        expected_stderr = more_files[0]
+    if expected_file == Path('no-output'):
+        expected_error = 1
     output_file = datafiles / 'output'
-    if expected_error is None:
-        assert expected_file
-        test_function([*args, str(output_file)])
-        if Path(expected_file).suffix == '.ps':
-            compare(output_file, expected_file)
+    full_args = [*args, str(test_file.with_suffix(file_type)), str(output_file)]
+    with pushd(datafiles):
+        if expected_error is None:
+            assert expected_file
+            function(full_args)
+            comparer = compare if file_type == '.ps' else compare_binary
+            comparer(output_file, expected_file.with_suffix(file_type))
         else:
-            compare_binary(output_file, expected_file)
-    else:
-        with pytest.raises(SystemExit) as e:
-            test_function([*args, str(output_file)])
-        assert e.type == SystemExit
-        assert e.value.code == expected_error
-    if expected_stderr is not None:
-        assert capsys is not None
-        compare_str(capsys.readouterr().err, datafiles / 'stderr.txt', expected_stderr)
-    return output_file
-
-@contextmanager
-def pushd(path: os.PathLike[str]) -> Iterator[None]:
-    old_dir = os.getcwd()
-    os.chdir(path)
-    try:
-        yield
-    finally:
-        os.chdir(old_dir)
+            with pytest.raises(SystemExit) as e:
+                function(full_args)
+            assert e.type == SystemExit
+            assert e.value.code == expected_error
+        if expected_stderr is not None:
+            assert capsys is not None
+            compare_str(capsys.readouterr().err, datafiles / 'stderr.txt', expected_stderr)
+    return datafiles
