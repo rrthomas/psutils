@@ -6,7 +6,7 @@ import warnings
 from typing import Any, List, Optional, Sequence, Tuple, Union
 
 from psutils import (
-    HelpFormatter, die, paper_size, parsedimen, parsedraw, parsepaper, simple_warning,
+    HelpFormatter, die, get_paper_size, parsedimen, parsedraw, parsepaper, simple_warning,
 )
 from psutils.pstops import pstops
 
@@ -136,7 +136,7 @@ def psnup(argv: List[str]=sys.argv[1:]) -> None: # pylint: disable=dangerous-def
 
     # Ensure output paper size is set
     if width is None:
-        width, height = paper_size()
+        width, height = get_paper_size()
     if width is None:
         die('output paper size not set, and could not get default paper size')
 

@@ -48,7 +48,7 @@ def simple_warning(prog:str) -> Callable[..., None]:
     def _warning( # pylint: disable=too-many-arguments
         message: Union[Warning, str],
         category: Type[Warning], # pylint: disable=unused-argument
-        filename: str, # pylint: disable=unused-argument
+        filename: str, # pylint: disable=unused-argument,redefined-outer-name
         lineno: int, # pylint: disable=unused-argument
         file: Optional[TextIO] = sys.stderr, # pylint: disable=redefined-outer-name
         line: Optional[str] = None # pylint: disable=unused-argument
@@ -113,7 +113,7 @@ def paper(cmd: List[str], silent: bool = False) -> Optional[str]:
     except: # pylint: disable=bare-except
         die("could not run `paper' command")
 
-def paper_size(paper_name: Optional[str] = None) -> Tuple[Optional[float], Optional[float]]:
+def get_paper_size(paper_name: Optional[str] = None) -> Tuple[Optional[float], Optional[float]]:
     if paper_name is None:
         paper_name = paper([])
     dimensions: Optional[str] = None
@@ -126,16 +126,16 @@ def paper_size(paper_name: Optional[str] = None) -> Tuple[Optional[float], Optio
     w, h = float(m[1]), float(m[2])
     return int(w + 0.5), int(h + 0.5) # round dimensions to nearest point
 
-def parsepaper(paper: str) -> Tuple[Optional[float], Optional[float]]:
+def parsepaper(paper_size: str) -> Tuple[Optional[float], Optional[float]]:
     try:
-        (width, height) = paper_size(paper)
+        (width, height) = get_paper_size(paper_size)
         if width is None:
-            [width_text, height_text] = paper.split('x')
+            [width_text, height_text] = paper_size.split('x')
             if width_text and height_text:
                 width, height = singledimen(width_text), singledimen(height_text)
         return width, height
     except: # pylint: disable=bare-except
-        die(f"paper size '{paper}' unknown")
+        die(f"paper size '{paper_size}' unknown")
 
 def parsedimen(s: str) -> float:
     return singledimen(s, None, None)

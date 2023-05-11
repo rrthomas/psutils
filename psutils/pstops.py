@@ -153,8 +153,6 @@ default is no line]''')
     return parser
 
 def pstops(argv: List[str]=sys.argv[1:]) -> None: # pylint: disable=dangerous-default-value
-    global modulo
-
     args = get_parser().parse_intermixed_args(argv)
     width: Optional[float] = None
     height: Optional[float] = None
@@ -183,7 +181,7 @@ def pstops(argv: List[str]=sys.argv[1:]) -> None: # pylint: disable=dangerous-de
             n = max(n, 1)
         return n
 
-    def transform_pages(pagerange: List[Range], modulo: int, odd: bool, even: bool, reverse: bool) -> None:
+    def transform_pages(pagerange: List[Range], odd: bool, even: bool, reverse: bool) -> None:
         outputpage = 0
         # If no page range given, select all pages
         if pagerange is None:
@@ -224,7 +222,7 @@ def pstops(argv: List[str]=sys.argv[1:]) -> None: # pylint: disable=dangerous-de
             print(f'\nWrote {outputpage} pages', file=sys.stderr)
 
     # Output the pages
-    transform_pages(args.pagerange, modulo, args.odd, args.even, args.reverse)
+    transform_pages(args.pagerange, args.odd, args.even, args.reverse)
 
 
 if __name__ == '__main__':

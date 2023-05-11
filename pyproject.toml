@@ -93,7 +93,6 @@ disable = [
     "too-many-boolean-expressions",
     "too-many-nested-blocks",
     "global-statement",
-    "redefined-outer-name",
     "too-few-public-methods",
     "too-many-instance-attributes",
     "unspecified-encoding",
