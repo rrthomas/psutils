@@ -1,5 +1,5 @@
 from pathlib import Path
-from typing import Tuple, List, Callable
+from typing import Tuple, List
 
 from pytest import mark, param, CaptureFixture
 

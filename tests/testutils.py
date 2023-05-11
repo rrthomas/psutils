@@ -1,10 +1,9 @@
 import os
 import sys
 import difflib
-from contextlib import ExitStack
+from contextlib import ExitStack, contextmanager
 from pathlib import Path
-from contextlib import contextmanager
-from typing import Callable, List, Optional, Iterator, Tuple
+from typing import Callable, List, Iterator, Tuple
 
 import pytest
 from pytest import CaptureFixture
