@@ -41,26 +41,26 @@ def get_parser() -> argparse.ArgumentParser:
 def includeres(argv: List[str]=sys.argv[1:]) -> None: # pylint: disable=dangerous-default-value
     args = get_parser().parse_intermixed_args(argv)
 
-    infile, file_type, outfile = setup_input_and_output(args.infile, args.outfile)
-    if file_type not in ('.ps', '.eps'):
-        die(f"incompatible file type `{args.infile}'")
+    with setup_input_and_output(args.infile, args.outfile) as (infile, file_type, outfile):
+        if file_type not in ('.ps', '.eps'):
+            die(f"incompatible file type `{args.infile}'")
 
-    # Include resources
-    for line in infile:
-        if line.startswith(b'%%IncludeResource:'):
-            _, resource_type, *res = line.split()
-            name = filename(*res)
-            fullname = name
-            if not os.path.exists(fullname):
-                fullname += extn(resource_type)
-            try:
-                with open(fullname, 'rb') as fh:
-                    outfile.write(fh.read())
-            except IOError:
-                outfile.write(f'%%IncludeResource: {b" ".join([resource_type, *res]).decode()}\n'.encode())
-                warn(f"resource `{name.decode()}' not found")
-        else:
-            outfile.write(line)
+        # Include resources
+        for line in infile:
+            if line.startswith(b'%%IncludeResource:'):
+                _, resource_type, *res = line.split()
+                name = filename(*res)
+                fullname = name
+                if not os.path.exists(fullname):
+                    fullname += extn(resource_type)
+                try:
+                    with open(fullname, 'rb') as fh:
+                        outfile.write(fh.read())
+                except IOError:
+                    outfile.write(f'%%IncludeResource: {b" ".join([resource_type, *res]).decode()}\n'.encode())
+                    warn(f"resource `{name.decode()}' not found")
+            else:
+                outfile.write(line)
 
 
 if __name__ == '__main__':

@@ -81,44 +81,42 @@ def join_ps(args: argparse.Namespace) -> None:
                 fh = open(file)
             except IOError as e:
                 die(f"can't open file `{file}': {e}")
+            with fh:
+                in_comment = True
+                in_prolog = True
+                in_trailer = False
+                comments[i] = ''
+                prolog[i] = ''
+                trailer[i] = ''
+                pages[i] = 0
+                for line in fh:
+                    if line.startswith('%%BeginDocument'):
+                        while not fh.readline().startswith('%%EndDocument'):
+                            pass
 
-            in_comment = True
-            in_prolog = True
-            in_trailer = False
-            comments[i] = ''
-            prolog[i] = ''
-            trailer[i] = ''
-            pages[i] = 0
-            for line in fh:
-                if line.startswith('%%BeginDocument'):
-                    while not fh.readline().startswith('%%EndDocument'):
-                        pass
-
-                if in_comment:
-                    if line.startswith('%!PS-Adobe-') or line.startswith('%%Title') or \
-                    line.startswith('%%Pages') or line.startswith('%%Creator'):
+                    if in_comment:
+                        if line.startswith('%!PS-Adobe-') or line.startswith('%%Title') or \
+                        line.startswith('%%Pages') or line.startswith('%%Creator'):
+                            continue
+                        if line.startswith('%%EndComments'):
+                            in_comment = False
+                        comments[i] += line
                         continue
-                    if line.startswith('%%EndComments'):
-                        in_comment = False
-                    comments[i] += line
-                    continue
-                if in_prolog:
+                    if in_prolog:
+                        if line.startswith('%%Page:'):
+                            in_prolog = False
+                        else:
+                            prolog[i] += line
+                            continue
+
+                    if line.startswith('%%Trailer'):
+                        in_trailer = True
+                    if in_trailer:
+                        trailer[i] += line
+                        continue
+
                     if line.startswith('%%Page:'):
-                        in_prolog = False
-                    else:
-                        prolog[i] += line
-                        continue
-
-                if line.startswith('%%Trailer'):
-                    in_trailer = True
-                if in_trailer:
-                    trailer[i] += line
-                    continue
-
-                if line.startswith('%%Page:'):
-                    pages[i] += 1
-
-            fh.close()
+                        pages[i] += 1
 
             if prolog[i]:
                 for j in range(i):
@@ -168,48 +166,47 @@ def join_ps(args: argparse.Namespace) -> None:
             fh = open(file)
         except IOError as e:
             die(f"can't open file `{file[i]}': {e}")
-        for line in fh:
-            if line.startswith('%%BeginDocument'):
-                in_document = True
-            elif line.startswith('%%EndDocument'):
-                in_document = False
-            if in_document:
-                # s/^(%[%!])/% \1/
-                print(line, end='')
-            else:
-                if in_comment:
-                    if line.startswith('%%EndComments'):
-                        in_comment = False
-                elif in_prolog:
-                    if line.startswith('%%Page:'):
-                        in_prolog = False
-                    else:
-                        continue
-                if not args.nostrip and line.startswith('%%Trailer'):
-                    in_trailer = True
-                if in_trailer:
-                    continue
-
-                if line.startswith('%%Page:'):
-                    if saved:
-                        print(trailer[i], end='')
-                        print(restore, end='')
-                        saved = False
-
-                    file_pages += 1
-                    total_pages += 1
-                    print(f'\n%%Page: ({i}-{file_pages}) {total_pages}')
-                    if i not in prolog or prolog[i] != prolog[prolog_inx]:
-                        print(save, end='')
-                        if i in prolog:
-                            print(prolog[i], end='')
-                        saved = True
-                    elif args.save:
-                        print(save, end='')
+        with fh:
+            for line in fh:
+                if line.startswith('%%BeginDocument'):
+                    in_document = True
+                elif line.startswith('%%EndDocument'):
+                    in_document = False
+                if in_document:
+                    # s/^(%[%!])/% \1/
+                    print(line, end='')
                 else:
-                    print(re.sub(r'^(%[%!])', r'% \1', line), end='')
+                    if in_comment:
+                        if line.startswith('%%EndComments'):
+                            in_comment = False
+                    elif in_prolog:
+                        if line.startswith('%%Page:'):
+                            in_prolog = False
+                        else:
+                            continue
+                    if not args.nostrip and line.startswith('%%Trailer'):
+                        in_trailer = True
+                    if in_trailer:
+                        continue
 
-        fh.close()
+                    if line.startswith('%%Page:'):
+                        if saved:
+                            print(trailer[i], end='')
+                            print(restore, end='')
+                            saved = False
+
+                        file_pages += 1
+                        total_pages += 1
+                        print(f'\n%%Page: ({i}-{file_pages}) {total_pages}')
+                        if i not in prolog or prolog[i] != prolog[prolog_inx]:
+                            print(save, end='')
+                            if i in prolog:
+                                print(prolog[i], end='')
+                            saved = True
+                        elif args.save:
+                            print(save, end='')
+                    else:
+                        print(re.sub(r'^(%[%!])', r'% \1', line), end='')
 
         if args.even and file_pages % 2 != 0:
             file_pages += 1

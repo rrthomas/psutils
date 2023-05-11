@@ -167,60 +167,59 @@ def pstops(argv: List[str]=sys.argv[1:]) -> None: # pylint: disable=dangerous-de
     if (iwidth is None) ^ (iheight is None):
         die('input page width and height must both be set, or neither')
 
-    doc = documentTransform(args.infile, args.outfile, width, height, iwidth, iheight, specs, rotate, scale, args.draw)
+    with documentTransform(args.infile, args.outfile, width, height, iwidth, iheight, specs, rotate, scale, args.draw) as doc:
+        if doc.iwidth is None and flipping:
+            die('input page size must be set when flipping the page')
 
-    if doc.iwidth is None and flipping:
-        die('input page size must be set when flipping the page')
+        # Page spec routines for page rearrangement
+        def abs_page(n: int) -> int:
+            if n < 0:
+                n += doc.pages() + 1
+                n = max(n, 1)
+            return n
 
-    # Page spec routines for page rearrangement
-    def abs_page(n: int) -> int:
-        if n < 0:
-            n += doc.pages() + 1
-            n = max(n, 1)
-        return n
+        def transform_pages(pagerange: List[Range], odd: bool, even: bool, reverse: bool) -> None:
+            outputpage = 0
+            # If no page range given, select all pages
+            if pagerange is None:
+                pagerange = parserange('1-_1')
 
-    def transform_pages(pagerange: List[Range], odd: bool, even: bool, reverse: bool) -> None:
-        outputpage = 0
-        # If no page range given, select all pages
-        if pagerange is None:
-            pagerange = parserange('1-_1')
+            # Normalize end-relative pageranges
+            for r in pagerange:
+                r.start = abs_page(r.start)
+                r.end = abs_page(r.end)
 
-        # Normalize end-relative pageranges
-        for r in pagerange:
-            r.start = abs_page(r.start)
-            r.end = abs_page(r.end)
+            # Get list of pages
+            page_list = PageList(doc.pages(), pagerange, reverse, odd, even)
 
-        # Get list of pages
-        page_list = PageList(doc.pages(), pagerange, reverse, odd, even)
+            # Calculate highest page number output (including any blanks)
+            maxpage = page_list.num_pages() + (modulo - page_list.num_pages() % modulo) % modulo
 
-        # Calculate highest page number output (including any blanks)
-        maxpage = page_list.num_pages() + (modulo - page_list.num_pages() % modulo) % modulo
+            # Rearrange pages
+            doc.write_header(maxpage, modulo)
+            pagebase = 0
+            while pagebase < maxpage:
+                for page in doc.specs:
+                    # Construct the page label from the input page numbers
+                    pagelabels = []
+                    for spec in page:
+                        n = page_list.real_page(page_index_to_page_number(spec, maxpage, modulo, pagebase))
+                        pagelabels.append(str(n + 1) if n >= 0 else '*')
+                    pagelabel = ",".join(pagelabels)
+                    outputpage += 1
+                    doc.write_page_comment(pagelabel, outputpage)
+                    if args.verbose:
+                        sys.stderr.write(f'[{pagelabel}] ')
+                    doc.write_page(page_list, outputpage, page, maxpage, modulo, pagebase)
 
-        # Rearrange pages
-        doc.write_header(maxpage, modulo)
-        pagebase = 0
-        while pagebase < maxpage:
-            for page in doc.specs:
-                # Construct the page label from the input page numbers
-                pagelabels = []
-                for spec in page:
-                    n = page_list.real_page(page_index_to_page_number(spec, maxpage, modulo, pagebase))
-                    pagelabels.append(str(n + 1) if n >= 0 else '*')
-                pagelabel = ",".join(pagelabels)
-                outputpage += 1
-                doc.write_page_comment(pagelabel, outputpage)
-                if args.verbose:
-                    sys.stderr.write(f'[{pagelabel}] ')
-                doc.write_page(page_list, outputpage, page, maxpage, modulo, pagebase)
+                pagebase += modulo
 
-            pagebase += modulo
+            doc.finalize()
+            if args.verbose:
+                print(f'\nWrote {outputpage} pages', file=sys.stderr)
 
-        doc.finalize()
-        if args.verbose:
-            print(f'\nWrote {outputpage} pages', file=sys.stderr)
-
-    # Output the pages
-    transform_pages(args.pagerange, args.odd, args.even, args.reverse)
+        # Output the pages
+        transform_pages(args.pagerange, args.odd, args.even, args.reverse)
 
 
 if __name__ == '__main__':

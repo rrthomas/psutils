@@ -56,46 +56,46 @@ def psbook(argv: List[str]=sys.argv[1:]) -> None: # pylint: disable=dangerous-de
         die('signature must be a multiple of 4')
 
     # Get number of pages
-    doc = documentTransform(args.infile, args.outfile, None, None, None, None, [], False, 1.0, 0)
-    input_pages = doc.pages()
+    with documentTransform(args.infile, args.outfile, None, None, None, None, [], False, 1.0, 0) as doc:
+        input_pages = doc.pages()
 
-    def page_index_to_real_page(signature: int, page_number: int) -> int:
-        real_page = page_number - page_number % signature
-        page_on_sheet = page_number % 4
-        recto_verso = (page_number % signature) // 2
-        if page_on_sheet in (0, 3):
-            real_page += signature - 1 - recto_verso
+        def page_index_to_real_page(signature: int, page_number: int) -> int:
+            real_page = page_number - page_number % signature
+            page_on_sheet = page_number % 4
+            recto_verso = (page_number % signature) // 2
+            if page_on_sheet in (0, 3):
+                real_page += signature - 1 - recto_verso
+            else:
+                real_page += recto_verso
+            return real_page + 1
+
+        # Adjust for signature size
+        signature = args.signature
+        if signature == 0:
+            maxpage = input_pages + (4 - input_pages % 4) % 4
+            signature = maxpage
         else:
-            real_page += recto_verso
-        return real_page + 1
+            maxpage = input_pages + (signature - input_pages % signature) % signature
 
-    # Adjust for signature size
-    signature = args.signature
-    if signature == 0:
-        maxpage = input_pages + (4 - input_pages % 4) % 4
-        signature = maxpage
-    else:
-        maxpage = input_pages + (signature - input_pages % signature) % signature
+        # Compute page list
+        page_list = []
+        for page in range(maxpage):
+            real_page = page_index_to_real_page(signature, page)
+            page_list.append(str(real_page) if real_page <= input_pages else '_')
 
-    # Compute page list
-    page_list = []
-    for page in range(maxpage):
-        real_page = page_index_to_real_page(signature, page)
-        page_list.append(str(real_page) if real_page <= input_pages else '_')
-
-    # Rearrange pages
-    cmd = []
-    if not args.verbose:
-        cmd.append('--quiet')
-    cmd.append(f'--pages={",".join(page_list)}')
-    if args.infile is not None:
-        cmd.append(args.infile)
-    if args.outfile is not None:
-        cmd.append(args.outfile)
-    try:
-        pstops(cmd)
-    except SystemExit:
-        die('error running pstops')
+        # Rearrange pages
+        cmd = []
+        if not args.verbose:
+            cmd.append('--quiet')
+        cmd.append(f'--pages={",".join(page_list)}')
+        if args.infile is not None:
+            cmd.append(args.infile)
+        if args.outfile is not None:
+            cmd.append(args.outfile)
+        try:
+            pstops(cmd)
+        except SystemExit:
+            die('error running pstops')
 
 
 if __name__ == '__main__':

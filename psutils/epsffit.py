@@ -60,84 +60,84 @@ def epsffit(argv: List[str]=sys.argv[1:]) -> None: # pylint: disable=dangerous-d
 
     urx, ury, llx, lly = 0, 0, 0, 0
 
-    infile, file_type, outfile = setup_input_and_output(args.infile, args.outfile)
-    if file_type not in ('.ps', '.eps'):
-        die(f"incompatible file type `{args.infile}'")
+    with setup_input_and_output(args.infile, args.outfile) as (infile, file_type, outfile):
+        if file_type not in ('.ps', '.eps'):
+            die(f"incompatible file type `{args.infile}'")
 
-    def output(s: str) -> None:
-        outfile.write((s + '\n').encode('utf-8'))
+        def output(s: str) -> None:
+            outfile.write((s + '\n').encode('utf-8'))
 
-    bbfound = False # %%BoundingBox: found
-    for line in infile:
-        if re.match(b'%[%!]', line): # still in comment section
-            if line.startswith(b'%%BoundingBox:'):
-                m = re.match(b'%%BoundingBox: +([\\d.]+) +([\\d.]+) +([\\d.]+) +([\\d.]+)$', line)
-                if m:
-                    bbfound = True
-                    llx = int(m[1]) # accept doubles, but convert to int
-                    lly = int(m[2])
-                    urx = int(float(m[3]) + 0.5)
-                    ury = int(float(m[4]) + 0.5)
-            elif line.startswith(b'%%EndComments'): # don't repeat %%EndComments
-                break
+        bbfound = False # %%BoundingBox: found
+        for line in infile:
+            if re.match(b'%[%!]', line): # still in comment section
+                if line.startswith(b'%%BoundingBox:'):
+                    m = re.match(b'%%BoundingBox: +([\\d.]+) +([\\d.]+) +([\\d.]+) +([\\d.]+)$', line)
+                    if m:
+                        bbfound = True
+                        llx = int(m[1]) # accept doubles, but convert to int
+                        lly = int(m[2])
+                        urx = int(float(m[3]) + 0.5)
+                        ury = int(float(m[4]) + 0.5)
+                elif line.startswith(b'%%EndComments'): # don't repeat %%EndComments
+                    break
+                else:
+                    outfile.write(line)
             else:
-                outfile.write(line)
-        else:
-            break
+                break
 
-    if bbfound is False:
-        die('no %%BoundingBox:', 2)
+        if bbfound is False:
+            die('no %%BoundingBox:', 2)
 
-    # Write bounding box, followed by scale & translate
-    xoffset, yoffset = args.fllx, args.flly
-    width, height = urx - llx, ury - lly
+        # Write bounding box, followed by scale & translate
+        xoffset, yoffset = args.fllx, args.flly
+        width, height = urx - llx, ury - lly
 
-    # FIXME: Consider more carefully how --rotate and --maximize should interact
-    rotate = args.rotate
-    if args.maximize and \
-        (((width > height) and (args.fury - args.flly > args.furx - args.fllx)) or \
-        ((width < height) and (args.fury - args.flly < args.furx - args.fllx))):
-        rotate = True
+        # FIXME: Consider more carefully how --rotate and --maximize should interact
+        rotate = args.rotate
+        if args.maximize and \
+            (((width > height) and (args.fury - args.flly > args.furx - args.fllx)) or \
+            ((width < height) and (args.fury - args.flly < args.furx - args.fllx))):
+            rotate = True
 
-    fwidth, fheight = args.furx - args.fllx, args.fury - args.flly
-    if rotate:
-        fwidth, fheight = fheight, fwidth
-
-    xscale, yscale = fwidth / width, fheight / height
-
-    if not args.aspect: # preserve aspect ratio?
-        xscale = yscale = min(xscale, yscale)
-    width *= xscale # actual width and height after scaling
-    height *= yscale
-    if args.center:
+        fwidth, fheight = args.furx - args.fllx, args.fury - args.flly
         if rotate:
-            xoffset += (fheight - height) / 2
-            yoffset += (fwidth - width) / 2
+            fwidth, fheight = fheight, fwidth
+
+        xscale, yscale = fwidth / width, fheight / height
+
+        if not args.aspect: # preserve aspect ratio?
+            xscale = yscale = min(xscale, yscale)
+        width *= xscale # actual width and height after scaling
+        height *= yscale
+        if args.center:
+            if rotate:
+                xoffset += (fheight - height) / 2
+                yoffset += (fwidth - width) / 2
+            else:
+                xoffset += (fwidth - width) / 2
+                yoffset += (fheight - height) / 2
+        output(f'%%BoundingBox: {int(xoffset)} {int(yoffset)} {int(xoffset + (height if rotate else width))} {int(yoffset + (width if rotate else height))}')
+        if rotate: # compensate for original image shift
+            xoffset += height + lly * yscale # displacement for rotation
+            yoffset -= llx * xscale
         else:
-            xoffset += (fwidth - width) / 2
-            yoffset += (fheight - height) / 2
-    output(f'%%BoundingBox: {int(xoffset)} {int(yoffset)} {int(xoffset + (height if rotate else width))} {int(yoffset + (width if rotate else height))}')
-    if rotate: # compensate for original image shift
-        xoffset += height + lly * yscale # displacement for rotation
-        yoffset -= llx * xscale
-    else:
-        xoffset -= llx * xscale
-        yoffset -= lly * yscale
-    output('%%EndComments')
-    if args.showpage:
-        output('save /showpage{}def /copypage{}def /erasepage{}def')
-    else:
-        output('%%BeginProcSet: epsffit 1 0')
-    output(f'gsave {xoffset:.3f} {yoffset:.3f} translate')
-    if rotate:
-        output('90 rotate')
-    output(f'{xscale:.3f} {yscale:.3f} scale')
-    if not args.showpage:
-        output('%%EndProcSet')
-    outfile.write(infile.read())
-    output('grestore')
-    if args.showpage:
-        output('restore showpage') # just in case
+            xoffset -= llx * xscale
+            yoffset -= lly * yscale
+        output('%%EndComments')
+        if args.showpage:
+            output('save /showpage{}def /copypage{}def /erasepage{}def')
+        else:
+            output('%%BeginProcSet: epsffit 1 0')
+        output(f'gsave {xoffset:.3f} {yoffset:.3f} translate')
+        if rotate:
+            output('90 rotate')
+        output(f'{xscale:.3f} {yscale:.3f} scale')
+        if not args.showpage:
+            output('%%EndProcSet')
+        outfile.write(infile.read())
+        output('grestore')
+        if args.showpage:
+            output('restore showpage') # just in case
 
 
 if __name__ == '__main__':

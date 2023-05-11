@@ -9,9 +9,10 @@ import argparse
 import shutil
 import subprocess
 import re
+from contextlib import contextmanager
 from warnings import warn
 from typing import (
-    Callable, List, Tuple, Optional, Union, Type, NoReturn, IO, TextIO,
+    Callable, List, Tuple, Optional, Union, Iterator, Type, NoReturn, IO, TextIO,
 )
 
 import puremagic # type: ignore
@@ -505,16 +506,18 @@ class PdfDocumentTransform:
         self.writer.write(self.outfile)
         self.outfile.flush()
 
-def documentTransform(infile_name: str, outfile_name: str, width: Optional[float], height: Optional[float], iwidth: Optional[float], iheight: Optional[float], specs: List[List[PageSpec]], rotate: int, scale: float, draw: float) -> Union[PdfDocumentTransform, PsDocumentTransform]:
-    infile, file_type, outfile = setup_input_and_output(infile_name, outfile_name)
-    if file_type in ('.ps', '.eps'):
-        return PsDocumentTransform(infile, outfile, width, height, iwidth, iheight, specs, rotate, scale, draw)
-    if file_type == '.pdf':
-        return PdfDocumentTransform(infile, outfile, width, height, iwidth, iheight, specs, rotate, scale, draw)
-    die(f"incompatible file type `{infile_name}'")
+@contextmanager
+def documentTransform(infile_name: str, outfile_name: str, width: Optional[float], height: Optional[float], iwidth: Optional[float], iheight: Optional[float], specs: List[List[PageSpec]], rotate: int, scale: float, draw: float) -> Iterator[Union[PdfDocumentTransform, PsDocumentTransform]]:
+    with setup_input_and_output(infile_name, outfile_name) as (infile, file_type, outfile):
+        if file_type in ('.ps', '.eps'):
+            yield PsDocumentTransform(infile, outfile, width, height, iwidth, iheight, specs, rotate, scale, draw)
+        elif file_type == '.pdf':
+            yield PdfDocumentTransform(infile, outfile, width, height, iwidth, iheight, specs, rotate, scale, draw)
+        else:
+            die(f"incompatible file type `{infile_name}'")
 
-# Set up input and output files
-def setup_input_and_output(infile_name: Optional[str], outfile_name: Optional[str]) -> Tuple[IO[bytes], str, IO[bytes]]:
+@contextmanager
+def setup_input_and_output(infile_name: Optional[str], outfile_name: Optional[str]) -> Iterator[Tuple[IO[bytes], str, IO[bytes]]]:
     # Set up input
     infile: Optional[IO[bytes]] = None
     if infile_name is not None:
@@ -541,7 +544,12 @@ def setup_input_and_output(infile_name: Optional[str], outfile_name: Optional[st
     else:
         outfile = os.fdopen(sys.stdout.fileno(), 'wb', closefd=False)
 
-    return infile, file_type, outfile
+    # Context manager
+    try:
+        yield infile, file_type, outfile
+    finally:
+        infile.close()
+        outfile.close()
 
 # Resource extensions
 def extn(ext: bytes) -> bytes:

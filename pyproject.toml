@@ -83,6 +83,5 @@ disable = [
     "too-few-public-methods",
     "too-many-instance-attributes",
     "unspecified-encoding",
-    "consider-using-with",
     "duplicate-code",
 ]
