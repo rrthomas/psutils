@@ -1,13 +1,4 @@
 import importlib.metadata
-
-VERSION = importlib.metadata.version('psutils')
-
-version_banner=f'''\
-%(prog)s {VERSION}
-Copyright (c) Reuben Thomas 2023.
-Released under the GPL version 3, or (at your option) any later version.
-'''
-
 import argparse
 import os
 import re
@@ -19,6 +10,14 @@ from psutils import (
     HelpFormatter, die, extn, filename, setup_input_and_output,
     simple_warning,
 )
+
+VERSION = importlib.metadata.version('psutils')
+
+version_banner=f'''\
+%(prog)s {VERSION}
+Copyright (c) Reuben Thomas 2023.
+Released under the GPL version 3, or (at your option) any later version.
+'''
 
 def get_parser() -> argparse.ArgumentParser:
     # Command-line arguments

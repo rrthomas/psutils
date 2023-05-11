@@ -1,13 +1,4 @@
 import importlib.metadata
-
-VERSION = importlib.metadata.version('psutils')
-
-version_banner=f'''\
-%(prog)s {VERSION}
-Copyright (c) Reuben Thomas 2023.
-Released under the GPL version 3, or (at your option) any later version.
-'''
-
 import argparse
 import re
 import sys
@@ -18,6 +9,14 @@ from psutils import (
     HelpFormatter, die, paper_size, parsedimen, parsedraw, parsepaper, simple_warning,
 )
 from psutils.pstops import pstops
+
+VERSION = importlib.metadata.version('psutils')
+
+version_banner=f'''\
+%(prog)s {VERSION}
+Copyright (c) Reuben Thomas 2023.
+Released under the GPL version 3, or (at your option) any later version.
+'''
 
 def parsenup(s: str) -> int:
     if not re.match(r'-\d+', s):

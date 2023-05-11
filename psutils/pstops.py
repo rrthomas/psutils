@@ -1,13 +1,4 @@
 import importlib.metadata
-
-VERSION = importlib.metadata.version('psutils')
-
-version_banner=f'''\
-%(prog)s {VERSION}
-Copyright (c) Reuben Thomas 2023.
-Released under the GPL version 3, or (at your option) any later version.
-'''
-
 import argparse
 import re
 import sys
@@ -19,6 +10,14 @@ from psutils import (
     singledimen, simple_warning, PageSpec, Range, PageList, page_index_to_page_number,
     documentTransform,
 )
+
+VERSION = importlib.metadata.version('psutils')
+
+version_banner=f'''\
+%(prog)s {VERSION}
+Copyright (c) Reuben Thomas 2023.
+Released under the GPL version 3, or (at your option) any later version.
+'''
 
 # Globals
 flipping = False # any spec includes page flip

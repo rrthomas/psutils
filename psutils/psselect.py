@@ -1,4 +1,11 @@
 import importlib.metadata
+import argparse
+import sys
+import warnings
+from typing import List
+
+from psutils import HelpFormatter, die, simple_warning
+from psutils.pstops import pstops
 
 VERSION = importlib.metadata.version('psutils')
 
@@ -7,14 +14,6 @@ version_banner=f'''\
 Copyright (c) Reuben Thomas 2023.
 Released under the GPL version 3, or (at your option) any later version.
 '''
-
-import argparse
-import sys
-import warnings
-from typing import List
-
-from psutils import HelpFormatter, die, simple_warning
-from psutils.pstops import pstops
 
 def get_parser() -> argparse.ArgumentParser:
     # Command-line arguments
