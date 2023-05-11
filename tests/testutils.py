@@ -19,8 +19,8 @@ def pushd(path: os.PathLike[str]) -> Iterator[None]:
 
 def compare_text_files(output_file: os.PathLike[str], expected_file: os.PathLike[str]) -> None:
     with ExitStack() as stack:
-        out_fd = stack.enter_context(open(output_file))
-        exp_fd = stack.enter_context(open(expected_file))
+        out_fd = stack.enter_context(open(output_file, encoding='ascii'))
+        exp_fd = stack.enter_context(open(expected_file, encoding='ascii'))
         output_lines = out_fd.readlines()
         expected_lines = exp_fd.readlines()
         diff = list(difflib.unified_diff(output_lines, expected_lines, str(output_file), str(expected_file)))
@@ -38,7 +38,7 @@ def compare_binary_files(output_file: os.PathLike[str], expected_file: os.PathLi
             raise ValueError('test output does not match expected output')
 
 def compare_strings(output: str, output_file: os.PathLike[str], expected_file: os.PathLike[str]) -> None:
-    with open(output_file, 'w') as fd:
+    with open(output_file, 'w', encoding='ascii') as fd:
         fd.write(output)
     compare_text_files(output_file, expected_file)
 

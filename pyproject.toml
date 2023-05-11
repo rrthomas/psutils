@@ -85,6 +85,5 @@ disable = [
     "too-many-nested-blocks",
     "too-few-public-methods",
     "too-many-instance-attributes",
-    "unspecified-encoding",
     "duplicate-code",
 ]
