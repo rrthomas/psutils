@@ -1,5 +1,59 @@
+[project]
+name = "psutils"
+version = "3.0"
+description = "Manipulate PDF and PostScript documents"
+license = {text = "GPL v3 or later"}
+authors = [
+    {name = "Reuben Thomas", email = "rrt@sc3d.org"}
+]
+readme = "README.md"
+urls = {home_page = "https://github.com/rrthomas/psutils"}
+requires-python = ">= 3.9"
+dependencies = [
+    "chainstream",
+    "puremagic",
+    "pypdf >= 3.8.0",
+]
+classifiers = [
+    "Environment :: Console",
+    "Programming Language :: Python :: 3",
+]
+
+[project.scripts]
+extractres = "psutils.extractres:extractres"
+epsffit = "psutils.epsffit:epsffit"
+includeres = "psutils.includeres:includeres"
+psbook = "psutils.psbook:psbook"
+psjoin = "psutils.psjoin:psjoin"
+psnup = "psutils.psnup:psnup"
+psresize = "psutils.psresize:psresize"
+psselect = "psutils.psselect:psselect"
+pstops = "psutils.pstops:pstops"
+
 [build-system]
-requires = ["argparse-manpage[setuptools] @ git+https://github.com/praiskup/argparse-manpage.git"]
+requires = [
+    "argparse-manpage[setuptools] @ git+https://github.com/praiskup/argparse-manpage.git",
+    "pytest-datafiles",
+    "chainstream",
+    "puremagic",
+    "pypdf >= 3.8.0",
+]
+
+[tool.setuptools]
+packages = ["psutils"]
+
+[tool.build_manpages]
+manpages = [
+    "extractres.1:module=psutils.extractres:function=get_parser:manual_title=User Commands:include=extractres-include.man",
+    "includeres.1:module=psutils.includeres:function=get_parser:manual_title=User Commands:include=includeres-include.man",
+    "psbook.1:module=psutils.psbook:function=get_parser:manual_title=User Commands:include=psbook-include.man",
+    "psjoin.1:module=psutils.psjoin:function=get_parser:manual_title=User Commands",
+    "psnup.1:module=psutils.psnup:function=get_parser:manual_title=User Commands:include=psnup-include.man",
+    "psresize.1:module=psutils.psresize:function=get_parser:manual_title=User Commands:include=psresize-include.man",
+    "psselect.1:module=psutils.psselect:function=get_parser:manual_title=User Commands:include=psselect-include.man",
+    "pstops.1:module=psutils.pstops:function=get_parser:manual_title=User Commands:include=pstops-include.man",
+    "psutils.1:manfile=psutils.1",
+]
 
 [tool.mypy]
 exclude = [
