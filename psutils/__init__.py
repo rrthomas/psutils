@@ -12,19 +12,29 @@ import re
 from contextlib import contextmanager
 from warnings import warn
 from typing import (
-    Callable, List, Tuple, Optional, Union, Iterator, Type, NoReturn, IO, TextIO,
+    Callable,
+    List,
+    Tuple,
+    Optional,
+    Union,
+    Iterator,
+    Type,
+    NoReturn,
+    IO,
+    TextIO,
 )
 
-import puremagic # type: ignore
+import puremagic  # type: ignore
 from pypdf import PdfReader, PdfWriter, Transformation
 from pypdf.generic import AnnotationBuilder
 
+
 # Help output
-# Adapted from https://stackoverflow.com/questions/23936145/python-argparse-help-message-disable-metavar-for-short-options
+# Adapted from https://stackoverflow.com/questions/23936145/
 class HelpFormatter(argparse.RawTextHelpFormatter):
     def _format_action_invocation(self, action: argparse.Action) -> str:
         if not action.option_strings:
-            metavar, = self._metavar_formatter(action, action.dest)(1)
+            (metavar,) = self._metavar_formatter(action, action.dest)(1)
             return metavar
         parts: List[str] = []
         if action.nargs == 0:
@@ -36,111 +46,132 @@ class HelpFormatter(argparse.RawTextHelpFormatter):
             args_string = self._format_args(action, default)
             for option_string in action.option_strings:
                 parts.append(option_string)
-            parts[-1] += f' {args_string}'
+            parts[-1] += f" {args_string}"
         # Add space at start of format string if there is no short option
-        if len(action.option_strings) > 0 and action.option_strings[0][1] == '-':
-            parts[-1] = '    ' + parts[-1]
-        return ', '.join(parts)
+        if len(action.option_strings) > 0 and action.option_strings[0][1] == "-":
+            parts[-1] = "    " + parts[-1]
+        return ", ".join(parts)
+
 
 # Error messages
-def simple_warning(prog:str) -> Callable[..., None]:
-    def _warning( # pylint: disable=too-many-arguments
+def simple_warning(prog: str) -> Callable[..., None]:
+    def _warning(  # pylint: disable=too-many-arguments
         message: Union[Warning, str],
-        category: Type[Warning], # pylint: disable=unused-argument
-        filename: str, # pylint: disable=unused-argument,redefined-outer-name
-        lineno: int, # pylint: disable=unused-argument
-        file: Optional[TextIO] = sys.stderr, # pylint: disable=redefined-outer-name
-        line: Optional[str] = None # pylint: disable=unused-argument
+        category: Type[Warning],  # pylint: disable=unused-argument
+        filename: str,  # pylint: disable=unused-argument,redefined-outer-name
+        lineno: int,  # pylint: disable=unused-argument
+        file: Optional[TextIO] = sys.stderr,  # pylint: disable=redefined-outer-name
+        line: Optional[str] = None,  # pylint: disable=unused-argument
     ) -> None:
         # pylint: disable=c-extension-no-member
-        print(f'\n{prog}: {message}', file=file or sys.stderr)
+        print(f"\n{prog}: {message}", file=file or sys.stderr)
+
     return _warning
+
 
 def die(msg: str, code: Optional[int] = 1) -> NoReturn:
     warn(msg)
     sys.exit(code)
 
+
 # Adapted from https://github.com/python/cpython/blob/main/Lib/test/test_strtod.py
-strtod_parser = re.compile(r'''    # A numeric string consists of:
+strtod_parser = re.compile(
+    r"""    # A numeric string consists of:
     [-+]?          # an optional sign, followed by
     (?=\d|\.\d)    # a number with at least one digit
     \d*            # having a (possibly empty) integer part
     (?:\.(\d*))?   # followed by an optional fractional part
     (?:E[-+]?\d+)? # and an optional exponent
-''', re.VERBOSE | re.IGNORECASE).match
+""",
+    re.VERBOSE | re.IGNORECASE,
+).match
+
 
 def strtod(s: str) -> Tuple[float, int]:
     m = strtod_parser(s)
     if m is None:
-        raise ValueError('invalid numeric string')
+        raise ValueError("invalid numeric string")
     return float(m[0]), m.end()
 
+
 # Argument parsers
-def singledimen(s: str, width: Optional[float] = None, height: Optional[float] = None) -> float:
+def singledimen(
+    s: str, width: Optional[float] = None, height: Optional[float] = None
+) -> float:
     num, unparsed = strtod(s)
     s = s[unparsed:]
 
-    if s.startswith('pt'):
+    if s.startswith("pt"):
         pass
-    elif s.startswith('in'):
+    elif s.startswith("in"):
         num *= 72
-    elif s.startswith('cm'):
+    elif s.startswith("cm"):
         num *= 28.346456692913385211
-    elif s.startswith('mm'):
+    elif s.startswith("mm"):
         num *= 2.8346456692913385211
-    elif s.startswith('w'):
+    elif s.startswith("w"):
         if width is None:
-            die('paper size not set')
+            die("paper size not set")
         num *= width
-    elif s.startswith('h'):
+    elif s.startswith("h"):
         if height is None:
-            die('paper size not set')
+            die("paper size not set")
         num *= height
-    elif s != '':
+    elif s != "":
         die(f"bad dimension `{s}'")
 
     return num
 
+
 # Get the size of the given paper, or the default paper if no argument given.
 def paper(cmd: List[str], silent: bool = False) -> Optional[str]:
-    cmd.insert(0, 'paper')
+    cmd.insert(0, "paper")
     try:
-        out = subprocess.check_output(cmd, stderr=subprocess.DEVNULL if silent else None, text=True)
+        out = subprocess.check_output(
+            cmd, stderr=subprocess.DEVNULL if silent else None, text=True
+        )
         return out.rstrip()
     except subprocess.CalledProcessError:
         return None
-    except: # pylint: disable=bare-except
+    except:  # pylint: disable=bare-except
         die("could not run `paper' command")
 
-def get_paper_size(paper_name: Optional[str] = None) -> Tuple[Optional[float], Optional[float]]:
+
+def get_paper_size(
+    paper_name: Optional[str] = None,
+) -> Tuple[Optional[float], Optional[float]]:
     if paper_name is None:
         paper_name = paper([])
     dimensions: Optional[str] = None
     if paper_name is not None:
-        dimensions = paper(['--unit=pt', paper_name], True)
+        dimensions = paper(["--unit=pt", paper_name], True)
     if dimensions is None:
         return None, None
-    m = re.search(' ([.0-9]+)x([.0-9]+) pt$', dimensions)
+    m = re.search(" ([.0-9]+)x([.0-9]+) pt$", dimensions)
     assert m
     w, h = float(m[1]), float(m[2])
-    return int(w + 0.5), int(h + 0.5) # round dimensions to nearest point
+    return int(w + 0.5), int(h + 0.5)  # round dimensions to nearest point
+
 
 def parsepaper(paper_size: str) -> Tuple[Optional[float], Optional[float]]:
     try:
         (width, height) = get_paper_size(paper_size)
         if width is None:
-            [width_text, height_text] = paper_size.split('x')
+            [width_text, height_text] = paper_size.split("x")
             if width_text and height_text:
                 width, height = singledimen(width_text), singledimen(height_text)
         return width, height
-    except: # pylint: disable=bare-except
+    except:  # pylint: disable=bare-except
         die(f"paper size '{paper_size}' unknown")
+
 
 def parsedimen(s: str) -> float:
     return singledimen(s, None, None)
 
+
 def parsedraw(s: str) -> float:
-    return parsedimen(s or '1')
+    return parsedimen(s or "1")
+
 
 class PageSpec:
     def __init__(self) -> None:
@@ -154,10 +185,21 @@ class PageSpec:
         self.yoff: float = 0.0
 
     def has_transform(self) -> bool:
-        return self.rotate != 0 or self.hflip or self.vflip or self.scale != 1.0 or self.xoff != 0.0 or self.yoff != 0.0
+        return (
+            self.rotate != 0
+            or self.hflip
+            or self.vflip
+            or self.scale != 1.0
+            or self.xoff != 0.0
+            or self.yoff != 0.0
+        )
 
-def page_index_to_page_number(ps: PageSpec, maxpage: int, modulo: int, pagebase: int) -> int:
+
+def page_index_to_page_number(
+    ps: PageSpec, maxpage: int, modulo: int, pagebase: int
+) -> int:
     return (maxpage - pagebase - modulo if ps.reversed else pagebase) + ps.pageno
+
 
 class Range:
     def __init__(self) -> None:
@@ -165,8 +207,16 @@ class Range:
         self.end: int
         self.text: str
 
+
 class PageList:
-    def __init__(self, total_pages: int, pagerange: List[Range], reverse: bool, odd: bool, even: bool) -> None:
+    def __init__(
+        self,
+        total_pages: int,
+        pagerange: List[Range],
+        reverse: bool,
+        odd: bool,
+        even: bool,
+    ) -> None:
         self.pages: List[int] = []
         for r in pagerange:
             inc = -1 if r.end < r.start else 1
@@ -174,7 +224,9 @@ class PageList:
             while r.end - currentpg != -inc:
                 if currentpg > total_pages:
                     die(f"page range {r.text} is invalid", 2)
-                if not(odd and (not even) and currentpg % 2 == 0) and not(even and not odd and currentpg % 2 == 1):
+                if not (odd and (not even) and currentpg % 2 == 0) and not (
+                    even and not odd and currentpg % 2 == 1
+                ):
                     self.pages.append(currentpg - 1)
                 currentpg += inc
         if reverse:
@@ -190,11 +242,12 @@ class PageList:
     def num_pages(self) -> int:
         return len(self.pages)
 
+
 class PsDocumentTransform:
     # PStoPS procset
     # Wrap showpage, erasepage and copypage in our own versions.
     # Nullify paper size operators.
-    procset = '''userdict begin
+    procset = """userdict begin
 [/showpage/erasepage/copypage]{dup where{pop dup load
  type/operatortype eq{ /PStoPSenablepage cvx 1 index
  load 1 array astore cvx {} bind /ifelse cvx 4 array
@@ -225,21 +278,35 @@ class PsDocumentTransform:
 /initgraphics{initmatrix newpath initclip 1 setlinewidth
  0 setlinecap 0 setlinejoin []0 setdash 0 setgray
  10 setmiterlimit}bind def
-end'''
+end"""
 
-    def __init__(self, infile: IO[bytes], outfile: IO[bytes], width: Optional[float], height: Optional[float], iwidth: Optional[float], iheight: Optional[float], specs: List[List[PageSpec]], rotate: int, scale: float, draw: float):
+    def __init__(
+        self,
+        infile: IO[bytes],
+        outfile: IO[bytes],
+        width: Optional[float],
+        height: Optional[float],
+        iwidth: Optional[float],
+        iheight: Optional[float],
+        specs: List[List[PageSpec]],
+        rotate: int,
+        scale: float,
+        draw: float,
+    ):
         self.infile, self.outfile = infile, outfile
         self.scale, self.rotate, self.draw = scale, rotate, draw
         self.global_transform = scale != 1.0 or rotate != 0
         self.specs = specs
 
-        self.use_procset = self.global_transform or any(len(page) > 1 or page[0].has_transform() for page in specs)
+        self.use_procset = self.global_transform or any(
+            len(page) > 1 or page[0].has_transform() for page in specs
+        )
 
         self.headerpos: int = 0
         self.pagescmt: int = 0
         self.endsetup: int = 0
-        self.beginprocset: int = 0 # start of pstops procset
-        self.endprocset: int = 0 # end of pstopsprocset
+        self.beginprocset: int = 0  # start of pstops procset
+        self.endprocset: int = 0  # end of pstopsprocset
         self.num_pages: int = 0
         self.sizeheaders: List[int] = []
         self.pageptr: List[int] = []
@@ -254,34 +321,46 @@ end'''
         record, next_record, buffer = 0, 0, None
         for buffer in self.infile:
             next_record += len(buffer)
-            if buffer.startswith(b'%%'):
+            if buffer.startswith(b"%%"):
                 keyword = self.comment_keyword(buffer)
                 if keyword is not None:
-                    if nesting == 0 and keyword == b'Page:':
+                    if nesting == 0 and keyword == b"Page:":
                         self.pageptr.append(record)
-                    elif self.headerpos == 0 and width is not None and \
-                        keyword in [b'BoundingBox:', b'HiResBoundingBox:', b'DocumentPaperSizes:', b'DocumentMedia:']:
+                    elif (
+                        self.headerpos == 0
+                        and width is not None
+                        and keyword
+                        in [
+                            b"BoundingBox:",
+                            b"HiResBoundingBox:",
+                            b"DocumentPaperSizes:",
+                            b"DocumentMedia:",
+                        ]
+                    ):
                         # FIXME: read input paper size (from DocumentMedia comment?) if not
                         # set on command line.
                         self.sizeheaders.append(record)
-                    elif self.headerpos == 0 and keyword == b'Pages:':
+                    elif self.headerpos == 0 and keyword == b"Pages:":
                         self.pagescmt = record
-                    elif self.headerpos == 0 and keyword == b'EndComments':
+                    elif self.headerpos == 0 and keyword == b"EndComments":
                         self.headerpos = next_record
-                    elif keyword in [b'BeginDocument:', b'BeginBinary:', b'BeginFile:']:
+                    elif keyword in [b"BeginDocument:", b"BeginBinary:", b"BeginFile:"]:
                         nesting += 1
-                    elif keyword in [b'EndDocument', b'EndBinary', b'EndFile']:
+                    elif keyword in [b"EndDocument", b"EndBinary", b"EndFile"]:
                         nesting -= 1
-                    elif nesting == 0 and keyword == b'EndSetup':
+                    elif nesting == 0 and keyword == b"EndSetup":
                         self.endsetup = record
-                    elif nesting == 0 and keyword == b'BeginProlog':
+                    elif nesting == 0 and keyword == b"BeginProlog":
                         self.headerpos = next_record
-                    elif nesting == 0 and buffer == b'%%BeginProcSet: PStoPS':
+                    elif nesting == 0 and buffer == b"%%BeginProcSet: PStoPS":
                         self.beginprocset = record
-                    elif self.beginprocset is not None and \
-                        self.endprocset is None and keyword == b'EndProcSet':
+                    elif (
+                        self.beginprocset is not None
+                        and self.endprocset is None
+                        and keyword == b"EndProcSet"
+                    ):
                         self.endprocset = next_record
-                    elif nesting == 0 and keyword in [b'Trailer', b'EOF']:
+                    elif nesting == 0 and keyword in [b"Trailer", b"EOF"]:
                         break
             elif self.headerpos == 0:
                 self.headerpos = record
@@ -302,15 +381,17 @@ end'''
             try:
                 _ = self.infile.readline()
             except IOError:
-                die('I/O error in header', 2)
+                die("I/O error in header", 2)
             if self.width is not None and self.height is not None:
-                self.write(f'%%DocumentMedia: plain {int(self.width)} {int(self.height)} 0 () ()')
-                self.write(f'%%BoundingBox: 0 0 {int(self.width)} {int(self.height)}')
+                self.write(
+                    f"%%DocumentMedia: plain {int(self.width)} {int(self.height)} 0 () ()"
+                )
+                self.write(f"%%BoundingBox: 0 0 {int(self.width)} {int(self.height)}")
             pagesperspec = len(self.specs)
-            self.write(f'%%Pages: {int(maxpage / modulo) * pagesperspec} 0')
+            self.write(f"%%Pages: {int(maxpage / modulo) * pagesperspec} 0")
         self.fcopy(self.headerpos, self.sizeheaders)
         if self.use_procset:
-            self.write(f'%%BeginProcSet: PStoPS 1 15\n{self.procset}')
+            self.write(f"%%BeginProcSet: PStoPS 1 15\n{self.procset}")
             self.write("%%EndProcSet")
 
         # Write prologue to end of setup section, skipping our procset if present
@@ -322,20 +403,30 @@ end'''
 
         # Save transformation from original to current matrix
         if not self.beginprocset and self.use_procset:
-            self.write('''userdict/PStoPSxform PStoPSmatrix matrix currentmatrix
+            self.write(
+                """userdict/PStoPSxform PStoPSmatrix matrix currentmatrix
  matrix invertmatrix matrix concatmatrix
- matrix invertmatrix put''')
+ matrix invertmatrix put"""
+            )
 
         # Write from end of setup to start of pages
         self.fcopy(self.pageptr[0], [])
 
     def write(self, text: str) -> None:
-        self.outfile.write((text + '\n').encode('utf-8'))
+        self.outfile.write((text + "\n").encode("utf-8"))
 
     def write_page_comment(self, pagelabel: str, outputpage: int) -> None:
-        self.write(f'%%Page: ({pagelabel}) {outputpage}')
+        self.write(f"%%Page: ({pagelabel}) {outputpage}")
 
-    def write_page(self, page_list: PageList, outputpage: int, page: List[PageSpec], maxpage: int, modulo: int, pagebase: int) -> None:
+    def write_page(
+        self,
+        page_list: PageList,
+        outputpage: int,
+        page: List[PageSpec],
+        maxpage: int,
+        modulo: int,
+        pagebase: int,
+    ) -> None:
         spec_page_number = 0
         for ps in page:
             page_number = page_index_to_page_number(ps, maxpage, modulo, pagebase)
@@ -346,69 +437,81 @@ end'''
                 self.infile.seek(self.pageptr[p])
                 try:
                     line = self.infile.readline()
-                    assert self.comment_keyword(line) == b'Page:'
+                    assert self.comment_keyword(line) == b"Page:"
                 except IOError:
-                    die(f'I/O error seeking page {p}', 2)
+                    die(f"I/O error seeking page {p}", 2)
             if self.use_procset:
-                self.write('userdict/PStoPSsaved save put')
+                self.write("userdict/PStoPSsaved save put")
             if self.global_transform or ps.has_transform():
-                self.write('PStoPSmatrix setmatrix')
+                self.write("PStoPSmatrix setmatrix")
                 if ps.xoff is not None:
                     self.write(f"{ps.xoff:f} {ps.yoff:f} translate")
                 if ps.rotate != 0:
                     self.write(f"{(ps.rotate + self.rotate) % 360} rotate")
                 if ps.hflip == 1:
                     assert self.iwidth is not None
-                    self.write(f"[ -1 0 0 1 {self.iwidth * ps.scale * self.scale:g} 0 ] concat")
+                    self.write(
+                        f"[ -1 0 0 1 {self.iwidth * ps.scale * self.scale:g} 0 ] concat"
+                    )
                 if ps.vflip == 1:
                     assert self.iheight is not None
-                    self.write(f"[ 1 0 0 -1 0 {self.iheight * ps.scale * self.scale:g} ] concat")
+                    self.write(
+                        f"[ 1 0 0 -1 0 {self.iheight * ps.scale * self.scale:g} ] concat"
+                    )
                 if ps.scale != 1.0:
                     self.write(f"{ps.scale * self.scale:f} dup scale")
-                self.write('userdict/PStoPSmatrix matrix currentmatrix put')
+                self.write("userdict/PStoPSmatrix matrix currentmatrix put")
                 if self.iwidth is not None:
                     # pylint: disable=invalid-unary-operand-type
-                    self.write(f'''userdict/PStoPSclip{{0 0 moveto
+                    self.write(
+                        f"""userdict/PStoPSclip{{0 0 moveto
  {self.iwidth:f} 0 rlineto 0 {self.iheight:f} rlineto {-self.iwidth:f} 0 rlineto
- closepath}}put initclip''')
+ closepath}}put initclip"""
+                    )
                     if self.draw > 0:
-                        self.write(f'gsave clippath 0 setgray {self.draw} setlinewidth stroke grestore')
+                        self.write(
+                            f"gsave clippath 0 setgray {self.draw} setlinewidth stroke grestore"
+                        )
             if spec_page_number < len(page) - 1:
-                self.write('/PStoPSenablepage false def')
-            if self.beginprocset and page_number < page_list.num_pages() and real_page < self.pages():
+                self.write("/PStoPSenablepage false def")
+            if (
+                self.beginprocset
+                and page_number < page_list.num_pages()
+                and real_page < self.pages()
+            ):
                 # Search for page setup
                 while True:
                     try:
                         line = self.infile.readline()
                     except IOError:
-                        die(f'I/O error reading page setup {outputpage}', 2)
-                    if line.startswith(b'PStoPSxform'):
+                        die(f"I/O error reading page setup {outputpage}", 2)
+                    if line.startswith(b"PStoPSxform"):
                         break
                     try:
                         self.write(line.decode())
                     except IOError:
-                        die(f'I/O error writing page setup {outputpage}', 2)
+                        die(f"I/O error writing page setup {outputpage}", 2)
             if not self.beginprocset and self.use_procset:
-                self.write('PStoPSxform concat' )
+                self.write("PStoPSxform concat")
             if page_number < page_list.num_pages() and 0 <= real_page < self.pages():
                 # Write the body of a page
                 self.fcopy(self.pageptr[real_page + 1], [])
             else:
-                self.write('showpage')
+                self.write("showpage")
             if self.use_procset:
-                self.write('PStoPSsaved restore')
+                self.write("PStoPSsaved restore")
             spec_page_number += 1
 
     def finalize(self) -> None:
         # Write trailer
         # pylint: disable=invalid-sequence-index
         self.infile.seek(self.pageptr[self.pages()])
-        shutil.copyfileobj(self.infile, self.outfile) # type: ignore
+        shutil.copyfileobj(self.infile, self.outfile)  # type: ignore
         self.outfile.flush()
 
     # Return comment keyword if `line' is a DSC comment
     def comment_keyword(self, line: bytes) -> Optional[bytes]:
-        m = re.match(b'%%(\\S+)', line)
+        m = re.match(b"%%(\\S+)", line)
         return m[1] if m else None
 
     # Copy input file from current position up to new position to output file,
@@ -424,18 +527,30 @@ end'''
             try:
                 self.infile.readline()
             except IOError:
-                die('I/O error', 2)
+                die("I/O error", 2)
             ignorelist.pop(0)
             here = self.infile.tell()
 
         try:
             self.outfile.write(self.infile.read(upto - here))
         except IOError:
-            die('I/O error', 2)
+            die("I/O error", 2)
 
 
 class PdfDocumentTransform:
-    def __init__(self, infile: IO[bytes], outfile: IO[bytes], width: Optional[float], height: Optional[float], iwidth: Optional[float], iheight: Optional[float], specs: List[List[PageSpec]], rotate: int, scale: float, draw: float):
+    def __init__(
+        self,
+        infile: IO[bytes],
+        outfile: IO[bytes],
+        width: Optional[float],
+        height: Optional[float],
+        iwidth: Optional[float],
+        iheight: Optional[float],
+        specs: List[List[PageSpec]],
+        rotate: int,
+        scale: float,
+        draw: float,
+    ):
         self.infile, self.outfile = infile, outfile
         self.reader = PdfReader(self.infile)
         self.writer = PdfWriter(self.outfile)
@@ -463,10 +578,26 @@ class PdfDocumentTransform:
     def write_page_comment(self, pagelabel: str, outputpage: int) -> None:
         pass
 
-    def write_page(self, page_list: PageList, outputpage: int, page: List[PageSpec], maxpage: int, modulo: int, pagebase: int) -> None: # pylint: disable=unused-argument
+    # pylint: disable=unused-argument
+    def write_page(
+        self,
+        page_list: PageList,
+        outputpage: int,
+        page: List[PageSpec],
+        maxpage: int,
+        modulo: int,
+        pagebase: int,
+    ) -> None:
         page_number = page_index_to_page_number(page[0], maxpage, modulo, pagebase)
         real_page = page_list.real_page(page_number)
-        if len(page) == 1 and not self.global_transform and not page[0].has_transform() and page_number < page_list.num_pages() and 0 <= real_page < len(self.reader.pages) and self.draw == 0:
+        if (
+            len(page) == 1
+            and not self.global_transform
+            and not page[0].has_transform()
+            and page_number < page_list.num_pages()
+            and 0 <= real_page < len(self.reader.pages)
+            and self.draw == 0
+        ):
             self.writer.add_page(self.reader.pages[real_page])
         else:
             # Add a blank page of the correct size to the end of the document
@@ -474,7 +605,9 @@ class PdfDocumentTransform:
             for ps in page:
                 page_number = page_index_to_page_number(ps, maxpage, modulo, pagebase)
                 real_page = page_list.real_page(page_number)
-                if page_number < page_list.num_pages() and 0 <= real_page < len(self.reader.pages):
+                if page_number < page_list.num_pages() and 0 <= real_page < len(
+                    self.reader.pages
+                ):
                     # Calculate input page transformation
                     t = Transformation()
                     if ps.hflip:
@@ -489,7 +622,7 @@ class PdfDocumentTransform:
                         t = t.translate(ps.xoff, ps.yoff)
                     # Merge input page into the output document
                     outpdf_page.merge_transformed_page(self.reader.pages[real_page], t)
-                    if self.draw > 0: # FIXME: draw the line at the requested width
+                    if self.draw > 0:  # FIXME: draw the line at the requested width
                         mediabox = self.reader.pages[real_page].mediabox
                         line = AnnotationBuilder.polyline(
                             vertices=[
@@ -506,27 +639,68 @@ class PdfDocumentTransform:
         self.writer.write(self.outfile)
         self.outfile.flush()
 
+
 @contextmanager
-def documentTransform(infile_name: str, outfile_name: str, width: Optional[float], height: Optional[float], iwidth: Optional[float], iheight: Optional[float], specs: List[List[PageSpec]], rotate: int, scale: float, draw: float) -> Iterator[Union[PdfDocumentTransform, PsDocumentTransform]]:
-    with setup_input_and_output(infile_name, outfile_name) as (infile, file_type, outfile):
-        if file_type in ('.ps', '.eps'):
-            yield PsDocumentTransform(infile, outfile, width, height, iwidth, iheight, specs, rotate, scale, draw)
-        elif file_type == '.pdf':
-            yield PdfDocumentTransform(infile, outfile, width, height, iwidth, iheight, specs, rotate, scale, draw)
+def documentTransform(
+    infile_name: str,
+    outfile_name: str,
+    width: Optional[float],
+    height: Optional[float],
+    iwidth: Optional[float],
+    iheight: Optional[float],
+    specs: List[List[PageSpec]],
+    rotate: int,
+    scale: float,
+    draw: float,
+) -> Iterator[Union[PdfDocumentTransform, PsDocumentTransform]]:
+    with setup_input_and_output(infile_name, outfile_name) as (
+        infile,
+        file_type,
+        outfile,
+    ):
+        if file_type in (".ps", ".eps"):
+            yield PsDocumentTransform(
+                infile,
+                outfile,
+                width,
+                height,
+                iwidth,
+                iheight,
+                specs,
+                rotate,
+                scale,
+                draw,
+            )
+        elif file_type == ".pdf":
+            yield PdfDocumentTransform(
+                infile,
+                outfile,
+                width,
+                height,
+                iwidth,
+                iheight,
+                specs,
+                rotate,
+                scale,
+                draw,
+            )
         else:
             die(f"incompatible file type `{infile_name}'")
 
+
 @contextmanager
-def setup_input_and_output(infile_name: Optional[str], outfile_name: Optional[str]) -> Iterator[Tuple[IO[bytes], str, IO[bytes]]]:
+def setup_input_and_output(
+    infile_name: Optional[str], outfile_name: Optional[str]
+) -> Iterator[Tuple[IO[bytes], str, IO[bytes]]]:
     # Set up input
     infile: Optional[IO[bytes]] = None
     if infile_name is not None:
         try:
-            infile = open(infile_name, 'rb')
+            infile = open(infile_name, "rb")
         except IOError:
-            die(f'cannot open input file {infile_name}')
+            die(f"cannot open input file {infile_name}")
     else:
-        infile = os.fdopen(sys.stdin.fileno(), 'rb', closefd=False)
+        infile = os.fdopen(sys.stdin.fileno(), "rb", closefd=False)
 
     # Find MIME type of input
     data = infile.read(16)
@@ -538,11 +712,11 @@ def setup_input_and_output(infile_name: Optional[str], outfile_name: Optional[st
     # Set up output
     if outfile_name is not None:
         try:
-            outfile = open(outfile_name, 'wb')
+            outfile = open(outfile_name, "wb")
         except IOError:
-            die(f'cannot open output file {outfile_name}')
+            die(f"cannot open output file {outfile_name}")
     else:
-        outfile = os.fdopen(sys.stdout.fileno(), 'wb', closefd=False)
+        outfile = os.fdopen(sys.stdout.fileno(), "wb", closefd=False)
 
     # Context manager
     try:
@@ -551,20 +725,28 @@ def setup_input_and_output(infile_name: Optional[str], outfile_name: Optional[st
         infile.close()
         outfile.close()
 
+
 # Resource extensions
 def extn(ext: bytes) -> bytes:
-    exts = {b'font': b'.pfa', b'file': b'.ps', b'procset': b'.ps',
-            b'pattern': b'.pat', b'form': b'.frm', b'encoding': b'.enc'}
-    return exts.get(ext, b'')
+    exts = {
+        b"font": b".pfa",
+        b"file": b".ps",
+        b"procset": b".ps",
+        b"pattern": b".pat",
+        b"form": b".frm",
+        b"encoding": b".enc",
+    }
+    return exts.get(ext, b"")
+
 
 # Resource filename
-def filename(*components: bytes) -> bytes: # make filename for resource in 'components'
-    name = b''
-    for c in components: # sanitise name
+def filename(*components: bytes) -> bytes:  # make filename for resource in 'components'
+    name = b""
+    for c in components:  # sanitise name
         c_str = c.decode()
-        c_str = re.sub(r'[!()\$\#*&\\\|\`\'\"\~\{\}\[\]\<\>\?]', '', c_str)
+        c_str = re.sub(r"[!()\$\#*&\\\|\`\'\"\~\{\}\[\]\<\>\?]", "", c_str)
         name += c_str.encode()
-    name = os.path.basename(name) # drop directories
-    if name == b'':
+    name = os.path.basename(name)  # drop directories
+    if name == b"":
         die(f'filename not found for resource {b" ".join(components).decode()}', 2)
     return name

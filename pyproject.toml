@@ -75,7 +75,6 @@ disable = [
     "missing-module-docstring",
     "missing-class-docstring",
     "missing-function-docstring",
-    "line-too-long",
     "fixme",
     "too-many-locals",
     "too-many-arguments",
