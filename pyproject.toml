@@ -84,8 +84,6 @@ disable = [
     "missing-module-docstring",
     "missing-class-docstring",
     "missing-function-docstring",
-    "singleton-comparison",
-    "consider-using-enumerate",
     "line-too-long",
     "wrong-import-order",
     "ungrouped-imports",

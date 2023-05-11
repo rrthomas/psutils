@@ -151,7 +151,7 @@ def join_ps(args: argparse.Namespace) -> None:
             trailer[i] = re.sub('^%%', '% %%', trailer[i], flags=re.MULTILINE)
 
     total_pages = 0
-    for i in range(len(args.file)):
+    for i, file in enumerate(args.file):
         print(f'% psjoin: file: {files[i]}')
         if i not in prolog or prolog[i] != prolog[prolog_inx]:
             print('% psjoin: Prolog/Trailer will be inserted in each page')
@@ -166,7 +166,7 @@ def join_ps(args: argparse.Namespace) -> None:
         file_pages = 0
 
         try:
-            fh = open(args.file[i])
+            fh = open(file)
         except IOError as e:
             die(f"can't open file `{file[i]}': {e}")
         for line in fh:

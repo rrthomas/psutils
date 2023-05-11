@@ -86,7 +86,7 @@ def epsffit(argv: List[str]=sys.argv[1:]) -> None: # pylint: disable=dangerous-d
         else:
             break
 
-    if bbfound == False:
+    if bbfound is False:
         die('no %%BoundingBox:', 2)
 
     # Write bounding box, followed by scale & translate
