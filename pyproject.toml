@@ -65,6 +65,9 @@ strict = true
 # Use multiple processes to speed up Pylint: 0 = auto-detect.
 jobs = 0
 
+[tool.pylint.MASTER]
+init-hook = 'import sys; sys.path.append(".")'
+
 [tool.pylint.format]
 # Disable the message, report, category or checker with the given id(s).
 disable = [
