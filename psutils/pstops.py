@@ -3,7 +3,7 @@ import argparse
 import re
 import sys
 import warnings
-from typing import List, NoReturn, Optional
+from typing import List, NoReturn, Optional, Tuple
 
 from psutils import (
     HelpFormatter, die, parsepaper, parsedraw,
@@ -20,8 +20,6 @@ Released under the GPL version 3, or (at your option) any later version.
 '''
 
 # Globals
-flipping = False # any spec includes page flip
-modulo = 1
 scale = 1.0 # global scale factor
 rotate = 0 # global rotation
 
@@ -33,8 +31,8 @@ def specerror() -> NoReturn:
   SPEC      = [-]PAGENO[@SCALE][L|R|U|H|V][(XOFF,YOFF)][,SPEC|+SPEC]
               MODULO >= 1; 0 <= PAGENO < MODULO''')
 
-def parsespecs(s: str, width: Optional[float], height: Optional[float]) -> List[List[PageSpec]]:
-    global modulo, flipping
+def parsespecs(s: str, width: Optional[float], height: Optional[float]) -> Tuple[List[List[PageSpec]], int, bool]:
+    flipping = False
     m = re.match(r'(?:([^:]+):)?(.*)', s)
     if not m:
         specerror()
@@ -80,7 +78,7 @@ def parsespecs(s: str, width: Optional[float], height: Optional[float]) -> List[
                 flipping = True
             specs.append(spec)
         pages.append(specs)
-    return pages
+    return pages, modulo, flipping
 
 def parserange(ranges_text: str) -> List[Range]:
     ranges = []
@@ -162,7 +160,7 @@ def pstops(argv: List[str]=sys.argv[1:]) -> None: # pylint: disable=dangerous-de
         width, height = args.paper
     if args.inpaper:
         iwidth, iheight = args.inpaper
-    specs = parsespecs(args.specs, width, height)
+    specs, modulo, flipping = parsespecs(args.specs, width, height)
 
     if (width is None) ^ (height is None):
         die('output page width and height must both be set, or neither')
