@@ -62,60 +62,60 @@ def join_pdf(args: argparse.Namespace) -> None:
     sys.stdout.buffer.flush()
 
 def join_ps(args: argparse.Namespace) -> None:
-    save = 'save %psjoin\n'
-    restore = 'restore %psjoin\n'
+    save = b'save %psjoin\n'
+    restore = b'restore %psjoin\n'
 
     if args.save:
-        save = '/#psjoin-save# save def %psjoin\n'
-        restore = '#psjoin-save# restore %psjoin\n'
+        save = b'/#psjoin-save# save def %psjoin\n'
+        restore = b'#psjoin-save# restore %psjoin\n'
 
     prolog, prolog_inx, trailer, comments, pages = {}, None, {}, {}, {}
     if args.nostrip:
         prolog_inx = -1
-        prolog[prolog_inx] = "% psjoin: don't strip\n"
-        trailer[prolog_inx] = "% psjoin: don't strip\n"
-        comments[prolog_inx] = ''
+        prolog[prolog_inx] = b"% psjoin: don't strip\n"
+        trailer[prolog_inx] = b"% psjoin: don't strip\n"
+        comments[prolog_inx] = b''
     else:
         for i, file in enumerate(args.file):
             try:
-                fh = open(file)
+                fh = open(file, 'rb')
             except IOError as e:
                 die(f"can't open file `{file}': {e}")
             with fh:
                 in_comment = True
                 in_prolog = True
                 in_trailer = False
-                comments[i] = ''
-                prolog[i] = ''
-                trailer[i] = ''
+                comments[i] = b''
+                prolog[i] = b''
+                trailer[i] = b''
                 pages[i] = 0
                 for line in fh:
-                    if line.startswith('%%BeginDocument'):
-                        while not fh.readline().startswith('%%EndDocument'):
+                    if line.startswith(b'%%BeginDocument'):
+                        while not fh.readline().startswith(b'%%EndDocument'):
                             pass
 
                     if in_comment:
-                        if line.startswith('%!PS-Adobe-') or line.startswith('%%Title') or \
-                        line.startswith('%%Pages') or line.startswith('%%Creator'):
+                        if line.startswith(b'%!PS-Adobe-') or line.startswith(b'%%Title') or \
+                        line.startswith(b'%%Pages') or line.startswith(b'%%Creator'):
                             continue
-                        if line.startswith('%%EndComments'):
+                        if line.startswith(b'%%EndComments'):
                             in_comment = False
                         comments[i] += line
                         continue
                     if in_prolog:
-                        if line.startswith('%%Page:'):
+                        if line.startswith(b'%%Page:'):
                             in_prolog = False
                         else:
                             prolog[i] += line
                             continue
 
-                    if line.startswith('%%Trailer'):
+                    if line.startswith(b'%%Trailer'):
                         in_trailer = True
                     if in_trailer:
                         trailer[i] += line
                         continue
 
-                    if line.startswith('%%Page:'):
+                    if line.startswith(b'%%Page:'):
                         pages[i] += 1
 
             if prolog[i]:
@@ -134,26 +134,26 @@ def join_ps(args: argparse.Namespace) -> None:
 
     files = list(map(str, map(os.path.basename, args.file)))
 
-    print(f'''\
+    sys.stdout.buffer.write(b'''\
 %!PS-Adobe-3.0
-%%Title: {' '.join(files)}
+%%Title: ''' + b' '.join([file.encode('utf-8') for file in files]) + b'''
 %%Creator: psjoin (from PSUtils)
-%%Pages: (atend)''')
-    print(comments[prolog_inx], end='')
+%%Pages: (atend)\n''')
+    sys.stdout.buffer.write(comments[prolog_inx])
 
-    print(f'\n{prolog[prolog_inx]}', end='')
+    sys.stdout.buffer.write(b'\n' + prolog[prolog_inx])
     for i in range(len(args.file)):
         if i in prolog and prolog[i]:
-            prolog[i] = re.sub('^%%', '% %%', prolog[i], flags=re.MULTILINE)
-            trailer[i] = re.sub('^%%', '% %%', trailer[i], flags=re.MULTILINE)
+            prolog[i] = re.sub(b'^%%', b'% %%', prolog[i], flags=re.MULTILINE)
+            trailer[i] = re.sub(b'^%%', b'% %%', trailer[i], flags=re.MULTILINE)
 
     total_pages = 0
     for i, file in enumerate(args.file):
-        print(f'% psjoin: file: {files[i]}')
+        sys.stdout.buffer.write(b'% psjoin: file: ' + files[i].encode('utf-8') + b'\n')
         if i not in prolog or prolog[i] != prolog[prolog_inx]:
-            print('% psjoin: Prolog/Trailer will be inserted in each page')
+            sys.stdout.buffer.write(b'% psjoin: Prolog/Trailer will be inserted in each page\n')
         else:
-            print('% psjoin: common Prolog/Trailer will be used')
+            sys.stdout.buffer.write(b'% psjoin: common Prolog/Trailer will be used\n')
 
         in_document = False
         in_comment = not args.nostrip
@@ -163,68 +163,68 @@ def join_ps(args: argparse.Namespace) -> None:
         file_pages = 0
 
         try:
-            fh = open(file)
+            fh = open(file, 'rb')
         except IOError as e:
             die(f"can't open file `{file[i]}': {e}")
         with fh:
             for line in fh:
-                if line.startswith('%%BeginDocument'):
+                if line.startswith(b'%%BeginDocument'):
                     in_document = True
-                elif line.startswith('%%EndDocument'):
+                elif line.startswith(b'%%EndDocument'):
                     in_document = False
                 if in_document:
                     # s/^(%[%!])/% \1/
-                    print(line, end='')
+                    sys.stdout.buffer.write(line)
                 else:
                     if in_comment:
-                        if line.startswith('%%EndComments'):
+                        if line.startswith(b'%%EndComments'):
                             in_comment = False
                     elif in_prolog:
-                        if line.startswith('%%Page:'):
+                        if line.startswith(b'%%Page:'):
                             in_prolog = False
                         else:
                             continue
-                    if not args.nostrip and line.startswith('%%Trailer'):
+                    if not args.nostrip and line.startswith(b'%%Trailer'):
                         in_trailer = True
                     if in_trailer:
                         continue
 
-                    if line.startswith('%%Page:'):
+                    if line.startswith(b'%%Page:'):
                         if saved:
-                            print(trailer[i], end='')
-                            print(restore, end='')
+                            sys.stdout.buffer.write(trailer[i])
+                            sys.stdout.buffer.write(restore)
                             saved = False
 
                         file_pages += 1
                         total_pages += 1
-                        print(f'\n%%Page: ({i}-{file_pages}) {total_pages}')
+                        sys.stdout.buffer.write(f'\n%%Page: ({i}-{file_pages}) {total_pages}\n'.encode('utf-8'))
                         if i not in prolog or prolog[i] != prolog[prolog_inx]:
-                            print(save, end='')
+                            sys.stdout.buffer.write(save)
                             if i in prolog:
-                                print(prolog[i], end='')
+                                sys.stdout.buffer.write(prolog[i] + b'\n')
                             saved = True
                         elif args.save:
-                            print(save, end='')
+                            sys.stdout.buffer.write(save)
                     else:
-                        print(re.sub(r'^(%[%!])', r'% \1', line), end='')
+                        sys.stdout.buffer.write(re.sub(rb'^(%[%!])', rb'% \1', line))
 
         if args.even and file_pages % 2 != 0:
             file_pages += 1
             total_pages += 1
-            print (f'''\
+            sys.stdout.buffer.write(f'''\
 
 %%Page: ({i}-E) {total_pages}
 % psjoin: empty page inserted to force even pages
-showpage''')
+showpage\n'''.encode('utf-8'))
 
         if i in trailer and saved:
-            print(trailer[i], end='')
+            sys.stdout.buffer.write(trailer[i])
         if saved or args.save:
-            print(restore, end='')
+            sys.stdout.buffer.write(restore)
 
-    print('\n%%Trailer')
-    print(trailer[prolog_inx], end='')
-    print(f'\n%%Pages: {total_pages}\n%%EOF', end='')
+    sys.stdout.buffer.write(b'\n%%Trailer\n')
+    sys.stdout.buffer.write(trailer[prolog_inx])
+    sys.stdout.buffer.write(f'\n%%Pages: {total_pages}\n%%EOF'.encode('utf-8'))
 
 def normalize_types(types: List[str]) -> List[str]:
     normalized_types = []
