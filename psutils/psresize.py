@@ -45,6 +45,12 @@ pstops(1) for more details.
     parser.add_argument('outfile', metavar='OUTFILE', nargs='?',
                         help="`-' or no OUTFILE argument means standard output")
 
+    # Backwards compatibility
+    parser.add_argument('-w', '--width', help=argparse.SUPPRESS)
+    parser.add_argument('-h', '--height', help=argparse.SUPPRESS)
+    parser.add_argument('-W', '--inwidth', help=argparse.SUPPRESS)
+    parser.add_argument('-H', '--inheight', help=argparse.SUPPRESS)
+
     return parser
 
 def psresize(argv: List[str]=sys.argv[1:]) -> None: # pylint: disable=dangerous-default-value
@@ -54,6 +60,14 @@ def psresize(argv: List[str]=sys.argv[1:]) -> None: # pylint: disable=dangerous-
     cmd = ['-1']
     if not args.verbose:
         cmd.append('--quiet')
+    if args.width:
+        cmd.extend(['--width', args.width])
+    if args.height:
+        cmd.extend(['--width', args.height])
+    if args.inwidth:
+        cmd.extend(['--inwidth', args.inwidth])
+    if args.inheight:
+        cmd.extend(['--inheight', args.inheight])
     if args.paper:
         cmd.extend(['--paper', args.paper])
     if args.inpaper:

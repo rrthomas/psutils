@@ -101,6 +101,12 @@ default is no line]''')
     parser.add_argument('outfile', metavar='OUTFILE', nargs='?',
                         help="`-' or no OUTFILE argument means standard output")
 
+    # Backwards compatibility
+    parser.add_argument('-w', '--width', type=parsedimen, help=argparse.SUPPRESS)
+    parser.add_argument('-h', '--height', type=parsedimen, help=argparse.SUPPRESS)
+    parser.add_argument('-W', '--inwidth', type=parsedimen, help=argparse.SUPPRESS)
+    parser.add_argument('-H', '--inheight', type=parsedimen, help=argparse.SUPPRESS)
+
     return parser
 
 def psnup(argv: List[str]=sys.argv[1:]) -> None: # pylint: disable=dangerous-default-value
@@ -111,8 +117,12 @@ def psnup(argv: List[str]=sys.argv[1:]) -> None: # pylint: disable=dangerous-def
     iheight: Optional[float] = None
     if args.paper:
         width, height = args.paper
+    elif args.width is not None and args.height is not None:
+        width, height = args.width, args.height
     if args.inpaper:
         iwidth, iheight = args.inpaper
+    elif args.inwidth is not None and args.inheight is not None:
+        iwidth, iheight = args.inwidth, args.inheight
 
     # Process command-line arguments
     rowmajor, leftright, topbottom = True, True, True

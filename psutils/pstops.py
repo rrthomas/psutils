@@ -6,7 +6,7 @@ import warnings
 from typing import List, NoReturn, Optional, Tuple
 
 from psutils import (
-    HelpFormatter, die, parsepaper, parsedraw,
+    HelpFormatter, die, parsepaper, parsedraw, parsedimen,
     singledimen, simple_warning, PageSpec, Range, PageList, page_index_to_page_number,
     documentTransform,
 )
@@ -148,6 +148,12 @@ default is no line]''')
     parser.add_argument('outfile', metavar='OUTFILE', nargs='?',
                         help="`-' or no OUTFILE argument means standard output")
 
+    # Backwards compatibility
+    parser.add_argument('-w', '--width', type=parsedimen, help=argparse.SUPPRESS)
+    parser.add_argument('-h', '--height', type=parsedimen, help=argparse.SUPPRESS)
+    parser.add_argument('-W', '--inwidth', type=parsedimen, help=argparse.SUPPRESS)
+    parser.add_argument('-H', '--inheight', type=parsedimen, help=argparse.SUPPRESS)
+
     return parser
 
 def pstops(argv: List[str]=sys.argv[1:]) -> None: # pylint: disable=dangerous-default-value
@@ -158,14 +164,17 @@ def pstops(argv: List[str]=sys.argv[1:]) -> None: # pylint: disable=dangerous-de
     iheight: Optional[float] = None
     if args.paper:
         width, height = args.paper
+    elif args.width is not None and args.height is not None:
+        width, height = args.width, args.height
+        if (width is None) ^ (height is None):
+            die('output page width and height must both be set, or neither')
     if args.inpaper:
         iwidth, iheight = args.inpaper
+    elif args.inwidth is not None and args.inheight is not None:
+        iwidth, iheight = args.inwidth, args.inheight
+        if (iwidth is None) ^ (iheight is None):
+            die('input page width and height must both be set, or neither')
     specs, modulo, flipping = parsespecs(args.specs, width, height)
-
-    if (width is None) ^ (height is None):
-        die('output page width and height must both be set, or neither')
-    if (iwidth is None) ^ (iheight is None):
-        die('input page width and height must both be set, or neither')
 
     with documentTransform(args.infile, args.outfile, width, height, iwidth, iheight, specs, rotate, scale, args.draw) as doc:
         if doc.iwidth is None and flipping:
