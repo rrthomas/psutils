@@ -3,8 +3,8 @@
 .B psbook
 uses
 .B pstops
-to rearrange pages from a PostScript document into \[oq]signatures\[cq] for
-printing books or booklets, creating a new PostScript file.
+to rearrange pages from a PDF or PostScript document into \[oq]signatures\[cq] for
+printing books or booklets, creating a new file.
 A \[oq]signature\[cq], often called a \[oq]section\[cq] in bookbinding, is a
 series of sheets that are folded together to be stitched into the book's
 binding. Each sheet has two pages per side; the number of pages in a

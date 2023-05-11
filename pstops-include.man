@@ -1,5 +1,5 @@
-/Rearrange pages of a PostScript document/
-The input PostScript file should follow the Adobe Document Structuring
+/Rearrange pages of a PDF or PostScript document/
+PostScript files should follow the Adobe Document Structuring
 Conventions.
 .PP
 .I Pstops

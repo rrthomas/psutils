@@ -11,4 +11,4 @@ for the available units.
 [EXAMPLES]
 The following command converts a document from A4 size to US Letter paper:
 .sp
-psresize -PA4 -pletter in.ps out.ps
+psresize -PA4 -pletter in.pdf out.pdf
