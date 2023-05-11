@@ -4,8 +4,8 @@ from typing import Tuple
 from pytest import mark, CaptureFixture
 
 from testutils import file_test, compare
-from psutils.extractres import main as extractres
-from psutils.includeres import main as includeres
+from psutils.extractres import extractres
+from psutils.includeres import includeres
 
 FIXTURE_DIR = Path(__file__).parent.resolve() / 'test-files'
 

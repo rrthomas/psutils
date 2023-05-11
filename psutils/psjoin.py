@@ -49,7 +49,7 @@ The --save and --nostrip options only apply to PostScript files.
 
     return parser
 
-def pdfjoin(args: argparse.Namespace) -> None:
+def join_pdf(args: argparse.Namespace) -> None:
     # Merge input files
     out_pdf = PdfWriter()
     for file in args.file:
@@ -62,7 +62,7 @@ def pdfjoin(args: argparse.Namespace) -> None:
     out_pdf.write(sys.stdout.buffer)
     sys.stdout.buffer.flush()
 
-def psjoin(args: argparse.Namespace) -> None:
+def join_ps(args: argparse.Namespace) -> None:
     save = 'save %psjoin\n'
     restore = 'restore %psjoin\n'
 
@@ -239,7 +239,7 @@ def normalize_types(types: List[str]) -> List[str]:
             normalized_types.append(t)
     return normalized_types
 
-def main(argv: List[str]=sys.argv[1:]) -> None: # pylint: disable=dangerous-default-value
+def psjoin(argv: List[str]=sys.argv[1:]) -> None: # pylint: disable=dangerous-default-value
     args = get_parser().parse_intermixed_args(argv)
 
     # Check types of files
@@ -250,11 +250,11 @@ def main(argv: List[str]=sys.argv[1:]) -> None: # pylint: disable=dangerous-defa
 
     # Process the files
     if types[0] == '.pdf':
-        pdfjoin(args)
+        join_pdf(args)
     elif types[0] == '.ps':
-        psjoin(args)
+        join_ps(args)
     else:
         die(f"unknown file type `{types[0]}'")
 
 if __name__ == '__main__':
-    main()
+    psjoin()

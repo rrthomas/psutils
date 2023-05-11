@@ -56,7 +56,7 @@ def get_parser() -> argparse.ArgumentParser:
                         help="`-' or no OUTFILE argument means standard output")
     return parser
 
-def main(argv: List[str]=sys.argv[1:]) -> None: # pylint: disable=dangerous-default-value
+def epsffit(argv: List[str]=sys.argv[1:]) -> None: # pylint: disable=dangerous-default-value
     args = get_parser().parse_intermixed_args(argv)
 
     urx, ury, llx, lly = 0, 0, 0, 0
@@ -142,4 +142,4 @@ def main(argv: List[str]=sys.argv[1:]) -> None: # pylint: disable=dangerous-defa
 
 
 if __name__ == '__main__':
-    main()
+    epsffit()

@@ -17,7 +17,7 @@ from typing import Any, List, Optional, Sequence, Tuple, Union
 from psutils import (
     HelpFormatter, die, paper_size, parsedimen, parsedraw, parsepaper, simple_warning,
 )
-from psutils.pstops import main as pstops
+from psutils.pstops import pstops
 
 def parsenup(s: str) -> int:
     if not re.match(r'-\d+', s):
@@ -104,7 +104,7 @@ default is no line]''')
 
     return parser
 
-def main(argv: List[str]=sys.argv[1:]) -> None: # pylint: disable=dangerous-default-value
+def psnup(argv: List[str]=sys.argv[1:]) -> None: # pylint: disable=dangerous-default-value
     args = get_parser().parse_intermixed_args(argv)
     width: Optional[float] = None
     height: Optional[float] = None
@@ -248,4 +248,4 @@ def main(argv: List[str]=sys.argv[1:]) -> None: # pylint: disable=dangerous-defa
 
 
 if __name__ == '__main__':
-    main()
+    psnup()

@@ -39,7 +39,7 @@ def get_parser() -> argparse.ArgumentParser:
                         help="`-' or no OUTFILE argument means standard output")
     return parser
 
-def main(argv: List[str]=sys.argv[1:]) -> None: # pylint: disable=dangerous-default-value
+def includeres(argv: List[str]=sys.argv[1:]) -> None: # pylint: disable=dangerous-default-value
     args = get_parser().parse_intermixed_args(argv)
 
     infile, file_type, outfile = setup_input_and_output(args.infile, args.outfile)
@@ -65,4 +65,4 @@ def main(argv: List[str]=sys.argv[1:]) -> None: # pylint: disable=dangerous-defa
 
 
 if __name__ == '__main__':
-    main()
+    includeres()

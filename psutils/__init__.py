@@ -20,8 +20,6 @@ import puremagic # type: ignore
 from pypdf import PdfReader, PdfWriter, Transformation
 from pypdf.generic import AnnotationBuilder
 
-import __main__
-
 # Help output
 # Adapted from https://stackoverflow.com/questions/23936145/python-argparse-help-message-disable-metavar-for-short-options
 class HelpFormatter(argparse.RawTextHelpFormatter):

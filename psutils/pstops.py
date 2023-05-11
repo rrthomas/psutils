@@ -153,7 +153,7 @@ default is no line]''')
 
     return parser
 
-def main(argv: List[str]=sys.argv[1:]) -> None: # pylint: disable=dangerous-default-value
+def pstops(argv: List[str]=sys.argv[1:]) -> None: # pylint: disable=dangerous-default-value
     global modulo
 
     args = get_parser().parse_intermixed_args(argv)
@@ -229,4 +229,4 @@ def main(argv: List[str]=sys.argv[1:]) -> None: # pylint: disable=dangerous-defa
 
 
 if __name__ == '__main__':
-    main()
+    pstops()

@@ -16,7 +16,7 @@ from typing import List
 from psutils import (
     HelpFormatter, die, simple_warning, documentTransform,
 )
-from psutils.pstops import main as pstops
+from psutils.pstops import pstops
 
 def get_parser() -> argparse.ArgumentParser:
     # Command-line arguments
@@ -50,7 +50,7 @@ otherwise, a multiple of 4''')
                         help="`-' or no OUTFILE argument means standard output")
     return parser
 
-def main(argv: List[str]=sys.argv[1:]) -> None: # pylint: disable=dangerous-default-value
+def psbook(argv: List[str]=sys.argv[1:]) -> None: # pylint: disable=dangerous-default-value
     args = get_parser().parse_intermixed_args(argv)
 
     if args.signature > 1 and args.signature % 4 != 0:
@@ -100,4 +100,4 @@ def main(argv: List[str]=sys.argv[1:]) -> None: # pylint: disable=dangerous-defa
 
 
 if __name__ == '__main__':
-    main()
+    psbook()

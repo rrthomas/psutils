@@ -4,7 +4,7 @@ from typing import List, Tuple
 from pytest import mark, param, CaptureFixture
 
 from testutils import file_test
-from psutils.psresize import main as psresize
+from psutils.psresize import psresize
 
 FIXTURE_DIR = Path(__file__).parent.resolve() / 'test-files'
 

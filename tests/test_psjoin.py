@@ -4,7 +4,7 @@ from typing import List, Tuple
 from pytest import mark, CaptureFixture
 
 from testutils import compare_str, compare_bytes
-from psutils.psjoin import main as psjoin
+from psutils.psjoin import psjoin
 
 FIXTURE_DIR = Path(__file__).parent.resolve() / 'test-files'
 

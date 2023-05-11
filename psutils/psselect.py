@@ -14,7 +14,7 @@ import warnings
 from typing import List
 
 from psutils import HelpFormatter, die, simple_warning
-from psutils.pstops import main as pstops
+from psutils.pstops import pstops
 
 def get_parser() -> argparse.ArgumentParser:
     # Command-line arguments
@@ -54,7 +54,7 @@ pstops(1) for more details.
 
     return parser
 
-def main(argv: List[str]=sys.argv[1:]) -> None: # pylint: disable=dangerous-default-value
+def psselect(argv: List[str]=sys.argv[1:]) -> None: # pylint: disable=dangerous-default-value
     args = get_parser().parse_intermixed_args(argv)
 
     # Rearrange the pages
@@ -91,4 +91,4 @@ def main(argv: List[str]=sys.argv[1:]) -> None: # pylint: disable=dangerous-defa
 
 
 if __name__ == '__main__':
-    main()
+    psselect()
