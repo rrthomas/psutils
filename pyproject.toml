@@ -1,5 +1,5 @@
 [build-system]
-requires = ["argparse-manpage[setuptools] @ git+https://github.com/rrthomas/argparse-manpage.git"]
+requires = ["argparse-manpage[setuptools] @ git+https://github.com/praiskup/argparse-manpage.git"]
 
 [tool.mypy]
 exclude = [

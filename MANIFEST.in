@@ -1,4 +1,4 @@
-include *.1
+include psutils.1
 include man-include.man
 include pstops-include.man
 include psbook-include.man

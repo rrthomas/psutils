@@ -59,7 +59,7 @@ def file_test(function: Callable[[List[str]], None], capsys: CaptureFixture[str]
     full_args = [*args, str(test_file.with_suffix(file_type)), str(output_file)]
     with pushd(datafiles):
         if expected_error is None:
-            assert expected_file
+            assert expected_file is not None
             function(full_args)
             comparer = compare if file_type == '.ps' else compare_binary
             comparer(output_file, expected_file.with_suffix(file_type))
