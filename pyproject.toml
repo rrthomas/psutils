@@ -10,7 +10,6 @@ readme = "README.md"
 urls = {home_page = "https://github.com/rrthomas/psutils"}
 requires-python = ">= 3.9"
 dependencies = [
-    "chainstream",
     "puremagic",
     "pypdf >= 3.8.0",
 ]
@@ -34,7 +33,6 @@ pstops = "psutils.pstops:pstops"
 requires = [
     "argparse-manpage[setuptools] @ git+https://github.com/praiskup/argparse-manpage.git",
     "pytest-datafiles",
-    "chainstream",
     "puremagic",
     "pypdf >= 3.8.0",
 ]

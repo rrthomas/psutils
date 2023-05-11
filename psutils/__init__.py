@@ -7,7 +7,6 @@ import os
 import sys
 import argparse
 import shutil
-import tempfile
 import subprocess
 import re
 from warnings import warn
@@ -15,7 +14,6 @@ from typing import (
     Callable, List, Tuple, Optional, Union, Type, NoReturn, IO, TextIO,
 )
 
-from chainstream import ChainStream
 import puremagic # type: ignore
 from pypdf import PdfReader, PdfWriter, Transformation
 from pypdf.generic import AnnotationBuilder
@@ -508,7 +506,7 @@ class PdfDocumentTransform:
         self.outfile.flush()
 
 def documentTransform(infile_name: str, outfile_name: str, width: Optional[float], height: Optional[float], iwidth: Optional[float], iheight: Optional[float], specs: List[List[PageSpec]], rotate: int, scale: float, draw: float) -> Union[PdfDocumentTransform, PsDocumentTransform]:
-    infile, file_type, outfile = setup_input_and_output(infile_name, outfile_name, True)
+    infile, file_type, outfile = setup_input_and_output(infile_name, outfile_name)
     if file_type in ('.ps', '.eps'):
         return PsDocumentTransform(infile, outfile, width, height, iwidth, iheight, specs, rotate, scale, draw)
     if file_type == '.pdf':
@@ -516,7 +514,7 @@ def documentTransform(infile_name: str, outfile_name: str, width: Optional[float
     die(f"incompatible file type `{infile_name}'")
 
 # Set up input and output files
-def setup_input_and_output(infile_name: Optional[str], outfile_name: Optional[str], make_seekable: bool = False) -> Tuple[IO[bytes], str, IO[bytes]]:
+def setup_input_and_output(infile_name: Optional[str], outfile_name: Optional[str]) -> Tuple[IO[bytes], str, IO[bytes]]:
     # Set up input
     infile: Optional[IO[bytes]] = None
     if infile_name is not None:
@@ -530,17 +528,9 @@ def setup_input_and_output(infile_name: Optional[str], outfile_name: Optional[st
     # Find MIME type of input
     data = infile.read(16)
     file_type = puremagic.from_string(data)
-    infile = io.BufferedReader(ChainStream([io.BytesIO(data), infile]))
 
-    # Make input seekable if required
-    if make_seekable and not infile.seekable():
-        try:
-            ft = tempfile.TemporaryFile()
-            shutil.copyfileobj(infile, ft) # type: ignore
-            ft.seek(0)
-            infile = ft
-        except IOError:
-            die('cannot make input seekable')
+    # Slurp infile into a seekable BytesIO
+    infile = io.BytesIO(data + infile.read())
 
     # Set up output
     if outfile_name is not None:
