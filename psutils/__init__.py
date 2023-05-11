@@ -144,14 +144,15 @@ def parsedraw(s: str) -> float:
     return parsedimen(s or '1')
 
 class PageSpec:
-    reversed: bool = False
-    pageno: int = 0
-    rotate: int = 0
-    hflip: bool = False
-    vflip: bool = False
-    scale: float = 1.0
-    xoff: float = 0.0
-    yoff: float = 0.0
+    def __init__(self) -> None:
+        self.reversed: bool = False
+        self.pageno: int = 0
+        self.rotate: int = 0
+        self.hflip: bool = False
+        self.vflip: bool = False
+        self.scale: float = 1.0
+        self.xoff: float = 0.0
+        self.yoff: float = 0.0
 
     def has_transform(self) -> bool:
         return self.rotate != 0 or self.hflip or self.vflip or self.scale != 1.0 or self.xoff != 0.0 or self.yoff != 0.0
@@ -160,9 +161,10 @@ def page_index_to_page_number(ps: PageSpec, maxpage: int, modulo: int, pagebase:
     return (maxpage - pagebase - modulo if ps.reversed else pagebase) + ps.pageno
 
 class Range:
-    start: int
-    end: int
-    text: str
+    def __init__(self) -> None:
+        self.start: int
+        self.end: int
+        self.text: str
 
 class PageList:
     def __init__(self, total_pages: int, pagerange: List[Range], reverse: bool, odd: bool, even: bool) -> None:
