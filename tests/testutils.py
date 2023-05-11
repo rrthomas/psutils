@@ -17,7 +17,7 @@ def pushd(path: os.PathLike[str]) -> Iterator[None]:
     finally:
         os.chdir(old_dir)
 
-def compare(output_file: os.PathLike[str], expected_file: os.PathLike[str]) -> None:
+def compare_text_files(output_file: os.PathLike[str], expected_file: os.PathLike[str]) -> None:
     with ExitStack() as stack:
         out_fd = stack.enter_context(open(output_file))
         exp_fd = stack.enter_context(open(expected_file))
@@ -28,7 +28,7 @@ def compare(output_file: os.PathLike[str], expected_file: os.PathLike[str]) -> N
             sys.stdout.writelines(diff)
             raise ValueError('test output does not match expected output')
 
-def compare_binary(output_file: os.PathLike[str], expected_file: os.PathLike[str]) -> None:
+def compare_binary_files(output_file: os.PathLike[str], expected_file: os.PathLike[str]) -> None:
     with ExitStack() as stack:
         out_fd = stack.enter_context(open(output_file, 'rb'))
         exp_fd = stack.enter_context(open(expected_file, 'rb'))
@@ -37,15 +37,15 @@ def compare_binary(output_file: os.PathLike[str], expected_file: os.PathLike[str
         if output != expected:
             raise ValueError('test output does not match expected output')
 
-def compare_str(output: str, output_file: os.PathLike[str], expected_file: os.PathLike[str]) -> None:
+def compare_strings(output: str, output_file: os.PathLike[str], expected_file: os.PathLike[str]) -> None:
     with open(output_file, 'w') as fd:
         fd.write(output)
-    compare(output_file, expected_file)
+    compare_text_files(output_file, expected_file)
 
 def compare_bytes(output: bytes, output_file: os.PathLike[str], expected_file: os.PathLike[str]) -> None:
     with open(output_file, 'wb') as fd:
         fd.write(output)
-    compare_binary(output_file, expected_file)
+    compare_binary_files(output_file, expected_file)
 
 def file_test(function: Callable[[List[str]], None], capsys: CaptureFixture[str], args: List[str], files: Tuple[Path, ...], file_type: str) -> Path:
     datafiles, test_file, expected_file, *more_files = files
@@ -60,7 +60,7 @@ def file_test(function: Callable[[List[str]], None], capsys: CaptureFixture[str]
         if expected_error is None:
             assert expected_file is not None
             function(full_args)
-            comparer = compare if file_type == '.ps' else compare_binary
+            comparer = compare_text_files if file_type == '.ps' else compare_binary_files
             comparer(output_file, expected_file.with_suffix(file_type))
         else:
             with pytest.raises(SystemExit) as e:
@@ -69,5 +69,5 @@ def file_test(function: Callable[[List[str]], None], capsys: CaptureFixture[str]
             assert e.value.code == expected_error
         if expected_stderr is not None:
             assert capsys is not None
-            compare_str(capsys.readouterr().err, datafiles / 'stderr.txt', expected_stderr)
+            compare_strings(capsys.readouterr().err, datafiles / 'stderr.txt', expected_stderr)
     return datafiles

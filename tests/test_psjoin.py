@@ -3,7 +3,7 @@ from typing import List, Tuple
 
 from pytest import mark, CaptureFixture
 
-from testutils import compare_str, compare_bytes
+from testutils import compare_strings, compare_bytes
 from psutils.psjoin import psjoin
 
 FIXTURE_DIR = Path(__file__).parent.resolve() / 'test-files'
@@ -13,7 +13,7 @@ def run_psjoin(args: List[str], file_type: str, datafiles: Path, capsysbinary: C
     if file_type == '.pdf':
         compare_bytes(capsysbinary.readouterr().out, datafiles / Path('output').with_suffix(file_type), expected_file.with_suffix(file_type))
     else:
-        compare_str(capsysbinary.readouterr().out.decode('utf-8'), datafiles / Path('output').with_suffix(file_type), expected_file.with_suffix(file_type))
+        compare_strings(capsysbinary.readouterr().out.decode('utf-8'), datafiles / Path('output').with_suffix(file_type), expected_file.with_suffix(file_type))
 
 @mark.files(
     FIXTURE_DIR / 'a4-1',
