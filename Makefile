@@ -3,8 +3,10 @@
 # Copyright (C) Reuben Thomas 2012-2023
 # See COPYING for license
 
+test:
+	tox
+
 dist:
-	tox && \
 	git diff --exit-code && \
 	rm -rf ./dist && \
 	mkdir dist && \
