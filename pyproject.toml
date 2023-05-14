@@ -31,7 +31,7 @@ pstops = "psutils.pstops:pstops"
 
 [build-system]
 requires = [
-    "argparse-manpage[setuptools] @ git+https://github.com/praiskup/argparse-manpage.git",
+    "argparse-manpage[setuptools] >= 4.2",
     "pytest-datafiles",
     "puremagic",
     "pypdf >= 3.8.0",
