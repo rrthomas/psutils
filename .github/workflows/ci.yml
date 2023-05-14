@@ -27,5 +27,5 @@ jobs:
         paper --version
     - name: Build
       run: |
-        pip install argparse-manpage tox
+        pip install tox
         tox --skip-missing-interpreters
