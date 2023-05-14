@@ -10,11 +10,12 @@ dist:
 	mkdir dist && \
 	python -m build
 
-release: dist
-	git diff --exit-code && \
-	git tag -a -m "Release tag" "v$(VERSION)" && \
-	git push && git push --tags && \
-	woger github package=$(PACKAGE) version=$(VERSION) dist_type=tar.gz
+release:
+	make test
+	make dist
+	twine upload dist/* && \
+	git tag v$$(grep version pyproject.toml | grep -o "[0-9.]\+") && \
+	git push --tags
 
 loc:
 	cloc psutils
