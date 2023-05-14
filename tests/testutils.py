@@ -1,12 +1,13 @@
 import os
 import sys
 import difflib
+import shutil
 from contextlib import ExitStack, contextmanager
 from pathlib import Path
-from typing import Callable, List, Iterator, Tuple
+from typing import Any, Callable, List, Iterator, Tuple, Optional, Union
 
 import pytest
-from pytest import CaptureFixture
+from pytest import CaptureFixture, mark, param
 
 
 @contextmanager
@@ -71,31 +72,66 @@ def file_test(
     args: List[str],
     files: Tuple[Path, ...],
     file_type: str,
+    expected_error: Optional[int],
+    regenerate_expected: bool,
 ) -> Path:
-    datafiles, test_file, expected_file, *more_files = files
-    expected_stderr, expected_error = None, None
-    if len(more_files) > 0:
-        expected_stderr = more_files[0]
-    if expected_file == Path("no-output"):
-        expected_error = 1
+    datafiles, test_file, expected_file, expected_stderr = files
     output_file = datafiles / "output"
     full_args = [*args, str(test_file.with_suffix(file_type)), str(output_file)]
     with pushd(datafiles):
         if expected_error is None:
             assert expected_file is not None
             function(full_args)
-            comparer = (
-                compare_text_files if file_type == ".ps" else compare_binary_files
-            )
-            comparer(output_file, expected_file.with_suffix(file_type))
+            if regenerate_expected:
+                shutil.copyfile(output_file, expected_file.with_suffix(file_type))
+            else:
+                comparer = (
+                    compare_text_files if file_type == ".ps" else compare_binary_files
+                )
+                comparer(output_file, expected_file.with_suffix(file_type))
         else:
             with pytest.raises(SystemExit) as e:
                 function(full_args)
             assert e.type == SystemExit
             assert e.value.code == expected_error
-        if expected_stderr is not None:
-            assert capsys is not None
+        if regenerate_expected:
+            with open(expected_stderr, "w", encoding="utf-8") as fd:
+                fd.write(capsys.readouterr().err)
+        else:
             compare_strings(
                 capsys.readouterr().err, datafiles / "stderr.txt", expected_stderr
             )
     return datafiles
+
+
+def make_tests(
+    function: Callable[..., Any],
+    fixture_dir: Path,
+    *tests: Union[
+        Tuple[str, List[str], Path], Tuple[str, List[str], Path, Optional[int]]
+    ],
+) -> Any:
+    module_name = function.__name__
+    ids = []
+    test_datas = []
+    for id_, args, input_, *exit_code in tests:
+        ids.append(id_)
+        test_datas.append(
+            (
+                args,
+                [
+                    input_,
+                    fixture_dir / module_name / id_ / "expected",
+                    fixture_dir / module_name / id_ / "expected-stderr.txt",
+                ],
+                exit_code[0] if len(exit_code) > 0 else None,
+            )
+        )
+    return mark.parametrize(
+        "args,exit_code",
+        [
+            (param(args, exit_code, marks=mark.files(*files)))
+            for (args, files, exit_code) in test_datas
+        ],
+        ids=ids,
+    )

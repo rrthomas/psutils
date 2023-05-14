@@ -1,60 +1,57 @@
 from pathlib import Path
 from typing import List, Tuple
 
-from pytest import mark, param, CaptureFixture
+from pytest import CaptureFixture
 
-from testutils import file_test
+from testutils import file_test, make_tests
 from psutils.psbook import psbook
 
 FIXTURE_DIR = Path(__file__).parent.resolve() / "test-files"
 
 
-@mark.parametrize(
-    "args",
-    [
-        param(args, marks=mark.files(*files))
-        for (args, *files) in [
-            (
-                [],
-                FIXTURE_DIR / "a4-3",
-                FIXTURE_DIR / "psbook" / "psbook-3-expected",
-            ),
-            (
-                ["-s", "4"],
-                FIXTURE_DIR / "a4-3",
-                FIXTURE_DIR / "psbook" / "psbook-3-signature-4-expected",
-            ),
-            (
-                [],
-                FIXTURE_DIR / "a4-20",
-                FIXTURE_DIR / "psbook" / "psbook-20-expected",
-            ),
-            (
-                ["-s", "4"],
-                FIXTURE_DIR / "a4-20",
-                FIXTURE_DIR / "psbook" / "psbook-20-signature-4-expected",
-            ),
-            (
-                ["-s", "3"],
-                Path("no-input"),
-                Path("no-output"),
-                FIXTURE_DIR
-                / "psbook"
-                / "psbook-invalid-signature-size-expected-stderr.txt",
-            ),
-            (
-                ["-s4"],
-                FIXTURE_DIR / "a4-11",
-                FIXTURE_DIR / "psbook" / "psbook-texlive-expected",
-                FIXTURE_DIR / "psbook" / "psbook-texlive-expected-stderr.txt",
-            ),
-        ]
-    ],
+pytestmark = make_tests(
+    psbook,
+    FIXTURE_DIR,
+    (
+        "3",
+        [],
+        FIXTURE_DIR / "a4-3",
+    ),
+    (
+        "3-signature-4",
+        ["-s", "4"],
+        FIXTURE_DIR / "a4-3",
+    ),
+    (
+        "20",
+        [],
+        FIXTURE_DIR / "a4-20",
+    ),
+    (
+        "20-signature-4",
+        ["-s", "4"],
+        FIXTURE_DIR / "a4-20",
+    ),
+    (
+        "invalid-signature-size",
+        ["-s", "3"],
+        Path("no-input"),
+        1,
+    ),
+    (
+        "texlive",
+        ["-s4"],
+        FIXTURE_DIR / "a4-11",
+    ),
 )
+
+
 def test_psbook(
     args: List[str],
     capsys: CaptureFixture[str],
     files: Tuple[Path, ...],
     file_type: str,
+    exit_code: int,
+    regenerate_expected: bool,
 ) -> None:
-    file_test(psbook, capsys, args, files, file_type)
+    file_test(psbook, capsys, args, files, file_type, exit_code, regenerate_expected)
