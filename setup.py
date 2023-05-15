@@ -1,3 +1,7 @@
+"""
+setup.py for psutils
+"""
+
 import subprocess
 from build_manpages.build_manpages import (  # type: ignore
     build_manpages,
