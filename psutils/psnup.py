@@ -19,7 +19,7 @@ from psutils.pstops import pstops
 
 VERSION = importlib.metadata.version("psutils")
 
-version_banner = f"""\
+VERSION_BANNER = f"""\
 %(prog)s {VERSION}
 Copyright (c) Reuben Thomas 2023.
 Released under the GPL version 3, or (at your option) any later version.
@@ -149,7 +149,7 @@ default is no line]""",
         type=parsenup,
         help="number of pages to impose on each output page",
     )
-    add_basic_arguments(parser, version_banner)
+    add_basic_arguments(parser, VERSION_BANNER)
 
     return parser
 

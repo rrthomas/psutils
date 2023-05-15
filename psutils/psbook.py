@@ -9,13 +9,13 @@ from psutils import (
     add_basic_arguments,
     die,
     simple_warning,
-    documentTransform,
+    document_transform,
 )
 from psutils.pstops import pstops
 
 VERSION = importlib.metadata.version("psutils")
 
-version_banner = """\
+VERSION_BANNER = """\
 %(prog)s {VERSION}
 Copyright (c) Reuben Thomas 2023.
 Released under the GPL version 3, or (at your option) any later version.
@@ -48,7 +48,7 @@ number of pages per signature;
 1 = do not rearrange the pages;
 otherwise, a multiple of 4""",
     )
-    add_basic_arguments(parser, version_banner)
+    add_basic_arguments(parser, VERSION_BANNER)
 
     return parser
 
@@ -63,7 +63,7 @@ def psbook(
         die("signature must be a multiple of 4")
 
     # Get number of pages
-    with documentTransform(
+    with document_transform(
         args.infile, args.outfile, None, None, None, None, [], False, 1.0, 0
     ) as doc:
         input_pages = doc.pages()

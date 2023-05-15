@@ -18,7 +18,7 @@ from psutils import (
 
 VERSION = importlib.metadata.version("psutils")
 
-version_banner = f"""\
+VERSION_BANNER = f"""\
 %(prog)s {VERSION}
 Copyright (c) Reuben Thomas 2023.
 Released under the GPL version 3, or (at your option) any later version.
@@ -34,7 +34,7 @@ def get_parser() -> argparse.ArgumentParser:
         add_help=False,
     )
     warnings.showwarning = simple_warning(parser.prog)
-    add_basic_arguments(parser, version_banner)
+    add_basic_arguments(parser, VERSION_BANNER)
 
     return parser
 
@@ -62,8 +62,8 @@ def includeres(
                 if not os.path.exists(fullname):
                     fullname += extn(resource_type)
                 try:
-                    with open(fullname, "rb") as fh:
-                        outfile.write(fh.read())
+                    with open(fullname, "rb") as f:
+                        outfile.write(f.read())
                 except IOError:
                     outfile.write(
                         f'%%IncludeResource: {b" ".join([resource_type, *res]).decode()}\n'.encode()

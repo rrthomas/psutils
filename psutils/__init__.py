@@ -253,9 +253,9 @@ class PageSpec:
 
 
 def page_index_to_page_number(
-    ps: PageSpec, maxpage: int, modulo: int, pagebase: int
+    spec: PageSpec, maxpage: int, modulo: int, pagebase: int
 ) -> int:
-    return (maxpage - pagebase - modulo if ps.reversed else pagebase) + ps.pageno
+    return (maxpage - pagebase - modulo if spec.reversed else pagebase) + spec.pageno
 
 
 @dataclass
@@ -275,12 +275,12 @@ class PageList:
         even: bool,
     ) -> None:
         self.pages: List[int] = []
-        for r in pagerange:
-            inc = -1 if r.end < r.start else 1
-            currentpg = r.start
-            while r.end - currentpg != -inc:
+        for range_ in pagerange:
+            inc = -1 if range_.end < range_.start else 1
+            currentpg = range_.start
+            while range_.end - currentpg != -inc:
                 if currentpg > total_pages:
-                    die(f"page range {r.text} is invalid", 2)
+                    die(f"page range {range_.text} is invalid", 2)
                 if not (odd and (not even) and currentpg % 2 == 0) and not (
                     even and not odd and currentpg % 2 == 1
                 ):
@@ -290,9 +290,9 @@ class PageList:
             self.pages.reverse()
 
     # Returns -1 for an inserted blank page (page number '_')
-    def real_page(self, p: int) -> int:
+    def real_page(self, pagenum: int) -> int:
         try:
-            return self.pages[p]
+            return self.pages[pagenum]
         except IndexError:
             return 0
 
@@ -479,44 +479,44 @@ end"""
         self,
         page_list: PageList,
         outputpage: int,
-        page: List[PageSpec],
+        page_specs: List[PageSpec],
         maxpage: int,
         modulo: int,
         pagebase: int,
     ) -> None:
         spec_page_number = 0
-        for ps in page:
-            page_number = page_index_to_page_number(ps, maxpage, modulo, pagebase)
+        for spec in page_specs:
+            page_number = page_index_to_page_number(spec, maxpage, modulo, pagebase)
             real_page = page_list.real_page(page_number)
             if page_number < page_list.num_pages() and 0 <= real_page < self.pages():
                 # Seek the page
-                p = real_page
-                self.infile.seek(self.pageptr[p])
+                pagenum = real_page
+                self.infile.seek(self.pageptr[pagenum])
                 try:
                     line = self.infile.readline()
                     assert self.comment_keyword(line) == b"Page:"
                 except IOError:
-                    die(f"I/O error seeking page {p}", 2)
+                    die(f"I/O error seeking page {pagenum}", 2)
             if self.use_procset:
                 self.write("userdict/PStoPSsaved save put")
-            if self.global_transform or ps.has_transform():
+            if self.global_transform or spec.has_transform():
                 self.write("PStoPSmatrix setmatrix")
-                if ps.off != Offset(0.0, 0.0):
-                    self.write(f"{ps.off.x:f} {ps.off.y:f} translate")
-                if ps.rotate != 0:
-                    self.write(f"{(ps.rotate + self.rotate) % 360} rotate")
-                if ps.hflip == 1:
+                if spec.off != Offset(0.0, 0.0):
+                    self.write(f"{spec.off.x:f} {spec.off.y:f} translate")
+                if spec.rotate != 0:
+                    self.write(f"{(spec.rotate + self.rotate) % 360} rotate")
+                if spec.hflip == 1:
                     assert self.iwidth is not None
                     self.write(
-                        f"[ -1 0 0 1 {self.iwidth * ps.scale * self.scale:g} 0 ] concat"
+                        f"[ -1 0 0 1 {self.iwidth * spec.scale * self.scale:g} 0 ] concat"
                     )
-                if ps.vflip == 1:
+                if spec.vflip == 1:
                     assert self.iheight is not None
                     self.write(
-                        f"[ 1 0 0 -1 0 {self.iheight * ps.scale * self.scale:g} ] concat"
+                        f"[ 1 0 0 -1 0 {self.iheight * spec.scale * self.scale:g} ] concat"
                     )
-                if ps.scale != 1.0:
-                    self.write(f"{ps.scale * self.scale:f} dup scale")
+                if spec.scale != 1.0:
+                    self.write(f"{spec.scale * self.scale:f} dup scale")
                 self.write("userdict/PStoPSmatrix matrix currentmatrix put")
                 if self.iwidth is not None:
                     # pylint: disable=invalid-unary-operand-type
@@ -529,7 +529,7 @@ end"""
                         self.write(
                             f"gsave clippath 0 setgray {self.draw} setlinewidth stroke grestore"
                         )
-            if spec_page_number < len(page) - 1:
+            if spec_page_number < len(page_specs) - 1:
                 self.write("/PStoPSenablepage false def")
             if (
                 self.beginprocset
@@ -640,17 +640,19 @@ class PdfDocumentTransform:  # pylint: disable=too-many-instance-attributes
         self,
         page_list: PageList,
         outputpage: int,
-        page: List[PageSpec],
+        page_specs: List[PageSpec],
         maxpage: int,
         modulo: int,
         pagebase: int,
     ) -> None:
-        page_number = page_index_to_page_number(page[0], maxpage, modulo, pagebase)
+        page_number = page_index_to_page_number(
+            page_specs[0], maxpage, modulo, pagebase
+        )
         real_page = page_list.real_page(page_number)
         if (  # pylint: disable=too-many-boolean-expressions
-            len(page) == 1
+            len(page_specs) == 1
             and not self.global_transform
-            and not page[0].has_transform()
+            and not page_specs[0].has_transform()
             and page_number < page_list.num_pages()
             and 0 <= real_page < len(self.reader.pages)
             and self.draw == 0
@@ -659,35 +661,47 @@ class PdfDocumentTransform:  # pylint: disable=too-many-instance-attributes
         else:
             # Add a blank page of the correct size to the end of the document
             outpdf_page = self.writer.add_blank_page(self.width, self.height)
-            for ps in page:
-                page_number = page_index_to_page_number(ps, maxpage, modulo, pagebase)
+            for spec in page_specs:
+                page_number = page_index_to_page_number(spec, maxpage, modulo, pagebase)
                 real_page = page_list.real_page(page_number)
                 if page_number < page_list.num_pages() and 0 <= real_page < len(
                     self.reader.pages
                 ):
                     # Calculate input page transformation
                     t = Transformation()
-                    if ps.hflip:
+                    if spec.hflip:
                         t = t.transform(Transformation((-1, 0, 0, 1, self.iwidth, 0)))
-                    elif ps.vflip:
+                    elif spec.vflip:
                         t = t.transform(Transformation((1, 0, 0, -1, 0, self.iheight)))
-                    if ps.rotate != 0:
-                        t = t.rotate((ps.rotate + self.rotate) % 360)
-                    if ps.scale != 1.0:
-                        t = t.scale(ps.scale, ps.scale)
-                    if ps.off != Offset(0.0, 0.0):
-                        t = t.translate(ps.off.x, ps.off.y)
+                    if spec.rotate != 0:
+                        t = t.rotate((spec.rotate + self.rotate) % 360)
+                    if spec.scale != 1.0:
+                        t = t.scale(spec.scale, spec.scale)
+                    if spec.off != Offset(0.0, 0.0):
+                        t = t.translate(spec.off.x, spec.off.y)
                     # Merge input page into the output document
                     outpdf_page.merge_transformed_page(self.reader.pages[real_page], t)
                     if self.draw > 0:  # FIXME: draw the line at the requested width
                         mediabox = self.reader.pages[real_page].mediabox
                         line = AnnotationBuilder.polyline(
                             vertices=[
-                                (mediabox.left + ps.off.x, mediabox.bottom + ps.off.y),
-                                (mediabox.left + ps.off.x, mediabox.top + ps.off.y),
-                                (mediabox.right + ps.off.x, mediabox.top + ps.off.y),
-                                (mediabox.right + ps.off.x, mediabox.bottom + ps.off.y),
-                                (mediabox.left + ps.off.x, mediabox.bottom + ps.off.y),
+                                (
+                                    mediabox.left + spec.off.x,
+                                    mediabox.bottom + spec.off.y,
+                                ),
+                                (mediabox.left + spec.off.x, mediabox.top + spec.off.y),
+                                (
+                                    mediabox.right + spec.off.x,
+                                    mediabox.top + spec.off.y,
+                                ),
+                                (
+                                    mediabox.right + spec.off.x,
+                                    mediabox.bottom + spec.off.y,
+                                ),
+                                (
+                                    mediabox.left + spec.off.x,
+                                    mediabox.bottom + spec.off.y,
+                                ),
                             ],
                         )
                         self.writer.add_annotation(outpdf_page, line)
@@ -698,7 +712,7 @@ class PdfDocumentTransform:  # pylint: disable=too-many-instance-attributes
 
 
 @contextmanager
-def documentTransform(
+def document_transform(
     infile_name: str,
     outfile_name: str,
     width: Optional[float],
@@ -799,8 +813,8 @@ def extn(ext: bytes) -> bytes:
 # Resource filename
 def filename(*components: bytes) -> bytes:  # make filename for resource in 'components'
     name = b""
-    for c in components:  # sanitise name
-        c_str = c.decode()
+    for component in components:  # sanitise name
+        c_str = component.decode()
         c_str = re.sub(r"[!()\$\#*&\\\|\`\'\"\~\{\}\[\]\<\>\?]", "", c_str)
         name += c_str.encode()
     name = os.path.basename(name)  # drop directories

@@ -16,7 +16,7 @@ from psutils import (
 
 VERSION = importlib.metadata.version("psutils")
 
-version_banner = f"""\
+VERSION_BANNER = f"""\
 %(prog)s {VERSION}
 Copyright (c) Reuben Thomas 2023.
 Released under the GPL version 3, or (at your option) any later version.
@@ -89,7 +89,7 @@ def get_parser() -> argparse.ArgumentParser:
         type=parsedimen,
         help="y coordinate of upper right corner of the box",
     )
-    add_basic_arguments(parser, version_banner)
+    add_basic_arguments(parser, VERSION_BANNER)
 
     return parser
 

@@ -13,7 +13,7 @@ from psutils import HelpFormatter, die, simple_warning
 
 VERSION = importlib.metadata.version("psutils")
 
-version_banner = f"""\
+VERSION_BANNER = f"""\
 %(prog)s {VERSION}
 Copyright (c) Reuben Thomas 2023.
 Released under the GPL version 3, or (at your option) any later version.
@@ -50,7 +50,7 @@ The --save and --nostrip options only apply to PostScript files.
         help="do not strip prolog or trailer from input files",
     )
     parser.add_argument("--help", action="help", help="show this help message and exit")
-    parser.add_argument("-v", "--version", action="version", version=version_banner)
+    parser.add_argument("-v", "--version", action="version", version=VERSION_BANNER)
     parser.add_argument(
         "file",
         metavar="FILE",
@@ -92,10 +92,10 @@ def join_ps(args: argparse.Namespace) -> None:
     else:
         for i, file in enumerate(args.file):
             try:
-                fh = open(file, "rb")
+                input_ = open(file, "rb")
             except IOError as e:
                 die(f"can't open file `{file}': {e}")
-            with fh:
+            with input_:
                 in_comment = True
                 in_prolog = True
                 in_trailer = False
@@ -103,9 +103,9 @@ def join_ps(args: argparse.Namespace) -> None:
                 prolog[i] = b""
                 trailer[i] = b""
                 pages[i] = 0
-                for line in fh:
+                for line in input_:
                     if line.startswith(b"%%BeginDocument"):
-                        while not fh.readline().startswith(b"%%EndDocument"):
+                        while not input_.readline().startswith(b"%%EndDocument"):
                             pass
 
                     if in_comment:
@@ -187,11 +187,11 @@ def join_ps(args: argparse.Namespace) -> None:
         file_pages = 0
 
         try:
-            fh = open(file, "rb")
+            input_ = open(file, "rb")
         except IOError as e:
             die(f"can't open file `{file[i]}': {e}")
-        with fh:
-            for line in fh:
+        with input_:
+            for line in input_:
                 if line.startswith(b"%%BeginDocument"):
                     in_document = True
                 elif line.startswith(b"%%EndDocument"):

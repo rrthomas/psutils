@@ -18,7 +18,7 @@ from psutils import (
 
 VERSION = importlib.metadata.version("psutils")
 
-version_banner = f"""\
+VERSION_BANNER = f"""\
 %(prog)s {VERSION}
 Copyright (c) Reuben Thomas 2023.
 Released under the GPL version 3, or (at your option) any later version.
@@ -42,7 +42,7 @@ def get_parser() -> argparse.ArgumentParser:
         help="""merge resources of the same name into one file
 (needed e.g. for fonts output in multiple blocks)""",
     )
-    add_basic_arguments(parser, version_banner)
+    add_basic_arguments(parser, VERSION_BANNER)
 
     return parser
 
@@ -76,7 +76,7 @@ def extractres(
         prolog: List[bytes] = []
         body: List[bytes] = []
         output: Optional[List[bytes]] = prolog
-        fh: Optional[IO[bytes]] = None
+        output_stream: Optional[IO[bytes]] = None
 
         for line in infile:
             if re.match(b"%%Begin(Resource|Font|ProcSet):", line):
@@ -94,19 +94,20 @@ def extractres(
                     )
                     if not os.path.exists(name):
                         try:
-                            fh = open(name, "wb")
+                            output_stream = open(name, "wb")
                         except IOError:
                             die("can't write file `$name'", 2)
                         resources[name] = []
                         merge[name] = args.merge
                         output = resources[name]
                     else:  # resource already exists
-                        if fh is not None:
-                            fh.close()
+                        if output_stream is not None:
+                            output_stream.close()
                         output = None
                 elif merge.get(name):
                     try:
-                        fh = open(name, "a+b")  # pylint: disable=consider-using-with
+                        # pylint: disable=consider-using-with
+                        output_stream = open(name, "a+b")
                     except IOError:
                         die("can't append to file `$name'", 2)
                     resources[name] = []
@@ -116,8 +117,8 @@ def extractres(
             elif re.match(b"%%End(Resource|Font|ProcSet)", line):
                 if output is not None:
                     output.append(line)
-                    assert fh is not None
-                    fh.writelines(output)
+                    assert output_stream is not None
+                    output_stream.writelines(output)
                 output = saveout
                 continue
             elif re.match(b"%%End(Prolog|Setup)", line) or line.startswith(b"%%Page:"):

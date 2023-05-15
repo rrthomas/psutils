@@ -79,16 +79,16 @@ def compare_binary_files(
 def compare_strings(
     output: str, output_file: os.PathLike[str], expected_file: os.PathLike[str]
 ) -> None:
-    with open(output_file, "w", encoding="ascii") as fd:
-        fd.write(output)
+    with open(output_file, "w", encoding="ascii") as f:
+        f.write(output)
     compare_text_files(output_file, expected_file)
 
 
 def compare_bytes(
     output: bytes, output_file: os.PathLike[str], expected_file: os.PathLike[str]
 ) -> None:
-    with open(output_file, "wb") as fd:
-        fd.write(output)
+    with open(output_file, "wb") as f:
+        f.write(output)
     compare_binary_files(output_file, expected_file)
 
 
@@ -135,8 +135,8 @@ def file_test(
             assert e.type == SystemExit
             assert e.value.code == case.error
         if regenerate_expected:
-            with open(expected_stderr, "w", encoding="utf-8") as fd:
-                fd.write(capsys.readouterr().err)
+            with open(expected_stderr, "w", encoding="utf-8") as f:
+                f.write(capsys.readouterr().err)
         else:
             compare_strings(
                 capsys.readouterr().err, datafiles / "stderr.txt", expected_stderr

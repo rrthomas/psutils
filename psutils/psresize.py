@@ -9,7 +9,7 @@ from psutils.psnup import psnup
 
 VERSION = importlib.metadata.version("psutils")
 
-version_banner = f"""\
+VERSION_BANNER = f"""\
 %(prog)s {VERSION}
 Copyright (c) Reuben Thomas 2023.
 Released under the GPL version 3, or (at your option) any later version.
@@ -41,7 +41,7 @@ pstops(1) for more details.
         "--inpaper",
         help="input paper name or dimensions (WIDTHxHEIGHT)",
     )
-    add_basic_arguments(parser, version_banner)
+    add_basic_arguments(parser, VERSION_BANNER)
 
     # Backwards compatibility
     parser.add_argument("-w", "--width", help=argparse.SUPPRESS)

@@ -9,7 +9,7 @@ from psutils.pstops import pstops
 
 VERSION = importlib.metadata.version("psutils")
 
-version_banner = f"""\
+VERSION_BANNER = f"""\
 %(prog)s {VERSION}
 Copyright (c) Reuben Thomas 2023.
 Released under the GPL version 3, or (at your option) any later version.
@@ -45,7 +45,7 @@ pstops(1) for more details.
         help="reverse the order of the output pages",
     )
     parser.add_argument("alt_pages", metavar="PAGES", nargs="?", help=argparse.SUPPRESS)
-    add_basic_arguments(parser, version_banner)
+    add_basic_arguments(parser, VERSION_BANNER)
 
     return parser
 

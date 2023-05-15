@@ -11,8 +11,8 @@ FIXTURE_DIR = Path(__file__).parent.resolve() / "test-files"
 def psjoin_to_file(args: List[str]) -> None:
     output_file = args.pop()
     args.append(args[-1])
-    with open(output_file, "w", encoding="utf-8") as fd:
-        with redirect_stdout(fd):
+    with open(output_file, "w", encoding="utf-8") as f:
+        with redirect_stdout(f):
             psjoin(args)
 
 

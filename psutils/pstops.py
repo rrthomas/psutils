@@ -18,20 +18,20 @@ from psutils import (
     Range,
     PageList,
     page_index_to_page_number,
-    documentTransform,
+    document_transform,
 )
 
 VERSION = importlib.metadata.version("psutils")
 
-version_banner = f"""\
+VERSION_BANNER = f"""\
 %(prog)s {VERSION}
 Copyright (c) Reuben Thomas 2023.
 Released under the GPL version 3, or (at your option) any later version.
 """
 
 # Globals
-scale = 1.0  # global scale factor
-rotate = 0  # global rotation
+SCALE = 1.0  # global scale factor
+ROTATE = 0  # global rotation
 
 
 # Command-line parsing helper functions
@@ -106,17 +106,17 @@ def parsespecs(
 def parserange(ranges_text: str) -> List[Range]:
     ranges = []
     for range_text in ranges_text.split(","):
-        r = Range(0, 0, range_text)
-        if r.text != "_":
-            m = re.match(r"(_?\d+)?(?:(-)(_?\d+))?$", r.text)
+        range_ = Range(0, 0, range_text)
+        if range_.text != "_":
+            m = re.match(r"(_?\d+)?(?:(-)(_?\d+))?$", range_.text)
             if not m:
-                die(f"`{r.text}' is not a page range")
+                die(f"`{range_.text}' is not a page range")
             start = m[1] or "1"
             end = (m[3] or "-1") if m[2] else m[1]
             start = re.sub("^_", "-", start)
             end = re.sub("^_", "-", end)
-            r.start, r.end = int(start), int(end)
-        ranges.append(r)
+            range_.start, range_.end = int(start), int(end)
+        ranges.append(range_)
     return ranges
 
 
@@ -182,7 +182,7 @@ page) around each page [argument defaults to 1pt;
 default is no line]""",
     )
     parser.add_argument("-b", "--nobind", help=argparse.SUPPRESS)
-    add_basic_arguments(parser, version_banner)
+    add_basic_arguments(parser, VERSION_BANNER)
 
     return parser
 
@@ -210,7 +210,7 @@ def pstops(
             die("input page width and height must both be set, or neither")
     specs, modulo, flipping = parsespecs(args.specs, width, height)
 
-    with documentTransform(
+    with document_transform(
         args.infile,
         args.outfile,
         width,
@@ -218,8 +218,8 @@ def pstops(
         iwidth,
         iheight,
         specs,
-        rotate,
-        scale,
+        ROTATE,
+        SCALE,
         args.draw,
     ) as doc:
         if doc.iwidth is None and flipping:
@@ -241,9 +241,9 @@ def pstops(
                 pagerange = parserange("1-_1")
 
             # Normalize end-relative pageranges
-            for r in pagerange:
-                r.start = abs_page(r.start)
-                r.end = abs_page(r.end)
+            for range_ in pagerange:
+                range_.start = abs_page(range_.start)
+                range_.end = abs_page(range_.end)
 
             # Get list of pages
             page_list = PageList(doc.pages(), pagerange, reverse, odd, even)

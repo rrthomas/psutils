@@ -69,9 +69,9 @@ jobs = 0
 init-hook = 'import sys; sys.path.append(".")'
 
 [tool.pylint.format]
+good-names = "e,f,h,i,j,m,n,s,t,w,up"
 # Disable the message, report, category or checker with the given id(s).
 disable = [
-    "invalid-name",
     "missing-module-docstring",
     "missing-class-docstring",
     "missing-function-docstring",
@@ -80,5 +80,4 @@ disable = [
     "too-many-arguments",
     "too-many-statements",
     "too-many-branches",
-    "too-many-nested-blocks",
 ]
