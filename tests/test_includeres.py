@@ -27,7 +27,7 @@ pytestmark = make_tests(
 def test_includeres(
     function: Callable[[List[str]], None],
     case: Case,
-    datadir: Path,
+    fixture_dir: Path,
     capsys: CaptureFixture[str],
     datafiles: Path,
     regenerate_input: bool,
@@ -36,7 +36,7 @@ def test_includeres(
     file_test(
         function,
         case,
-        datadir,
+        fixture_dir,
         capsys,
         datafiles,
         ".ps",

@@ -95,7 +95,7 @@ def compare_bytes(
 def file_test(
     function: Callable[[List[str]], None],
     case: Case,
-    datadir: Path,
+    fixture_dir: Path,
     capsys: CaptureFixture[str],
     datafiles: Path,
     file_type: str,
@@ -103,15 +103,15 @@ def file_test(
     regenerate_expected: bool,
 ) -> None:
     module_name = function.__name__
-    expected_file = datadir / module_name / case.name / "expected"
-    expected_stderr = datadir / module_name / case.name / "expected-stderr.txt"
+    expected_file = fixture_dir / module_name / case.name / "expected"
+    expected_stderr = fixture_dir / module_name / case.name / "expected-stderr.txt"
     if isinstance(case.input, str):
-        test_file = datadir / case.input
+        test_file = fixture_dir / case.input
     else:
         basename = f"{case.input.paper}-{case.input.pages}"
         if case.input.border != 1:
             basename += f"-{case.input.border}"
-        test_file = datadir / basename
+        test_file = fixture_dir / basename
     if regenerate_input and isinstance(case.input, GeneratedInput):
         make_test_input(
             case.input.paper, case.input.pages, test_file, case.input.border
@@ -154,7 +154,7 @@ def make_tests(
         ids.append(t.name)
         test_cases.append(t)
     return mark.parametrize(
-        "function,case,datadir",
+        "function,case,fixture_dir",
         [
             param(
                 function,
