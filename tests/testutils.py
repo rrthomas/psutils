@@ -3,13 +3,27 @@ import sys
 import subprocess
 import difflib
 import shutil
-from contextlib import ExitStack, contextmanager
+from contextlib import ExitStack
 from pathlib import Path
 from dataclasses import dataclass
 from typing import Any, Callable, List, Iterator, Optional, Union
 
 import pytest
 from pytest import CaptureFixture, mark, param
+
+if sys.version_info[:2] >= (3, 11):
+    from contextlib import chdir
+else:
+    from contextlib import contextmanager
+
+    @contextmanager
+    def chdir(path: os.PathLike[str]) -> Iterator[None]:
+        old_dir = os.getcwd()
+        os.chdir(path)
+        try:
+            yield
+        finally:
+            os.chdir(old_dir)
 
 
 @dataclass
@@ -25,16 +39,6 @@ class Case:
     args: List[str]
     input: Union[GeneratedInput, str]
     error: Optional[int] = None
-
-
-@contextmanager
-def pushd(path: os.PathLike[str]) -> Iterator[None]:
-    old_dir = os.getcwd()
-    os.chdir(path)
-    try:
-        yield
-    finally:
-        os.chdir(old_dir)
 
 
 def compare_text_files(
@@ -109,7 +113,7 @@ def file_test(
         )
     output_file = datafiles / "output"
     full_args = [*case.args, str(test_file.with_suffix(file_type)), str(output_file)]
-    with pushd(datafiles):
+    with chdir(datafiles):
         if case.error is None:
             assert expected_file is not None
             function(full_args)
