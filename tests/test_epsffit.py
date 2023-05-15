@@ -1,99 +1,108 @@
 from pathlib import Path
-from typing import List, Tuple
+from typing import Callable, List
 
 from pytest import CaptureFixture
 
-from testutils import file_test, make_tests
+from testutils import file_test, make_tests, Case
 from psutils.epsffit import epsffit
-
-FIXTURE_DIR = Path(__file__).parent.resolve() / "test-files"
 
 pytestmark = make_tests(
     epsffit,
-    FIXTURE_DIR,
-    (
+    Path(__file__).parent.resolve() / "test-files",
+    Case(
         "no-options",
         ["100pt", "100pt", "200pt", "300pt"],
-        FIXTURE_DIR / "tiger.eps",
+        "tiger.eps",
     ),
-    (
+    Case(
         "aspect",
         ["-a", "100pt", "100pt", "200pt", "300pt"],
-        FIXTURE_DIR / "tiger.eps",
+        "tiger.eps",
     ),
-    (
+    Case(
         "center",
         ["-c", "100pt", "100pt", "200pt", "300pt"],
-        FIXTURE_DIR / "tiger.eps",
+        "tiger.eps",
     ),
-    (
+    Case(
         "maximize",
         ["-m", "100pt", "100pt", "200pt", "300pt"],
-        FIXTURE_DIR / "tiger.eps",
+        "tiger.eps",
     ),
-    (
+    Case(
         "rotate",
         ["-r", "100pt", "100pt", "200pt", "300pt"],
-        FIXTURE_DIR / "tiger.eps",
+        "tiger.eps",
     ),
-    (
+    Case(
         "showpage",
         ["-s", "100pt", "100pt", "200pt", "300pt"],
-        FIXTURE_DIR / "tiger.eps",
+        "tiger.eps",
     ),
-    (
+    Case(
         "center-rotate",
         ["-c", "-r", "100pt", "100pt", "200pt", "300pt"],
-        FIXTURE_DIR / "tiger.eps",
+        "tiger.eps",
     ),
-    (
+    Case(
         "rotate-aspect",
         ["-r", "-a", "100pt", "100pt", "200pt", "300pt"],
-        FIXTURE_DIR / "tiger.eps",
+        "tiger.eps",
     ),
-    (
+    Case(
         "rotate-maximize",
         ["-r", "-m", "100pt", "100pt", "200pt", "300pt"],
-        FIXTURE_DIR / "tiger.eps",
+        "tiger.eps",
     ),
-    (
+    Case(
         "center-rotate-aspect",
         ["-c", "-r", "-a", "100pt", "100pt", "200pt", "300pt"],
-        FIXTURE_DIR / "tiger.eps",
+        "tiger.eps",
     ),
-    (
+    Case(
         "center-rotate-maximize",
         ["-c", "-r", "-m", "100pt", "100pt", "200pt", "300pt"],
-        FIXTURE_DIR / "tiger.eps",
+        "tiger.eps",
     ),
-    (
+    Case(
         "center-rotate-aspect-maximize",
         ["-c", "-r", "-a", "-m", "100pt", "100pt", "200pt", "300pt"],
-        FIXTURE_DIR / "tiger.eps",
+        "tiger.eps",
     ),
-    (
+    Case(
         "h-texlive",
         ["-c", "0", "0", "600", "368"],
-        FIXTURE_DIR / "plot.eps",
+        "plot.eps",
     ),
-    (
+    Case(
         "m-texlive",
         ["-m", "0", "0", "368", "500"],
-        FIXTURE_DIR / "plot.eps",
+        "plot.eps",
     ),
-    (
+    Case(
         "v-texlive",
         ["-c", "0", "0", "500", "400"],
-        FIXTURE_DIR / "plot.eps",
+        "plot.eps",
     ),
 )
 
 
 def test_epsffit(
-    args: List[str],
+    function: Callable[[List[str]], None],
+    case: Case,
+    datadir: Path,
     capsys: CaptureFixture[str],
-    files: Tuple[Path, ...],
-    exit_code: int,
+    datafiles: Path,
+    regenerate_input: bool,
     regenerate_expected: bool,
 ) -> None:
-    file_test(epsffit, capsys, args, files, ".eps", exit_code, regenerate_expected)
+    file_test(
+        function,
+        case,
+        datadir,
+        capsys,
+        datafiles,
+        ".eps",
+        regenerate_input,
+        regenerate_expected,
+    )

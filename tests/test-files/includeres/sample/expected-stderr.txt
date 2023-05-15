@@ -1,0 +1,12 @@
+
+pytest: resource `Courier' not found
+
+pytest: resource `Courier-Oblique' not found
+
+pytest: resource `Courier-Bold' not found
+
+pytest: resource `Times-Roman' not found
+
+pytest: resource `Symbol' not found
+
+pytest: resource `Courier-BoldOblique' not found

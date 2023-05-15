@@ -1,13 +1,30 @@
 import os
 import sys
+import subprocess
 import difflib
 import shutil
 from contextlib import ExitStack, contextmanager
 from pathlib import Path
-from typing import Any, Callable, List, Iterator, Tuple, Optional, Union
+from dataclasses import dataclass
+from typing import Any, Callable, List, Iterator, Optional, Union
 
 import pytest
 from pytest import CaptureFixture, mark, param
+
+
+@dataclass
+class GeneratedInput:
+    paper: str
+    pages: int
+    border: int = 1
+
+
+@dataclass
+class Case:
+    name: str
+    args: List[str]
+    input: Union[GeneratedInput, str]
+    error: Optional[int] = None
 
 
 @contextmanager
@@ -68,18 +85,32 @@ def compare_bytes(
 
 def file_test(
     function: Callable[[List[str]], None],
+    case: Case,
+    datadir: Path,
     capsys: CaptureFixture[str],
-    args: List[str],
-    files: Tuple[Path, ...],
+    datafiles: Path,
     file_type: str,
-    expected_error: Optional[int],
+    regenerate_input: bool,
     regenerate_expected: bool,
-) -> Path:
-    datafiles, test_file, expected_file, expected_stderr = files
+) -> None:
+    module_name = function.__name__
+    expected_file = datadir / module_name / case.name / "expected"
+    expected_stderr = datadir / module_name / case.name / "expected-stderr.txt"
+    if isinstance(case.input, str):
+        test_file = datadir / case.input
+    else:
+        basename = f"{case.input.paper}-{case.input.pages}"
+        if case.input.border != 1:
+            basename += f"-{case.input.border}"
+        test_file = datadir / basename
+    if regenerate_input and isinstance(case.input, GeneratedInput):
+        make_test_input(
+            case.input.paper, case.input.pages, test_file, case.input.border
+        )
     output_file = datafiles / "output"
-    full_args = [*args, str(test_file.with_suffix(file_type)), str(output_file)]
+    full_args = [*case.args, str(test_file.with_suffix(file_type)), str(output_file)]
     with pushd(datafiles):
-        if expected_error is None:
+        if case.error is None:
             assert expected_file is not None
             function(full_args)
             if regenerate_expected:
@@ -93,7 +124,7 @@ def file_test(
             with pytest.raises(SystemExit) as e:
                 function(full_args)
             assert e.type == SystemExit
-            assert e.value.code == expected_error
+            assert e.value.code == case.error
         if regenerate_expected:
             with open(expected_stderr, "w", encoding="utf-8") as fd:
                 fd.write(capsys.readouterr().err)
@@ -101,37 +132,71 @@ def file_test(
             compare_strings(
                 capsys.readouterr().err, datafiles / "stderr.txt", expected_stderr
             )
-    return datafiles
 
 
 def make_tests(
     function: Callable[..., Any],
     fixture_dir: Path,
-    *tests: Union[
-        Tuple[str, List[str], Path], Tuple[str, List[str], Path, Optional[int]]
-    ],
+    *tests: Case,
 ) -> Any:
-    module_name = function.__name__
     ids = []
-    test_datas = []
-    for id_, args, input_, *exit_code in tests:
-        ids.append(id_)
-        test_datas.append(
-            (
-                args,
-                [
-                    input_,
-                    fixture_dir / module_name / id_ / "expected",
-                    fixture_dir / module_name / id_ / "expected-stderr.txt",
-                ],
-                exit_code[0] if len(exit_code) > 0 else None,
-            )
-        )
+    test_cases = []
+    for t in tests:
+        ids.append(t.name)
+        test_cases.append(t)
     return mark.parametrize(
-        "args,exit_code",
+        "function,case,datadir",
         [
-            (param(args, exit_code, marks=mark.files(*files)))
-            for (args, files, exit_code) in test_datas
+            param(
+                function,
+                case,
+                fixture_dir,
+                marks=mark.datafiles,
+            )
+            for case in test_cases
         ],
         ids=ids,
     )
+
+
+# Make a test PostScript or PDF file of a given number of pages
+# Requires a2ps and ps2pdf
+# Simply writes a large page number on each page
+def make_test_input(
+    paper: str, pages: int, file: Path, border: Optional[int] = 1
+) -> None:
+    # Configuration
+    lines_per_page = 4
+
+    # Produce PostScript
+    title = file.stem
+    text = ("\n" * lines_per_page).join([str(i + 1) for i in range(pages)])
+    subprocess.run(
+        [
+            "a2ps",
+            f"--medium={paper}",
+            f"--title={title}",
+            f"--lines-per-page={lines_per_page}",
+            "--portrait",
+            "--columns=1",
+            "--rows=1",
+            f"--border={border}",
+            "--no-header",
+            f"--output={file.with_suffix('.ps')}",
+        ],
+        text=True,
+        input=text,
+        check=True,
+    )
+
+    # Convert to PDF if required
+    if file.suffix == ".pdf":
+        subprocess.check_call(
+            [
+                "ps2pdf",
+                f"-sPAPERSIZE={paper}",
+                f"{file.with_suffix('.ps')}",
+                f"{file.with_suffix('.pdf')}",
+            ]
+        )
+        os.remove(f"{file.with_suffix('.ps')}")
