@@ -7,10 +7,10 @@ from typing import List, NoReturn, Optional, Tuple
 
 from psutils import (
     HelpFormatter,
+    add_basic_arguments,
+    add_paper_arguments,
     die,
-    parsepaper,
     parsedraw,
-    parsedimen,
     singledimen,
     simple_warning,
     PageSpec,
@@ -138,7 +138,10 @@ each page in its normal order].
 
     # Command-line parser
     parser.add_argument(
-        "-S", "--specs", default="0", help="page specifications (see below)"
+        "-S",
+        "--specs",
+        default="0",
+        help="page specifications (see below)",
     )
     parser.add_argument(
         "-R",
@@ -148,10 +151,16 @@ each page in its normal order].
         help="select the given page ranges",
     )
     parser.add_argument(
-        "-e", "--even", action="store_true", help="select even-numbered output pages"
+        "-e",
+        "--even",
+        action="store_true",
+        help="select even-numbered output pages",
     )
     parser.add_argument(
-        "-o", "--odd", action="store_true", help="select odd-numbered output pages"
+        "-o",
+        "--odd",
+        action="store_true",
+        help="select odd-numbered output pages",
     )
     parser.add_argument(
         "-r",
@@ -159,18 +168,7 @@ each page in its normal order].
         action="store_true",
         help="reverse the order of the output pages",
     )
-    parser.add_argument(
-        "-p",
-        "--paper",
-        type=parsepaper,
-        help="output paper name or dimensions (WIDTHxHEIGHT)",
-    )
-    parser.add_argument(
-        "-P",
-        "--inpaper",
-        type=parsepaper,
-        help="input paper name or dimensions (WIDTHxHEIGHT)",
-    )
+    add_paper_arguments(parser)
     parser.add_argument(
         "-d",
         "--draw",
@@ -184,33 +182,7 @@ page) around each page [argument defaults to 1pt;
 default is no line]""",
     )
     parser.add_argument("-b", "--nobind", help=argparse.SUPPRESS)
-    parser.add_argument(
-        "-q",
-        "--quiet",
-        action="store_false",
-        dest="verbose",
-        help="don't show page numbers being output",
-    )
-    parser.add_argument("--help", action="help", help="show this help message and exit")
-    parser.add_argument("-v", "--version", action="version", version=version_banner)
-    parser.add_argument(
-        "infile",
-        metavar="INFILE",
-        nargs="?",
-        help="`-' or no INFILE argument means standard input",
-    )
-    parser.add_argument(
-        "outfile",
-        metavar="OUTFILE",
-        nargs="?",
-        help="`-' or no OUTFILE argument means standard output",
-    )
-
-    # Backwards compatibility
-    parser.add_argument("-w", "--width", type=parsedimen, help=argparse.SUPPRESS)
-    parser.add_argument("-h", "--height", type=parsedimen, help=argparse.SUPPRESS)
-    parser.add_argument("-W", "--inwidth", type=parsedimen, help=argparse.SUPPRESS)
-    parser.add_argument("-H", "--inheight", type=parsedimen, help=argparse.SUPPRESS)
+    add_basic_arguments(parser, version_banner)
 
     return parser
 

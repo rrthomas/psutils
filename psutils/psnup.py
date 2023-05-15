@@ -7,11 +7,12 @@ from typing import Any, List, Optional, Sequence, Tuple, Union
 
 from psutils import (
     HelpFormatter,
+    add_basic_arguments,
+    add_paper_arguments,
     die,
     get_paper_size,
     parsedimen,
     parsedraw,
-    parsepaper,
     simple_warning,
 )
 from psutils.pstops import pstops
@@ -81,18 +82,7 @@ the page.
     warnings.showwarning = simple_warning(parser.prog)
 
     # Command-line parser
-    parser.add_argument(
-        "-p",
-        "--paper",
-        type=parsepaper,
-        help="output paper name or dimensions (WIDTHxHEIGHT)",
-    )
-    parser.add_argument(
-        "-P",
-        "--inpaper",
-        type=parsepaper,
-        help="input paper name or dimensions (WIDTHxHEIGHT)",
-    )
+    add_paper_arguments(parser)
     parser.add_argument(
         "-m",
         "--margin",
@@ -154,38 +144,12 @@ default is no line]""",
         help="maximum wasted area in square pt [default: %(default)s]",
     )
     parser.add_argument(
-        "-q",
-        "--quiet",
-        action="store_false",
-        dest="verbose",
-        help="don't show page numbers being output",
-    )
-    parser.add_argument("--help", action="help", help="show this help message and exit")
-    parser.add_argument("-v", "--version", action="version", version=version_banner)
-    parser.add_argument(
         "nup",
         metavar="-NUMBER",
         type=parsenup,
         help="number of pages to impose on each output page",
     )
-    parser.add_argument(
-        "infile",
-        metavar="INFILE",
-        nargs="?",
-        help="`-' or no INFILE argument means standard input",
-    )
-    parser.add_argument(
-        "outfile",
-        metavar="OUTFILE",
-        nargs="?",
-        help="`-' or no OUTFILE argument means standard output",
-    )
-
-    # Backwards compatibility
-    parser.add_argument("-w", "--width", type=parsedimen, help=argparse.SUPPRESS)
-    parser.add_argument("-h", "--height", type=parsedimen, help=argparse.SUPPRESS)
-    parser.add_argument("-W", "--inwidth", type=parsedimen, help=argparse.SUPPRESS)
-    parser.add_argument("-H", "--inheight", type=parsedimen, help=argparse.SUPPRESS)
+    add_basic_arguments(parser, version_banner)
 
     return parser
 

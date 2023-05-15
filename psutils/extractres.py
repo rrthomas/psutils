@@ -8,6 +8,7 @@ from typing import Dict, List, Optional, IO
 
 from psutils import (
     HelpFormatter,
+    add_basic_arguments,
     die,
     extn,
     filename,
@@ -41,20 +42,8 @@ def get_parser() -> argparse.ArgumentParser:
         help="""merge resources of the same name into one file
 (needed e.g. for fonts output in multiple blocks)""",
     )
-    parser.add_argument("--help", action="help", help="show this help message and exit")
-    parser.add_argument("-v", "--version", action="version", version=version_banner)
-    parser.add_argument(
-        "infile",
-        metavar="INFILE",
-        nargs="?",
-        help="`-' or no INFILE argument means standard input",
-    )
-    parser.add_argument(
-        "outfile",
-        metavar="OUTFILE",
-        nargs="?",
-        help="`-' or no OUTFILE argument means standard output",
-    )
+    add_basic_arguments(parser, version_banner)
+
     return parser
 
 

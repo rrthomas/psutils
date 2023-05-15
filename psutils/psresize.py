@@ -4,7 +4,7 @@ import sys
 import warnings
 from typing import List
 
-from psutils import HelpFormatter, die, simple_warning
+from psutils import HelpFormatter, add_basic_arguments, die, simple_warning
 from psutils.psnup import psnup
 
 VERSION = importlib.metadata.version("psutils")
@@ -32,32 +32,16 @@ pstops(1) for more details.
 
     # Command-line parser
     parser.add_argument(
-        "-p", "--paper", help="output paper name or dimensions (WIDTHxHEIGHT)"
+        "-p",
+        "--paper",
+        help="output paper name or dimensions (WIDTHxHEIGHT)",
     )
     parser.add_argument(
-        "-P", "--inpaper", help="input paper name or dimensions (WIDTHxHEIGHT)"
+        "-P",
+        "--inpaper",
+        help="input paper name or dimensions (WIDTHxHEIGHT)",
     )
-    parser.add_argument(
-        "-q",
-        "--quiet",
-        action="store_false",
-        dest="verbose",
-        help="don't show page numbers being output",
-    )
-    parser.add_argument("--help", action="help", help="show this help message and exit")
-    parser.add_argument("-v", "--version", action="version", version=version_banner)
-    parser.add_argument(
-        "infile",
-        metavar="INFILE",
-        nargs="?",
-        help="`-' or no INFILE argument means standard input",
-    )
-    parser.add_argument(
-        "outfile",
-        metavar="OUTFILE",
-        nargs="?",
-        help="`-' or no OUTFILE argument means standard output",
-    )
+    add_basic_arguments(parser, version_banner)
 
     # Backwards compatibility
     parser.add_argument("-w", "--width", help=argparse.SUPPRESS)

@@ -53,6 +53,60 @@ class HelpFormatter(argparse.RawTextHelpFormatter):
         return ", ".join(parts)
 
 
+def add_basic_arguments(parser: argparse.ArgumentParser, version_banner: str) -> None:
+    parser.add_argument(
+        "-q",
+        "--quiet",
+        action="store_false",
+        dest="verbose",
+        help="don't show progress",
+    )
+    parser.add_argument(
+        "--help",
+        action="help",
+        help="show this help message and exit",
+    )
+    parser.add_argument(
+        "-v",
+        "--version",
+        action="version",
+        version=version_banner,
+    )
+    parser.add_argument(
+        "infile",
+        metavar="INFILE",
+        nargs="?",
+        help="`-' or no INFILE argument means standard input",
+    )
+    parser.add_argument(
+        "outfile",
+        metavar="OUTFILE",
+        nargs="?",
+        help="`-' or no OUTFILE argument means standard output",
+    )
+
+
+def add_paper_arguments(parser: argparse.ArgumentParser) -> None:
+    parser.add_argument(
+        "-p",
+        "--paper",
+        type=parsepaper,
+        help="output paper name or dimensions (WIDTHxHEIGHT)",
+    )
+    parser.add_argument(
+        "-P",
+        "--inpaper",
+        type=parsepaper,
+        help="input paper name or dimensions (WIDTHxHEIGHT)",
+    )
+
+    # Backwards compatibility
+    parser.add_argument("-w", "--width", type=parsedimen, help=argparse.SUPPRESS)
+    parser.add_argument("-h", "--height", type=parsedimen, help=argparse.SUPPRESS)
+    parser.add_argument("-W", "--inwidth", type=parsedimen, help=argparse.SUPPRESS)
+    parser.add_argument("-H", "--inheight", type=parsedimen, help=argparse.SUPPRESS)
+
+
 # Error messages
 def simple_warning(prog: str) -> Callable[..., None]:
     def _warning(  # pylint: disable=too-many-arguments

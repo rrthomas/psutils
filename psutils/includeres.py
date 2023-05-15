@@ -8,6 +8,7 @@ from typing import List
 
 from psutils import (
     HelpFormatter,
+    add_basic_arguments,
     die,
     extn,
     filename,
@@ -33,21 +34,8 @@ def get_parser() -> argparse.ArgumentParser:
         add_help=False,
     )
     warnings.showwarning = simple_warning(parser.prog)
+    add_basic_arguments(parser, version_banner)
 
-    parser.add_argument("--help", action="help", help="show this help message and exit")
-    parser.add_argument("-v", "--version", action="version", version=version_banner)
-    parser.add_argument(
-        "infile",
-        metavar="INFILE",
-        nargs="?",
-        help="`-' or no INFILE argument means standard input",
-    )
-    parser.add_argument(
-        "outfile",
-        metavar="OUTFILE",
-        nargs="?",
-        help="`-' or no OUTFILE argument means standard output",
-    )
     return parser
 
 
