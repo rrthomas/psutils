@@ -644,7 +644,7 @@ class PdfDocumentTransform:
     ) -> None:
         page_number = page_index_to_page_number(page[0], maxpage, modulo, pagebase)
         real_page = page_list.real_page(page_number)
-        if (
+        if (  # pylint: disable=too-many-boolean-expressions
             len(page) == 1
             and not self.global_transform
             and not page[0].has_transform()
