@@ -126,7 +126,9 @@ def file_test(
                 shutil.copyfile(output_file, expected_file.with_suffix(file_type))
             else:
                 comparer = (
-                    compare_text_files if file_type == ".ps" else compare_binary_files
+                    compare_text_files
+                    if file_type in (".ps", ".eps")
+                    else compare_binary_files
                 )
                 comparer(output_file, expected_file.with_suffix(file_type))
         else:

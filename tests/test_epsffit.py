@@ -1,72 +1,40 @@
 from pathlib import Path
-from typing import Callable, List
+from itertools import combinations
+from typing import Callable, List, Iterable
 
 from pytest import CaptureFixture
 
 from testutils import file_test, make_tests, Case
 from psutils.epsffit import epsffit
 
+OPTIONS = ["aspect", "center", "maximize", "rotate"]
+
+OPTION_SETS = [
+    subset for n in range(len(OPTIONS) + 1) for subset in combinations(OPTIONS, n)
+]
+
+
+def argify(options: Iterable[str]) -> Iterable[str]:
+    return [f"-{opt[0]}" for opt in options]
+
+
+option_cases = []
+for opts in OPTION_SETS:
+    option_cases.append(
+        Case(
+            "-".join(opts) or "no-options",
+            ["100pt", "100pt", "200pt", "300pt", *argify(opts)],
+            "tiger.eps",
+        )
+    )
+
 pytestmark = make_tests(
     epsffit,
     Path(__file__).parent.resolve() / "test-files",
-    Case(
-        "no-options",
-        ["100pt", "100pt", "200pt", "300pt"],
-        "tiger.eps",
-    ),
-    Case(
-        "aspect",
-        ["-a", "100pt", "100pt", "200pt", "300pt"],
-        "tiger.eps",
-    ),
-    Case(
-        "center",
-        ["-c", "100pt", "100pt", "200pt", "300pt"],
-        "tiger.eps",
-    ),
-    Case(
-        "maximize",
-        ["-m", "100pt", "100pt", "200pt", "300pt"],
-        "tiger.eps",
-    ),
-    Case(
-        "rotate",
-        ["-r", "100pt", "100pt", "200pt", "300pt"],
-        "tiger.eps",
-    ),
+    *option_cases,
     Case(
         "showpage",
         ["-s", "100pt", "100pt", "200pt", "300pt"],
-        "tiger.eps",
-    ),
-    Case(
-        "center-rotate",
-        ["-c", "-r", "100pt", "100pt", "200pt", "300pt"],
-        "tiger.eps",
-    ),
-    Case(
-        "rotate-aspect",
-        ["-r", "-a", "100pt", "100pt", "200pt", "300pt"],
-        "tiger.eps",
-    ),
-    Case(
-        "rotate-maximize",
-        ["-r", "-m", "100pt", "100pt", "200pt", "300pt"],
-        "tiger.eps",
-    ),
-    Case(
-        "center-rotate-aspect",
-        ["-c", "-r", "-a", "100pt", "100pt", "200pt", "300pt"],
-        "tiger.eps",
-    ),
-    Case(
-        "center-rotate-maximize",
-        ["-c", "-r", "-m", "100pt", "100pt", "200pt", "300pt"],
-        "tiger.eps",
-    ),
-    Case(
-        "center-rotate-aspect-maximize",
-        ["-c", "-r", "-a", "-m", "100pt", "100pt", "200pt", "300pt"],
         "tiger.eps",
     ),
     Case(
