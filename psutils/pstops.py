@@ -13,6 +13,7 @@ from psutils import (
     parsedraw,
     singledimen,
     simple_warning,
+    Offset,
     PageSpec,
     Range,
     PageList,
@@ -61,7 +62,7 @@ def parsespecs(
         specs_text = page.split("+")
         for spec_text in specs_text:
             m = re.match(
-                r"(-)?(\d+)([LRUHV]+)?(?:@([^()]+))?(?:\((-?[\d.a-z]+),(-?[\d.a-z]+)\))?$",
+                r"(-)?(\d+)([LRUHV]+)?(?:@([^()]+))?(?:\((-?[\d.a-z]+,-?[\d.a-z]+)\))?$",
                 spec_text,
                 re.IGNORECASE | re.ASCII,
             )
@@ -75,9 +76,11 @@ def parsespecs(
             if m[4] is not None:
                 spec.scale = float(m[4])
             if m[5] is not None:
-                spec.xoff = singledimen(m[5], width, height)
-            if m[6] is not None:
-                spec.yoff = singledimen(m[6], width, height)
+                [xoff_str, yoff_str] = m[5].split(",")
+                spec.off = Offset(
+                    singledimen(xoff_str, width, height),
+                    singledimen(yoff_str, width, height),
+                )
             if spec.pageno >= modulo:
                 specerror()
             if m[3] is not None:

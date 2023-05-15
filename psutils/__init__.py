@@ -10,6 +10,7 @@ import shutil
 import subprocess
 import re
 from contextlib import contextmanager
+from dataclasses import dataclass
 from warnings import warn
 from typing import (
     Callable,
@@ -17,6 +18,7 @@ from typing import (
     Tuple,
     Optional,
     Union,
+    NamedTuple,
     Iterator,
     Type,
     NoReturn,
@@ -227,16 +229,18 @@ def parsedraw(s: str) -> float:
     return parsedimen(s or "1")
 
 
+Offset = NamedTuple("Offset", [("x", float), ("y", float)])
+
+
+@dataclass
 class PageSpec:
-    def __init__(self) -> None:
-        self.reversed: bool = False
-        self.pageno: int = 0
-        self.rotate: int = 0
-        self.hflip: bool = False
-        self.vflip: bool = False
-        self.scale: float = 1.0
-        self.xoff: float = 0.0
-        self.yoff: float = 0.0
+    reversed: bool = False
+    pageno: int = 0
+    rotate: int = 0
+    hflip: bool = False
+    vflip: bool = False
+    scale: float = 1.0
+    off: Offset = Offset(0.0, 0.0)
 
     def has_transform(self) -> bool:
         return (
@@ -244,8 +248,7 @@ class PageSpec:
             or self.hflip
             or self.vflip
             or self.scale != 1.0
-            or self.xoff != 0.0
-            or self.yoff != 0.0
+            or self.off != Offset(0.0, 0.0)
         )
 
 
@@ -498,8 +501,8 @@ end"""
                 self.write("userdict/PStoPSsaved save put")
             if self.global_transform or ps.has_transform():
                 self.write("PStoPSmatrix setmatrix")
-                if ps.xoff is not None:
-                    self.write(f"{ps.xoff:f} {ps.yoff:f} translate")
+                if ps.off != Offset(0.0, 0.0):
+                    self.write(f"{ps.off.x:f} {ps.off.y:f} translate")
                 if ps.rotate != 0:
                     self.write(f"{(ps.rotate + self.rotate) % 360} rotate")
                 if ps.hflip == 1:
@@ -672,19 +675,19 @@ class PdfDocumentTransform:
                         t = t.rotate((ps.rotate + self.rotate) % 360)
                     if ps.scale != 1.0:
                         t = t.scale(ps.scale, ps.scale)
-                    if ps.xoff is not None:
-                        t = t.translate(ps.xoff, ps.yoff)
+                    if ps.off != Offset(0.0, 0.0):
+                        t = t.translate(ps.off.x, ps.off.y)
                     # Merge input page into the output document
                     outpdf_page.merge_transformed_page(self.reader.pages[real_page], t)
                     if self.draw > 0:  # FIXME: draw the line at the requested width
                         mediabox = self.reader.pages[real_page].mediabox
                         line = AnnotationBuilder.polyline(
                             vertices=[
-                                (mediabox.left + ps.xoff, mediabox.bottom + ps.yoff),
-                                (mediabox.left + ps.xoff, mediabox.top + ps.yoff),
-                                (mediabox.right + ps.xoff, mediabox.top + ps.yoff),
-                                (mediabox.right + ps.xoff, mediabox.bottom + ps.yoff),
-                                (mediabox.left + ps.xoff, mediabox.bottom + ps.yoff),
+                                (mediabox.left + ps.off.x, mediabox.bottom + ps.off.y),
+                                (mediabox.left + ps.off.x, mediabox.top + ps.off.y),
+                                (mediabox.right + ps.off.x, mediabox.top + ps.off.y),
+                                (mediabox.right + ps.off.x, mediabox.bottom + ps.off.y),
+                                (mediabox.left + ps.off.x, mediabox.bottom + ps.off.y),
                             ],
                         )
                         self.writer.add_annotation(outpdf_page, line)
