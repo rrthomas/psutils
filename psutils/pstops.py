@@ -106,19 +106,16 @@ def parsespecs(
 def parserange(ranges_text: str) -> List[Range]:
     ranges = []
     for range_text in ranges_text.split(","):
-        r = Range()
-        if range_text == "_":
-            r.start, r.end = 0, 0  # so page_to_real_page() returns -1
-        else:
-            m = re.match(r"(_?\d+)?(?:(-)(_?\d+))?$", range_text)
+        r = Range(0, 0, range_text)
+        if r.text != "_":
+            m = re.match(r"(_?\d+)?(?:(-)(_?\d+))?$", r.text)
             if not m:
-                die(f"`{range_text}' is not a page range")
+                die(f"`{r.text}' is not a page range")
             start = m[1] or "1"
             end = (m[3] or "-1") if m[2] else m[1]
             start = re.sub("^_", "-", start)
             end = re.sub("^_", "-", end)
             r.start, r.end = int(start), int(end)
-        r.text = range_text
         ranges.append(r)
     return ranges
 

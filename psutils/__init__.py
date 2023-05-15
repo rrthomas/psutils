@@ -258,11 +258,11 @@ def page_index_to_page_number(
     return (maxpage - pagebase - modulo if ps.reversed else pagebase) + ps.pageno
 
 
+@dataclass
 class Range:
-    def __init__(self) -> None:
-        self.start: int
-        self.end: int
-        self.text: str
+    start: int
+    end: int
+    text: str
 
 
 class PageList:
@@ -300,7 +300,7 @@ class PageList:
         return len(self.pages)
 
 
-class PsDocumentTransform:
+class PsDocumentTransform:  # pylint: disable=too-many-instance-attributes
     # PStoPS procset
     # Wrap showpage, erasepage and copypage in our own versions.
     # Nullify paper size operators.
@@ -594,7 +594,7 @@ end"""
             die("I/O error", 2)
 
 
-class PdfDocumentTransform:
+class PdfDocumentTransform:  # pylint: disable=too-many-instance-attributes
     def __init__(
         self,
         infile: IO[bytes],
