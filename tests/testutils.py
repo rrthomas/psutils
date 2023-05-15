@@ -1,6 +1,7 @@
 import os
 import sys
 import subprocess
+import re
 import difflib
 import shutil
 from contextlib import ExitStack
@@ -41,14 +42,18 @@ class Case:
     error: Optional[int] = None
 
 
+def remove_creation_date(lines: List[str]) -> List[str]:
+    return [l for l in lines if not re.match(r"(% )?%%CreationDate", l)]
+
+
 def compare_text_files(
     output_file: os.PathLike[str], expected_file: os.PathLike[str]
 ) -> None:
     with ExitStack() as stack:
         out_fd = stack.enter_context(open(output_file, encoding="ascii"))
         exp_fd = stack.enter_context(open(expected_file, encoding="ascii"))
-        output_lines = out_fd.readlines()
-        expected_lines = exp_fd.readlines()
+        output_lines = remove_creation_date(out_fd.readlines())
+        expected_lines = remove_creation_date(exp_fd.readlines())
         diff = list(
             difflib.unified_diff(
                 output_lines, expected_lines, str(output_file), str(expected_file)
