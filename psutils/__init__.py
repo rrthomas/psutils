@@ -105,10 +105,10 @@ def add_paper_arguments(parser: argparse.ArgumentParser) -> None:
     )
 
     # Backwards compatibility
-    parser.add_argument("-w", "--width", type=parsedimen, help=argparse.SUPPRESS)
-    parser.add_argument("-h", "--height", type=parsedimen, help=argparse.SUPPRESS)
-    parser.add_argument("-W", "--inwidth", type=parsedimen, help=argparse.SUPPRESS)
-    parser.add_argument("-H", "--inheight", type=parsedimen, help=argparse.SUPPRESS)
+    parser.add_argument("-w", "--width", type=parsedimen_set, help=argparse.SUPPRESS)
+    parser.add_argument("-h", "--height", type=parsedimen_set, help=argparse.SUPPRESS)
+    parser.add_argument("-W", "--inwidth", type=parsedimen_set, help=argparse.SUPPRESS)
+    parser.add_argument("-H", "--inheight", type=parsedimen_set, help=argparse.SUPPRESS)
 
 
 # Error messages
@@ -153,9 +153,27 @@ def strtod(s: str) -> Tuple[float, int]:
 
 
 # Argument parsers
+DEFAULT_PAPER_INITIALIZED: bool = False
+DEFAULT_WIDTH: Optional[float] = None
+DEFAULT_HEIGHT: Optional[float] = None
+
+
 def singledimen(
-    s: str, width: Optional[float] = None, height: Optional[float] = None
+    s: str,
+    width: Optional[float] = None,
+    height: Optional[float] = None,
+    error_message: str = "output paper size not set, and could not get default paper size",
 ) -> float:
+    global DEFAULT_WIDTH, DEFAULT_HEIGHT, DEFAULT_PAPER_INITIALIZED  # pylint: disable=global-statement
+    if not DEFAULT_PAPER_INITIALIZED:
+        DEFAULT_PAPER_INITIALIZED = True
+        DEFAULT_WIDTH, DEFAULT_HEIGHT = get_paper_size()
+
+    if width is None:
+        width = DEFAULT_WIDTH
+    if height is None:
+        height = DEFAULT_HEIGHT
+
     num, unparsed = strtod(s)
     s = s[unparsed:]
 
@@ -169,16 +187,22 @@ def singledimen(
         num *= 2.8346456692913385211
     elif s.startswith("w"):
         if width is None:
-            die("paper size not set")
+            die(error_message)
         num *= width
     elif s.startswith("h"):
         if height is None:
-            die("paper size not set")
+            die(error_message)
         num *= height
     elif s != "":
         die(f"bad dimension `{s}'")
 
     return num
+
+
+def singledimen_set(
+    s: str, width: Optional[float] = None, height: Optional[float] = None
+) -> float:
+    return singledimen(s, width, height, "could not get default paper size")
 
 
 # Get the size of the given paper, or the default paper if no argument given.
@@ -199,7 +223,7 @@ def get_paper_size(
     paper_name: Optional[str] = None,
 ) -> Tuple[Optional[float], Optional[float]]:
     if paper_name is None:
-        paper_name = paper([])
+        paper_name = paper(["--no-size"])
     dimensions: Optional[str] = None
     if paper_name is not None:
         dimensions = paper(["--unit=pt", paper_name], True)
@@ -217,7 +241,8 @@ def parsepaper(paper_size: str) -> Tuple[Optional[float], Optional[float]]:
         if width is None:
             [width_text, height_text] = paper_size.split("x")
             if width_text and height_text:
-                width, height = singledimen(width_text), singledimen(height_text)
+                width = singledimen_set(width_text)
+                height = singledimen_set(height_text)
         return width, height
     except:  # pylint: disable=bare-except
         die(f"paper size '{paper_size}' unknown")
@@ -225,6 +250,10 @@ def parsepaper(paper_size: str) -> Tuple[Optional[float], Optional[float]]:
 
 def parsedimen(s: str) -> float:
     return singledimen(s, None, None)
+
+
+def parsedimen_set(s: str) -> float:
+    return singledimen_set(s, None, None)
 
 
 def parsedraw(s: str) -> float:

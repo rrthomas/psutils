@@ -7,7 +7,7 @@ import shutil
 from contextlib import ExitStack
 from pathlib import Path
 from dataclasses import dataclass
-from mock import patch
+from unittest.mock import patch
 from typing import Any, Callable, List, Iterator, Optional, Union
 
 import pytest

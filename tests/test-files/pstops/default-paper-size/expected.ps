@@ -780,10 +780,38 @@ userdict/PStoPSxform PStoPSmatrix matrix currentmatrix
  matrix invertmatrix put
 %%EndSetup
 
-%%Page: (1) 1
+%%Page: (1,1) 1
 userdict/PStoPSsaved save put
 PStoPSmatrix setmatrix
--100.000000 -200.000000 translate
+595.000000 0.000000 translate
+90 rotate
+0.700000 dup scale
+userdict/PStoPSmatrix matrix currentmatrix put
+/PStoPSenablepage false def
+PStoPSxform concat
+%%BeginPageSetup
+/pagesave save def
+%%EndPageSetup
+iso1dict begin
+gsave
+llx lly 0 add translate
+/v 0 store
+/x0 x v get 70.953192 add sx cw mul add store
+/y0 y v get bfs  sub store
+x0 y0 moveto
+(1) p
+border
+grestore
+end % of iso1dict
+pagesave restore
+showpage
+
+PStoPSsaved restore
+userdict/PStoPSsaved save put
+PStoPSmatrix setmatrix
+595.000000 421.000000 translate
+90 rotate
+0.700000 dup scale
 userdict/PStoPSmatrix matrix currentmatrix put
 PStoPSxform concat
 %%BeginPageSetup

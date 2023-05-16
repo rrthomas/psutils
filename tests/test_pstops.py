@@ -1,4 +1,6 @@
+import os
 from pathlib import Path
+from unittest import mock
 
 from testutils import file_test, make_tests, Case, GeneratedInput
 from psutils.pstops import pstops
@@ -42,5 +44,11 @@ pytestmark = make_tests(
         ["-pa4", "--specs", "2:0L@.7(21cm,0)+1L@.7(21cm,14.85cm)"],
         GeneratedInput("a4", 11),
     ),
+    Case(  # Test we can refer to the paper size in a dimension when output size is not set
+        "default-paper-size",
+        ["--specs", "0L@.7(1w,0)+0L@.7(1w,.5h)"],
+        GeneratedInput("a4", 1),
+    ),
 )
-test_pstops = file_test
+with mock.patch.dict(os.environ, {"PAPERSIZE": "A4"}):
+    test_pstops = file_test
