@@ -141,7 +141,6 @@ def epsffit(
         xoffset, yoffset = args.fllx, args.flly
         width, height = urx - llx, ury - lly
 
-        # FIXME: Consider more carefully how --rotate and --maximize should interact
         rotate = args.rotate
         if args.maximize and (
             ((width > height) and (args.fury - args.flly > args.furx - args.fllx))
