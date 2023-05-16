@@ -1,12 +1,12 @@
 
-pytest: resource `Courier' not found
+includeres: resource `Courier' not found
 
-pytest: resource `Courier-Oblique' not found
+includeres: resource `Courier-Oblique' not found
 
-pytest: resource `Courier-Bold' not found
+includeres: resource `Courier-Bold' not found
 
-pytest: resource `Times-Roman' not found
+includeres: resource `Times-Roman' not found
 
-pytest: resource `Symbol' not found
+includeres: resource `Symbol' not found
 
-pytest: resource `Courier-BoldOblique' not found
+includeres: resource `Courier-BoldOblique' not found

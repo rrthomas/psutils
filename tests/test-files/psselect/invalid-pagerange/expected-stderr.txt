@@ -1,4 +1,4 @@
 
-pytest: page range 1-5 is invalid
+psselect: page range 1-5 is invalid
 
-pytest: error running pstops
+psselect: error running pstops

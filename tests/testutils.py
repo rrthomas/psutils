@@ -7,6 +7,7 @@ import shutil
 from contextlib import ExitStack
 from pathlib import Path
 from dataclasses import dataclass
+from mock import patch
 from typing import Any, Callable, List, Iterator, Optional, Union
 
 import pytest
@@ -118,10 +119,12 @@ def file_test(
         )
     output_file = datafiles / "output"
     full_args = [*case.args, str(test_file.with_suffix(file_type)), str(output_file)]
+    patched_argv = [module_name, *(sys.argv[1:])]
     with chdir(datafiles):
         if case.error is None:
             assert expected_file is not None
-            function(full_args)
+            with patch("sys.argv", patched_argv):
+                function(full_args)
             if regenerate_expected:
                 shutil.copyfile(output_file, expected_file.with_suffix(file_type))
             else:
@@ -133,7 +136,8 @@ def file_test(
                 comparer(output_file, expected_file.with_suffix(file_type))
         else:
             with pytest.raises(SystemExit) as e:
-                function(full_args)
+                with patch("sys.argv", patched_argv):
+                    function(full_args)
             assert e.type == SystemExit
             assert e.value.code == case.error
         if regenerate_expected:

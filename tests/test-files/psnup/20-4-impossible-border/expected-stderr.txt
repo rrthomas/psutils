@@ -1,2 +1,2 @@
 
-pytest: border is too large
+psnup: border is too large

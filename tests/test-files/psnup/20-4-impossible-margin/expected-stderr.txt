@@ -1,2 +1,2 @@
 
-pytest: margin is too large
+psnup: margin is too large

@@ -1,5 +1,5 @@
 
-pytest: bad page specification:
+pstops: bad page specification:
 
   PAGESPECS = [MODULO:]SPEC
   SPEC      = [-]PAGENO[@SCALE][L|R|U|H|V][(XOFF,YOFF)][,SPEC|+SPEC]
