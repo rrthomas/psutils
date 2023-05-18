@@ -69,10 +69,10 @@ def get_parser() -> argparse.ArgumentParser:
 psnup aborts with an error if it cannot arrange the input pages so as to
 waste less than the given tolerance.
 
-The output paper size defaults to the input paper size; if that is not
+The output page size defaults to the input page size; if that is not
 given, the default given by the `paper' command is used.
 
-The input paper size defaults to the output paper size.
+The input page size defaults to the output page size.
 
 In row-major order (the default), adjacent pages are placed in rows
 across the paper; in column-major order, they are placed in columns down
@@ -192,11 +192,11 @@ def psnup(
     if width is None and iwidth is not None:
         width, height = iwidth, iheight
 
-    # Ensure output paper size is set
+    # Ensure output page size is set
     if width is None:
         width, height = get_paper_size()
     if width is None:
-        die("output paper size not set, and could not get default paper size")
+        die("output page size not set, and could not get default paper size")
 
     # Set input height/width from corresponding output value if undefined
     if iwidth is None:
@@ -222,7 +222,7 @@ def psnup(
     # Arguments for pstops
     cmd = []
 
-    # Tell pstops input paper size if it differs from output paper size
+    # Tell pstops input page size if it differs from output page size
     if width != iwidth or height != iheight:
         cmd.append(f"-P{iwidth}x{iheight}")
 
@@ -287,7 +287,7 @@ def psnup(
         pphgt / vert - iheight * scale
     ) / 2
 
-    cmd.append(f"-p{width}x{height}")  # set output paper size for pstops
+    cmd.append(f"-p{width}x{height}")  # set output page size for pstops
 
     # Construct specification list
     specs = []

@@ -162,7 +162,7 @@ def singledimen(
     s: str,
     width: Optional[float] = None,
     height: Optional[float] = None,
-    error_message: str = "output paper size not set, and could not get default paper size",
+    error_message: str = "output page size not set, and could not get default paper size",
 ) -> float:
     global DEFAULT_WIDTH, DEFAULT_HEIGHT, DEFAULT_PAPER_INITIALIZED  # pylint: disable=global-statement
     if not DEFAULT_PAPER_INITIALIZED:

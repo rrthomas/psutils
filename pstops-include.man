@@ -80,7 +80,7 @@ or followed by
 .B "w"
 or
 .B "h"
-to indicate a multiple of the output paper width or height.
+to indicate a multiple of the output page width or height.
 .PP
 The optional parameters
 .BR L ,
@@ -111,7 +111,7 @@ in which they appear on the command line.
 .PP
 Paper size names are converted to dimensions using
 .BR paper (1).
-The output paper size, if set, is used (after scaling) to set the
+The output page size, if set, is used (after scaling) to set the
 clipping path for each page.
 
 [EXAMPLES]
