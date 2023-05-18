@@ -22,6 +22,11 @@ some programs produce non-conforming output that can be successfully
 processed anyway. If PSUtils does not work for you, check whether your
 software needs to be configured to produce DSC-conformant PostScript.
 
+Some old Perl scripts, which mostly fix up the output of various obsolete
+programs and drivers to enable PSUtils to process it, are available in git
+in the `old-scripts` directory. They are not supported, and their use is
+discouraged, unless you know you need them!
+
 
 ## Installation
 
