@@ -48,8 +48,10 @@ def remove_creation_date(lines: List[str]) -> List[str]:
 
 
 def compare_text_files(
-    output_file: os.PathLike[str], expected_file: os.PathLike[str]
-) -> None:
+    capsys: CaptureFixture[str],
+    output_file: os.PathLike[str],
+    expected_file: os.PathLike[str],
+) -> bool:
     with ExitStack() as stack:
         out_fd = stack.enter_context(open(output_file, encoding="ascii"))
         exp_fd = stack.enter_context(open(expected_file, encoding="ascii"))
@@ -61,36 +63,46 @@ def compare_text_files(
             )
         )
         if len(diff) > 0:
-            sys.stdout.writelines(diff)
-            raise ValueError("test output does not match expected output")
+            with capsys.disabled():
+                sys.stdout.writelines(diff)
+        return len(diff) == 0
+    return False
 
 
 def compare_binary_files(
-    output_file: os.PathLike[str], expected_file: os.PathLike[str]
-) -> None:
+    capsys: CaptureFixture[str],  # pylint: disable=unused-argument
+    output_file: os.PathLike[str],
+    expected_file: os.PathLike[str],
+) -> bool:
     with ExitStack() as stack:
         out_fd = stack.enter_context(open(output_file, "rb"))
         exp_fd = stack.enter_context(open(expected_file, "rb"))
         output = out_fd.read()
         expected = exp_fd.read()
-        if output != expected:
-            raise ValueError("test output does not match expected output")
+        return output == expected
+    return False
 
 
 def compare_strings(
-    output: str, output_file: os.PathLike[str], expected_file: os.PathLike[str]
-) -> None:
+    capsys: CaptureFixture[str],
+    output: str,
+    output_file: os.PathLike[str],
+    expected_file: os.PathLike[str],
+) -> bool:
     with open(output_file, "w", encoding="ascii") as f:
         f.write(output)
-    compare_text_files(output_file, expected_file)
+    return compare_text_files(capsys, output_file, expected_file)
 
 
 def compare_bytes(
-    output: bytes, output_file: os.PathLike[str], expected_file: os.PathLike[str]
-) -> None:
+    capsys: CaptureFixture[str],
+    output: bytes,
+    output_file: os.PathLike[str],
+    expected_file: os.PathLike[str],
+) -> bool:
     with open(output_file, "wb") as f:
         f.write(output)
-    compare_binary_files(output_file, expected_file)
+    return compare_binary_files(capsys, output_file, expected_file)
 
 
 def file_test(
@@ -121,6 +133,7 @@ def file_test(
     full_args = [*case.args, str(test_file.with_suffix(file_type)), str(output_file)]
     patched_argv = [module_name, *(sys.argv[1:])]
     with chdir(datafiles):
+        correct_output = False
         if case.error is None:
             assert expected_file is not None
             with patch("sys.argv", patched_argv):
@@ -133,20 +146,31 @@ def file_test(
                     if file_type in (".ps", ".eps")
                     else compare_binary_files
                 )
-                comparer(output_file, expected_file.with_suffix(file_type))
+                correct_output = comparer(
+                    capsys, output_file, expected_file.with_suffix(file_type)
+                )
         else:
             with pytest.raises(SystemExit) as e:
                 with patch("sys.argv", patched_argv):
                     function(full_args)
             assert e.type == SystemExit
             assert e.value.code == case.error
+            correct_output = True  # no output from command
         if regenerate_expected:
             with open(expected_stderr, "w", encoding="utf-8") as f:
                 f.write(capsys.readouterr().err)
         else:
-            compare_strings(
-                capsys.readouterr().err, datafiles / "stderr.txt", expected_stderr
+            correct_output = (
+                compare_strings(
+                    capsys,
+                    capsys.readouterr().err,
+                    datafiles / "stderr.txt",
+                    expected_stderr,
+                )
+                and correct_output
             )
+        if not correct_output:
+            raise ValueError("test output does not match expected output")
 
 
 def make_tests(

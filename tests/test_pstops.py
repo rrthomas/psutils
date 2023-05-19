@@ -30,7 +30,7 @@ pytestmark = make_tests(
     ),
     Case(
         "multiple-turns-and-flips",
-        ["-P", "a4", "--specs", "0LLRVHVHV(700pt,0pt)"],
+        ["--specs", "0LLRVHVHV(700pt,0pt)"],
         GeneratedInput("a4", 1),
     ),
     Case(

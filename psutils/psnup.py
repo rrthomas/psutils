@@ -10,6 +10,7 @@ from psutils import (
     add_basic_arguments,
     add_paper_arguments,
     die,
+    document_transform,
     get_paper_size,
     parsedimen,
     parsedraw,
@@ -171,6 +172,21 @@ def psnup(
         iwidth, iheight = args.inpaper
     elif args.inwidth is not None and args.inheight is not None:
         iwidth, iheight = args.inwidth, args.inheight
+    else:
+        with document_transform(
+            args.infile,
+            args.outfile,
+            args.width,
+            args.height,
+            args.inwidth,
+            args.inheight,
+            [],
+            False,
+            1.0,
+            0,
+        ) as transform:
+            if transform.iwidth is not None and transform.iheight is not None:
+                iwidth, iheight = transform.iwidth, transform.iheight
 
     # Process command-line arguments
     rowmajor, leftright, topbottom = True, True, True

@@ -39,27 +39,27 @@ pytestmark = make_tests(
     ),
     Case(
         "20-1-inpaper-A4-outpaper-A5",
-        ["-P", "a4", "-p", "a5", "-1"],
+        ["-p", "a5", "-1"],
         GeneratedInput("a4", 20),
     ),
     Case(
         "20-1-inpaper-A5",
-        ["-P", "a5", "-p", "a4", "-1"],
+        ["-p", "a4", "-1"],
         GeneratedInput("a5", 20),
     ),
     Case(
         "20-2-inpaper-A5",
-        ["-P", "a5", "-p", "a4", "-2"],
+        ["-p", "a4", "-2"],
         GeneratedInput("a5", 20),
     ),
     Case(
         "20-3-inpaper-A5",
-        ["-P", "a5", "-p", "a4", "-3"],
+        ["-p", "a4", "-3"],
         GeneratedInput("a5", 20),
     ),
     Case(
         "20-1-inpaper-A5-outpaper-A5",
-        ["-P", "a5", "-p", "a5", "-1"],
+        ["-p", "a5", "-1"],
         GeneratedInput("a5", 20),
     ),
     Case(
@@ -75,7 +75,7 @@ pytestmark = make_tests(
     Case(
         "20-3-impossible-tolerance",
         ["-p", "a4", "-3", "-t", "0"],
-        "no-input",
+        GeneratedInput("a4", 1),
         1,
     ),
     Case(
@@ -95,7 +95,7 @@ pytestmark = make_tests(
     ),
     Case(
         "20-4-inpaper-A5",
-        ["-P", "a5", "-p", "a4", "-4"],
+        ["-p", "a4", "-4"],
         GeneratedInput("a5", 20),
     ),
     Case(
@@ -111,13 +111,13 @@ pytestmark = make_tests(
     Case(
         "20-4-impossible-border",
         ["-p", "a4", "-4", "-b", "1000pt"],
-        "no-input",
+        GeneratedInput("a4", 1),
         1,
     ),
     Case(
         "20-4-impossible-margin",
         ["-p", "a4", "-4", "-m", "1000pt"],
-        "no-input",
+        GeneratedInput("a4", 1),
         1,
     ),
     Case(

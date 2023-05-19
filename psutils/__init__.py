@@ -350,8 +350,23 @@ class PsReader:
         for buffer in self.infile:
             next_record += len(buffer)
             if buffer.startswith(b"%%"):
-                keyword = self.comment_keyword(buffer)
+                keyword, value = self.comment(buffer)
                 if keyword is not None:
+                    # If input paper size is not set, try to read it
+                    if (
+                        self.headerpos == 0
+                        and self.iwidth is None
+                        and keyword == b"DocumentMedia:"
+                    ):
+                        assert value is not None
+                        words = value.split(b" ")
+                        if len(words) > 2:
+                            w = words[1].decode("utf-8", "ignore")
+                            h = words[2].decode("utf-8", "ignore")
+                            try:
+                                self.iwidth, self.iheight = int(w), int(h)
+                            except ValueError:
+                                pass
                     if nesting == 0 and keyword == b"Page:":
                         self.pageptr.append(record)
                     elif self.headerpos == 0 and keyword in [
@@ -360,8 +375,6 @@ class PsReader:
                         b"DocumentPaperSizes:",
                         b"DocumentMedia:",
                     ]:
-                        # FIXME: read input paper size (from DocumentMedia comment?) if not
-                        # set on command line.
                         self.sizeheaders.append(record)
                     elif self.headerpos == 0 and keyword == b"Pages:":
                         self.pagescmt = record
@@ -397,10 +410,10 @@ class PsReader:
         if self.endsetup == 0 or self.endsetup > self.pageptr[0]:
             self.endsetup = self.pageptr[0]
 
-    # Return comment keyword if `line' is a DSC comment
-    def comment_keyword(self, line: bytes) -> Optional[bytes]:
-        m = re.match(b"%%(\\S+)", line)
-        return m[1] if m else None
+    # Return comment keyword and value if `line' is a DSC comment
+    def comment(self, line: bytes) -> Union[Tuple[bytes, bytes], Tuple[None, None]]:
+        m = re.match(b"%%(\\S+)\\s+?(.*\\S?)\\s*$", line)
+        return (m[1], m[2]) if m else (None, None)
 
 
 class PsTransform:  # pylint: disable=too-many-instance-attributes
@@ -463,9 +476,12 @@ end"""
             len(page) > 1 or page[0].has_transform() for page in specs
         )
 
-        if iwidth is None and width is not None:
-            iwidth, iheight = width, height
         self.width, self.height = width, height
+        if iwidth is None:
+            if reader.iwidth is not None:
+                iwidth, iheight = reader.iwidth, reader.iheight
+            elif width is not None:
+                iwidth, iheight = width, height
         self.iwidth, self.iheight = iwidth, iheight
 
     def pages(self) -> int:
@@ -536,7 +552,8 @@ end"""
                 self.reader.infile.seek(self.reader.pageptr[pagenum])
                 try:
                     line = self.reader.infile.readline()
-                    assert self.reader.comment_keyword(line) == b"Page:"
+                    keyword, _ = self.reader.comment(line)
+                    assert keyword == b"Page:"
                 except IOError:
                     die(f"I/O error seeking page {pagenum}", 2)
             if self.use_procset:

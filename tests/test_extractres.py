@@ -34,13 +34,17 @@ def test_extractres(
         regenerate_expected,
     )
     compare_text_files(
+        capsys,
         datafiles / "ISO-8859-1Encoding.enc",
         datafiles / "ISO-8859-1Encoding-expected.enc",
     )
     compare_text_files(
-        datafiles / "a2ps-a2ps-hdr2.02.ps", datafiles / "a2ps-a2ps-hdr2.02-expected.ps"
+        capsys,
+        datafiles / "a2ps-a2ps-hdr2.02.ps",
+        datafiles / "a2ps-a2ps-hdr2.02-expected.ps",
     )
     compare_text_files(
+        capsys,
         datafiles / "a2ps-black+white-Prolog2.01.ps",
         datafiles / "a2ps-black+white-Prolog2.01-expected.ps",
     )
