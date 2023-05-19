@@ -29,7 +29,12 @@ pytestmark = make_tests(
     ),
     Case(
         "20-1-flip",
-        ["-p", "a4", "-1", "-f"],  # '-P', 'a4', '-p', '297mmx210mm', '-1'
+        ["-p", "a4", "-1", "-f"],
+        GeneratedInput("a4", 20),
+    ),
+    Case(
+        "20-1-flipped-dimensions",
+        ["-p", "297mmx210mm", "-1"],
         GeneratedInput("a4", 20),
     ),
     Case(
