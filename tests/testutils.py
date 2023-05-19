@@ -133,7 +133,7 @@ def file_test(
     full_args = [*case.args, str(test_file.with_suffix(file_type)), str(output_file)]
     patched_argv = [module_name, *(sys.argv[1:])]
     with chdir(datafiles):
-        correct_output = False
+        correct_output = True
         if case.error is None:
             assert expected_file is not None
             with patch("sys.argv", patched_argv):
@@ -155,7 +155,6 @@ def file_test(
                     function(full_args)
             assert e.type == SystemExit
             assert e.value.code == case.error
-            correct_output = True  # no output from command
         if regenerate_expected:
             with open(expected_stderr, "w", encoding="utf-8") as f:
                 f.write(capsys.readouterr().err)
