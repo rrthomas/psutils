@@ -221,14 +221,14 @@ def pstops(
         ROTATE,
         SCALE,
         args.draw,
-    ) as doc:
-        if doc.iwidth is None and flipping:
+    ) as transform:
+        if transform.iwidth is None and flipping:
             die("input page size must be set when flipping the page")
 
         # Page spec routines for page rearrangement
         def abs_page(n: int) -> int:
             if n < 0:
-                n += doc.pages() + 1
+                n += transform.pages() + 1
                 n = max(n, 1)
             return n
 
@@ -246,7 +246,7 @@ def pstops(
                 range_.end = abs_page(range_.end)
 
             # Get list of pages
-            page_list = PageList(doc.pages(), pagerange, reverse, odd, even)
+            page_list = PageList(transform.pages(), pagerange, reverse, odd, even)
 
             # Calculate highest page number output (including any blanks)
             maxpage = (
@@ -255,10 +255,10 @@ def pstops(
             )
 
             # Rearrange pages
-            doc.write_header(maxpage, modulo)
+            transform.write_header(maxpage, modulo)
             pagebase = 0
             while pagebase < maxpage:
-                for page in doc.specs:
+                for page in transform.specs:
                     # Construct the page label from the input page numbers
                     pagelabels = []
                     for spec in page:
@@ -268,16 +268,16 @@ def pstops(
                         pagelabels.append(str(n + 1) if n >= 0 else "*")
                     pagelabel = ",".join(pagelabels)
                     outputpage += 1
-                    doc.write_page_comment(pagelabel, outputpage)
+                    transform.write_page_comment(pagelabel, outputpage)
                     if args.verbose:
                         sys.stderr.write(f"[{pagelabel}] ")
-                    doc.write_page(
+                    transform.write_page(
                         page_list, outputpage, page, maxpage, modulo, pagebase
                     )
 
                 pagebase += modulo
 
-            doc.finalize()
+            transform.finalize()
             if args.verbose:
                 print(f"\nWrote {outputpage} pages", file=sys.stderr)
 

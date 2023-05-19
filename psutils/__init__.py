@@ -331,7 +331,79 @@ class PageList:
         return len(self.pages)
 
 
-class PsDocumentTransform:  # pylint: disable=too-many-instance-attributes
+class PsReader:
+    def __init__(self, infile: IO[bytes]) -> None:
+        self.infile = infile
+        self.headerpos: int = 0
+        self.pagescmt: int = 0
+        self.endsetup: int = 0
+        self.beginprocset: int = 0  # start of pstops procset
+        self.endprocset: int = 0  # end of pstopsprocset
+        self.num_pages: int = 0
+        self.sizeheaders: List[int] = []
+        self.pageptr: List[int] = []
+        self.iwidth, self.iheight = None, None
+
+        nesting = 0
+        self.infile.seek(0)
+        record, next_record, buffer = 0, 0, None
+        for buffer in self.infile:
+            next_record += len(buffer)
+            if buffer.startswith(b"%%"):
+                keyword = self.comment_keyword(buffer)
+                if keyword is not None:
+                    if nesting == 0 and keyword == b"Page:":
+                        self.pageptr.append(record)
+                    elif self.headerpos == 0 and keyword in [
+                        b"BoundingBox:",
+                        b"HiResBoundingBox:",
+                        b"DocumentPaperSizes:",
+                        b"DocumentMedia:",
+                    ]:
+                        # FIXME: read input paper size (from DocumentMedia comment?) if not
+                        # set on command line.
+                        self.sizeheaders.append(record)
+                    elif self.headerpos == 0 and keyword == b"Pages:":
+                        self.pagescmt = record
+                    elif self.headerpos == 0 and keyword == b"EndComments":
+                        self.headerpos = next_record
+                    elif keyword in [
+                        b"BeginDocument:",
+                        b"BeginBinary:",
+                        b"Begself.infile:",
+                    ]:
+                        nesting += 1
+                    elif keyword in [b"EndDocument", b"EndBinary", b"EndFile"]:
+                        nesting -= 1
+                    elif nesting == 0 and keyword == b"EndSetup":
+                        self.endsetup = record
+                    elif nesting == 0 and keyword == b"BeginProlog":
+                        self.headerpos = next_record
+                    elif nesting == 0 and buffer == b"%%BeginProcSet: PStoPS":
+                        self.beginprocset = record
+                    elif (
+                        self.beginprocset is not None
+                        and self.endprocset is None
+                        and keyword == b"EndProcSet"
+                    ):
+                        self.endprocset = next_record
+                    elif nesting == 0 and keyword in [b"Trailer", b"EOF"]:
+                        break
+            elif self.headerpos == 0:
+                self.headerpos = record
+            record = next_record
+        self.num_pages = len(self.pageptr)
+        self.pageptr.append(record)
+        if self.endsetup == 0 or self.endsetup > self.pageptr[0]:
+            self.endsetup = self.pageptr[0]
+
+    # Return comment keyword if `line' is a DSC comment
+    def comment_keyword(self, line: bytes) -> Optional[bytes]:
+        m = re.match(b"%%(\\S+)", line)
+        return m[1] if m else None
+
+
+class PsTransform:  # pylint: disable=too-many-instance-attributes
     # PStoPS procset
     # Wrap showpage, erasepage and copypage in our own versions.
     # Nullify paper size operators.
@@ -370,7 +442,7 @@ end"""
 
     def __init__(
         self,
-        infile: IO[bytes],
+        reader: PsReader,
         outfile: IO[bytes],
         width: Optional[float],
         height: Optional[float],
@@ -381,7 +453,8 @@ end"""
         scale: float,
         draw: float,
     ):
-        self.infile, self.outfile = infile, outfile
+        self.reader = reader
+        self.outfile = outfile
         self.scale, self.rotate, self.draw = scale, rotate, draw
         self.global_transform = scale != 1.0 or rotate != 0
         self.specs = specs
@@ -390,84 +463,22 @@ end"""
             len(page) > 1 or page[0].has_transform() for page in specs
         )
 
-        self.headerpos: int = 0
-        self.pagescmt: int = 0
-        self.endsetup: int = 0
-        self.beginprocset: int = 0  # start of pstops procset
-        self.endprocset: int = 0  # end of pstopsprocset
-        self.num_pages: int = 0
-        self.sizeheaders: List[int] = []
-        self.pageptr: List[int] = []
-
         if iwidth is None and width is not None:
             iwidth, iheight = width, height
         self.width, self.height = width, height
         self.iwidth, self.iheight = iwidth, iheight
 
-        nesting = 0
-        self.infile.seek(0)
-        record, next_record, buffer = 0, 0, None
-        for buffer in self.infile:
-            next_record += len(buffer)
-            if buffer.startswith(b"%%"):
-                keyword = self.comment_keyword(buffer)
-                if keyword is not None:
-                    if nesting == 0 and keyword == b"Page:":
-                        self.pageptr.append(record)
-                    elif (
-                        self.headerpos == 0
-                        and width is not None
-                        and keyword
-                        in [
-                            b"BoundingBox:",
-                            b"HiResBoundingBox:",
-                            b"DocumentPaperSizes:",
-                            b"DocumentMedia:",
-                        ]
-                    ):
-                        # FIXME: read input paper size (from DocumentMedia comment?) if not
-                        # set on command line.
-                        self.sizeheaders.append(record)
-                    elif self.headerpos == 0 and keyword == b"Pages:":
-                        self.pagescmt = record
-                    elif self.headerpos == 0 and keyword == b"EndComments":
-                        self.headerpos = next_record
-                    elif keyword in [b"BeginDocument:", b"BeginBinary:", b"BeginFile:"]:
-                        nesting += 1
-                    elif keyword in [b"EndDocument", b"EndBinary", b"EndFile"]:
-                        nesting -= 1
-                    elif nesting == 0 and keyword == b"EndSetup":
-                        self.endsetup = record
-                    elif nesting == 0 and keyword == b"BeginProlog":
-                        self.headerpos = next_record
-                    elif nesting == 0 and buffer == b"%%BeginProcSet: PStoPS":
-                        self.beginprocset = record
-                    elif (
-                        self.beginprocset is not None
-                        and self.endprocset is None
-                        and keyword == b"EndProcSet"
-                    ):
-                        self.endprocset = next_record
-                    elif nesting == 0 and keyword in [b"Trailer", b"EOF"]:
-                        break
-            elif self.headerpos == 0:
-                self.headerpos = record
-            record = next_record
-        self.num_pages = len(self.pageptr)
-        self.pageptr.append(record)
-        if self.endsetup == 0 or self.endsetup > self.pageptr[0]:
-            self.endsetup = self.pageptr[0]
-
     def pages(self) -> int:
-        return self.num_pages
+        return self.reader.num_pages
 
     def write_header(self, maxpage: int, modulo: int) -> None:
         # FIXME: doesn't cope properly with loaded definitions
-        self.infile.seek(0)
-        if self.pagescmt:
-            self.fcopy(self.pagescmt, self.sizeheaders)
+        ignorelist = [] if self.width is None else self.reader.sizeheaders
+        self.reader.infile.seek(0)
+        if self.reader.pagescmt:
+            self.fcopy(self.reader.pagescmt, ignorelist)
             try:
-                _ = self.infile.readline()
+                _ = self.reader.infile.readline()
             except IOError:
                 die("I/O error in header", 2)
             if self.width is not None and self.height is not None:
@@ -477,20 +488,20 @@ end"""
                 self.write(f"%%BoundingBox: 0 0 {int(self.width)} {int(self.height)}")
             pagesperspec = len(self.specs)
             self.write(f"%%Pages: {int(maxpage / modulo) * pagesperspec} 0")
-        self.fcopy(self.headerpos, self.sizeheaders)
+        self.fcopy(self.reader.headerpos, ignorelist)
         if self.use_procset:
             self.write(f"%%BeginProcSet: PStoPS 1 15\n{self.procset}")
             self.write("%%EndProcSet")
 
         # Write prologue to end of setup section, skipping our procset if present
         # and we're outputting it (this allows us to upgrade our procset)
-        if self.endprocset and self.use_procset:
-            self.fcopy(self.beginprocset, [])
-            self.infile.seek(self.endprocset)
-        self.fcopy(self.endsetup, [])
+        if self.reader.endprocset and self.use_procset:
+            self.fcopy(self.reader.beginprocset, [])
+            self.reader.infile.seek(self.reader.endprocset)
+        self.fcopy(self.reader.endsetup, [])
 
         # Save transformation from original to current matrix
-        if not self.beginprocset and self.use_procset:
+        if not self.reader.beginprocset and self.use_procset:
             self.write(
                 """userdict/PStoPSxform PStoPSmatrix matrix currentmatrix
  matrix invertmatrix matrix concatmatrix
@@ -498,7 +509,7 @@ end"""
             )
 
         # Write from end of setup to start of pages
-        self.fcopy(self.pageptr[0], [])
+        self.fcopy(self.reader.pageptr[0], [])
 
     def write(self, text: str) -> None:
         self.outfile.write((text + "\n").encode("utf-8"))
@@ -522,10 +533,10 @@ end"""
             if page_number < page_list.num_pages() and 0 <= real_page < self.pages():
                 # Seek the page
                 pagenum = real_page
-                self.infile.seek(self.pageptr[pagenum])
+                self.reader.infile.seek(self.reader.pageptr[pagenum])
                 try:
-                    line = self.infile.readline()
-                    assert self.comment_keyword(line) == b"Page:"
+                    line = self.reader.infile.readline()
+                    assert self.reader.comment_keyword(line) == b"Page:"
                 except IOError:
                     die(f"I/O error seeking page {pagenum}", 2)
             if self.use_procset:
@@ -563,14 +574,14 @@ end"""
             if spec_page_number < len(page_specs) - 1:
                 self.write("/PStoPSenablepage false def")
             if (
-                self.beginprocset
+                self.reader.beginprocset
                 and page_number < page_list.num_pages()
                 and real_page < self.pages()
             ):
                 # Search for page setup
                 while True:
                     try:
-                        line = self.infile.readline()
+                        line = self.reader.infile.readline()
                     except IOError:
                         die(f"I/O error reading page setup {outputpage}", 2)
                     if line.startswith(b"PStoPSxform"):
@@ -579,11 +590,11 @@ end"""
                         self.write(line.decode())
                     except IOError:
                         die(f"I/O error writing page setup {outputpage}", 2)
-            if not self.beginprocset and self.use_procset:
+            if not self.reader.beginprocset and self.use_procset:
                 self.write("PStoPSxform concat")
             if page_number < page_list.num_pages() and 0 <= real_page < self.pages():
                 # Write the body of a page
-                self.fcopy(self.pageptr[real_page + 1], [])
+                self.fcopy(self.reader.pageptr[real_page + 1], [])
             else:
                 self.write("showpage")
             if self.use_procset:
@@ -593,42 +604,37 @@ end"""
     def finalize(self) -> None:
         # Write trailer
         # pylint: disable=invalid-sequence-index
-        self.infile.seek(self.pageptr[self.pages()])
-        shutil.copyfileobj(self.infile, self.outfile)  # type: ignore
+        self.reader.infile.seek(self.reader.pageptr[self.pages()])
+        shutil.copyfileobj(self.reader.infile, self.outfile)  # type: ignore
         self.outfile.flush()
-
-    # Return comment keyword if `line' is a DSC comment
-    def comment_keyword(self, line: bytes) -> Optional[bytes]:
-        m = re.match(b"%%(\\S+)", line)
-        return m[1] if m else None
 
     # Copy input file from current position up to new position to output file,
     # ignoring the lines starting at something ignorelist points to.
     # Updates ignorelist.
     def fcopy(self, upto: int, ignorelist: List[int]) -> None:
-        here = self.infile.tell()
+        here = self.reader.infile.tell()
         while len(ignorelist) > 0 and ignorelist[0] < upto:
             while len(ignorelist) > 0 and ignorelist[0] < here:
                 ignorelist.pop(0)
             if len(ignorelist) > 0:
                 self.fcopy(ignorelist[0], [])
             try:
-                self.infile.readline()
+                self.reader.infile.readline()
             except IOError:
                 die("I/O error", 2)
             ignorelist.pop(0)
-            here = self.infile.tell()
+            here = self.reader.infile.tell()
 
         try:
-            self.outfile.write(self.infile.read(upto - here))
+            self.outfile.write(self.reader.infile.read(upto - here))
         except IOError:
             die("I/O error", 2)
 
 
-class PdfDocumentTransform:  # pylint: disable=too-many-instance-attributes
+class PdfTransform:  # pylint: disable=too-many-instance-attributes
     def __init__(
         self,
-        infile: IO[bytes],
+        reader: PdfReader,
         outfile: IO[bytes],
         width: Optional[float],
         height: Optional[float],
@@ -639,8 +645,8 @@ class PdfDocumentTransform:  # pylint: disable=too-many-instance-attributes
         scale: float,
         draw: float,
     ):
-        self.infile, self.outfile = infile, outfile
-        self.reader = PdfReader(self.infile)
+        self.outfile = outfile
+        self.reader = reader
         self.writer = PdfWriter(self.outfile)
         self.scale, self.rotate, self.draw = scale, rotate, draw
         self.global_transform = scale != 1.0 or rotate != 0
@@ -754,15 +760,15 @@ def document_transform(
     rotate: int,
     scale: float,
     draw: float,
-) -> Iterator[Union[PdfDocumentTransform, PsDocumentTransform]]:
+) -> Iterator[Union[PdfTransform, PsTransform]]:
     with setup_input_and_output(infile_name, outfile_name) as (
         infile,
         file_type,
         outfile,
     ):
         if file_type in (".ps", ".eps"):
-            yield PsDocumentTransform(
-                infile,
+            yield PsTransform(
+                PsReader(infile),
                 outfile,
                 width,
                 height,
@@ -774,8 +780,8 @@ def document_transform(
                 draw,
             )
         elif file_type == ".pdf":
-            yield PdfDocumentTransform(
-                infile,
+            yield PdfTransform(
+                PdfReader(infile),
                 outfile,
                 width,
                 height,

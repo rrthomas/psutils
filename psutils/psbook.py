@@ -65,8 +65,8 @@ def psbook(
     # Get number of pages
     with document_transform(
         args.infile, args.outfile, None, None, None, None, [], False, 1.0, 0
-    ) as doc:
-        input_pages = doc.pages()
+    ) as transform:
+        input_pages = transform.pages()
 
         def page_index_to_real_page(signature: int, page_number: int) -> int:
             real_page = page_number - page_number % signature
