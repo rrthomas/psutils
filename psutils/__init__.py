@@ -414,7 +414,7 @@ class PsReader:  # pylint: disable=too-many-instance-attributes
         return (m[1], m[2]) if m else (None, None)
 
 
-class PsTransform:  # pylint: disable=too-many-instance-attributes
+class PsTransform:
     # PStoPS procset
     # Wrap showpage, erasepage and copypage in our own versions.
     # Nullify paper size operators.
@@ -458,17 +458,14 @@ end"""
         size: Optional[Rectangle],
         in_size: Optional[Rectangle],
         specs: List[List[PageSpec]],
-        rotate: int,
-        scale: float,
         draw: float,
     ):
         self.reader = reader
         self.outfile = outfile
-        self.scale, self.rotate, self.draw = scale, rotate, draw
-        self.global_transform = scale != 1.0 or rotate != 0
+        self.draw = draw
         self.specs = specs
 
-        self.use_procset = self.global_transform or any(
+        self.use_procset = any(
             len(page) > 1 or page[0].has_transform() for page in specs
         )
 
@@ -556,24 +553,24 @@ end"""
                     die(f"I/O error seeking page {pagenum}", 2)
             if self.use_procset:
                 self.write("userdict/PStoPSsaved save put")
-            if self.global_transform or spec.has_transform():
+            if spec.has_transform():
                 self.write("PStoPSmatrix setmatrix")
                 if spec.off != Offset(0.0, 0.0):
                     self.write(f"{spec.off.x:f} {spec.off.y:f} translate")
                 if spec.rotate != 0:
-                    self.write(f"{(spec.rotate + self.rotate) % 360} rotate")
+                    self.write(f"{spec.rotate % 360} rotate")
                 if spec.hflip == 1:
                     assert self.in_size is not None
                     self.write(
-                        f"[ -1 0 0 1 {self.in_size.width * spec.scale * self.scale:g} 0 ] concat"
+                        f"[ -1 0 0 1 {self.in_size.width * spec.scale:g} 0 ] concat"
                     )
                 if spec.vflip == 1:
                     assert self.in_size is not None
                     self.write(
-                        f"[ 1 0 0 -1 0 {self.in_size.height * spec.scale * self.scale:g} ] concat"
+                        f"[ 1 0 0 -1 0 {self.in_size.height * spec.scale:g} ] concat"
                     )
                 if spec.scale != 1.0:
-                    self.write(f"{spec.scale * self.scale:f} dup scale")
+                    self.write(f"{spec.scale:f} dup scale")
                 self.write("userdict/PStoPSmatrix matrix currentmatrix put")
                 if self.in_size is not None:
                     w, h = self.in_size.width, self.in_size.height
@@ -645,7 +642,7 @@ end"""
             die("I/O error", 2)
 
 
-class PdfTransform:  # pylint: disable=too-many-instance-attributes
+class PdfTransform:
     def __init__(
         self,
         reader: PdfReader,
@@ -653,15 +650,12 @@ class PdfTransform:  # pylint: disable=too-many-instance-attributes
         size: Optional[Rectangle],
         in_size: Optional[Rectangle],
         specs: List[List[PageSpec]],
-        rotate: int,
-        scale: float,
         draw: float,
     ):
         self.outfile = outfile
         self.reader = reader
         self.writer = PdfWriter(self.outfile)
-        self.scale, self.rotate, self.draw = scale, rotate, draw
-        self.global_transform = scale != 1.0 or rotate != 0
+        self.draw = draw
         self.specs = specs
 
         if in_size is None:
@@ -698,7 +692,6 @@ class PdfTransform:  # pylint: disable=too-many-instance-attributes
         real_page = page_list.real_page(page_number)
         if (  # pylint: disable=too-many-boolean-expressions
             len(page_specs) == 1
-            and not self.global_transform
             and not page_specs[0].has_transform()
             and page_number < page_list.num_pages()
             and 0 <= real_page < len(self.reader.pages)
@@ -733,7 +726,7 @@ class PdfTransform:  # pylint: disable=too-many-instance-attributes
                             Transformation((1, 0, 0, -1, 0, self.in_size.height))
                         )
                     if spec.rotate != 0:
-                        t = t.rotate((spec.rotate + self.rotate) % 360)
+                        t = t.rotate(spec.rotate % 360)
                     if spec.scale != 1.0:
                         t = t.scale(spec.scale, spec.scale)
                     if spec.off != Offset(0.0, 0.0):
@@ -777,8 +770,6 @@ def document_transform(
     size: Optional[Rectangle],
     in_size: Optional[Rectangle],
     specs: List[List[PageSpec]],
-    rotate: int,
-    scale: float,
     draw: float,
 ) -> Iterator[Union[PdfTransform, PsTransform]]:
     with setup_input_and_output(infile_name, outfile_name) as (
@@ -793,8 +784,6 @@ def document_transform(
                 size,
                 in_size,
                 specs,
-                rotate,
-                scale,
                 draw,
             )
         elif file_type == ".pdf":
@@ -804,8 +793,6 @@ def document_transform(
                 size,
                 in_size,
                 specs,
-                rotate,
-                scale,
                 draw,
             )
         else:

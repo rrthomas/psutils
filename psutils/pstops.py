@@ -30,10 +30,6 @@ Copyright (c) Reuben Thomas 2023.
 Released under the GPL version 3, or (at your option) any later version.
 """
 
-# Globals
-SCALE = 1.0  # global scale factor
-ROTATE = 0  # global rotation
-
 
 # Command-line parsing helper functions
 def specerror() -> NoReturn:
@@ -211,8 +207,6 @@ def pstops(
         size,
         in_size,
         specs,
-        ROTATE,
-        SCALE,
         args.draw,
     ) as transform:
         if transform.in_size is None and flipping:

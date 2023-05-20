@@ -63,9 +63,7 @@ def psbook(
         die("signature must be a multiple of 4")
 
     # Get number of pages
-    with document_transform(
-        args.infile, args.outfile, None, None, [], False, 1.0, 0
-    ) as transform:
+    with document_transform(args.infile, args.outfile, None, None, [], 0) as transform:
         input_pages = transform.pages()
 
         def page_index_to_real_page(signature: int, page_number: int) -> int:

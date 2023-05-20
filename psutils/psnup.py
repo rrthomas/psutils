@@ -178,8 +178,6 @@ def psnup(
             Rectangle(args.width, args.height),
             None,
             [],
-            False,
-            1.0,
             0,
         ) as transform:
             if transform.in_size is not None:
