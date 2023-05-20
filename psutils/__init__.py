@@ -118,10 +118,9 @@ def simple_warning(prog: str) -> Callable[..., None]:
         category: Type[Warning],  # pylint: disable=unused-argument
         filename: str,  # pylint: disable=unused-argument,redefined-outer-name
         lineno: int,  # pylint: disable=unused-argument
-        file: Optional[TextIO] = sys.stderr,  # pylint: disable=redefined-outer-name
+        file: Optional[TextIO] = sys.stderr,
         line: Optional[str] = None,  # pylint: disable=unused-argument
     ) -> None:
-        # pylint: disable=c-extension-no-member
         print(f"\n{prog}: {message}", file=file or sys.stderr)
 
     return _warning
@@ -619,7 +618,6 @@ end"""
 
     def finalize(self) -> None:
         # Write trailer
-        # pylint: disable=invalid-sequence-index
         self.reader.infile.seek(self.reader.pageptr[self.pages()])
         shutil.copyfileobj(self.reader.infile, self.outfile)  # type: ignore
         self.outfile.flush()
