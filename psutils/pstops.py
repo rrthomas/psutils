@@ -13,6 +13,7 @@ from psutils import (
     parsedraw,
     singledimen,
     simple_warning,
+    Rectangle,
     Offset,
     PageSpec,
     Range,
@@ -46,7 +47,7 @@ def specerror() -> NoReturn:
 
 
 def parsespecs(
-    s: str, width: Optional[float], height: Optional[float]
+    s: str, size: Optional[Rectangle]
 ) -> Tuple[List[List[PageSpec]], int, bool]:
     flipping = False
     m = re.match(r"(?:([^:]+):)?(.*)", s)
@@ -78,8 +79,8 @@ def parsespecs(
             if m[5] is not None:
                 [xoff_str, yoff_str] = m[5].split(",")
                 spec.off = Offset(
-                    singledimen(xoff_str, width, height),
-                    singledimen(yoff_str, width, height),
+                    singledimen(xoff_str, size),
+                    singledimen(yoff_str, size),
                 )
             if spec.pageno >= modulo:
                 specerror()
@@ -192,37 +193,29 @@ def pstops(
     argv: List[str] = sys.argv[1:],
 ) -> None:
     args = get_parser().parse_intermixed_args(argv)
-    width: Optional[float] = None
-    height: Optional[float] = None
-    iwidth: Optional[float] = None
-    iheight: Optional[float] = None
+    size: Optional[Rectangle] = None
+    in_size: Optional[Rectangle] = None
     if args.paper:
-        width, height = args.paper
+        size = args.paper
     elif args.width is not None and args.height is not None:
-        width, height = args.width, args.height
-        if (width is None) ^ (height is None):
-            die("output page width and height must both be set, or neither")
+        size = Rectangle(args.width, args.height)
     if args.inpaper:
-        iwidth, iheight = args.inpaper
+        in_size = args.inpaper
     elif args.inwidth is not None and args.inheight is not None:
-        iwidth, iheight = args.inwidth, args.inheight
-        if (iwidth is None) ^ (iheight is None):
-            die("input page width and height must both be set, or neither")
-    specs, modulo, flipping = parsespecs(args.specs, width, height)
+        in_size = Rectangle(args.inwidth, args.inheight)
+    specs, modulo, flipping = parsespecs(args.specs, size)
 
     with document_transform(
         args.infile,
         args.outfile,
-        width,
-        height,
-        iwidth,
-        iheight,
+        size,
+        in_size,
         specs,
         ROTATE,
         SCALE,
         args.draw,
     ) as transform:
-        if transform.iwidth is None and flipping:
+        if transform.in_size is None and flipping:
             die("input page size must be set when flipping the page")
 
         # Page spec routines for page rearrangement

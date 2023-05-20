@@ -10,6 +10,7 @@ from psutils import (
     add_basic_arguments,
     add_paper_arguments,
     die,
+    Rectangle,
     document_transform,
     get_paper_size,
     parsedimen,
@@ -160,33 +161,29 @@ def psnup(
     argv: List[str] = sys.argv[1:],
 ) -> None:
     args = get_parser().parse_intermixed_args(argv)
-    width: Optional[float] = None
-    height: Optional[float] = None
-    iwidth: Optional[float] = None
-    iheight: Optional[float] = None
+    size: Optional[Rectangle] = None
+    in_size: Optional[Rectangle] = None
     if args.paper:
-        width, height = args.paper
+        size = args.paper
     elif args.width is not None and args.height is not None:
-        width, height = args.width, args.height
+        size = Rectangle(args.width, args.height)
     if args.inpaper:
-        iwidth, iheight = args.inpaper
+        in_size = args.inpaper
     elif args.inwidth is not None and args.inheight is not None:
-        iwidth, iheight = args.inwidth, args.inheight
+        in_size = Rectangle(args.inwidth, args.inheight)
     else:
         with document_transform(
             args.infile,
             args.outfile,
-            args.width,
-            args.height,
-            args.inwidth,
-            args.inheight,
+            Rectangle(args.width, args.height),
+            None,
             [],
             False,
             1.0,
             0,
         ) as transform:
-            if transform.iwidth is not None and transform.iheight is not None:
-                iwidth, iheight = transform.iwidth, transform.iheight
+            if transform.in_size is not None:
+                in_size = Rectangle(transform.in_size.width, transform.in_size.height)
 
     # Process command-line arguments
     rowmajor, leftright, topbottom = True, True, True
@@ -199,30 +196,31 @@ def psnup(
         rowmajor = not rowmajor
         leftright = not leftright
 
-    if (width is None) ^ (height is None):
+    if size is None and ((args.width is None) ^ (args.height is None)):
         die("output page width and height must both be set, or neither")
-    if (iwidth is None) ^ (iheight is None):
+    if in_size is None and ((args.inwidth is None) ^ (args.inheight is None)):
         die("input page width and height must both be set, or neither")
 
     # Set output height/width from corresponding input value if undefined
-    if width is None and iwidth is not None:
-        width, height = iwidth, iheight
+    if size is None and in_size is not None:
+        size = in_size
 
     # Ensure output page size is set
-    if width is None:
-        width, height = get_paper_size()
-    if width is None:
+    if size is None:
+        paper_size = get_paper_size()
+        if paper_size is not None:
+            size = paper_size
+    if size is None:
         die("output page size not set, and could not get default paper size")
 
     # Set input height/width from corresponding output value if undefined
-    if iwidth is None:
-        iwidth, iheight = width, height
-    assert iwidth
-    assert iheight
+    if in_size is None:
+        in_size = size
+    assert in_size
 
     # Take account of flip
     if args.flip:
-        width, height = height, width
+        size = Rectangle(size.height, size.width)
 
     # Find next larger exact divisor > n of m, or 0 if none; return divisor
     # and dividend.
@@ -239,7 +237,7 @@ def psnup(
     cmd = []
 
     # Tell pstops input page size
-    cmd.append(f"--inpaper={iwidth}x{iheight}")
+    cmd.append(f"--inpaper={in_size.width}x{in_size.height}")
 
     # Add flags from our own input flags
     if not args.verbose:
@@ -248,7 +246,7 @@ def psnup(
         cmd.extend(["--draw", f"{args.draw}"])
 
     # Calculate paper dimensions, subtracting paper margin from height & width
-    ppwid, pphgt = width - args.margin * 2, height - args.margin * 2
+    ppwid, pphgt = size.width - args.margin * 2, size.height - args.margin * 2
     if ppwid <= 0 or pphgt <= 0:
         die("margin is too large")
     if args.border > min(ppwid, pphgt):
@@ -273,8 +271,8 @@ def psnup(
 
     hor, ver = 1, args.nup
     while hor != 0:
-        reduce_waste(hor, ver, iwidth, iheight, 0)  # normal orientation
-        reduce_waste(ver, hor, iheight, iwidth, 1)  # rotated orientation
+        reduce_waste(hor, ver, in_size.width, in_size.height, 0)  # normal orientation
+        reduce_waste(ver, hor, in_size.height, in_size.width, 1)  # rotated orientation
         hor, ver = nextdiv(hor, args.nup)
 
     # Fail if nothing better than tolerance was found
@@ -283,26 +281,26 @@ def psnup(
 
     # Take account of rotation
     if rotate:
-        topbottom, leftright, rowmajor, iwidth, iheight = (
+        topbottom, leftright, rowmajor, in_size.width, in_size.height = (
             not leftright,
             topbottom,
             not rowmajor,
-            iheight,
-            iwidth,
+            in_size.height,
+            in_size.width,
         )
 
     # Calculate page scale, allowing for internal borders
     scale = min(
-        (pphgt - 2 * args.border * vert) / (iheight * vert),
-        (ppwid - 2 * args.border * horiz) / (iwidth * horiz),
+        (pphgt - 2 * args.border * vert) / (in_size.height * vert),
+        (ppwid - 2 * args.border * horiz) / (in_size.width * horiz),
     )
 
     # Page centring shifts
-    hshift, vshift = (ppwid / horiz - iwidth * scale) / 2, (
-        pphgt / vert - iheight * scale
+    hshift, vshift = (ppwid / horiz - in_size.width * scale) / 2, (
+        pphgt / vert - in_size.height * scale
     ) / 2
 
-    cmd.append(f"--paper={width}x{height}")  # set output page size for pstops
+    cmd.append(f"--paper={size.width}x{size.height}")  # set output page size for pstops
 
     # Construct specification list
     specs = []

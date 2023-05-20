@@ -152,27 +152,29 @@ def strtod(s: str) -> Tuple[float, int]:
     return float(m[0]), m.end()
 
 
+@dataclass
+class Rectangle:
+    width: float
+    height: float
+
+
 # Argument parsers
 DEFAULT_PAPER_INITIALIZED: bool = False
-DEFAULT_WIDTH: Optional[float] = None
-DEFAULT_HEIGHT: Optional[float] = None
+DEFAULT_SIZE: Optional[Rectangle] = None
 
 
 def singledimen(
     s: str,
-    width: Optional[float] = None,
-    height: Optional[float] = None,
+    size: Optional[Rectangle] = None,
     error_message: str = "output page size not set, and could not get default paper size",
 ) -> float:
-    global DEFAULT_WIDTH, DEFAULT_HEIGHT, DEFAULT_PAPER_INITIALIZED  # pylint: disable=global-statement
+    global DEFAULT_SIZE, DEFAULT_PAPER_INITIALIZED  # pylint: disable=global-statement
     if not DEFAULT_PAPER_INITIALIZED:
         DEFAULT_PAPER_INITIALIZED = True
-        DEFAULT_WIDTH, DEFAULT_HEIGHT = get_paper_size()
+        DEFAULT_SIZE = get_paper_size()
 
-    if width is None:
-        width = DEFAULT_WIDTH
-    if height is None:
-        height = DEFAULT_HEIGHT
+    if size is None:
+        size = DEFAULT_SIZE
 
     num, unparsed = strtod(s)
     s = s[unparsed:]
@@ -186,23 +188,21 @@ def singledimen(
     elif s.startswith("mm"):
         num *= 2.8346456692913385211
     elif s.startswith("w"):
-        if width is None:
+        if size is None:
             die(error_message)
-        num *= width
+        num *= size.width
     elif s.startswith("h"):
-        if height is None:
+        if size is None:
             die(error_message)
-        num *= height
+        num *= size.height
     elif s != "":
         die(f"bad dimension `{s}'")
 
     return num
 
 
-def singledimen_set(
-    s: str, width: Optional[float] = None, height: Optional[float] = None
-) -> float:
-    return singledimen(s, width, height, "could not get default paper size")
+def singledimen_set(s: str, size: Optional[Rectangle] = None) -> float:
+    return singledimen(s, size, "could not get default paper size")
 
 
 # Get the size of the given paper, or the default paper if no argument given.
@@ -219,41 +219,40 @@ def paper(cmd: List[str], silent: bool = False) -> Optional[str]:
         die("could not run `paper' command")
 
 
-def get_paper_size(
-    paper_name: Optional[str] = None,
-) -> Tuple[Optional[float], Optional[float]]:
+def get_paper_size(paper_name: Optional[str] = None) -> Optional[Rectangle]:
     if paper_name is None:
         paper_name = paper(["--no-size"])
     dimensions: Optional[str] = None
     if paper_name is not None:
         dimensions = paper(["--unit=pt", paper_name], True)
     if dimensions is None:
-        return None, None
+        return None
     m = re.search(" ([.0-9]+)x([.0-9]+) pt$", dimensions)
     assert m
     w, h = float(m[1]), float(m[2])
-    return int(w + 0.5), int(h + 0.5)  # round dimensions to nearest point
+    return Rectangle(round(w), round(h))  # round dimensions to nearest point
 
 
-def parsepaper(paper_size: str) -> Tuple[Optional[float], Optional[float]]:
+def parsepaper(paper_size: str) -> Optional[Rectangle]:
     try:
-        (width, height) = get_paper_size(paper_size)
-        if width is None:
+        size = get_paper_size(paper_size)
+        if size is None:
             [width_text, height_text] = paper_size.split("x")
             if width_text and height_text:
                 width = singledimen_set(width_text)
                 height = singledimen_set(height_text)
-        return width, height
+            size = Rectangle(width, height)
+        return size
     except:  # pylint: disable=bare-except
         die(f"paper size '{paper_size}' unknown")
 
 
 def parsedimen(s: str) -> float:
-    return singledimen(s, None, None)
+    return singledimen(s, None)
 
 
 def parsedimen_set(s: str) -> float:
-    return singledimen_set(s, None, None)
+    return singledimen_set(s, None)
 
 
 def parsedraw(s: str) -> float:
@@ -342,7 +341,7 @@ class PsReader:
         self.num_pages: int = 0
         self.sizeheaders: List[int] = []
         self.pageptr: List[int] = []
-        self.iwidth, self.iheight = None, None
+        self.in_size = None
 
         nesting = 0
         self.infile.seek(0)
@@ -355,7 +354,7 @@ class PsReader:
                     # If input paper size is not set, try to read it
                     if (
                         self.headerpos == 0
-                        and self.iwidth is None
+                        and self.in_size is None
                         and keyword == b"DocumentMedia:"
                     ):
                         assert value is not None
@@ -364,7 +363,7 @@ class PsReader:
                             w = words[1].decode("utf-8", "ignore")
                             h = words[2].decode("utf-8", "ignore")
                             try:
-                                self.iwidth, self.iheight = int(w), int(h)
+                                self.in_size = Rectangle(float(w), float(h))
                             except ValueError:
                                 pass
                     if nesting == 0 and keyword == b"Page:":
@@ -457,10 +456,8 @@ end"""
         self,
         reader: PsReader,
         outfile: IO[bytes],
-        width: Optional[float],
-        height: Optional[float],
-        iwidth: Optional[float],
-        iheight: Optional[float],
+        size: Optional[Rectangle],
+        in_size: Optional[Rectangle],
         specs: List[List[PageSpec]],
         rotate: int,
         scale: float,
@@ -476,20 +473,20 @@ end"""
             len(page) > 1 or page[0].has_transform() for page in specs
         )
 
-        self.width, self.height = width, height
-        if iwidth is None:
-            if reader.iwidth is not None:
-                iwidth, iheight = reader.iwidth, reader.iheight
-            elif width is not None:
-                iwidth, iheight = width, height
-        self.iwidth, self.iheight = iwidth, iheight
+        self.size = size
+        if in_size is None:
+            if reader.in_size is not None:
+                in_size = reader.in_size
+            elif size is not None:
+                in_size = size
+        self.in_size = in_size
 
     def pages(self) -> int:
         return self.reader.num_pages
 
     def write_header(self, maxpage: int, modulo: int) -> None:
         # FIXME: doesn't cope properly with loaded definitions
-        ignorelist = [] if self.width is None else self.reader.sizeheaders
+        ignorelist = [] if self.size is None else self.reader.sizeheaders
         self.reader.infile.seek(0)
         if self.reader.pagescmt:
             self.fcopy(self.reader.pagescmt, ignorelist)
@@ -497,11 +494,13 @@ end"""
                 _ = self.reader.infile.readline()
             except IOError:
                 die("I/O error in header", 2)
-            if self.width is not None and self.height is not None:
+            if self.size is not None:
                 self.write(
-                    f"%%DocumentMedia: plain {int(self.width)} {int(self.height)} 0 () ()"
+                    f"%%DocumentMedia: plain {int(self.size.width)} {int(self.size.height)} 0 () ()"
                 )
-                self.write(f"%%BoundingBox: 0 0 {int(self.width)} {int(self.height)}")
+                self.write(
+                    f"%%BoundingBox: 0 0 {int(self.size.width)} {int(self.size.height)}"
+                )
             pagesperspec = len(self.specs)
             self.write(f"%%Pages: {int(maxpage / modulo) * pagesperspec} 0")
         self.fcopy(self.reader.headerpos, ignorelist)
@@ -565,23 +564,23 @@ end"""
                 if spec.rotate != 0:
                     self.write(f"{(spec.rotate + self.rotate) % 360} rotate")
                 if spec.hflip == 1:
-                    assert self.iwidth is not None
+                    assert self.in_size is not None
                     self.write(
-                        f"[ -1 0 0 1 {self.iwidth * spec.scale * self.scale:g} 0 ] concat"
+                        f"[ -1 0 0 1 {self.in_size.width * spec.scale * self.scale:g} 0 ] concat"
                     )
                 if spec.vflip == 1:
-                    assert self.iheight is not None
+                    assert self.in_size is not None
                     self.write(
-                        f"[ 1 0 0 -1 0 {self.iheight * spec.scale * self.scale:g} ] concat"
+                        f"[ 1 0 0 -1 0 {self.in_size.height * spec.scale * self.scale:g} ] concat"
                     )
                 if spec.scale != 1.0:
                     self.write(f"{spec.scale * self.scale:f} dup scale")
                 self.write("userdict/PStoPSmatrix matrix currentmatrix put")
-                if self.iwidth is not None:
-                    # pylint: disable=invalid-unary-operand-type
+                if self.in_size is not None:
+                    w, h = self.in_size.width, self.in_size.height
                     self.write(
                         f"""userdict/PStoPSclip{{0 0 moveto
- {self.iwidth:f} 0 rlineto 0 {self.iheight:f} rlineto {-self.iwidth:f} 0 rlineto
+ {w:f} 0 rlineto 0 {h:f} rlineto {-w:f} 0 rlineto
  closepath}}put initclip"""
                     )
                     if self.draw > 0:
@@ -653,10 +652,8 @@ class PdfTransform:  # pylint: disable=too-many-instance-attributes
         self,
         reader: PdfReader,
         outfile: IO[bytes],
-        width: Optional[float],
-        height: Optional[float],
-        iwidth: Optional[float],
-        iheight: Optional[float],
+        size: Optional[Rectangle],
+        in_size: Optional[Rectangle],
         specs: List[List[PageSpec]],
         rotate: int,
         scale: float,
@@ -669,16 +666,14 @@ class PdfTransform:  # pylint: disable=too-many-instance-attributes
         self.global_transform = scale != 1.0 or rotate != 0
         self.specs = specs
 
-        if iwidth is None or iheight is None:
+        if in_size is None:
             mediabox = self.reader.pages[0].mediabox
-            iwidth, iheight = mediabox.width, mediabox.height
-        if width is None or height is None:
-            width, height = iwidth, iheight
+            in_size = Rectangle(mediabox.width, mediabox.height)
+        if size is None:
+            size = in_size
 
-        assert width is not None and height is not None
-        self.width, self.height = width, height
-        assert iwidth is not None and iheight is not None
-        self.iwidth, self.iheight = iwidth, iheight
+        self.size = size
+        self.in_size = in_size
 
     def pages(self) -> int:
         return len(self.reader.pages)
@@ -711,17 +706,18 @@ class PdfTransform:  # pylint: disable=too-many-instance-attributes
             and 0 <= real_page < len(self.reader.pages)
             and self.draw == 0
             and (
-                self.iwidth is None
+                self.in_size.width is None
                 or (
-                    self.iwidth == self.reader.pages[real_page].mediabox.width
-                    and self.iheight == self.reader.pages[real_page].mediabox.height
+                    self.in_size.width == self.reader.pages[real_page].mediabox.width
+                    and self.in_size.height
+                    == self.reader.pages[real_page].mediabox.height
                 )
             )
         ):
             self.writer.add_page(self.reader.pages[real_page])
         else:
             # Add a blank page of the correct size to the end of the document
-            outpdf_page = self.writer.add_blank_page(self.width, self.height)
+            outpdf_page = self.writer.add_blank_page(self.size.width, self.size.height)
             for spec in page_specs:
                 page_number = page_index_to_page_number(spec, maxpage, modulo, pagebase)
                 real_page = page_list.real_page(page_number)
@@ -731,9 +727,13 @@ class PdfTransform:  # pylint: disable=too-many-instance-attributes
                     # Calculate input page transformation
                     t = Transformation()
                     if spec.hflip:
-                        t = t.transform(Transformation((-1, 0, 0, 1, self.iwidth, 0)))
+                        t = t.transform(
+                            Transformation((-1, 0, 0, 1, self.in_size.width, 0))
+                        )
                     elif spec.vflip:
-                        t = t.transform(Transformation((1, 0, 0, -1, 0, self.iheight)))
+                        t = t.transform(
+                            Transformation((1, 0, 0, -1, 0, self.in_size.height))
+                        )
                     if spec.rotate != 0:
                         t = t.rotate((spec.rotate + self.rotate) % 360)
                     if spec.scale != 1.0:
@@ -776,10 +776,8 @@ class PdfTransform:  # pylint: disable=too-many-instance-attributes
 def document_transform(
     infile_name: str,
     outfile_name: str,
-    width: Optional[float],
-    height: Optional[float],
-    iwidth: Optional[float],
-    iheight: Optional[float],
+    size: Optional[Rectangle],
+    in_size: Optional[Rectangle],
     specs: List[List[PageSpec]],
     rotate: int,
     scale: float,
@@ -794,10 +792,8 @@ def document_transform(
             yield PsTransform(
                 PsReader(infile),
                 outfile,
-                width,
-                height,
-                iwidth,
-                iheight,
+                size,
+                in_size,
                 specs,
                 rotate,
                 scale,
@@ -807,10 +803,8 @@ def document_transform(
             yield PdfTransform(
                 PdfReader(infile),
                 outfile,
-                width,
-                height,
-                iwidth,
-                iheight,
+                size,
+                in_size,
                 specs,
                 rotate,
                 scale,

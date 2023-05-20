@@ -64,7 +64,7 @@ def psbook(
 
     # Get number of pages
     with document_transform(
-        args.infile, args.outfile, None, None, None, None, [], False, 1.0, 0
+        args.infile, args.outfile, None, None, [], False, 1.0, 0
     ) as transform:
         input_pages = transform.pages()
 
