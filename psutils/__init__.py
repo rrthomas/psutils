@@ -710,6 +710,13 @@ class PdfTransform:  # pylint: disable=too-many-instance-attributes
             and page_number < page_list.num_pages()
             and 0 <= real_page < len(self.reader.pages)
             and self.draw == 0
+            and (
+                self.iwidth is None
+                or (
+                    self.iwidth == self.reader.pages[real_page].mediabox.width
+                    and self.iheight == self.reader.pages[real_page].mediabox.height
+                )
+            )
         ):
             self.writer.add_page(self.reader.pages[real_page])
         else:

@@ -238,9 +238,8 @@ def psnup(
     # Arguments for pstops
     cmd = []
 
-    # Tell pstops input page size if it differs from output page size
-    if width != iwidth or height != iheight:
-        cmd.append(f"-P{iwidth}x{iheight}")
+    # Tell pstops input page size
+    cmd.append(f"-P{iwidth}x{iheight}")
 
     # Add flags from our own input flags
     if not args.verbose:

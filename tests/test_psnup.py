@@ -38,6 +38,11 @@ pytestmark = make_tests(
         GeneratedInput("a4", 20),
     ),
     Case(
+        "20-1-flipped-dimensions-wrong-inpaper",
+        ["-P", "297mmx210mm", "-p", "297mmx210mm", "-1"],
+        GeneratedInput("a4", 20),
+    ),
+    Case(
         "20-1-inpaper-A4-outpaper-A5",
         ["-p", "a5", "-1"],
         GeneratedInput("a4", 20),
@@ -45,6 +50,11 @@ pytestmark = make_tests(
     Case(
         "20-1-inpaper-A5",
         ["-p", "a4", "-1"],
+        GeneratedInput("a5", 20),
+    ),
+    Case(
+        "20-1-inpaper-A5-set-inpaper",
+        ["-P", "a5", "-p", "a4", "-1"],
         GeneratedInput("a5", 20),
     ),
     Case(
