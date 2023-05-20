@@ -329,7 +329,7 @@ class PageList:
         return len(self.pages)
 
 
-class PsReader:  # pylint: disable=too-many-instance-attributes
+class PsReader:  # pylint: disable=too-many-instance-attributes,too-few-public-methods
     def __init__(self, infile: IO[bytes]) -> None:
         self.infile = infile
         self.headerpos: int = 0
