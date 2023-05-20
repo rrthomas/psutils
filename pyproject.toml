@@ -81,6 +81,5 @@ disable = [
     "too-many-statements",
     "too-many-branches",
     "too-many-nested-blocks",
-    "too-many-instance-attributes",
     "too-few-public-methods",
 ]
