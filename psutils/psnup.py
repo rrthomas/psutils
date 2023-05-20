@@ -239,7 +239,7 @@ def psnup(
     cmd = []
 
     # Tell pstops input page size
-    cmd.append(f"-P{iwidth}x{iheight}")
+    cmd.append(f"--inpaper={iwidth}x{iheight}")
 
     # Add flags from our own input flags
     if not args.verbose:
@@ -302,7 +302,7 @@ def psnup(
         pphgt / vert - iheight * scale
     ) / 2
 
-    cmd.append(f"-p{width}x{height}")  # set output page size for pstops
+    cmd.append(f"--paper={width}x{height}")  # set output page size for pstops
 
     # Construct specification list
     specs = []
