@@ -335,8 +335,7 @@ class PsReader:  # pylint: disable=too-many-instance-attributes
         self.headerpos: int = 0
         self.pagescmt: int = 0
         self.endsetup: int = 0
-        self.beginprocset: int = 0  # start of pstops procset
-        self.endprocset: int = 0  # end of pstops procset
+        self.procset_pos: range = range(0, 0)  # pstops procset location
         self.num_pages: int = 0
         self.sizeheaders: List[int] = []
         self.pageptr: List[int] = []
@@ -391,13 +390,13 @@ class PsReader:  # pylint: disable=too-many-instance-attributes
                     elif nesting == 0 and keyword == b"BeginProlog":
                         self.headerpos = next_record
                     elif nesting == 0 and buffer == b"%%BeginProcSet: PStoPS":
-                        self.beginprocset = record
+                        self.procset_pos = range(record, 0)
                     elif (
-                        self.beginprocset is not None
-                        and self.endprocset is None
+                        self.procset_pos.start > 0
+                        and self.procset_pos.stop == 0
                         and keyword == b"EndProcSet"
                     ):
-                        self.endprocset = next_record
+                        self.procset_pos = range(self.procset_pos.start, next_record)
                     elif nesting == 0 and keyword in [b"Trailer", b"EOF"]:
                         break
             elif self.headerpos == 0:
@@ -506,13 +505,13 @@ end"""
 
         # Write prologue to end of setup section, skipping our procset if present
         # and we're outputting it (this allows us to upgrade our procset)
-        if self.reader.endprocset and self.use_procset:
-            self.fcopy(self.reader.beginprocset, [])
-            self.reader.infile.seek(self.reader.endprocset)
+        if self.reader.procset_pos and self.use_procset:
+            self.fcopy(self.reader.procset_pos.start, [])
+            self.reader.infile.seek(self.reader.procset_pos.stop)
         self.fcopy(self.reader.endsetup, [])
 
         # Save transformation from original to current matrix
-        if not self.reader.beginprocset and self.use_procset:
+        if not self.reader.procset_pos and self.use_procset:
             self.write(
                 """userdict/PStoPSxform PStoPSmatrix matrix currentmatrix
  matrix invertmatrix matrix concatmatrix
@@ -586,7 +585,7 @@ end"""
             if spec_page_number < len(page_specs) - 1:
                 self.write("/PStoPSenablepage false def")
             if (
-                self.reader.beginprocset
+                self.reader.procset_pos
                 and page_number < page_list.num_pages()
                 and real_page < self.pages()
             ):
@@ -602,7 +601,7 @@ end"""
                         self.write(line.decode())
                     except IOError:
                         die(f"I/O error writing page setup {outputpage}", 2)
-            if not self.reader.beginprocset and self.use_procset:
+            if not self.reader.procset_pos and self.use_procset:
                 self.write("PStoPSxform concat")
             if page_number < page_list.num_pages() and 0 <= real_page < self.pages():
                 # Write the body of a page
