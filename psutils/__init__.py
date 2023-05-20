@@ -158,22 +158,13 @@ class Rectangle:
 
 
 # Argument parsers
-DEFAULT_PAPER_INITIALIZED: bool = False
-DEFAULT_SIZE: Optional[Rectangle] = None
-
-
 def singledimen(
     s: str,
     size: Optional[Rectangle] = None,
     error_message: str = "output page size not set, and could not get default paper size",
 ) -> float:
-    global DEFAULT_SIZE, DEFAULT_PAPER_INITIALIZED  # pylint: disable=global-statement
-    if not DEFAULT_PAPER_INITIALIZED:
-        DEFAULT_PAPER_INITIALIZED = True
-        DEFAULT_SIZE = get_paper_size()
-
     if size is None:
-        size = DEFAULT_SIZE
+        size = get_paper_size()
 
     num, unparsed = strtod(s)
     s = s[unparsed:]
