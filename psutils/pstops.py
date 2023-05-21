@@ -190,9 +190,7 @@ def get_parser_manpages() -> argparse.ArgumentParser:
 
 
 # pylint: disable=dangerous-default-value
-def pstops(
-    argv: List[str] = sys.argv[1:],
-) -> None:
+def pstops(argv: List[str] = sys.argv[1:]) -> None:
     parser, paper_context = get_parser()
     args = parser.parse_intermixed_args(argv)
     size: Optional[Rectangle] = None

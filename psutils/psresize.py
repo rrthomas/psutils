@@ -53,9 +53,7 @@ pstops(1) for more details.
 
 
 # pylint: disable=dangerous-default-value
-def psresize(
-    argv: List[str] = sys.argv[1:],
-) -> None:
+def psresize(argv: List[str] = sys.argv[1:]) -> None:
     args = get_parser().parse_intermixed_args(argv)
 
     # Resize pages

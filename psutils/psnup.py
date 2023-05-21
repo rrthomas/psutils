@@ -157,9 +157,7 @@ default is no line]""",
 
 
 # pylint: disable=dangerous-default-value
-def psnup(
-    argv: List[str] = sys.argv[1:],
-) -> None:
+def psnup(argv: List[str] = sys.argv[1:]) -> None:
     args = get_parser().parse_intermixed_args(argv)
     size: Optional[Rectangle] = None
     in_size: Optional[Rectangle] = None

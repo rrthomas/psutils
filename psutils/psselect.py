@@ -51,9 +51,7 @@ pstops(1) for more details.
 
 
 # pylint: disable=dangerous-default-value
-def psselect(
-    argv: List[str] = sys.argv[1:],
-) -> None:
+def psselect(argv: List[str] = sys.argv[1:]) -> None:
     args = get_parser().parse_intermixed_args(argv)
 
     # Rearrange the pages

@@ -54,9 +54,7 @@ otherwise, a multiple of 4""",
 
 
 # pylint: disable=dangerous-default-value
-def psbook(
-    argv: List[str] = sys.argv[1:],
-) -> None:
+def psbook(argv: List[str] = sys.argv[1:]) -> None:
     args = get_parser().parse_intermixed_args(argv)
 
     if args.signature > 1 and args.signature % 4 != 0:

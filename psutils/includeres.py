@@ -40,9 +40,7 @@ def get_parser() -> argparse.ArgumentParser:
 
 
 # pylint: disable=dangerous-default-value
-def includeres(
-    argv: List[str] = sys.argv[1:],
-) -> None:
+def includeres(argv: List[str] = sys.argv[1:]) -> None:
     args = get_parser().parse_intermixed_args(argv)
 
     with setup_input_and_output(args.infile, args.outfile) as (

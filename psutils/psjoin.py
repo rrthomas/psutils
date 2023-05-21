@@ -270,9 +270,7 @@ def normalize_types(types: List[str]) -> List[str]:
 
 
 # pylint: disable=dangerous-default-value
-def psjoin(
-    argv: List[str] = sys.argv[1:],
-) -> None:
+def psjoin(argv: List[str] = sys.argv[1:]) -> None:
     args = get_parser().parse_intermixed_args(argv)
 
     # Check types of files
