@@ -161,6 +161,7 @@ default is no line]""",
 get_parser_manpages = lambda: get_parser()[0]
 
 
+# FIXME: Move calculation logic into DocumentTransform class.
 # pylint: disable=dangerous-default-value
 def psnup(argv: List[str] = sys.argv[1:]) -> None:
     parser, paper_context = get_parser()
@@ -320,7 +321,9 @@ def psnup(argv: List[str] = sys.argv[1:]) -> None:
         transform = document_transform(
             doc, outfile, size, orig_in_size, specs, args.draw
         )
-        transform.pstops(None, flipped, False, False, False, modulo, args.verbose)
+        transform.transform_pages(
+            None, flipped, False, False, False, modulo, args.verbose
+        )
 
 
 if __name__ == "__main__":

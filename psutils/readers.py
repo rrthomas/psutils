@@ -28,6 +28,7 @@ class PdfReader(PdfReaderBase):
         self.size = Rectangle(mediabox.width, mediabox.height)
 
 
+# FIXME: Store lists of lines, not file offsets.
 class PsReader:  # pylint: disable=too-many-instance-attributes,too-few-public-methods
     def __init__(self, infile: IO[bytes]) -> None:
         self.infile = infile

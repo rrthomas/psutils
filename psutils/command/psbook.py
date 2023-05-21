@@ -92,7 +92,7 @@ def psbook(argv: List[str] = sys.argv[1:]) -> None:
             page_list.append(str(real_page) if real_page <= input_pages else "_")
 
         # Rearrange pages
-        transform.pstops(
+        transform.transform_pages(
             parserange(",".join(page_list)),
             flipping,
             False,

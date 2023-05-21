@@ -59,7 +59,7 @@ class DocumentTransform(ABC):
     def finalize(self) -> None:
         pass
 
-    def pstops(
+    def transform_pages(
         self,
         pagerange: Optional[List[Range]],
         flipping: bool,
@@ -132,6 +132,7 @@ class DocumentTransform(ABC):
         transform_pages(pagerange, odd, even, reverse)
 
 
+# FIXME: Extract PsWriter.
 class PsTransform(DocumentTransform):
     # PStoPS procset
     # Wrap showpage, erasepage and copypage in our own versions.

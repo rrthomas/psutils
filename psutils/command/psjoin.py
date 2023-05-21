@@ -62,6 +62,7 @@ The --save and --nostrip options only apply to PostScript files.
     return parser
 
 
+# FIXME: Move the logic for merging PdfReader documents into library.
 def join_pdf(args: argparse.Namespace) -> None:
     # Merge input files
     out_pdf = PdfWriter()
@@ -76,6 +77,7 @@ def join_pdf(args: argparse.Namespace) -> None:
     sys.stdout.buffer.flush()
 
 
+# FIXME: Move the logic for merging PsReader documents into library.
 def join_ps(args: argparse.Namespace) -> None:
     save = b"save %psjoin\n"
     restore = b"restore %psjoin\n"

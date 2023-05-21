@@ -118,7 +118,7 @@ def pstops(argv: List[str] = sys.argv[1:]) -> None:
     with file_transform(
         args.infile, args.outfile, size, in_size, specs, args.draw
     ) as transform:
-        transform.pstops(
+        transform.transform_pages(
             args.pagerange,
             flipping,
             args.reverse,
