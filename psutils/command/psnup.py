@@ -61,7 +61,7 @@ class ToggleAction(argparse.Action):
         setattr(namespace, self.dest, not getattr(namespace, self.dest))
 
 
-def get_parser() -> argparse.ArgumentParser:
+def get_parser() -> Tuple[argparse.ArgumentParser, PaperContext]:
     # Command-line arguments
     parser = argparse.ArgumentParser(
         description="Put multiple pages of a PostScript document on to one page.",
@@ -155,12 +155,16 @@ default is no line]""",
     )
     add_basic_arguments(parser, VERSION_BANNER)
 
-    return parser
+    return parser, paper_context
+
+
+get_parser_manpages = lambda: get_parser()[0]
 
 
 # pylint: disable=dangerous-default-value
 def psnup(argv: List[str] = sys.argv[1:]) -> None:
-    args = get_parser().parse_intermixed_args(argv)
+    parser, paper_context = get_parser()
+    args = parser.parse_intermixed_args(argv)
     size: Optional[Rectangle] = None
     in_size: Optional[Rectangle] = None
 
@@ -310,7 +314,6 @@ def psnup(argv: List[str] = sys.argv[1:]) -> None:
             )
 
         # Rearrange pages
-        paper_context = PaperContext()  # FIXME
         specs, modulo, flipped = parsespecs(
             f'{args.nup}:{"+".join(spec_list)}', paper_context
         )

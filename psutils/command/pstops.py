@@ -94,9 +94,7 @@ default is no line]""",
     return parser, paper_context
 
 
-def get_parser_manpages() -> argparse.ArgumentParser:
-    """Return just the parser for argparse-manpage"""
-    return get_parser()[0]
+get_parser_manpages = lambda: get_parser()[0]
 
 
 # pylint: disable=dangerous-default-value

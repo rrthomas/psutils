@@ -44,7 +44,7 @@ manpages = [
     "includeres.1:module=psutils.command.includeres:function=get_parser:manual_title=User Commands:include=includeres-include.man",
     "psbook.1:module=psutils.command.psbook:function=get_parser:manual_title=User Commands:include=psbook-include.man",
     "psjoin.1:module=psutils.command.psjoin:function=get_parser:manual_title=User Commands",
-    "psnup.1:module=psutils.command.psnup:function=get_parser:manual_title=User Commands:include=psnup-include.man",
+    "psnup.1:module=psutils.command.psnup:function=get_parser_manpages:manual_title=User Commands:include=psnup-include.man",
     "psresize.1:module=psutils.command.psresize:function=get_parser:manual_title=User Commands:include=psresize-include.man",
     "psselect.1:module=psutils.command.psselect:function=get_parser:manual_title=User Commands:include=psselect-include.man",
     "pstops.1:module=psutils.command.pstops:function=get_parser_manpages:manual_title=User Commands:include=pstops-include.man",
