@@ -9,9 +9,11 @@ from psutils import (
     add_basic_arguments,
     die,
     simple_warning,
-    document_transform,
+    file_transform,
+    parserange,
+    parsespecs,
+    PaperContext,
 )
-from psutils.pstops import pstops
 
 VERSION = importlib.metadata.version("psutils")
 
@@ -61,7 +63,9 @@ def psbook(argv: List[str] = sys.argv[1:]) -> None:
         die("signature must be a multiple of 4")
 
     # Get number of pages
-    with document_transform(args.infile, args.outfile, None, None, [], 0) as transform:
+    paper_context = PaperContext()
+    specs, modulo, flipping = parsespecs("0", paper_context)
+    with file_transform(args.infile, args.outfile, None, None, specs, 0) as transform:
         input_pages = transform.pages()
 
         def page_index_to_real_page(signature: int, page_number: int) -> int:
@@ -89,18 +93,15 @@ def psbook(argv: List[str] = sys.argv[1:]) -> None:
             page_list.append(str(real_page) if real_page <= input_pages else "_")
 
         # Rearrange pages
-        cmd = []
-        if not args.verbose:
-            cmd.append("--quiet")
-        cmd.append(f'--pages={",".join(page_list)}')
-        if args.infile is not None:
-            cmd.append(args.infile)
-        if args.outfile is not None:
-            cmd.append(args.outfile)
-        try:
-            pstops(cmd)
-        except SystemExit:
-            die("error running pstops")
+        transform.pstops(
+            parserange(",".join(page_list)),
+            flipping,
+            False,
+            False,
+            False,
+            modulo,
+            args.verbose,
+        )
 
 
 if __name__ == "__main__":

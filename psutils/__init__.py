@@ -6,11 +6,13 @@ Released under the GPL version 3, or (at your option) any later version.
 
 import io
 import os
+from pathlib import Path
 import sys
 import argparse
 import shutil
 import subprocess
 import re
+from abc import ABC, abstractmethod
 from contextlib import contextmanager
 from dataclasses import dataclass
 from warnings import warn
@@ -29,7 +31,8 @@ from typing import (
 )
 
 import puremagic  # type: ignore
-from pypdf import PdfReader, PdfWriter, Transformation
+from pypdf import PdfReader as PdfReaderBase, PdfWriter, Transformation
+from pypdf._utils import StrByteType
 from pypdf.generic import AnnotationBuilder
 
 
@@ -37,6 +40,36 @@ from pypdf.generic import AnnotationBuilder
 class Rectangle:
     width: float
     height: float
+
+
+@dataclass
+class Range:
+    start: int
+    end: int
+    text: str
+
+
+Offset = NamedTuple("Offset", [("x", float), ("y", float)])
+
+
+@dataclass
+class PageSpec:
+    reversed: bool = False
+    pageno: int = 0
+    rotate: int = 0
+    hflip: bool = False
+    vflip: bool = False
+    scale: float = 1.0
+    off: Offset = Offset(0.0, 0.0)
+
+    def has_transform(self) -> bool:
+        return (
+            self.rotate != 0
+            or self.hflip
+            or self.vflip
+            or self.scale != 1.0
+            or self.off != Offset(0.0, 0.0)
+        )
 
 
 # Get the size of the given paper, or the default paper if no argument given.
@@ -68,6 +101,23 @@ def get_paper_size(paper_name: Optional[str] = None) -> Optional[Rectangle]:
 
 
 # Argument parsers
+def parserange(ranges_text: str) -> List[Range]:
+    ranges = []
+    for range_text in ranges_text.split(","):
+        range_ = Range(0, 0, range_text)
+        if range_.text != "_":
+            m = re.match(r"(_?\d+)?(?:(-)(_?\d+))?$", range_.text)
+            if not m:
+                die(f"`{range_.text}' is not a page range")
+            start = m[1] or "1"
+            end = (m[3] or "-1") if m[2] else m[1]
+            start = re.sub("^_", "-", start)
+            end = re.sub("^_", "-", end)
+            range_.start, range_.end = int(start), int(end)
+        ranges.append(range_)
+    return ranges
+
+
 def parsepaper(paper_size: str) -> Optional[Rectangle]:
     try:
         size = get_paper_size(paper_size)
@@ -127,6 +177,74 @@ class PaperContext:
 
     def parsedraw(self, s: str) -> float:
         return self.dimension(s or "1")
+
+
+def specerror() -> NoReturn:
+    die(
+        """bad page specification:
+
+  PAGESPECS = [MODULO:]SPEC
+  SPEC      = [-]PAGENO[@SCALE][L|R|U|H|V][(XOFF,YOFF)][,SPEC|+SPEC]
+              MODULO >= 1; 0 <= PAGENO < MODULO"""
+    )
+
+
+def parsespecs(
+    s: str, paper_context: PaperContext
+) -> Tuple[List[List[PageSpec]], int, bool]:
+    flipping = False
+    m = re.match(r"(?:([^:]+):)?(.*)", s)
+    if not m:
+        specerror()
+    modulo, specs_text = int(m[1] or "1"), m[2]
+    # Split on commas but not inside parentheses.
+    pages_text = re.split(r",(?![^()]*\))", specs_text)
+    pages = []
+    angle = {"l": 90, "r": -90, "u": 180}
+    for page in pages_text:
+        specs = []
+        specs_text = page.split("+")
+        for spec_text in specs_text:
+            m = re.match(
+                r"(-)?(\d+)([LRUHV]+)?(?:@([^()]+))?(?:\((-?[\d.a-z]+,-?[\d.a-z]+)\))?$",
+                spec_text,
+                re.IGNORECASE | re.ASCII,
+            )
+            if not m:
+                specerror()
+            spec = PageSpec()
+            if m[1] is not None:
+                spec.reversed = True
+            if m[2] is not None:
+                spec.pageno = int(m[2])
+            if m[4] is not None:
+                spec.scale = float(m[4])
+            if m[5] is not None:
+                [xoff_str, yoff_str] = m[5].split(",")
+                spec.off = Offset(
+                    paper_context.dimension(xoff_str),
+                    paper_context.dimension(yoff_str),
+                )
+            if spec.pageno >= modulo:
+                specerror()
+            if m[3] is not None:
+                for mod in m[3]:
+                    if re.match(r"[LRU]", mod, re.IGNORECASE):
+                        spec.rotate += angle[mod.lower()]
+                    elif re.match(r"H", mod, re.IGNORECASE):
+                        spec.hflip = not spec.hflip
+                    elif re.match(r"V", mod, re.IGNORECASE):
+                        spec.vflip = not spec.vflip
+            # Normalize rotation and flips
+            if spec.hflip and spec.vflip:
+                spec.hflip, spec.vflip = False, False
+                spec.rotate += 180
+            spec.rotate %= 360
+            if spec.hflip or spec.vflip:
+                flipping = True
+            specs.append(spec)
+        pages.append(specs)
+    return pages, modulo, flipping
 
 
 # Help output
@@ -227,40 +345,10 @@ def die(msg: str, code: Optional[int] = 1) -> NoReturn:
     sys.exit(code)
 
 
-Offset = NamedTuple("Offset", [("x", float), ("y", float)])
-
-
-@dataclass
-class PageSpec:
-    reversed: bool = False
-    pageno: int = 0
-    rotate: int = 0
-    hflip: bool = False
-    vflip: bool = False
-    scale: float = 1.0
-    off: Offset = Offset(0.0, 0.0)
-
-    def has_transform(self) -> bool:
-        return (
-            self.rotate != 0
-            or self.hflip
-            or self.vflip
-            or self.scale != 1.0
-            or self.off != Offset(0.0, 0.0)
-        )
-
-
 def page_index_to_page_number(
     spec: PageSpec, maxpage: int, modulo: int, pagebase: int
 ) -> int:
     return (maxpage - pagebase - modulo if spec.reversed else pagebase) + spec.pageno
-
-
-@dataclass
-class Range:
-    start: int
-    end: int
-    text: str
 
 
 class PageList:
@@ -298,6 +386,19 @@ class PageList:
         return len(self.pages)
 
 
+class PdfReader(PdfReaderBase):
+    def __init__(
+        self,
+        stream: Union[StrByteType, Path],
+        strict: bool = False,
+        password: Union[str, bytes, None] = None,
+    ) -> None:
+        super().__init__(stream, strict, password)
+        assert len(self.pages) > 0
+        mediabox = self.pages[0].mediabox
+        self.size = Rectangle(mediabox.width, mediabox.height)
+
+
 class PsReader:  # pylint: disable=too-many-instance-attributes,too-few-public-methods
     def __init__(self, infile: IO[bytes]) -> None:
         self.infile = infile
@@ -308,7 +409,7 @@ class PsReader:  # pylint: disable=too-many-instance-attributes,too-few-public-m
         self.num_pages: int = 0
         self.sizeheaders: List[int] = []
         self.pageptr: List[int] = []
-        self.in_size = None
+        self.size = None
 
         nesting = 0
         self.infile.seek(0)
@@ -321,7 +422,7 @@ class PsReader:  # pylint: disable=too-many-instance-attributes,too-few-public-m
                     # If input paper size is not set, try to read it
                     if (
                         self.headerpos == 0
-                        and self.in_size is None
+                        and self.size is None
                         and keyword == b"DocumentMedia:"
                     ):
                         assert value is not None
@@ -330,7 +431,7 @@ class PsReader:  # pylint: disable=too-many-instance-attributes,too-few-public-m
                             w = words[1].decode("utf-8", "ignore")
                             h = words[2].decode("utf-8", "ignore")
                             try:
-                                self.in_size = Rectangle(float(w), float(h))
+                                self.size = Rectangle(float(w), float(h))
                             except ValueError:
                                 pass
                     if nesting == 0 and keyword == b"Page:":
@@ -382,7 +483,124 @@ class PsReader:  # pylint: disable=too-many-instance-attributes,too-few-public-m
         return (m[1], m[2]) if m else (None, None)
 
 
-class PsTransform:
+def document_reader(file: IO[bytes], file_type: str) -> Union[PdfReader, PsReader]:
+    constructor: Union[Type[PdfReader], Type[PsReader]]
+    if file_type in (".ps", ".eps"):
+        constructor = PsReader
+    elif file_type == ".pdf":
+        constructor = PdfReader
+    else:
+        die(f"incompatible file type `{file_type}'")
+    return constructor(file)
+
+
+class DocumentTransform(ABC):
+    def __init__(self) -> None:
+        self.in_size: Optional[Rectangle]
+        self.specs: List[List[PageSpec]]
+
+    @abstractmethod
+    def pages(self) -> int:
+        pass
+
+    @abstractmethod
+    def write_header(self, maxpage: int, modulo: int) -> None:
+        pass
+
+    @abstractmethod
+    def write_page_comment(self, pagelabel: str, outputpage: int) -> None:
+        pass
+
+    @abstractmethod
+    def write_page(
+        self,
+        page_list: PageList,
+        outputpage: int,
+        page_specs: List[PageSpec],
+        maxpage: int,
+        modulo: int,
+        pagebase: int,
+    ) -> None:
+        pass
+
+    @abstractmethod
+    def finalize(self) -> None:
+        pass
+
+    def pstops(
+        self,
+        pagerange: Optional[List[Range]],
+        flipping: bool,
+        reverse: bool,
+        odd: bool,
+        even: bool,
+        modulo: int,
+        verbose: bool,
+    ) -> None:
+        if self.in_size is None and flipping:
+            die("input page size must be set when flipping the page")
+
+        # Page spec routines for page rearrangement
+        def abs_page(n: int) -> int:
+            if n < 0:
+                n += self.pages() + 1
+                n = max(n, 1)
+            return n
+
+        def transform_pages(
+            pagerange: Optional[List[Range]], odd: bool, even: bool, reverse: bool
+        ) -> None:
+            outputpage = 0
+            # If no page range given, select all pages
+            if pagerange is None:
+                pagerange = parserange("1-_1")
+
+            # Normalize end-relative pageranges
+            for range_ in pagerange:
+                range_.start = abs_page(range_.start)
+                range_.end = abs_page(range_.end)
+
+            # Get list of pages
+            page_list = PageList(self.pages(), pagerange, reverse, odd, even)
+
+            # Calculate highest page number output (including any blanks)
+            maxpage = (
+                page_list.num_pages()
+                + (modulo - page_list.num_pages() % modulo) % modulo
+            )
+
+            # Rearrange pages
+            self.write_header(maxpage, modulo)
+            pagebase = 0
+            while pagebase < maxpage:
+                for page in self.specs:
+                    # Construct the page label from the input page numbers
+                    pagelabels = []
+                    for spec in page:
+                        n = page_list.real_page(
+                            page_index_to_page_number(spec, maxpage, modulo, pagebase)
+                        )
+                        pagelabels.append(str(n + 1) if n >= 0 else "*")
+                    pagelabel = ",".join(pagelabels)
+                    outputpage += 1
+                    self.write_page_comment(pagelabel, outputpage)
+                    if verbose:
+                        sys.stderr.write(f"[{pagelabel}] ")
+                    self.write_page(
+                        page_list, outputpage, page, maxpage, modulo, pagebase
+                    )
+
+                pagebase += modulo
+
+            self.finalize()
+            if verbose:
+                print(f"\nWrote {outputpage} pages", file=sys.stderr)
+
+        # Output the pages
+        transform_pages(pagerange, odd, even, reverse)
+
+
+class PsTransform(DocumentTransform):
     # PStoPS procset
     # Wrap showpage, erasepage and copypage in our own versions.
     # Nullify paper size operators.
@@ -428,6 +646,7 @@ end"""
         specs: List[List[PageSpec]],
         draw: float,
     ):
+        super().__init__()
         self.reader = reader
         self.outfile = outfile
         self.draw = draw
@@ -439,8 +658,8 @@ end"""
 
         self.size = size
         if in_size is None:
-            if reader.in_size is not None:
-                in_size = reader.in_size
+            if reader.size is not None:
+                in_size = reader.size
             elif size is not None:
                 in_size = size
         self.in_size = in_size
@@ -610,7 +829,7 @@ end"""
             die("I/O error", 2)
 
 
-class PdfTransform:
+class PdfTransform(DocumentTransform):
     def __init__(
         self,
         reader: PdfReader,
@@ -620,6 +839,7 @@ class PdfTransform:
         specs: List[List[PageSpec]],
         draw: float,
     ):
+        super().__init__()
         self.outfile = outfile
         self.reader = reader
         self.writer = PdfWriter(self.outfile)
@@ -627,8 +847,7 @@ class PdfTransform:
         self.specs = specs
 
         if in_size is None:
-            mediabox = self.reader.pages[0].mediabox
-            in_size = Rectangle(mediabox.width, mediabox.height)
+            in_size = reader.size
         if size is None:
             size = in_size
 
@@ -644,7 +863,6 @@ class PdfTransform:
     def write_page_comment(self, pagelabel: str, outputpage: int) -> None:
         pass
 
-    # pylint: disable=unused-argument
     def write_page(
         self,
         page_list: PageList,
@@ -654,6 +872,7 @@ class PdfTransform:
         modulo: int,
         pagebase: int,
     ) -> None:
+        assert self.in_size
         page_number = page_index_to_page_number(
             page_specs[0], maxpage, modulo, pagebase
         )
@@ -731,8 +950,23 @@ class PdfTransform:
         self.outfile.flush()
 
 
-@contextmanager
 def document_transform(
+    indoc: Union[PdfReader, PsReader],
+    outfile: IO[bytes],
+    size: Optional[Rectangle],
+    in_size: Optional[Rectangle],
+    specs: List[List[PageSpec]],
+    draw: float,
+) -> Union[PdfTransform, PsTransform]:
+    if isinstance(indoc, PsReader):
+        return PsTransform(indoc, outfile, size, in_size, specs, draw)
+    if isinstance(indoc, PdfReader):
+        return PdfTransform(indoc, outfile, size, in_size, specs, draw)
+    die("unknown document type")
+
+
+@contextmanager
+def file_transform(
     infile_name: str,
     outfile_name: str,
     size: Optional[Rectangle],
@@ -745,26 +979,8 @@ def document_transform(
         file_type,
         outfile,
     ):
-        if file_type in (".ps", ".eps"):
-            yield PsTransform(
-                PsReader(infile),
-                outfile,
-                size,
-                in_size,
-                specs,
-                draw,
-            )
-        elif file_type == ".pdf":
-            yield PdfTransform(
-                PdfReader(infile),
-                outfile,
-                size,
-                in_size,
-                specs,
-                draw,
-            )
-        else:
-            die(f"incompatible file type `{infile_name}'")
+        doc = document_reader(infile, file_type)
+        yield document_transform(doc, outfile, size, in_size, specs, draw)
 
 
 @contextmanager
