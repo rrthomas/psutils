@@ -158,7 +158,7 @@ class Rectangle:
 
 
 # Argument parsers
-def singledimen(
+def parsedimen(
     s: str,
     size: Optional[Rectangle] = None,
     error_message: str = "output page size not set, and could not get default paper size",
@@ -191,8 +191,8 @@ def singledimen(
     return num
 
 
-def singledimen_set(s: str, size: Optional[Rectangle] = None) -> float:
-    return singledimen(s, size, "could not get default paper size")
+def parsedimen_set(s: str) -> float:
+    return parsedimen(s, None, "could not get default paper size")
 
 
 # Get the size of the given paper, or the default paper if no argument given.
@@ -229,20 +229,12 @@ def parsepaper(paper_size: str) -> Optional[Rectangle]:
         if size is None:
             [width_text, height_text] = paper_size.split("x")
             if width_text and height_text:
-                width = singledimen_set(width_text)
-                height = singledimen_set(height_text)
+                width = parsedimen_set(width_text)
+                height = parsedimen_set(height_text)
             size = Rectangle(width, height)
         return size
     except:  # pylint: disable=bare-except
         die(f"paper size '{paper_size}' unknown")
-
-
-def parsedimen(s: str) -> float:
-    return singledimen(s, None)
-
-
-def parsedimen_set(s: str) -> float:
-    return singledimen_set(s, None)
 
 
 def parsedraw(s: str) -> float:

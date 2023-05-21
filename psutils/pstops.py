@@ -11,7 +11,7 @@ from psutils import (
     add_paper_arguments,
     die,
     parsedraw,
-    singledimen,
+    parsedimen,
     simple_warning,
     Rectangle,
     Offset,
@@ -75,8 +75,8 @@ def parsespecs(
             if m[5] is not None:
                 [xoff_str, yoff_str] = m[5].split(",")
                 spec.off = Offset(
-                    singledimen(xoff_str, size),
-                    singledimen(yoff_str, size),
+                    parsedimen(xoff_str, size),
+                    parsedimen(yoff_str, size),
                 )
             if spec.pageno >= modulo:
                 specerror()
