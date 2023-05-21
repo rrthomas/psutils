@@ -77,10 +77,7 @@ def psresize(argv: List[str] = sys.argv[1:]) -> None:
         cmd.append(args.infile)
     if args.outfile is not None:
         cmd.append(args.outfile)
-    try:
-        psnup(cmd)
-    except SystemExit:
-        die("error running pstops")
+    psnup(cmd)
 
 
 if __name__ == "__main__":
