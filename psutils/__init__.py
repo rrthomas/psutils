@@ -33,6 +33,111 @@ from pypdf import PdfReader, PdfWriter, Transformation
 from pypdf.generic import AnnotationBuilder
 
 
+@dataclass
+class Rectangle:
+    width: float
+    height: float
+
+
+# Get the size of the given paper, or the default paper if no argument given.
+def paper(cmd: List[str], silent: bool = False) -> Optional[str]:
+    cmd.insert(0, "paper")
+    try:
+        out = subprocess.check_output(
+            cmd, stderr=subprocess.DEVNULL if silent else None, text=True
+        )
+        return out.rstrip()
+    except subprocess.CalledProcessError:
+        return None
+    except:  # pylint: disable=bare-except
+        die("could not run `paper' command")
+
+
+def get_paper_size(paper_name: Optional[str] = None) -> Optional[Rectangle]:
+    if paper_name is None:
+        paper_name = paper(["--no-size"])
+    dimensions: Optional[str] = None
+    if paper_name is not None:
+        dimensions = paper(["--unit=pt", paper_name], True)
+    if dimensions is None:
+        return None
+    m = re.search(" ([.0-9]+)x([.0-9]+) pt$", dimensions)
+    assert m
+    w, h = float(m[1]), float(m[2])
+    return Rectangle(round(w), round(h))  # round dimensions to nearest point
+
+
+# Argument parsers
+def parsepaper(paper_size: str) -> Optional[Rectangle]:
+    try:
+        size = get_paper_size(paper_size)
+        if size is None:
+            [width_text, height_text] = paper_size.split("x")
+            if width_text and height_text:
+                width = dimension(width_text)
+                height = dimension(height_text)
+            size = Rectangle(width, height)
+        return size
+    except:  # pylint: disable=bare-except
+        die(f"paper size '{paper_size}' unknown")
+
+
+def dimension(s: str) -> float:
+    num, unparsed = strtod(s)
+    s = s[unparsed:]
+
+    if s in ("pt", ""):
+        pass
+    elif s == "in":
+        num *= 72
+    elif s == "cm":
+        num *= 28.346456692913385211
+    elif s == "mm":
+        num *= 2.8346456692913385211
+    else:
+        raise ValueError(f"bad dimension `{s}'")
+
+    return num
+
+
+class PaperContext:
+    def __init__(self) -> None:
+        self.default_paper = get_paper_size()
+
+    def dimension(
+        self,
+        s: str,
+        size: Optional[Rectangle] = None,
+    ) -> float:
+        if size is None:
+            size = self.default_paper
+
+        try:
+            num = dimension(s)
+        except ValueError:
+            num, unparsed = strtod(s)
+            s = s[unparsed:]
+            error_message = (
+                "output page size not set, and could not get default paper size"
+            )
+
+            if s == "w":
+                if size is None:
+                    die(error_message)
+                num *= size.width
+            elif s == "h":
+                if size is None:
+                    die(error_message)
+                num *= size.height
+            else:
+                die(f"bad dimension `{s}'")
+
+        return num
+
+    def parsedraw(self, s: str) -> float:
+        return self.dimension(s or "1")
+
+
 # Help output
 # Adapted from https://stackoverflow.com/questions/23936145/
 class HelpFormatter(argparse.RawTextHelpFormatter):
@@ -105,10 +210,10 @@ def add_paper_arguments(parser: argparse.ArgumentParser) -> None:
     )
 
     # Backwards compatibility
-    parser.add_argument("-w", "--width", type=parsedimen_set, help=argparse.SUPPRESS)
-    parser.add_argument("-h", "--height", type=parsedimen_set, help=argparse.SUPPRESS)
-    parser.add_argument("-W", "--inwidth", type=parsedimen_set, help=argparse.SUPPRESS)
-    parser.add_argument("-H", "--inheight", type=parsedimen_set, help=argparse.SUPPRESS)
+    parser.add_argument("-w", "--width", type=dimension, help=argparse.SUPPRESS)
+    parser.add_argument("-h", "--height", type=dimension, help=argparse.SUPPRESS)
+    parser.add_argument("-W", "--inwidth", type=dimension, help=argparse.SUPPRESS)
+    parser.add_argument("-H", "--inheight", type=dimension, help=argparse.SUPPRESS)
 
 
 # Error messages
@@ -149,96 +254,6 @@ def strtod(s: str) -> Tuple[float, int]:
     if m is None:
         raise ValueError("invalid numeric string")
     return float(m[0]), m.end()
-
-
-@dataclass
-class Rectangle:
-    width: float
-    height: float
-
-
-# Argument parsers
-def parsedimen(
-    s: str,
-    size: Optional[Rectangle] = None,
-    error_message: str = "output page size not set, and could not get default paper size",
-) -> float:
-    if size is None:
-        size = get_paper_size()
-
-    num, unparsed = strtod(s)
-    s = s[unparsed:]
-
-    if s in ("pt", ""):
-        pass
-    elif s == "in":
-        num *= 72
-    elif s == "cm":
-        num *= 28.346456692913385211
-    elif s == "mm":
-        num *= 2.8346456692913385211
-    elif s == "w":
-        if size is None:
-            die(error_message)
-        num *= size.width
-    elif s == "h":
-        if size is None:
-            die(error_message)
-        num *= size.height
-    else:
-        die(f"bad dimension `{s}'")
-
-    return num
-
-
-def parsedimen_set(s: str) -> float:
-    return parsedimen(s, None, "could not get default paper size")
-
-
-# Get the size of the given paper, or the default paper if no argument given.
-def paper(cmd: List[str], silent: bool = False) -> Optional[str]:
-    cmd.insert(0, "paper")
-    try:
-        out = subprocess.check_output(
-            cmd, stderr=subprocess.DEVNULL if silent else None, text=True
-        )
-        return out.rstrip()
-    except subprocess.CalledProcessError:
-        return None
-    except:  # pylint: disable=bare-except
-        die("could not run `paper' command")
-
-
-def get_paper_size(paper_name: Optional[str] = None) -> Optional[Rectangle]:
-    if paper_name is None:
-        paper_name = paper(["--no-size"])
-    dimensions: Optional[str] = None
-    if paper_name is not None:
-        dimensions = paper(["--unit=pt", paper_name], True)
-    if dimensions is None:
-        return None
-    m = re.search(" ([.0-9]+)x([.0-9]+) pt$", dimensions)
-    assert m
-    w, h = float(m[1]), float(m[2])
-    return Rectangle(round(w), round(h))  # round dimensions to nearest point
-
-
-def parsepaper(paper_size: str) -> Optional[Rectangle]:
-    try:
-        size = get_paper_size(paper_size)
-        if size is None:
-            [width_text, height_text] = paper_size.split("x")
-            if width_text and height_text:
-                width = parsedimen_set(width_text)
-                height = parsedimen_set(height_text)
-            size = Rectangle(width, height)
-        return size
-    except:  # pylint: disable=bare-except
-        die(f"paper size '{paper_size}' unknown")
-
-
-def parsedraw(s: str) -> float:
-    return parsedimen(s or "1")
 
 
 Offset = NamedTuple("Offset", [("x", float), ("y", float)])

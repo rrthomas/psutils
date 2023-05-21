@@ -49,7 +49,7 @@ manpages = [
     "psnup.1:module=psutils.psnup:function=get_parser:manual_title=User Commands:include=psnup-include.man",
     "psresize.1:module=psutils.psresize:function=get_parser:manual_title=User Commands:include=psresize-include.man",
     "psselect.1:module=psutils.psselect:function=get_parser:manual_title=User Commands:include=psselect-include.man",
-    "pstops.1:module=psutils.pstops:function=get_parser:manual_title=User Commands:include=pstops-include.man",
+    "pstops.1:module=psutils.pstops:function=get_parser_manpages:manual_title=User Commands:include=pstops-include.man",
     "psutils.1:manfile=psutils.1",
 ]
 

@@ -13,8 +13,7 @@ from psutils import (
     Rectangle,
     document_transform,
     get_paper_size,
-    parsedimen,
-    parsedraw,
+    PaperContext,
     simple_warning,
 )
 from psutils.pstops import pstops
@@ -82,6 +81,7 @@ the page.
 """,
     )
     warnings.showwarning = simple_warning(parser.prog)
+    paper_context = PaperContext()
 
     # Command-line parser
     add_paper_arguments(parser)
@@ -89,7 +89,7 @@ the page.
         "-m",
         "--margin",
         metavar="DIMENSION",
-        type=parsedimen,
+        type=paper_context.dimension,
         default=0,
         help="""\
 width of margin around each output page
@@ -100,7 +100,7 @@ as the original page margins will be shrunk""",
         "-b",
         "--border",
         metavar="DIMENSION",
-        type=parsedimen,
+        type=paper_context.dimension,
         default=0,
         help="width of border around each input page",
     )
@@ -109,7 +109,7 @@ as the original page margins will be shrunk""",
         "--draw",
         metavar="DIMENSION",
         nargs="?",
-        type=parsedraw,
+        type=paper_context.parsedraw,
         default=0,
         help="""\
 draw a line of given width (relative to original

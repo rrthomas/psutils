@@ -10,8 +10,7 @@ from psutils import (
     add_basic_arguments,
     add_paper_arguments,
     die,
-    parsedraw,
-    parsedimen,
+    PaperContext,
     simple_warning,
     Rectangle,
     Offset,
@@ -43,7 +42,7 @@ def specerror() -> NoReturn:
 
 
 def parsespecs(
-    s: str, size: Optional[Rectangle]
+    s: str, size: Optional[Rectangle], paper_context: PaperContext
 ) -> Tuple[List[List[PageSpec]], int, bool]:
     flipping = False
     m = re.match(r"(?:([^:]+):)?(.*)", s)
@@ -75,8 +74,8 @@ def parsespecs(
             if m[5] is not None:
                 [xoff_str, yoff_str] = m[5].split(",")
                 spec.off = Offset(
-                    parsedimen(xoff_str, size),
-                    parsedimen(yoff_str, size),
+                    paper_context.dimension(xoff_str, size),
+                    paper_context.dimension(yoff_str, size),
                 )
             if spec.pageno >= modulo:
                 specerror()
@@ -117,7 +116,7 @@ def parserange(ranges_text: str) -> List[Range]:
     return ranges
 
 
-def get_parser() -> argparse.ArgumentParser:
+def get_parser() -> Tuple[argparse.ArgumentParser, PaperContext]:
     # Command-line arguments
     parser = argparse.ArgumentParser(
         description="Rearrange pages of a PDF or PostScript document.",
@@ -132,6 +131,7 @@ each page in its normal order].
 """,
     )
     warnings.showwarning = simple_warning(parser.prog)
+    paper_context = PaperContext()
 
     # Command-line parser
     parser.add_argument(
@@ -171,7 +171,7 @@ each page in its normal order].
         "--draw",
         metavar="DIMENSION",
         nargs="?",
-        type=parsedraw,
+        type=paper_context.parsedraw,
         default=0,
         help="""\
 draw a line of given width (relative to original
@@ -181,14 +181,20 @@ default is no line]""",
     parser.add_argument("-b", "--nobind", help=argparse.SUPPRESS)
     add_basic_arguments(parser, VERSION_BANNER)
 
-    return parser
+    return parser, paper_context
+
+
+def get_parser_manpages() -> argparse.ArgumentParser:
+    """Return just the parser for argparse-manpage"""
+    return get_parser()[0]
 
 
 # pylint: disable=dangerous-default-value
 def pstops(
     argv: List[str] = sys.argv[1:],
 ) -> None:
-    args = get_parser().parse_intermixed_args(argv)
+    parser, paper_context = get_parser()
+    args = parser.parse_intermixed_args(argv)
     size: Optional[Rectangle] = None
     in_size: Optional[Rectangle] = None
     if args.paper:
@@ -199,7 +205,7 @@ def pstops(
         in_size = args.inpaper
     elif args.inwidth is not None and args.inheight is not None:
         in_size = Rectangle(args.inwidth, args.inheight)
-    specs, modulo, flipping = parsespecs(args.specs, size)
+    specs, modulo, flipping = parsespecs(args.specs, size, paper_context)
 
     with document_transform(
         args.infile,

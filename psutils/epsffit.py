@@ -9,7 +9,7 @@ from psutils import (
     HelpFormatter,
     add_basic_arguments,
     die,
-    parsedimen,
+    PaperContext,
     setup_input_and_output,
     simple_warning,
 )
@@ -32,6 +32,7 @@ def get_parser() -> argparse.ArgumentParser:
         add_help=False,
     )
     warnings.showwarning = simple_warning(parser.prog)
+    paper_context = PaperContext()
 
     parser.add_argument(
         "-c",
@@ -68,25 +69,25 @@ def get_parser() -> argparse.ArgumentParser:
     parser.add_argument(
         "fllx",
         metavar="LLX",
-        type=parsedimen,
+        type=paper_context.dimension,
         help="x coordinate of lower left corner of the box",
     )
     parser.add_argument(
         "flly",
         metavar="LLX",
-        type=parsedimen,
+        type=paper_context.dimension,
         help="y coordinate of lower left corner of the box",
     )
     parser.add_argument(
         "furx",
         metavar="LLX",
-        type=parsedimen,
+        type=paper_context.dimension,
         help="x coordinate of upper right corner of the box",
     )
     parser.add_argument(
         "fury",
         metavar="LLX",
-        type=parsedimen,
+        type=paper_context.dimension,
         help="y coordinate of upper right corner of the box",
     )
     add_basic_arguments(parser, VERSION_BANNER)
