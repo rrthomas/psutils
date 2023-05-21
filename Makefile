@@ -12,11 +12,16 @@ dist:
 	mkdir dist && \
 	python -m build
 
+release-pypi:
+	twine upload dist/*
+
 release:
 	make test
 	make dist
-	twine upload dist/* && \
-	git tag v$$(grep version pyproject.toml | grep -o "[0-9.]\+") && \
+	package=psutils && \
+	version=$$(grep version pyproject.toml | grep -o "[0-9.]\+") && \
+	gh release create v$$version --title "Release v$$version" dist/$$package-$$version-py3-none-any.whl dist/$$package-$$version.tar.gz && \
+	git tag v$$version && \
 	git push --tags
 
 loc:
