@@ -42,7 +42,7 @@ def specerror() -> NoReturn:
 
 
 def parsespecs(
-    s: str, size: Optional[Rectangle], paper_context: PaperContext
+    s: str, paper_context: PaperContext
 ) -> Tuple[List[List[PageSpec]], int, bool]:
     flipping = False
     m = re.match(r"(?:([^:]+):)?(.*)", s)
@@ -74,8 +74,8 @@ def parsespecs(
             if m[5] is not None:
                 [xoff_str, yoff_str] = m[5].split(",")
                 spec.off = Offset(
-                    paper_context.dimension(xoff_str, size),
-                    paper_context.dimension(yoff_str, size),
+                    paper_context.dimension(xoff_str),
+                    paper_context.dimension(yoff_str),
                 )
             if spec.pageno >= modulo:
                 specerror()
@@ -205,7 +205,9 @@ def pstops(
         in_size = args.inpaper
     elif args.inwidth is not None and args.inheight is not None:
         in_size = Rectangle(args.inwidth, args.inheight)
-    specs, modulo, flipping = parsespecs(args.specs, size, paper_context)
+    if size:
+        paper_context = PaperContext(size)
+    specs, modulo, flipping = parsespecs(args.specs, paper_context)
 
     with document_transform(
         args.infile,

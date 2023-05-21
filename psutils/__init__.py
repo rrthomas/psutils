@@ -100,17 +100,13 @@ def dimension(s: str) -> float:
 
 
 class PaperContext:
-    def __init__(self) -> None:
-        self.default_paper = get_paper_size()
+    def __init__(self, size: Optional[Rectangle] = get_paper_size()) -> None:
+        self.default_paper = size
 
     def dimension(
         self,
         s: str,
-        size: Optional[Rectangle] = None,
     ) -> float:
-        if size is None:
-            size = self.default_paper
-
         try:
             num = dimension(s)
         except ValueError:
@@ -119,6 +115,7 @@ class PaperContext:
                 die(f"bad dimension `{s}'")
             num, dim = float(m[1]), m[2]
 
+            size = self.default_paper
             if size is None:
                 die("output page size not set, and could not get default paper size")
             if dim == "w":
