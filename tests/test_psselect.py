@@ -58,7 +58,7 @@ pytestmark = make_tests(
         "invalid-pagerange",
         ["-p", "1-5"],
         GeneratedInput("a4", 1),
-        1,
+        2,
     ),
     Case(
         "texlive",
