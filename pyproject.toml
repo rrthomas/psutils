@@ -19,8 +19,8 @@ classifiers = [
 ]
 
 [project.scripts]
-extractres = "psutils.extractres:extractres"
 epsffit = "psutils.epsffit:epsffit"
+extractres = "psutils.extractres:extractres"
 includeres = "psutils.includeres:includeres"
 psbook = "psutils.psbook:psbook"
 psjoin = "psutils.psjoin:psjoin"
@@ -42,6 +42,7 @@ packages = ["psutils"]
 
 [tool.build_manpages]
 manpages = [
+    "epsffit.1:module=psutils.epsffit:function=get_parser:manual_title=User Command:include=epsffit-include.man",
     "extractres.1:module=psutils.extractres:function=get_parser:manual_title=User Commands:include=extractres-include.man",
     "includeres.1:module=psutils.includeres:function=get_parser:manual_title=User Commands:include=includeres-include.man",
     "psbook.1:module=psutils.psbook:function=get_parser:manual_title=User Commands:include=psbook-include.man",
