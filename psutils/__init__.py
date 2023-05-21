@@ -169,23 +169,23 @@ def parsedimen(
     num, unparsed = strtod(s)
     s = s[unparsed:]
 
-    if s.startswith("pt"):
+    if s in ("pt", ""):
         pass
-    elif s.startswith("in"):
+    elif s == "in":
         num *= 72
-    elif s.startswith("cm"):
+    elif s == "cm":
         num *= 28.346456692913385211
-    elif s.startswith("mm"):
+    elif s == "mm":
         num *= 2.8346456692913385211
-    elif s.startswith("w"):
+    elif s == "w":
         if size is None:
             die(error_message)
         num *= size.width
-    elif s.startswith("h"):
+    elif s == "h":
         if size is None:
             die(error_message)
         num *= size.height
-    elif s != "":
+    else:
         die(f"bad dimension `{s}'")
 
     return num
