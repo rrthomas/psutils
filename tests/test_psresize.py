@@ -1,7 +1,7 @@
 from pathlib import Path
 
 from testutils import file_test, make_tests, Case, GeneratedInput
-from psutils.psresize import psresize
+from psutils.command.psresize import psresize
 
 pytestmark = make_tests(
     psresize,

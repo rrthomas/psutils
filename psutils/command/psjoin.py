@@ -9,7 +9,8 @@ from typing import List
 from pypdf import PdfReader, PdfWriter
 import puremagic  # type: ignore
 
-from psutils import HelpFormatter, die, simple_warning
+from psutils.argparse import HelpFormatter
+from psutils.warnings import die, simple_warning
 
 VERSION = importlib.metadata.version("psutils")
 

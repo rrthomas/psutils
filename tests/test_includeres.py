@@ -4,7 +4,7 @@ from typing import Callable, List
 from pytest import mark, CaptureFixture
 
 from testutils import file_test, make_tests, Case
-from psutils.includeres import includeres
+from psutils.command.includeres import includeres
 
 FIXTURE_DIR = Path(__file__).parent.resolve() / "test-files"
 

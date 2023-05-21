@@ -1,7 +1,7 @@
 from pathlib import Path
 
 from testutils import file_test, make_tests, Case, GeneratedInput
-from psutils.psselect import psselect
+from psutils.command.psselect import psselect
 
 pytestmark = make_tests(
     psselect,

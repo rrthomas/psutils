@@ -5,7 +5,7 @@ from typing import Callable, List, Iterable
 from pytest import CaptureFixture
 
 from testutils import file_test, make_tests, Case
-from psutils.epsffit import epsffit
+from psutils.command.epsffit import epsffit
 
 OPTIONS = ["aspect", "center", "maximize", "rotate"]
 

@@ -6,20 +6,19 @@ import warnings
 from copy import copy
 from typing import Any, List, Optional, Sequence, Tuple, Union
 
-from psutils import (
+from psutils.argparse import (
     HelpFormatter,
+    PaperContext,
     add_basic_arguments,
     add_paper_arguments,
-    die,
-    Rectangle,
-    setup_input_and_output,
-    document_reader,
-    document_transform,
-    get_paper_size,
     parsespecs,
-    PaperContext,
-    simple_warning,
 )
+from psutils.io import setup_input_and_output
+from psutils.libpaper import get_paper_size
+from psutils.readers import document_reader
+from psutils.transformers import document_transform
+from psutils.types import Rectangle
+from psutils.warnings import die, simple_warning
 
 VERSION = importlib.metadata.version("psutils")
 

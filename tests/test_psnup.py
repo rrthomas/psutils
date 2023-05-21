@@ -2,7 +2,7 @@ from pathlib import Path
 
 
 from testutils import file_test, make_tests, Case, GeneratedInput
-from psutils.psnup import psnup
+from psutils.command.psnup import psnup
 
 pytestmark = make_tests(
     psnup,

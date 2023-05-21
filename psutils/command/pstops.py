@@ -4,17 +4,17 @@ import sys
 import warnings
 from typing import List, Optional, Tuple
 
-from psutils import (
+from psutils.argparse import (
     HelpFormatter,
+    PaperContext,
     add_basic_arguments,
     add_paper_arguments,
-    PaperContext,
-    simple_warning,
-    Rectangle,
     parserange,
     parsespecs,
-    file_transform,
 )
+from psutils.transformers import file_transform
+from psutils.types import Rectangle
+from psutils.warnings import simple_warning
 
 VERSION = importlib.metadata.version("psutils")
 

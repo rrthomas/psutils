@@ -3,7 +3,7 @@ from pathlib import Path
 from unittest import mock
 
 from testutils import file_test, make_tests, Case, GeneratedInput
-from psutils.pstops import pstops
+from psutils.command.pstops import pstops
 
 pytestmark = make_tests(
     pstops,

@@ -4,16 +4,15 @@ import sys
 import warnings
 from typing import List
 
-from psutils import (
+from psutils.argparse import (
     HelpFormatter,
+    PaperContext,
     add_basic_arguments,
-    die,
-    simple_warning,
-    file_transform,
     parserange,
     parsespecs,
-    PaperContext,
 )
+from psutils.transformers import file_transform
+from psutils.warnings import die, simple_warning
 
 VERSION = importlib.metadata.version("psutils")
 

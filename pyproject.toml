@@ -19,15 +19,15 @@ classifiers = [
 ]
 
 [project.scripts]
-epsffit = "psutils.epsffit:epsffit"
-extractres = "psutils.extractres:extractres"
-includeres = "psutils.includeres:includeres"
-psbook = "psutils.psbook:psbook"
-psjoin = "psutils.psjoin:psjoin"
-psnup = "psutils.psnup:psnup"
-psresize = "psutils.psresize:psresize"
-psselect = "psutils.psselect:psselect"
-pstops = "psutils.pstops:pstops"
+epsffit = "psutils.command.epsffit:epsffit"
+extractres = "psutils.command.extractres:extractres"
+includeres = "psutils.command.includeres:includeres"
+psbook = "psutils.command.psbook:psbook"
+psjoin = "psutils.command.psjoin:psjoin"
+psnup = "psutils.command.psnup:psnup"
+psresize = "psutils.command.psresize:psresize"
+psselect = "psutils.command.psselect:psselect"
+pstops = "psutils.command.pstops:pstops"
 
 [build-system]
 requires = [
@@ -37,20 +37,17 @@ requires = [
     "pypdf >= 3.8.0",
 ]
 
-[tool.setuptools]
-packages = ["psutils"]
-
 [tool.build_manpages]
 manpages = [
-    "epsffit.1:module=psutils.epsffit:function=get_parser:manual_title=User Command:include=epsffit-include.man",
-    "extractres.1:module=psutils.extractres:function=get_parser:manual_title=User Commands:include=extractres-include.man",
-    "includeres.1:module=psutils.includeres:function=get_parser:manual_title=User Commands:include=includeres-include.man",
-    "psbook.1:module=psutils.psbook:function=get_parser:manual_title=User Commands:include=psbook-include.man",
-    "psjoin.1:module=psutils.psjoin:function=get_parser:manual_title=User Commands",
-    "psnup.1:module=psutils.psnup:function=get_parser:manual_title=User Commands:include=psnup-include.man",
-    "psresize.1:module=psutils.psresize:function=get_parser:manual_title=User Commands:include=psresize-include.man",
-    "psselect.1:module=psutils.psselect:function=get_parser:manual_title=User Commands:include=psselect-include.man",
-    "pstops.1:module=psutils.pstops:function=get_parser_manpages:manual_title=User Commands:include=pstops-include.man",
+    "epsffit.1:module=psutils.command.epsffit:function=get_parser:manual_title=User Command:include=epsffit-include.man",
+    "extractres.1:module=psutils.command.extractres:function=get_parser:manual_title=User Commands:include=extractres-include.man",
+    "includeres.1:module=psutils.command.includeres:function=get_parser:manual_title=User Commands:include=includeres-include.man",
+    "psbook.1:module=psutils.command.psbook:function=get_parser:manual_title=User Commands:include=psbook-include.man",
+    "psjoin.1:module=psutils.command.psjoin:function=get_parser:manual_title=User Commands",
+    "psnup.1:module=psutils.command.psnup:function=get_parser:manual_title=User Commands:include=psnup-include.man",
+    "psresize.1:module=psutils.command.psresize:function=get_parser:manual_title=User Commands:include=psresize-include.man",
+    "psselect.1:module=psutils.command.psselect:function=get_parser:manual_title=User Commands:include=psselect-include.man",
+    "pstops.1:module=psutils.command.pstops:function=get_parser_manpages:manual_title=User Commands:include=pstops-include.man",
     "psutils.1:manfile=psutils.1",
 ]
 
@@ -81,7 +78,6 @@ disable = [
     "too-many-statements",
     "too-many-branches",
     "too-many-nested-blocks",
-    "too-many-lines",
 ]
 enable = [
     "useless-suppression",

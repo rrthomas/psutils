@@ -3,7 +3,7 @@ from pathlib import Path
 from typing import List
 
 from testutils import make_tests, file_test, Case, GeneratedInput
-from psutils.psjoin import psjoin
+from psutils.command.psjoin import psjoin
 
 FIXTURE_DIR = Path(__file__).parent.resolve() / "test-files"
 

@@ -6,15 +6,10 @@ import sys
 import warnings
 from typing import Dict, List, Optional, IO
 
-from psutils import (
-    HelpFormatter,
-    add_basic_arguments,
-    die,
-    extn,
-    filename,
-    setup_input_and_output,
-    simple_warning,
-)
+from psutils.argparse import HelpFormatter, add_basic_arguments
+from psutils.io import setup_input_and_output
+from psutils.psresources import extn, filename
+from psutils.warnings import die, simple_warning
 
 VERSION = importlib.metadata.version("psutils")
 

@@ -3,7 +3,7 @@ from pathlib import Path
 from pytest import mark, CaptureFixture
 
 from testutils import file_test, compare_text_files, Case, GeneratedInput
-from psutils.extractres import extractres
+from psutils.command.extractres import extractres
 
 FIXTURE_DIR = Path(__file__).parent.resolve() / "test-files"
 

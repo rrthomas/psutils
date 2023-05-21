@@ -4,8 +4,9 @@ import sys
 import warnings
 from typing import List
 
-from psutils import HelpFormatter, add_basic_arguments, die, simple_warning
-from psutils.pstops import pstops
+from psutils.argparse import HelpFormatter, add_basic_arguments
+from psutils.command.pstops import pstops
+from psutils.warnings import die, simple_warning
 
 VERSION = importlib.metadata.version("psutils")
 

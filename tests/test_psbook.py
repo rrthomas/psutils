@@ -1,7 +1,7 @@
 from pathlib import Path
 
 from testutils import file_test, make_tests, Case, GeneratedInput
-from psutils.psbook import psbook
+from psutils.command.psbook import psbook
 
 pytestmark = make_tests(
     psbook,
