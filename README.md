@@ -53,7 +53,7 @@ Note that to use the scripts before installing them, you need to run them
 as Python modules; for example:
 
 ```
-PYTHONPATH=. python -m psutils.psnup -2 foo.ps
+PYTHONPATH=. python -m psutils.command.psnup -2 foo.ps
 ```
 
 
