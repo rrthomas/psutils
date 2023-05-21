@@ -82,22 +82,21 @@ def parsepaper(paper_size: str) -> Optional[Rectangle]:
         die(f"paper size '{paper_size}' unknown")
 
 
-def dimension(s: str) -> float:
-    num, unparsed = strtod(s)
-    s = s[unparsed:]
+units = {
+    "": 1,
+    "pt": 1,
+    "in": 72,
+    "cm": 28.346456692913385211,
+    "mm": 2.8346456692913385211,
+}
 
-    if s in ("pt", ""):
-        pass
-    elif s == "in":
-        num *= 72
-    elif s == "cm":
-        num *= 28.346456692913385211
-    elif s == "mm":
-        num *= 2.8346456692913385211
-    else:
+
+def dimension(s: str) -> float:
+    m = re.match(r"(.+?)(|pt|in|cm|mm)$", s)
+    if not m:
         raise ValueError(f"bad dimension `{s}'")
 
-    return num
+    return float(m[1]) * units[m[2]]
 
 
 class PaperContext:
@@ -115,22 +114,17 @@ class PaperContext:
         try:
             num = dimension(s)
         except ValueError:
-            num, unparsed = strtod(s)
-            s = s[unparsed:]
-            error_message = (
-                "output page size not set, and could not get default paper size"
-            )
-
-            if s == "w":
-                if size is None:
-                    die(error_message)
-                num *= size.width
-            elif s == "h":
-                if size is None:
-                    die(error_message)
-                num *= size.height
-            else:
+            m = re.match(r"(.+?)(w|h)$", s)
+            if not m:
                 die(f"bad dimension `{s}'")
+            num, dim = float(m[1]), m[2]
+
+            if size is None:
+                die("output page size not set, and could not get default paper size")
+            if dim == "w":
+                num *= size.width
+            elif dim == "h":
+                num *= size.height
 
         return num
 
@@ -234,26 +228,6 @@ def simple_warning(prog: str) -> Callable[..., None]:
 def die(msg: str, code: Optional[int] = 1) -> NoReturn:
     warn(msg)
     sys.exit(code)
-
-
-# Adapted from https://github.com/python/cpython/blob/main/Lib/test/test_strtod.py
-strtod_parser = re.compile(
-    r"""    # A numeric string consists of:
-    [-+]?          # an optional sign, followed by
-    (?=\d|\.\d)    # a number with at least one digit
-    \d*            # having a (possibly empty) integer part
-    (?:\.(\d*))?   # followed by an optional fractional part
-    (?:E[-+]?\d+)? # and an optional exponent
-""",
-    re.VERBOSE | re.IGNORECASE,
-).match
-
-
-def strtod(s: str) -> Tuple[float, int]:
-    m = strtod_parser(s)
-    if m is None:
-        raise ValueError("invalid numeric string")
-    return float(m[0]), m.end()
 
 
 Offset = NamedTuple("Offset", [("x", float), ("y", float)])
