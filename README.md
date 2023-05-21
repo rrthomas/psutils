@@ -30,9 +30,12 @@ discouraged, unless you know you need them!
 
 ## Installation
 
-The easiest way to install PSUtils is from PyPI, the Python Package Index:
+Until I can release the package on PyPI, the easiest way to install PSUtils
+is from by downloading the wheel file (`.whl`) from the latest
+[release](https://github.com/rrthomas/psutils/releases/) and installing it
+with pip:
 
-`pip install psutils`
+`pip install ./psutils-3.0-py3-none-any.whl`
 
 
 ## Installation from source or git
