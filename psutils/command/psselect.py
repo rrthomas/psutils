@@ -1,4 +1,3 @@
-import importlib.metadata
 import argparse
 import sys
 import warnings
@@ -13,14 +12,6 @@ from psutils.argparse import (
 )
 from psutils.transformers import file_transform
 from psutils.warnings import die, simple_warning
-
-VERSION = importlib.metadata.version("psutils")
-
-VERSION_BANNER = f"""\
-%(prog)s {VERSION}
-Copyright (c) Reuben Thomas 2023.
-Released under the GPL version 3, or (at your option) any later version.
-"""
 
 
 def get_parser() -> argparse.ArgumentParser:
@@ -52,7 +43,7 @@ pstops(1) for more details.
         help="reverse the order of the output pages",
     )
     parser.add_argument("alt_pages", metavar="PAGES", nargs="?", help=argparse.SUPPRESS)
-    add_basic_arguments(parser, VERSION_BANNER)
+    add_basic_arguments(parser)
 
     return parser
 

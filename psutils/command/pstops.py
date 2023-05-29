@@ -1,4 +1,3 @@
-import importlib.metadata
 import argparse
 import sys
 import warnings
@@ -15,14 +14,6 @@ from psutils.argparse import (
 from psutils.transformers import file_transform
 from psutils.types import Rectangle
 from psutils.warnings import simple_warning
-
-VERSION = importlib.metadata.version("psutils")
-
-VERSION_BANNER = f"""\
-%(prog)s {VERSION}
-Copyright (c) Reuben Thomas 2023.
-Released under the GPL version 3, or (at your option) any later version.
-"""
 
 
 # Command-line parsing helper functions
@@ -89,7 +80,7 @@ page) around each page [argument defaults to 1pt;
 default is no line]""",
     )
     parser.add_argument("-b", "--nobind", help=argparse.SUPPRESS)
-    add_basic_arguments(parser, VERSION_BANNER)
+    add_basic_arguments(parser)
 
     return parser, paper_context
 

@@ -1,4 +1,3 @@
-import importlib.metadata
 import argparse
 import re
 import sys
@@ -8,14 +7,6 @@ from typing import List
 from psutils.argparse import HelpFormatter, PaperContext, add_basic_arguments
 from psutils.io import setup_input_and_output
 from psutils.warnings import die, simple_warning
-
-VERSION = importlib.metadata.version("psutils")
-
-VERSION_BANNER = f"""\
-%(prog)s {VERSION}
-Copyright (c) Reuben Thomas 2023.
-Released under the GPL version 3, or (at your option) any later version.
-"""
 
 
 def get_parser() -> argparse.ArgumentParser:
@@ -85,7 +76,7 @@ def get_parser() -> argparse.ArgumentParser:
         type=paper_context.dimension,
         help="y coordinate of upper right corner of the box",
     )
-    add_basic_arguments(parser, VERSION_BANNER)
+    add_basic_arguments(parser)
 
     return parser
 

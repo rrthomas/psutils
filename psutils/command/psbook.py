@@ -1,4 +1,3 @@
-import importlib.metadata
 import argparse
 import sys
 import warnings
@@ -13,14 +12,6 @@ from psutils.argparse import (
 )
 from psutils.transformers import file_transform
 from psutils.warnings import die, simple_warning
-
-VERSION = importlib.metadata.version("psutils")
-
-VERSION_BANNER = """\
-%(prog)s {VERSION}
-Copyright (c) Reuben Thomas 2023.
-Released under the GPL version 3, or (at your option) any later version.
-"""
 
 
 def get_parser() -> argparse.ArgumentParser:
@@ -49,7 +40,7 @@ number of pages per signature;
 1 = do not rearrange the pages;
 otherwise, a multiple of 4""",
     )
-    add_basic_arguments(parser, VERSION_BANNER)
+    add_basic_arguments(parser)
 
     return parser
 

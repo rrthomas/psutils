@@ -1,4 +1,3 @@
-import importlib.metadata
 import argparse
 import os
 import sys
@@ -11,14 +10,6 @@ from psutils.io import setup_input_and_output
 from psutils.psresources import extn, filename
 from psutils.warnings import die, simple_warning
 
-VERSION = importlib.metadata.version("psutils")
-
-VERSION_BANNER = f"""\
-%(prog)s {VERSION}
-Copyright (c) Reuben Thomas 2023.
-Released under the GPL version 3, or (at your option) any later version.
-"""
-
 
 def get_parser() -> argparse.ArgumentParser:
     # Command-line arguments
@@ -29,7 +20,7 @@ def get_parser() -> argparse.ArgumentParser:
         add_help=False,
     )
     warnings.showwarning = simple_warning(parser.prog)
-    add_basic_arguments(parser, VERSION_BANNER)
+    add_basic_arguments(parser)
 
     return parser
 

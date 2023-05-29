@@ -1,4 +1,3 @@
-import importlib.metadata
 import argparse
 import sys
 import warnings
@@ -7,14 +6,6 @@ from typing import List
 from psutils.argparse import HelpFormatter, add_basic_arguments
 from psutils.command.psnup import psnup
 from psutils.warnings import die, simple_warning
-
-VERSION = importlib.metadata.version("psutils")
-
-VERSION_BANNER = f"""\
-%(prog)s {VERSION}
-Copyright (c) Reuben Thomas 2023.
-Released under the GPL version 3, or (at your option) any later version.
-"""
 
 
 def get_parser() -> argparse.ArgumentParser:
@@ -42,7 +33,7 @@ pstops(1) for more details.
         "--inpaper",
         help="input paper name or dimensions (WIDTHxHEIGHT)",
     )
-    add_basic_arguments(parser, VERSION_BANNER)
+    add_basic_arguments(parser)
 
     # Backwards compatibility
     parser.add_argument("-w", "--width", help=argparse.SUPPRESS)

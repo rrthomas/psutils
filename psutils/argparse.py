@@ -4,6 +4,7 @@ Copyright (c) Reuben Thomas 2023.
 Released under the GPL version 3, or (at your option) any later version.
 """
 
+import importlib.metadata
 import argparse
 import re
 from typing import List, Tuple, Optional, NoReturn
@@ -184,7 +185,25 @@ class HelpFormatter(argparse.RawTextHelpFormatter):
         return ", ".join(parts)
 
 
-def add_basic_arguments(parser: argparse.ArgumentParser, version_banner: str) -> None:
+VERSION = importlib.metadata.version("psutils")
+
+VERSION_BANNER = f"""\
+%(prog)s {VERSION}
+Copyright (c) Reuben Thomas 2023.
+Released under the GPL version 3, or (at your option) any later version.
+"""
+
+
+def add_version_argument(parser: argparse.ArgumentParser) -> None:
+    parser.add_argument(
+        "-v",
+        "--version",
+        action="version",
+        version=VERSION_BANNER,
+    )
+
+
+def add_basic_arguments(parser: argparse.ArgumentParser) -> None:
     parser.add_argument(
         "-q",
         "--quiet",
@@ -197,12 +216,7 @@ def add_basic_arguments(parser: argparse.ArgumentParser, version_banner: str) ->
         action="help",
         help="show this help message and exit",
     )
-    parser.add_argument(
-        "-v",
-        "--version",
-        action="version",
-        version=version_banner,
-    )
+    add_version_argument(parser)
     parser.add_argument(
         "infile",
         metavar="INFILE",

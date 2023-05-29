@@ -1,4 +1,3 @@
-import importlib.metadata
 import argparse
 import os
 import re
@@ -9,16 +8,8 @@ from typing import List
 from pypdf import PdfReader, PdfWriter
 import puremagic  # type: ignore
 
-from psutils.argparse import HelpFormatter
+from psutils.argparse import HelpFormatter, add_version_argument
 from psutils.warnings import die, simple_warning
-
-VERSION = importlib.metadata.version("psutils")
-
-VERSION_BANNER = f"""\
-%(prog)s {VERSION}
-Copyright (c) Reuben Thomas 2023.
-Released under the GPL version 3, or (at your option) any later version.
-"""
 
 
 def get_parser() -> argparse.ArgumentParser:
@@ -51,7 +42,7 @@ The --save and --nostrip options only apply to PostScript files.
         help="do not strip prolog or trailer from input files",
     )
     parser.add_argument("--help", action="help", help="show this help message and exit")
-    parser.add_argument("-v", "--version", action="version", version=VERSION_BANNER)
+    add_version_argument(parser)
     parser.add_argument(
         "file",
         metavar="FILE",

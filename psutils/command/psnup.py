@@ -1,4 +1,3 @@
-import importlib.metadata
 import argparse
 import re
 import sys
@@ -19,14 +18,6 @@ from psutils.readers import document_reader
 from psutils.transformers import document_transform
 from psutils.types import Rectangle
 from psutils.warnings import die, simple_warning
-
-VERSION = importlib.metadata.version("psutils")
-
-VERSION_BANNER = f"""\
-%(prog)s {VERSION}
-Copyright (c) Reuben Thomas 2023.
-Released under the GPL version 3, or (at your option) any later version.
-"""
 
 
 def parsenup(s: str) -> int:
@@ -153,7 +144,7 @@ default is no line]""",
         type=parsenup,
         help="number of pages to impose on each output page",
     )
-    add_basic_arguments(parser, VERSION_BANNER)
+    add_basic_arguments(parser)
 
     return parser, paper_context
 
