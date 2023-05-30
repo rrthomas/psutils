@@ -135,7 +135,6 @@ def file_test(
     with chdir(datafiles):
         correct_output = True
         if case.error is None:
-            assert expected_file is not None
             with patch("sys.argv", patched_argv):
                 function(full_args)
             if regenerate_expected:
@@ -153,7 +152,6 @@ def file_test(
             with pytest.raises(SystemExit) as e:
                 with patch("sys.argv", patched_argv):
                     function(full_args)
-            assert e.type == SystemExit
             assert e.value.code == case.error
         if regenerate_expected:
             with open(expected_stderr, "w", encoding="utf-8") as f:
