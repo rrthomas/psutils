@@ -149,7 +149,8 @@ default is no line]""",
     return parser, paper_context
 
 
-get_parser_manpages = lambda: get_parser()[0]
+def get_parser_manpages() -> argparse.ArgumentParser:
+    return get_parser()[0]
 
 
 # FIXME: Move calculation logic into DocumentTransform class.

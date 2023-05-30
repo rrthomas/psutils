@@ -85,7 +85,8 @@ default is no line; width is fixed for PDF]""",
     return parser, paper_context
 
 
-get_parser_manpages = lambda: get_parser()[0]
+def get_parser_manpages() -> argparse.ArgumentParser:
+    return get_parser()[0]
 
 
 # pylint: disable=dangerous-default-value
