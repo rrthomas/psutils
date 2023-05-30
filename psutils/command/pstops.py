@@ -77,7 +77,7 @@ each page in its normal order].
         help="""\
 draw a line of given width (relative to original
 page) around each page [argument defaults to 1pt;
-default is no line]""",
+default is no line; width is fixed for PDF]""",
     )
     parser.add_argument("-b", "--nobind", help=argparse.SUPPRESS)
     add_basic_arguments(parser)
