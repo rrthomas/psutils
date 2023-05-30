@@ -1,7 +1,6 @@
 from typing import Any
 
-import pytest
-from pytest import FixtureRequest, Parser
+from pytest import FixtureRequest, Parser, fixture
 
 
 def pytest_generate_tests(metafunc: Any) -> None:
@@ -22,14 +21,14 @@ def pytest_addoption(parser: Parser) -> None:
     )
 
 
-@pytest.fixture
+@fixture
 def regenerate_expected(request: FixtureRequest) -> bool:
     opt = request.config.getoption("--regenerate-expected")
     assert isinstance(opt, bool)
     return opt
 
 
-@pytest.fixture
+@fixture
 def regenerate_input(request: FixtureRequest) -> bool:
     opt = request.config.getoption("--regenerate-input")
     assert isinstance(opt, bool)
