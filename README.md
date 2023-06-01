@@ -1,7 +1,7 @@
 # PDF and PostScript Utilities
 
-Web site: https://github.com/rrthomas/psutils
-Maintainer: Reuben Thomas <rrt@sc3d.org>
+Web site: https://github.com/rrthomas/psutils  
+Maintainer: Reuben Thomas <rrt@sc3d.org>  
 
 PSUtils is a suite of utilities for manipulating PDF and PostScript
 documents. You can select and rearrange pages, including arrangement into
