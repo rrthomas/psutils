@@ -20,6 +20,7 @@ release:
 	make dist
 	package=psutils && \
 	version=$$(grep version pyproject.toml | grep -o "[0-9.]\+") && \
+	twine upload dist/* && \
 	gh release create v$$version --title "Release v$$version" dist/$$package-$$version-py3-none-any.whl dist/$$package-$$version.tar.gz && \
 	git tag v$$version && \
 	git push --tags

@@ -30,12 +30,11 @@ discouraged, unless you know you need them!
 
 ## Installation
 
-Until I can release the package on PyPI, the easiest way to install PSUtils
-is from by downloading the wheel file (`.whl`) from the latest
-[release](https://github.com/rrthomas/psutils/releases/) and installing it
-with pip:
+The easiest way to install PSUtils is from PyPI, the Python Package Index:
 
-`pip install ./psutils-3.0-py3-none-any.whl`
+`pip install pspdfutils`
+
+(Note the PyPI package name!)
 
 
 ## Installation from source or git

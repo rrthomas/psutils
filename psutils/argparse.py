@@ -185,7 +185,7 @@ class HelpFormatter(argparse.RawTextHelpFormatter):
         return ", ".join(parts)
 
 
-VERSION = importlib.metadata.version("psutils")
+VERSION = importlib.metadata.version("pspdfutils")
 
 VERSION_BANNER = f"""\
 %(prog)s {VERSION}
