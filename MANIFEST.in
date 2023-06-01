@@ -9,4 +9,5 @@ include psjoin-include.man
 include extractres-include.man
 include includeres-include.man
 include epsffit-include.man
+include tests/conftest.py
 recursive-include tests/test-files *.ps *.eps *.pdf *.txt
