@@ -63,7 +63,7 @@ def dimension(s: str) -> float:
     return float(m[1]) * units[m[2]]
 
 
-class PaperContext:
+class PaperContext:  # pylint: disable=too-few-public-methods
     def __init__(self, size: Optional[Rectangle] = get_paper_size()) -> None:
         self.default_paper = size
 
@@ -88,9 +88,6 @@ class PaperContext:
                 num *= size.height
 
         return num
-
-    def parsedraw(self, s: str) -> float:
-        return self.dimension(s or "1")
 
 
 def specerror() -> NoReturn:
@@ -252,3 +249,21 @@ def add_paper_arguments(parser: argparse.ArgumentParser) -> None:
     parser.add_argument("-h", "--height", type=dimension, help=argparse.SUPPRESS)
     parser.add_argument("-W", "--inwidth", type=dimension, help=argparse.SUPPRESS)
     parser.add_argument("-H", "--inheight", type=dimension, help=argparse.SUPPRESS)
+
+
+def add_draw_argument(
+    parser: argparse.ArgumentParser, paper_context: PaperContext
+) -> None:
+    parser.add_argument(
+        "-d",
+        "--draw",
+        metavar="DIMENSION",
+        nargs="?",
+        type=paper_context.dimension,
+        default=0,
+        const=1,
+        help="""\
+draw a line of given width (relative to original
+page) around each page [argument defaults to 1pt;
+default is no line; width is fixed for PDF]""",
+    )

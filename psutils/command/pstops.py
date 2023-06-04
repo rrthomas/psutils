@@ -8,6 +8,7 @@ from psutils.argparse import (
     PaperContext,
     add_basic_arguments,
     add_paper_arguments,
+    add_draw_argument,
     parserange,
     parsespecs,
 )
@@ -67,18 +68,7 @@ each page in its normal order].
         help="reverse the order of the output pages",
     )
     add_paper_arguments(parser)
-    parser.add_argument(
-        "-d",
-        "--draw",
-        metavar="DIMENSION",
-        nargs="?",
-        type=paper_context.parsedraw,
-        default=0,
-        help="""\
-draw a line of given width (relative to original
-page) around each page [argument defaults to 1pt;
-default is no line; width is fixed for PDF]""",
-    )
+    add_draw_argument(parser, paper_context)
     parser.add_argument("-b", "--nobind", help=argparse.SUPPRESS)
     add_basic_arguments(parser)
 

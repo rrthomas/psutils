@@ -10,6 +10,7 @@ from psutils.argparse import (
     PaperContext,
     add_basic_arguments,
     add_paper_arguments,
+    add_draw_argument,
     parsespecs,
 )
 from psutils.io import setup_input_and_output
@@ -97,18 +98,7 @@ as the original page margins will be shrunk""",
         default=0,
         help="width of border around each input page",
     )
-    parser.add_argument(
-        "-d",
-        "--draw",
-        metavar="DIMENSION",
-        nargs="?",
-        type=paper_context.parsedraw,
-        default=0,
-        help="""\
-draw a line of given width (relative to original
-page) around each page [argument defaults to 1pt;
-default is no line]""",
-    )
+    add_draw_argument(parser, paper_context)
     parser.add_argument(
         "-l",
         "--rotatedleft",
