@@ -7,7 +7,7 @@ authors = [
     {name = "Reuben Thomas", email = "rrt@sc3d.org"}
 ]
 readme = "README.md"
-urls = {homepage = "https://github.com/rrthomas/psutils"}
+urls = {Homepage = "https://github.com/rrthomas/psutils"}
 requires-python = ">= 3.9"
 dependencies = [
     "puremagic",
