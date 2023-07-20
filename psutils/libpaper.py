@@ -34,7 +34,7 @@ def get_paper_size(paper_name: Optional[str] = None) -> Optional[Rectangle]:
         dimensions = paper(["--unit=pt", paper_name], True)
     if dimensions is None:
         return None
-    m = re.search(" ([.0-9]+)x([.0-9]+) pt$", dimensions)
+    m = re.search(" ([.,0-9]+)x([.,0-9]+) pt$", dimensions)
     assert m
-    w, h = float(m[1]), float(m[2])
+    w, h = float(m[1].replace(",", ".")), float(m[2].replace(",", "."))
     return Rectangle(round(w), round(h))  # round dimensions to nearest point
