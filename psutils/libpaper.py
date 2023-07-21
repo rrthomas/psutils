@@ -4,6 +4,7 @@ Copyright (c) Reuben Thomas 2023.
 Released under the GPL version 3, or (at your option) any later version.
 """
 
+import os
 import subprocess
 import re
 from typing import List, Optional
@@ -17,7 +18,10 @@ def paper(cmd: List[str], silent: bool = False) -> Optional[str]:
     cmd.insert(0, "paper")
     try:
         out = subprocess.check_output(
-            cmd, stderr=subprocess.DEVNULL if silent else None, text=True
+            cmd,
+            stderr=subprocess.DEVNULL if silent else None,
+            text=True,
+            env=dict(os.environ, LC_NUMERIC="C"),
         )
         return out.rstrip()
     except subprocess.CalledProcessError:
