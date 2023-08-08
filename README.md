@@ -39,9 +39,9 @@ The easiest way to install PSUtils is from PyPI, the Python Package Index:
 
 ## Installation from source or git
 
-PSUtils requires Python 3, a handful of Python libraries (listed in
-`pyproject.toml`, and automatically installed by the build procedure), and
-libpaper, which allows named paper sizes to be used and configured:
+PSUtils requires Python 3.9 or later, a handful of Python libraries (listed
+in `pyproject.toml`, and automatically installed by the build procedure),
+and libpaper, which allows named paper sizes to be used and configured:
 
 libpaper: https://github.com/rrthomas/libpaper
 
