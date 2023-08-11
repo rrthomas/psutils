@@ -11,7 +11,7 @@ from contextlib import contextmanager
 from typing import List, Optional, Union, Iterator, IO
 
 from pypdf import PdfWriter, Transformation
-from pypdf.generic import AnnotationBuilder
+from pypdf.annotations import PolyLine
 
 from .argparse import parserange
 from .io import setup_input_and_output
@@ -455,7 +455,7 @@ class PdfTransform(DocumentTransform):
                     outpdf_page.merge_transformed_page(self.reader.pages[real_page], t)
                     if self.draw > 0:  # FIXME: draw the line at the requested width
                         mediabox = self.reader.pages[real_page].mediabox
-                        line = AnnotationBuilder.polyline(
+                        line = PolyLine(
                             vertices=[
                                 (
                                     mediabox.left + spec.off.x,
