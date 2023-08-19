@@ -202,7 +202,7 @@ def add_version_argument(parser: argparse.ArgumentParser) -> None:
     )
 
 
-def add_basic_arguments(parser: argparse.ArgumentParser) -> None:
+def add_quiet_and_help_arguments(parser: argparse.ArgumentParser) -> None:
     parser.add_argument(
         "-q",
         "--quiet",
@@ -215,7 +215,15 @@ def add_basic_arguments(parser: argparse.ArgumentParser) -> None:
         action="help",
         help="show this help message and exit",
     )
+
+
+def add_basic_arguments(parser: argparse.ArgumentParser) -> None:
     add_version_argument(parser)
+    add_quiet_and_help_arguments(parser)
+    add_file_arguments(parser)
+
+
+def add_file_arguments(parser: argparse.ArgumentParser) -> None:
     parser.add_argument(
         "infile",
         metavar="INFILE",

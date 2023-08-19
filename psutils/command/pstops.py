@@ -6,7 +6,8 @@ from typing import List, Optional, Tuple
 from psutils.argparse import (
     HelpFormatter,
     PaperContext,
-    add_basic_arguments,
+    add_file_arguments,
+    add_quiet_and_help_arguments,
     add_paper_arguments,
     add_draw_argument,
     parserange,
@@ -70,7 +71,8 @@ each page in its normal order].
     add_paper_arguments(parser)
     add_draw_argument(parser, paper_context)
     parser.add_argument("-b", "--nobind", help=argparse.SUPPRESS)
-    add_basic_arguments(parser)
+    add_quiet_and_help_arguments(parser)
+    add_file_arguments(parser)
 
     return parser, paper_context
 
