@@ -5,7 +5,7 @@ from typing import List
 
 from psutils.argparse import HelpFormatter, add_basic_arguments
 from psutils.command.psnup import psnup
-from psutils.warnings import die, simple_warning
+from psutils.warnings import simple_warning
 
 
 def get_parser() -> argparse.ArgumentParser:
