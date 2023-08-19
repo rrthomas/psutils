@@ -4,6 +4,7 @@ Copyright (c) Reuben Thomas 2023.
 Released under the GPL version 3, or (at your option) any later version.
 """
 
+import io
 import sys
 import shutil
 from abc import ABC, abstractmethod
@@ -479,7 +480,11 @@ class PdfTransform(DocumentTransform):
                         self.writer.add_annotation(outpdf_page, line)
 
     def finalize(self) -> None:
-        self.writer.write(self.outfile)
+        # PyPDF seeks, so write to a buffer first in case outfile is stdout.
+        buf = io.BytesIO()
+        self.writer.write(buf)
+        buf.seek(0)
+        self.outfile.write(buf.read())
         self.outfile.flush()
 
 
