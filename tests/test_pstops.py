@@ -8,9 +8,10 @@ from psutils.command.pstops import pstops
 pytestmark = make_tests(
     pstops,
     Path(__file__).parent.resolve() / "test-files",
+    # Test backwards-compatible specs syntax without --specs flag.
     Case(
         "offsets",
-        ["--specs", "0(100pt,200pt)"],
+        ["0(100pt,200pt)"],
         GeneratedInput("a4", 1),
     ),
     Case(

@@ -1,13 +1,13 @@
 import argparse
 import sys
 import warnings
-from typing import List, Optional, Tuple
+from typing import List, Optional, Tuple, NoReturn
 
 from psutils.argparse import (
     HelpFormatter,
     PaperContext,
-    add_file_arguments,
     add_quiet_and_help_arguments,
+    add_file_arguments,
     add_paper_arguments,
     add_draw_argument,
     parserange,
@@ -18,6 +18,9 @@ from psutils.types import Rectangle
 from psutils.warnings import simple_warning
 
 
+DEFAULT_SPECS = "0"
+
+
 # Command-line parsing helper functions
 def get_parser() -> Tuple[argparse.ArgumentParser, PaperContext]:
     # Command-line arguments
@@ -26,10 +29,10 @@ def get_parser() -> Tuple[argparse.ArgumentParser, PaperContext]:
         formatter_class=HelpFormatter,
         usage="%(prog)s [OPTION...] [INFILE [OUTFILE]]",
         add_help=False,
-        epilog="""
+        epilog=f"""
 PAGES is a comma-separated list of pages and page ranges.
 
-SPECS is a list of page specifications [default is "0", which selects
+SPECS is a list of page specifications [default is "{DEFAULT_SPECS}", which selects
 each page in its normal order].
 """,
     )
@@ -40,7 +43,6 @@ each page in its normal order].
     parser.add_argument(
         "-S",
         "--specs",
-        default="0",
         help="page specifications (see below)",
     )
     parser.add_argument(
@@ -73,6 +75,8 @@ each page in its normal order].
     parser.add_argument("-b", "--nobind", help=argparse.SUPPRESS)
     add_quiet_and_help_arguments(parser)
     add_file_arguments(parser)
+    # Hidden argument for backwards compatibility.
+    parser.add_argument("specs_alt", nargs="?", help=argparse.SUPPRESS)
 
     return parser, paper_context
 
@@ -81,10 +85,32 @@ def get_parser_manpages() -> argparse.ArgumentParser:
     return get_parser()[0]
 
 
+class SpecsException(Exception):
+    pass
+
+
+def spec_exception() -> NoReturn:
+    raise SpecsException("invalid specs")
+
+
 # pylint: disable=dangerous-default-value
 def pstops(argv: List[str] = sys.argv[1:]) -> None:
     parser, paper_context = get_parser()
     args = parser.parse_intermixed_args(argv)
+
+    # Get specs if we don't have them yet
+    if args.specs is None:
+        if args.infile is None:
+            parser.print_help()
+            sys.exit(1)
+        args.specs = args.infile
+        try:
+            parsespecs(args.specs, paper_context, err_function=spec_exception)
+            args.infile = args.outfile
+            args.outfile = args.specs_alt
+        except SpecsException:
+            args.specs = DEFAULT_SPECS
+
     size: Optional[Rectangle] = None
     in_size: Optional[Rectangle] = None
     if args.paper:

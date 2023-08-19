@@ -7,7 +7,7 @@ Released under the GPL version 3, or (at your option) any later version.
 import importlib.metadata
 import argparse
 import re
-from typing import List, Tuple, Optional, NoReturn
+from typing import List, Tuple, Optional, Callable, NoReturn
 
 from .libpaper import get_paper_size
 from .types import Rectangle, Range, PageSpec, Offset
@@ -101,12 +101,12 @@ def specerror() -> NoReturn:
 
 
 def parsespecs(
-    s: str, paper_context: PaperContext
+    s: str, paper_context: PaperContext, err_function: Callable[[], NoReturn] = specerror
 ) -> Tuple[List[List[PageSpec]], int, bool]:
     flipping = False
     m = re.match(r"(?:([^:]+):)?(.*)", s)
     if not m:
-        specerror()
+        err_function()
     modulo, specs_text = int(m[1] or "1"), m[2]
     # Split on commas but not inside parentheses.
     pages_text = re.split(r",(?![^()]*\))", specs_text)
@@ -122,7 +122,7 @@ def parsespecs(
                 re.IGNORECASE | re.ASCII,
             )
             if not m:
-                specerror()
+                err_function()
             spec = PageSpec()
             if m[1] is not None:
                 spec.reversed = True
@@ -137,7 +137,7 @@ def parsespecs(
                     paper_context.dimension(yoff_str),
                 )
             if spec.pageno >= modulo:
-                specerror()
+                err_function()
             if m[3] is not None:
                 for mod in m[3]:
                     if re.match(r"[LRU]", mod, re.IGNORECASE):
