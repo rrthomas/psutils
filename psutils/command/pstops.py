@@ -7,6 +7,7 @@ from psutils.argparse import (
     HelpFormatter,
     PaperContext,
     add_quiet_and_help_arguments,
+    add_version_argument,
     add_file_arguments,
     add_paper_arguments,
     add_draw_argument,
@@ -73,6 +74,7 @@ each page in its normal order].
     add_paper_arguments(parser)
     add_draw_argument(parser, paper_context)
     parser.add_argument("-b", "--nobind", help=argparse.SUPPRESS)
+    add_version_argument(parser)
     add_quiet_and_help_arguments(parser)
     add_file_arguments(parser)
     # Hidden argument for backwards compatibility.
