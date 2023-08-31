@@ -1,0 +1,4 @@
+
+psnup: required input paper size was guessed as 612x792 pt
+[1,2] 
+Wrote 1 pages

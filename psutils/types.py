@@ -15,6 +15,9 @@ class Rectangle:
     width: float
     height: float
 
+    def __str__(self) -> str:
+        return f"{self.width:n}x{self.height:n} pt"
+
 
 @dataclass
 class Range:

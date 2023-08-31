@@ -145,5 +145,17 @@ pytestmark = make_tests(
         ["-pa4", "-18"],
         "psselect-texlive-output",
     ),
+    # The next 2 tests don't really apply to PDF, but run them anyway to
+    # show that the warning is not generated for PDF.
+    Case(
+        "no-document-media",
+        ["-2", "-ptabloid"],
+        "no-document-media",
+    ),
+    Case(
+        "no-document-media-explicit-size",
+        ["-2", "-P612x792", "-ptabloid"],
+        "no-document-media",
+    ),
 )
 test_psnup = file_test

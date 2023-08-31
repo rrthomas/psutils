@@ -101,7 +101,9 @@ def specerror() -> NoReturn:
 
 
 def parsespecs(
-    s: str, paper_context: PaperContext, err_function: Callable[[], NoReturn] = specerror
+    s: str,
+    paper_context: PaperContext,
+    err_function: Callable[[], NoReturn] = specerror,
 ) -> Tuple[List[List[PageSpec]], int, bool]:
     flipping = False
     m = re.match(r"(?:([^:]+):)?(.*)", s)

@@ -74,7 +74,9 @@ def psselect(argv: List[str] = sys.argv[1:]) -> None:
     pagerange = parserange(args.pages) if args.pages is not None else None
     paper_context = PaperContext()
     specs, modulo, flipping = parsespecs("0", paper_context)
-    with file_transform(args.infile, args.outfile, None, None, specs, 0) as transform:
+    with file_transform(
+        args.infile, args.outfile, None, None, specs, 0, False
+    ) as transform:
         transform.transform_pages(
             pagerange, flipping, args.reverse, args.odd, args.even, modulo, args.verbose
         )

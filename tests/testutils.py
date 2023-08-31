@@ -117,7 +117,11 @@ def file_test(
 ) -> None:
     module_name = function.__name__
     expected_file = fixture_dir / module_name / case.name / "expected"
-    expected_stderr = fixture_dir / module_name / case.name / "expected-stderr.txt"
+    expected_stderr = (
+        fixture_dir / module_name / case.name / f"expected-stderr-{file_type[1:]}.txt"
+    )
+    if not os.path.exists(expected_stderr):
+        expected_stderr = fixture_dir / module_name / case.name / "expected-stderr.txt"
     if isinstance(case.input, str):
         test_file = fixture_dir / case.input
     else:
@@ -157,17 +161,21 @@ def file_test(
             with open(expected_stderr, "w", encoding="utf-8") as f:
                 f.write(capsys.readouterr().err)
         else:
-            correct_output = (
-                compare_strings(
-                    capsys,
-                    capsys.readouterr().err,
-                    datafiles / "stderr.txt",
-                    expected_stderr,
-                )
-                and correct_output
+            correct_stderr = compare_strings(
+                capsys,
+                capsys.readouterr().err,
+                datafiles / "stderr.txt",
+                expected_stderr,
             )
-        if not correct_output:
-            raise ValueError("test output does not match expected output")
+        if not (correct_output and correct_stderr):
+            bad_results: List[str] = []
+            if not correct_output:
+                bad_results.append("output")
+            if not correct_stderr:
+                bad_results.append("stderr")
+            raise ValueError(
+                f"test {','.join(bad_results)} does not match expected output"
+            )
 
 
 def make_tests(

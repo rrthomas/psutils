@@ -164,7 +164,7 @@ def psnup(argv: List[str] = sys.argv[1:]) -> None:
             in_size = args.inpaper
         elif args.inwidth is not None and args.inheight is not None:
             in_size = Rectangle(args.inwidth, args.inheight)
-        elif doc.size is not None:
+        elif doc.size is not None and not doc.size_guessed:
             in_size = Rectangle(doc.size.width, doc.size.height)
 
         # Process command-line arguments
@@ -196,8 +196,10 @@ def psnup(argv: List[str] = sys.argv[1:]) -> None:
             die("output page size not set, and could not get default paper size")
 
         # Set input height/width from corresponding output value if undefined
+        in_size_guessed = False
         if in_size is None:
-            in_size = size
+            in_size = doc.size if doc.size is not None else size
+            in_size_guessed = True
         assert in_size
 
         # Take account of flip
@@ -301,7 +303,7 @@ def psnup(argv: List[str] = sys.argv[1:]) -> None:
             f'{args.nup}:{"+".join(spec_list)}', paper_context
         )
         transform = document_transform(
-            doc, outfile, size, orig_in_size, specs, args.draw
+            doc, outfile, size, orig_in_size, specs, args.draw, in_size_guessed
         )
         transform.transform_pages(
             None, flipped, False, False, False, modulo, args.verbose

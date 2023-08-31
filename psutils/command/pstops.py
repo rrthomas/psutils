@@ -128,7 +128,13 @@ def pstops(argv: List[str] = sys.argv[1:]) -> None:
     specs, modulo, flipping = parsespecs(args.specs, paper_context)
 
     with file_transform(
-        args.infile, args.outfile, size, in_size, specs, args.draw
+        args.infile,
+        args.outfile,
+        size,
+        in_size,
+        specs,
+        args.draw,
+        False,
     ) as transform:
         transform.transform_pages(
             args.pagerange,

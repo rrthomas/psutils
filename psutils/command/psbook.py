@@ -55,7 +55,9 @@ def psbook(argv: List[str] = sys.argv[1:]) -> None:
     # Get number of pages
     paper_context = PaperContext()
     specs, modulo, flipping = parsespecs("0", paper_context)
-    with file_transform(args.infile, args.outfile, None, None, specs, 0) as transform:
+    with file_transform(
+        args.infile, args.outfile, None, None, specs, 0, False
+    ) as transform:
         input_pages = transform.pages()
 
         def page_index_to_real_page(signature: int, page_number: int) -> int:

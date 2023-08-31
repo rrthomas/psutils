@@ -10,6 +10,7 @@ import shutil
 from abc import ABC, abstractmethod
 from contextlib import contextmanager
 from typing import List, Optional, Union, Iterator, IO
+from warnings import warn
 
 from pypdf import PdfWriter, Transformation
 from pypdf.annotations import PolyLine
@@ -134,7 +135,7 @@ class DocumentTransform(ABC):
 
 
 # FIXME: Extract PsWriter.
-class PsTransform(DocumentTransform):
+class PsTransform(DocumentTransform):  # pylint: disable=too-many-instance-attributes
     # PStoPS procset
     # Wrap showpage, erasepage and copypage in our own versions.
     # Nullify paper size operators.
@@ -179,12 +180,14 @@ end"""
         in_size: Optional[Rectangle],
         specs: List[List[PageSpec]],
         draw: float,
+        in_size_guessed: bool,
     ):
         super().__init__()
         self.reader = reader
         self.outfile = outfile
         self.draw = draw
         self.specs = specs
+        self.in_size_guessed = in_size_guessed
 
         self.use_procset = any(
             len(page) > 1 or page[0].has_transform() for page in specs
@@ -212,6 +215,8 @@ end"""
             except IOError:
                 die("I/O error in header", 2)
             if self.size is not None:
+                if self.in_size_guessed:
+                    warn(f"required input paper size was guessed as {self.in_size}")
                 self.write(
                     f"%%DocumentMedia: plain {int(self.size.width)} {int(self.size.height)} 0 () ()"
                 )
@@ -495,9 +500,10 @@ def document_transform(
     in_size: Optional[Rectangle],
     specs: List[List[PageSpec]],
     draw: float,
+    in_size_guessed: bool,
 ) -> Union[PdfTransform, PsTransform]:
     if isinstance(indoc, PsReader):
-        return PsTransform(indoc, outfile, size, in_size, specs, draw)
+        return PsTransform(indoc, outfile, size, in_size, specs, draw, in_size_guessed)
     if isinstance(indoc, PdfReader):
         return PdfTransform(indoc, outfile, size, in_size, specs, draw)
     die("unknown document type")
@@ -511,6 +517,7 @@ def file_transform(
     in_size: Optional[Rectangle],
     specs: List[List[PageSpec]],
     draw: float,
+    in_size_guessed: bool,
 ) -> Iterator[Union[PdfTransform, PsTransform]]:
     with setup_input_and_output(infile_name, outfile_name) as (
         infile,
@@ -518,4 +525,6 @@ def file_transform(
         outfile,
     ):
         doc = document_reader(infile, file_type)
-        yield document_transform(doc, outfile, size, in_size, specs, draw)
+        yield document_transform(
+            doc, outfile, size, in_size, specs, draw, in_size_guessed
+        )

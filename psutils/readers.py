@@ -26,6 +26,15 @@ class PdfReader(PdfReaderBase):
         assert len(self.pages) > 0
         mediabox = self.pages[0].mediabox
         self.size = Rectangle(mediabox.width, mediabox.height)
+        self.size_guessed = False
+
+
+size_keywords = (
+    b"DocumentMedia:",
+    b"PageBoundingBox:",
+    b"HiResBoundingBox:",
+    b"BoundingBox:",
+)
 
 
 # FIXME: Store lists of lines, not file offsets.
@@ -40,10 +49,12 @@ class PsReader:  # pylint: disable=too-many-instance-attributes,too-few-public-m
         self.sizeheaders: List[int] = []
         self.pageptr: List[int] = []
         self.size = None
+        self.size_guessed = False
 
         nesting = 0
         self.infile.seek(0)
         record, next_record, buffer = 0, 0, None
+        file_sizes = {}
         for buffer in self.infile:
             next_record += len(buffer)
             if buffer.startswith(b"%%"):
@@ -53,25 +64,33 @@ class PsReader:  # pylint: disable=too-many-instance-attributes,too-few-public-m
                     if (
                         self.headerpos == 0
                         and self.size is None
-                        and keyword == b"DocumentMedia:"
+                        and keyword in size_keywords
                     ):
                         assert value is not None
                         words = value.split(b" ")
-                        if len(words) > 2:
+                        if keyword == b"DocumentMedia:" and len(words) > 2:
                             w = words[1].decode("utf-8", "ignore")
                             h = words[2].decode("utf-8", "ignore")
                             try:
-                                self.size = Rectangle(float(w), float(h))
+                                file_sizes[keyword] = Rectangle(float(w), float(h))
+                            except ValueError:
+                                pass
+                        elif len(words) == 4:
+                            llx = words[0].decode("utf-8", "ignore")
+                            lly = words[1].decode("utf-8", "ignore")
+                            urx = words[2].decode("utf-8", "ignore")
+                            ury = words[3].decode("utf-8", "ignore")
+                            try:
+                                file_sizes[keyword] = Rectangle(
+                                    float(urx) - float(llx), float(ury) - float(lly)
+                                )
                             except ValueError:
                                 pass
                     if nesting == 0 and keyword == b"Page:":
                         self.pageptr.append(record)
-                    elif self.headerpos == 0 and keyword in [
-                        b"BoundingBox:",
-                        b"HiResBoundingBox:",
-                        b"DocumentPaperSizes:",
-                        b"DocumentMedia:",
-                    ]:
+                    elif self.headerpos == 0 and (
+                        keyword in size_keywords or keyword == b"DocumentPaperSizes:"
+                    ):
                         self.sizeheaders.append(record)
                     elif self.headerpos == 0 and keyword == b"Pages:":
                         self.pagescmt = record
@@ -102,6 +121,21 @@ class PsReader:  # pylint: disable=too-many-instance-attributes,too-few-public-m
             elif self.headerpos == 0:
                 self.headerpos = record
             record = next_record
+
+        # If paper size was not already set, and we found a possible size in
+        # the file, use it.
+        if self.size is None and len(file_sizes) > 0:
+            for keyword in size_keywords:
+                file_size = file_sizes.get(keyword)
+                if (
+                    file_size is not None
+                    and file_size.width != 0
+                    and file_size.height != 0
+                ):
+                    self.size = file_size
+                    if keyword in (b"BoundingBox:", b"HiResBoundingBox:"):
+                        self.size_guessed = True
+                    break
         self.num_pages = len(self.pageptr)
         self.pageptr.append(record)
         if self.endsetup == 0 or self.endsetup > self.pageptr[0]:
