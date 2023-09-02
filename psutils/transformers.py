@@ -274,7 +274,7 @@ end"""
                 try:
                     line = self.reader.infile.readline()
                     keyword, _ = self.reader.comment(line)
-                    assert keyword == b"Page:"
+                    assert keyword == b"Page"
                 except IOError:
                     die(f"I/O error seeking page {pagenum}", 2)
             if self.use_procset:

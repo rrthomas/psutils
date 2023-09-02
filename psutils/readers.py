@@ -30,10 +30,10 @@ class PdfReader(PdfReaderBase):
 
 
 size_keywords = (
-    b"DocumentMedia:",
-    b"PageBoundingBox:",
-    b"HiResBoundingBox:",
-    b"BoundingBox:",
+    b"DocumentMedia",
+    b"PageBoundingBox",
+    b"HiResBoundingBox",
+    b"BoundingBox",
 )
 
 
@@ -68,7 +68,7 @@ class PsReader:  # pylint: disable=too-many-instance-attributes,too-few-public-m
                     ):
                         assert value is not None
                         words = value.split(b" ")
-                        if keyword == b"DocumentMedia:" and len(words) > 2:
+                        if keyword == b"DocumentMedia" and len(words) > 2:
                             w = words[1].decode("utf-8", "ignore")
                             h = words[2].decode("utf-8", "ignore")
                             try:
@@ -86,20 +86,20 @@ class PsReader:  # pylint: disable=too-many-instance-attributes,too-few-public-m
                                 )
                             except ValueError:
                                 pass
-                    if nesting == 0 and keyword == b"Page:":
+                    if nesting == 0 and keyword == b"Page":
                         self.pageptr.append(record)
                     elif self.headerpos == 0 and (
-                        keyword in size_keywords or keyword == b"DocumentPaperSizes:"
+                        keyword in size_keywords or keyword == b"DocumentPaperSizes"
                     ):
                         self.sizeheaders.append(record)
-                    elif self.headerpos == 0 and keyword == b"Pages:":
+                    elif self.headerpos == 0 and keyword == b"Pages":
                         self.pagescmt = record
                     elif self.headerpos == 0 and keyword == b"EndComments":
                         self.headerpos = next_record
                     elif keyword in [
-                        b"BeginDocument:",
-                        b"BeginBinary:",
-                        b"Begself.infile:",
+                        b"BeginDocument",
+                        b"BeginBinary",
+                        b"Begself.infile",
                     ]:
                         nesting += 1
                     elif keyword in [b"EndDocument", b"EndBinary", b"EndFile"]:
@@ -133,7 +133,7 @@ class PsReader:  # pylint: disable=too-many-instance-attributes,too-few-public-m
                     and file_size.height != 0
                 ):
                     self.size = file_size
-                    if keyword in (b"BoundingBox:", b"HiResBoundingBox:"):
+                    if keyword in (b"BoundingBox", b"HiResBoundingBox"):
                         self.size_guessed = True
                     break
         self.num_pages = len(self.pageptr)
@@ -143,7 +143,7 @@ class PsReader:  # pylint: disable=too-many-instance-attributes,too-few-public-m
 
     # Return comment keyword and value if `line' is a DSC comment
     def comment(self, line: bytes) -> Union[Tuple[bytes, bytes], Tuple[None, None]]:
-        m = re.match(b"%%(\\S+)\\s+?(.*\\S?)\\s*$", line)
+        m = re.match(b"%%([^:]+):?\\s+?(.*\\S?)\\s*$", line)
         return (m[1], m[2]) if m else (None, None)
 
 
