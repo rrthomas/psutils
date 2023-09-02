@@ -94,17 +94,6 @@ def compare_strings(
     return compare_text_files(capsys, output_file, expected_file)
 
 
-def compare_bytes(
-    capsys: CaptureFixture[str],
-    output: bytes,
-    output_file: os.PathLike[str],
-    expected_file: os.PathLike[str],
-) -> bool:
-    with open(output_file, "wb") as f:
-        f.write(output)
-    return compare_binary_files(capsys, output_file, expected_file)
-
-
 def file_test(
     function: Callable[[List[str]], None],
     case: Case,
