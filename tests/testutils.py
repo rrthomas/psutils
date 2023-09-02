@@ -9,9 +9,11 @@ from pathlib import Path
 from dataclasses import dataclass
 from unittest.mock import patch
 from typing import Any, Callable, List, Iterator, Optional, Union
+from warnings import warn
 
 import pytest
 from pytest import CaptureFixture, mark, param
+from wand.image import Image  # type: ignore
 
 if sys.version_info[:2] >= (3, 11):
     from contextlib import chdir
@@ -69,8 +71,20 @@ def compare_text_files(
     return False
 
 
-def compare_binary_files(
-    capsys: CaptureFixture[str],  # pylint: disable=unused-argument
+def image_to_bytes(image_file: os.PathLike[str]) -> bytes:
+    with Image(filename=image_file) as image:
+        bytestr = b""
+        # FIXME: If comparison fails, save images that differ for debugging
+        for i, frame in enumerate(image.sequence):  # pylint: disable=unused-variable
+            frame_img = Image(image=frame)
+            bytestr += frame_img.make_blob("pnm")
+            # frame_img.save(filename=f"{image_file}-{i}.pnm")
+        return bytestr
+    return b""
+
+
+def compare_image_files(
+    capsys: CaptureFixture[str],
     output_file: os.PathLike[str],
     expected_file: os.PathLike[str],
 ) -> bool:
@@ -79,7 +93,16 @@ def compare_binary_files(
         exp_fd = stack.enter_context(open(expected_file, "rb"))
         output = out_fd.read()
         expected = exp_fd.read()
-        return output == expected
+        if output == expected:
+            return True
+        output_bytes = image_to_bytes(output_file)
+        expected_bytes = image_to_bytes(expected_file)
+        if output_bytes == expected_bytes:
+            with capsys.disabled():
+                warn(
+                    f"{output_file} not identical to {expected_file} but looks the same"
+                )
+            return True
     return False
 
 
@@ -132,11 +155,12 @@ def file_test(
                 function(full_args)
             if regenerate_expected:
                 shutil.copyfile(output_file, expected_file.with_suffix(file_type))
+                correct_output = True
             else:
                 comparer = (
                     compare_text_files
                     if file_type in (".ps", ".eps")
-                    else compare_binary_files
+                    else compare_image_files
                 )
                 correct_output = comparer(
                     capsys, output_file, expected_file.with_suffix(file_type)
@@ -149,6 +173,7 @@ def file_test(
         if regenerate_expected:
             with open(expected_stderr, "w", encoding="utf-8") as f:
                 f.write(capsys.readouterr().err)
+            correct_stderr = True
         else:
             correct_stderr = compare_strings(
                 capsys,
