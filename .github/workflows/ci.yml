@@ -16,10 +16,11 @@ jobs:
     - name: Install dependencies (macOS)
       if: ${{ matrix.os == 'macos-latest' }}
       run: |
-        brew install help2man automake imagemagick@6
+        brew install libpaper imagemagick@6
         # Prepend optional brew binary directories to PATH
-        echo "/usr/local/opt/m4/bin:/usr/local/opt/python/libexec/bin" >> $GITHUB_PATH
-    - name: Install libpaper
+        echo "/usr/local/opt/imagemagick@6/bin:/usr/local/opt/python/libexec/bin" >> $GITHUB_PATH
+    - name: Install libpaper from source
+      if: ${{ matrix.os == 'ubuntu-latest' }}
       run: |
         git clone https://github.com/rrthomas/libpaper.git ~/libpaper
         cd ~/libpaper && ./bootstrap && ./configure --quiet --enable-silent-rules && sudo make install
