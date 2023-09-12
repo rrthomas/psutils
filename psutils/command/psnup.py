@@ -64,8 +64,9 @@ def get_parser() -> Tuple[argparse.ArgumentParser, PaperContext]:
 psnup aborts with an error if it cannot arrange the input pages so as to
 waste less than the given tolerance.
 
-The output page size defaults to the input page size; if that is not
-given, the default given by the `paper' command is used.
+The output page size defaults to the input page size; if none is specified
+in the document or on the command line, the default given by the `paper'
+command is used.
 
 The input page size defaults to the output page size.
 
@@ -183,24 +184,25 @@ def psnup(argv: List[str] = sys.argv[1:]) -> None:
         if in_size is None and ((args.inwidth is None) ^ (args.inheight is None)):
             die("input page width and height must both be set, or neither")
 
-        # Set output height/width from corresponding input value if undefined
-        if size is None and in_size is not None:
-            size = in_size
-
-        # Ensure output page size is set
-        if size is None:
-            paper_size = get_paper_size()
-            if paper_size is not None:
-                size = paper_size
-        if size is None:
-            die("output page size not set, and could not get default paper size")
-
-        # Set input height/width from corresponding output value if undefined
+        # If input page size is undefined, use guess or output value if available
         in_size_guessed = False
         if in_size is None:
             in_size = doc.size if doc.size is not None else size
             in_size_guessed = True
-        assert in_size
+
+        # If output page size is undefined, set from input value if available
+        if size is None and in_size is not None:
+            size = copy(in_size)
+
+        # Ensure input and output page sizes are set, using `paper` if necessary
+        if size is None:
+            paper_size = get_paper_size()
+            if paper_size is not None:
+                size = paper_size
+                in_size = paper_size
+        if size is None:
+            die("output page size not set, and could not get default paper size")
+        assert(in_size)
 
         # Take account of flip
         if args.flip:
