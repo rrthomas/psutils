@@ -230,10 +230,10 @@ def psnup(argv: List[str] = sys.argv[1:]) -> None:
         best = args.tolerance
         horiz: float
         vert: float
-        rotate: float
+        rotate: bool
 
         def reduce_waste(
-            hor: float, ver: float, iwid: float, ihgt: float, rot: float
+            hor: float, ver: float, iwid: float, ihgt: float, rot: bool
         ) -> None:
             nonlocal best, horiz, vert, rotate
             scl = min(pphgt / (ihgt * ver), ppwid / (iwid * hor))
@@ -244,10 +244,10 @@ def psnup(argv: List[str] = sys.argv[1:]) -> None:
         hor, ver = 1, args.nup
         while hor != 0:
             reduce_waste(
-                hor, ver, in_size.width, in_size.height, 0
+                hor, ver, in_size.width, in_size.height, False
             )  # normal orientation
             reduce_waste(
-                ver, hor, in_size.height, in_size.width, 1
+                ver, hor, in_size.height, in_size.width, True
             )  # rotated orientation
             hor, ver = nextdiv(hor, args.nup)
 
