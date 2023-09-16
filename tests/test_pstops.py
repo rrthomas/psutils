@@ -50,6 +50,14 @@ pytestmark = make_tests(
         ["--specs", "0L@.7(1w,0)+0L@.7(1w,.5h)"],
         GeneratedInput("a4", 1),
     ),
+    Case(
+        "man-page-example",
+        [
+            "-S",
+            "4:-3L@.7(21cm,0)+0L@.7(21cm,14.85cm),1L@.7(21cm,0)+-2L@.7(21cm,14.85cm)",
+        ],
+        GeneratedInput("a4", 20),
+    ),
 )
 with mock.patch.dict(os.environ, {"PAPERSIZE": "A4"}):
     test_pstops = file_test
