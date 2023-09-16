@@ -135,7 +135,11 @@ for the front sides, and
 .ce
 4:1L@.7(21cm,0)+-2L@.7(21cm,14.85cm)
 .sp
-for the reverse sides (or join them with a comma for duplex printing).
+for the reverse sides, or, for duplex printing, join the two specs thus:
+.sp
+.ce
+4:-3L@.7(21cm,0)+0L@.7(21cm,14.85cm),1L@.7(21cm,0)+-2L@.7(21cm,14.85cm)
+.sp
 
 [>AUTHOR]
 .SH BUGS
