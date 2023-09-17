@@ -115,10 +115,10 @@ The output page size, if set, is used (after scaling) to set the
 clipping path for each page.
 
 [EXAMPLES]
-To put two pages on one sheet of A4 paper, the pagespec to use is:
+To put two A or B series pages (e.g. A4 or B5) on one sheet of paper, the pagespec to use is:
 .sp
 .ce
-2:0L@.7(21cm,0)+1L@.7(21cm,14.85cm)
+2:0L@.7(1w,0)+1L@.7(1w,0.5h)
 .sp
 To select all of the odd pages in reverse order, use:
 .sp
@@ -128,17 +128,17 @@ To select all of the odd pages in reverse order, use:
 To re-arrange pages for printing 2-up booklets, use
 .sp
 .ce
-4:-3L@.7(21cm,0)+0L@.7(21cm,14.85cm)
+4:-3L@.7(1w,0h)+0L@.7(1w,0.5h)
 .sp
 for the front sides, and
 .sp
 .ce
-4:1L@.7(21cm,0)+-2L@.7(21cm,14.85cm)
+4:1L@.7(1w,0h)+-2L@.7(1w,0.5h)
 .sp
 for the reverse sides, or, for duplex printing, join the two specs thus:
 .sp
 .ce
-4:-3L@.7(21cm,0)+0L@.7(21cm,14.85cm),1L@.7(21cm,0)+-2L@.7(21cm,14.85cm)
+4:-3L@.7(1w,0h)+0L@.7(1w,0.5h),1L@.7(1w,0h)+-2L@.7(1w,0.5h)
 .sp
 
 [>AUTHOR]

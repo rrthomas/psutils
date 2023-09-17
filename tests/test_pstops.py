@@ -54,7 +54,7 @@ pytestmark = make_tests(
         "man-page-example",
         [
             "-S",
-            "4:-3L@.7(21cm,0)+0L@.7(21cm,14.85cm),1L@.7(21cm,0)+-2L@.7(21cm,14.85cm)",
+            "4:-3L@.7(1w,0h)+0L@.7(1w,0.5h),1L@.7(1w,0h)+-2L@.7(1w,0.5h)",
         ],
         GeneratedInput("a4", 20),
     ),
