@@ -38,13 +38,9 @@ Pagespecs have the following syntax:
 .TP
 .I spec
 =
-.RB [ - ] \fIpageno\fP [\fIturns\fP][ @\fIscale\fP ][ ( \fIxoff\fP , \fIyoff\fP ) ]
+.RB [ - ] \fIpageno\fP [\fItransform...\fP][ @\fIscale\fP ][ ( \fIxoff\fP , \fIyoff\fP ) ]
 .TP
-.I turns
-=
-.IR turn [ turns ]
-.TP
-.I turn
+.I transform
 =
 .BR L | R | U | H | V
 .RE
@@ -82,18 +78,18 @@ or
 .B "h"
 to indicate a multiple of the output page width or height.
 .PP
-The optional parameters
+The optional transformations
 .BR L ,
 .BR R ,
 .BR U ,
 .BR H ,
 and
 .B V
-rotate the page left, right, or upside-down, and flip (mirror) the page
-horizontally or vertically respectively.
+rotate the page left, right, or upside-down around its lower left corner,
+and flip (mirror) the page horizontally or vertically respectively.
 The optional
 .I scale
-parameter scales the page by the fraction specified.
+parameter scales the page by the factor specified.
 If the optional minus sign is specified, the page number is relative to the end of
 the document, instead of the start.
 .PP
@@ -135,10 +131,15 @@ for the front sides, and
 .ce
 4:1L@.7(1w,0h)+-2L@.7(1w,0.5h)
 .sp
-for the reverse sides, or, for duplex printing, join the two specs thus:
+for the reverse sides, or, for long-edge duplex printing, join the two specs thus:
 .sp
 .ce
 4:-3L@.7(1w,0h)+0L@.7(1w,0.5h),1L@.7(1w,0h)+-2L@.7(1w,0.5h)
+.sp
+For short-edge duplex, the incantation is:
+.sp
+.ce
+4:-3L@.7(1w,0h)+0L@.7(1w,0.5h),1R@.7(0w,0.5h)+-2R@.7(0w,1h)
 .sp
 
 [>AUTHOR]

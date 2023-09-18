@@ -94,9 +94,11 @@ def specerror() -> NoReturn:
     die(
         """bad page specification:
 
-  PAGESPECS = [MODULO:]SPEC
-  SPEC      = [-]PAGENO[@SCALE][L|R|U|H|V][(XOFF,YOFF)][,SPEC|+SPEC]
-              MODULO >= 1; 0 <= PAGENO < MODULO"""
+  PAGESPECS = [MODULO:]SPECS
+  SPECS     = SPEC[+SPECS|,SPECS]
+  SPEC      = [-]PAGENO[TRANSFORM...][@SCALE][(XOFF,YOFF)]
+  TRANSFORM = L|R|U|H|V
+              MODULO > 0; 0 <= PAGENO < MODULO"""
     )
 
 
