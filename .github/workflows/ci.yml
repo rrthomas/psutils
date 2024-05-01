@@ -16,9 +16,9 @@ jobs:
     - name: Install dependencies (macOS)
       if: ${{ matrix.os == 'macos-latest' }}
       run: |
-        brew install libpaper imagemagick@6
+        brew install libpaper imagemagick
         # Prepend optional brew binary directories to PATH
-        echo "/usr/local/opt/imagemagick@6/bin:/usr/local/opt/python/libexec/bin" >> $GITHUB_PATH
+        echo "/usr/local/opt/imagemagick/bin:/usr/local/opt/python/libexec/bin" >> $GITHUB_PATH
     - name: Install libpaper from source
       if: ${{ matrix.os == 'ubuntu-latest' }}
       run: |
