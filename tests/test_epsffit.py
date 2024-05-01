@@ -55,6 +55,7 @@ pytestmark = make_tests(
 )
 
 
+# pylint: disable=similarities
 def test_epsffit(
     function: Callable[[List[str]], None],
     case: Case,

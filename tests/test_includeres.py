@@ -24,6 +24,7 @@ pytestmark = make_tests(
     FIXTURE_DIR / "includeres" / "sample" / "a2ps-a2ps-hdr2.02.ps",
     FIXTURE_DIR / "includeres" / "sample" / "a2ps-black+white-Prolog2.01.ps",
 )
+# pylint: disable=similarities
 def test_includeres(
     function: Callable[[List[str]], None],
     case: Case,
