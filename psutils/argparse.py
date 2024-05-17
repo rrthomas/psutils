@@ -40,7 +40,7 @@ def parsepaper(paper_size: str) -> Optional[Rectangle]:
             if width_text and height_text:
                 width = dimension(width_text)
                 height = dimension(height_text)
-            size = Rectangle(width, height)
+                size = Rectangle(width, height)
         return size
     except:  # pylint: disable=bare-except
         die(f"paper size '{paper_size}' unknown")
