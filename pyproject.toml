@@ -31,13 +31,19 @@ pstops = "psutils.command.pstops:pstops"
 
 [build-system]
 requires = [
-    "argparse-manpage[setuptools] >= 4.2",
+    "argparse-manpage[setuptools] >= 4.5",
     "setuptools >= 60; python_version >= \"3.12\"",
     "pytest-datafiles",
     "puremagic",
     "pypdf >= 4.2.0",
     "Wand",
 ]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools.cmdclass]
+build_py = "build_manpages.build_py"
+install = "build_manpages.install"
+build_manpages = "build_manpages.build_manpages"
 
 [tool.build_manpages]
 manpages = [
