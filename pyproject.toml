@@ -73,6 +73,7 @@ disable = [
     "missing-module-docstring",
     "missing-class-docstring",
     "missing-function-docstring",
+    "no-member",
     "fixme",
     "too-many-locals",
     "too-many-arguments",
