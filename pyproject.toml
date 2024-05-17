@@ -37,10 +37,16 @@ test = [
 
 [build-system]
 requires = [
-    "argparse-manpage[setuptools] >= 4.2",
+    "argparse-manpage[setuptools] >= 4.5",
     "puremagic >= 1.26",
     "pypdf >= 4.3.0",
 ]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools.cmdclass]
+build_py = "build_manpages.build_py"
+install = "build_manpages.install"
+build_manpages = "build_manpages.build_manpages"
 
 [tool.build_manpages]
 manpages = [
