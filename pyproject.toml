@@ -32,6 +32,7 @@ pstops = "psutils.command.pstops:pstops"
 [build-system]
 requires = [
     "argparse-manpage[setuptools] >= 4.2",
+    "setuptools >= 60; python_version >= \"3.12\"",
     "pytest-datafiles",
     "puremagic",
     "pypdf >= 4.2.0",

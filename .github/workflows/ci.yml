@@ -16,9 +16,9 @@ jobs:
     - name: Install dependencies (macOS)
       if: ${{ matrix.os == 'macos-latest' }}
       run: |
-        brew install libpaper imagemagick
+        brew install libpaper tox imagemagick
         # Prepend optional brew binary directories to PATH
-        echo "/usr/local/opt/imagemagick/bin:/usr/local/opt/python/libexec/bin" >> $GITHUB_PATH
+        echo "$(brew --prefix)/opt/imagemagick/bin:$(brew --prefix)/opt/python/libexec/bin" >> $GITHUB_PATH
     - name: Install libpaper from source
       if: ${{ matrix.os == 'ubuntu-latest' }}
       run: |
@@ -28,5 +28,10 @@ jobs:
         paper --version
     - name: Build
       run: |
-        pip install tox
-        tox --skip-missing-interpreters
+        if [ "$RUNNER_OS" = "macOS" ]; then
+          export MAGICK_HOME="$(brew --prefix)/opt/imagemagick/"
+          tox --skip-missing-interpreters -e py311,py312
+        else
+          pip install tox
+          tox --skip-missing-interpreters
+        fi
