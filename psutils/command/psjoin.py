@@ -6,7 +6,7 @@ import warnings
 from typing import List
 
 from pypdf import PdfReader, PdfWriter
-import puremagic  # type: ignore
+import puremagic
 
 from psutils.argparse import HelpFormatter, add_version_argument
 from psutils.warnings import die, simple_warning

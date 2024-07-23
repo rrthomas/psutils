@@ -10,7 +10,7 @@ readme = "README.md"
 urls = {Homepage = "https://github.com/rrthomas/psutils"}
 requires-python = ">= 3.9"
 dependencies = [
-    "puremagic",
+    "puremagic >= 1.26",
     "pypdf >= 4.2.0",
 ]
 classifiers = [
@@ -34,7 +34,7 @@ requires = [
     "argparse-manpage[setuptools] >= 4.2",
     "setuptools >= 60; python_version >= \"3.12\"",
     "pytest-datafiles",
-    "puremagic",
+    "puremagic >= 1.26",
     "pypdf >= 4.2.0",
     "Wand",
 ]

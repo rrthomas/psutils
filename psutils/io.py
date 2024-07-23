@@ -10,7 +10,7 @@ import sys
 from contextlib import contextmanager
 from typing import Tuple, Optional, Iterator, IO
 
-import puremagic  # type: ignore
+import puremagic
 
 from .warnings import die
 
