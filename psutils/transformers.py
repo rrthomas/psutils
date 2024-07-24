@@ -381,7 +381,7 @@ class PdfTransform(DocumentTransform):
         super().__init__()
         self.outfile = outfile
         self.reader = reader
-        self.writer = PdfWriter(self.outfile)
+        self.writer = PdfWriter()
         self.draw = draw
         self.specs = specs
 
