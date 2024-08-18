@@ -12,8 +12,7 @@ signature must therefore be a multiple of four.
 Extra blank sides will be added if the file does not contain a multiple of
 four pages.
 .PP
-The output should be printed 2-up (this can be achieved with
-.BR psnup )
+The output should be printed 2-up (this can be achieved with \fBpsnup\fR(1))
 and duplex, as for short-edge binding. Alternatively, the output of
 .B psnup
 can be passed through the following command:
