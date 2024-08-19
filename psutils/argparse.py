@@ -64,7 +64,11 @@ def dimension(s: str) -> float:
 
 
 class PaperContext:  # pylint: disable=too-few-public-methods
-    def __init__(self, size: Optional[Rectangle] = get_paper_size()) -> None:
+    def __init__(self, size: Optional[Rectangle] = None) -> None:
+        if size is None:
+            # Run get_paper_size at run-time, so we have already set up the
+            # warning handler.
+            size = get_paper_size()
         self.default_paper = size
 
     def dimension(
