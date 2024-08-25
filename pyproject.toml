@@ -29,14 +29,18 @@ psresize = "psutils.command.psresize:psresize"
 psselect = "psutils.command.psselect:psselect"
 pstops = "psutils.command.pstops:pstops"
 
+[project.optional-dependencies]
+test = [
+    "pytest-datafiles",
+    "Wand",
+]
+
 [build-system]
 requires = [
     "argparse-manpage[setuptools] >= 4.2",
     "setuptools >= 60; python_version >= \"3.12\"",
-    "pytest-datafiles",
     "puremagic >= 1.26",
     "pypdf >= 4.3.0",
-    "Wand",
 ]
 
 [tool.build_manpages]
