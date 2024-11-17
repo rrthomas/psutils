@@ -40,4 +40,4 @@ pytestmark = make_tests(
         GeneratedInput("a4", 1),
     ),
 )
-test_psjoin_1_2 = file_test
+test_psjoin = file_test
