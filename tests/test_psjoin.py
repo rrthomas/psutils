@@ -1,3 +1,9 @@
+"""
+psjoin tests.
+Copyright (c) Reuben Thomas 2023.
+Released under the GPL version 3, or (at your option) any later version.
+"""
+
 from contextlib import redirect_stdout
 from pathlib import Path
 from typing import List

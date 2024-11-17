@@ -1,3 +1,9 @@
+"""
+epsffit tests.
+Copyright (c) Reuben Thomas 2023.
+Released under the GPL version 3, or (at your option) any later version.
+"""
+
 from pathlib import Path
 from itertools import combinations
 from typing import Callable, List, Iterable
