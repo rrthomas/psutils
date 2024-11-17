@@ -342,7 +342,7 @@ end"""
     def finalize(self) -> None:
         # Write trailer
         self.reader.infile.seek(self.reader.pageptr[self.pages()])
-        shutil.copyfileobj(self.reader.infile, self.outfile)  # type: ignore
+        shutil.copyfileobj(self.reader.infile, self.outfile)
         self.outfile.flush()
 
     # Copy input file from current position up to new position to output file,
