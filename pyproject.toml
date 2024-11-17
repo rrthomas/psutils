@@ -80,11 +80,12 @@ disable = [
     "missing-function-docstring",
     "no-member",
     "fixme",
-    "too-many-locals",
     "too-many-arguments",
-    "too-many-statements",
     "too-many-branches",
+    "too-many-locals",
     "too-many-nested-blocks",
+    "too-many-positional-arguments",
+    "too-many-statements",
 ]
 enable = [
     "useless-suppression",
