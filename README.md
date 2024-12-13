@@ -1,5 +1,7 @@
 # PDF and PostScript Utilities
 
+_NOTE: This project 
+
 Web site: https://github.com/rrthomas/psutils  
 Maintainer: Reuben Thomas <rrt@sc3d.org>  
 
@@ -32,7 +34,7 @@ discouraged, unless you know you need them!
 
 The easiest way to install PSUtils is from PyPI, the Python Package Index:
 
-`pip install pspdfutils`
+`pip install psutils`
 
 (Note the PyPI package name!)
 
