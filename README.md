@@ -1,7 +1,5 @@
 # PDF and PostScript Utilities
 
-_NOTE: This project 
-
 Web site: https://github.com/rrthomas/psutils  
 Maintainer: Reuben Thomas <rrt@sc3d.org>  
 
