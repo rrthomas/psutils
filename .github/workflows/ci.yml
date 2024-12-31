@@ -30,7 +30,7 @@ jobs:
       run: |
         if [ "$RUNNER_OS" = "macOS" ]; then
           export MAGICK_HOME="$(brew --prefix)/opt/imagemagick/"
-          tox --skip-missing-interpreters -e py311,py312
+          tox --skip-missing-interpreters -e py312,py313
         else
           pip install tox
           tox --skip-missing-interpreters
