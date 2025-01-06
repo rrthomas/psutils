@@ -9,4 +9,5 @@ include extractres-include.man
 include includeres-include.man
 include epsffit-include.man
 include tests/conftest.py
+include tests/COPYRIGHT
 recursive-include tests/test-files *.ps *.eps *.pdf *.txt *.enc
