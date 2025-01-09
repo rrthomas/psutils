@@ -1,6 +1,6 @@
 [project]
 name = "psutils"
-version = "3.3.8"
+version = "3.3.9"
 description = "Manipulate PDF and PostScript documents"
 license = {text = "GPL v3 or later"}
 authors = [
