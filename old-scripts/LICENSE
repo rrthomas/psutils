@@ -4,21 +4,12 @@
 The constituent files of this package listed below are copyright (C) 1991-1995
 Angus J. C. Duggan.
 
-LICENSE          Makefile.msc     Makefile.nt      Makefile.os2
-Makefile.unix    README           config.h         descrip.mms
-epsffit.c        epsffit.man      extractres.man   extractres.pl
-fixdlsrps.man    fixdlsrps.pl     fixfmps.man      fixfmps.pl
-fixmacps.man     fixmacps.pl      fixpsditps.man   fixpsditps.pl
-fixpspps.man     fixpspps.pl      fixscribeps.man  fixscribeps.pl
-fixtpps.man      fixtpps.pl       fixwfwps.man     fixwfwps.pl
-fixwpps.man      fixwpps.pl       fixwwps.man      fixwwps.pl
-getafm           getafm.man       includeres.man   includeres.pl
-maketext         patchlev.h	  psbook.c         psbook.man
-pserror.c        pserror.h        psmerge.man      psmerge.pl
-psnup.c          psnup.man	  psresize.c       psresize.man
-psselect.c       psselect.man	  psspec.c         psspec.h
-pstops.c         pstops.man       psutil.c         psutil.h
-showchar
+fixdlsrps.1    fixdlsrps     fixfmps.1      fixfmps
+fixpsditps.1   fixpsditps    fixpspps.1     fixpspps
+fixscribeps.1  fixscribeps   fixtpps.1      fixtpps
+fixwfwps.1     fixwfwps      fixwpps.1      fixwpps
+fixwwps.1      fixwwps       psmerge.1      psmerge
+LICENSE
 
 They may be copied and used for any purpose (including distribution as part of
 a for-profit product), provided:
@@ -40,8 +31,5 @@ a for-profit product), provided:
 
 Basically, I don't mind how you use the programs so long as you acknowledge
 the author, and give people the originals if they want them.
-
-The included files, md68_0.ps and md71_0.ps (and their uuencoded forms) are
-(to the best of my knowledge) copyright Apple Computer, Inc.
 
                                                                 AJCD 4/4/95
