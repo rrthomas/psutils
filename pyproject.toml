@@ -2,7 +2,7 @@
 name = "psutils"
 version = "3.3.9"
 description = "Manipulate PDF and PostScript documents"
-license = {text = "GPL v3 or later"}
+license = "GPL-3.0-or-later"
 authors = [
     {name = "Reuben Thomas", email = "rrt@sc3d.org"}
 ]
