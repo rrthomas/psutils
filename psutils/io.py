@@ -8,7 +8,7 @@ import io
 import os
 import sys
 from contextlib import contextmanager
-from typing import Tuple, Optional, Iterator, IO
+from typing import IO, Iterator, Optional
 
 import puremagic
 
@@ -18,7 +18,7 @@ from .warnings import die
 @contextmanager
 def setup_input_and_output(
     infile_name: Optional[str], outfile_name: Optional[str]
-) -> Iterator[Tuple[IO[bytes], str, IO[bytes]]]:
+) -> Iterator[tuple[IO[bytes], str, IO[bytes]]]:
     # Set up input
     infile: Optional[IO[bytes]] = None
     if infile_name is not None:

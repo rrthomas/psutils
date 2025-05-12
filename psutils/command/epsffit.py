@@ -8,7 +8,6 @@ import argparse
 import re
 import sys
 import warnings
-from typing import List
 
 from psutils.argparse import HelpFormatter, PaperContext, add_basic_arguments
 from psutils.io import setup_input_and_output
@@ -88,7 +87,7 @@ def get_parser() -> argparse.ArgumentParser:
 
 
 # pylint: disable=dangerous-default-value
-def epsffit(argv: List[str] = sys.argv[1:]) -> None:
+def epsffit(argv: list[str] = sys.argv[1:]) -> None:
     args = get_parser().parse_intermixed_args(argv)
 
     urx, ury, llx, lly = 0, 0, 0, 0

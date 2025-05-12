@@ -7,16 +7,16 @@ Released under the GPL version 3, or (at your option) any later version.
 import argparse
 import sys
 import warnings
-from typing import List, Optional, Tuple, NoReturn
+from typing import NoReturn, Optional
 
 from psutils.argparse import (
     HelpFormatter,
     PaperContext,
-    add_quiet_and_help_arguments,
-    add_version_argument,
+    add_draw_argument,
     add_file_arguments,
     add_paper_arguments,
-    add_draw_argument,
+    add_quiet_and_help_arguments,
+    add_version_argument,
     parserange,
     parsespecs,
 )
@@ -29,7 +29,7 @@ DEFAULT_SPECS = "0"
 
 
 # Command-line parsing helper functions
-def get_parser() -> Tuple[argparse.ArgumentParser, PaperContext]:
+def get_parser() -> tuple[argparse.ArgumentParser, PaperContext]:
     # Command-line arguments
     parser = argparse.ArgumentParser(
         description="Rearrange pages of a PDF or PostScript document.",
@@ -102,7 +102,7 @@ def spec_exception() -> NoReturn:
 
 
 # pylint: disable=dangerous-default-value
-def pstops(argv: List[str] = sys.argv[1:]) -> None:
+def pstops(argv: list[str] = sys.argv[1:]) -> None:
     parser, paper_context = get_parser()
     args = parser.parse_intermixed_args(argv)
 

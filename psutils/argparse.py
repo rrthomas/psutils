@@ -4,18 +4,18 @@ Copyright (c) Reuben Thomas 2023.
 Released under the GPL version 3, or (at your option) any later version.
 """
 
-import importlib.metadata
 import argparse
+import importlib.metadata
 import re
-from typing import List, Tuple, Optional, Callable, NoReturn
+from typing import Callable, NoReturn, Optional
 
 from .libpaper import get_paper_size
-from .types import Rectangle, Range, PageSpec, Offset
+from .types import Offset, PageSpec, Range, Rectangle
 from .warnings import die
 
 
 # Argument parsers
-def parserange(ranges_text: str) -> List[Range]:
+def parserange(ranges_text: str) -> list[Range]:
     ranges = []
     for range_text in ranges_text.split(","):
         range_ = Range(0, 0, range_text)
@@ -110,7 +110,7 @@ def parsespecs(
     s: str,
     paper_context: PaperContext,
     err_function: Callable[[], NoReturn] = specerror,
-) -> Tuple[List[List[PageSpec]], int, bool]:
+) -> tuple[list[list[PageSpec]], int, bool]:
     flipping = False
     m = re.match(r"(?:([^:]+):)?(.*)", s)
     if not m:
@@ -173,7 +173,7 @@ class HelpFormatter(argparse.RawTextHelpFormatter):
         if not action.option_strings:
             (metavar,) = self._metavar_formatter(action, action.dest)(1)
             return metavar
-        parts: List[str] = []
+        parts: list[str] = []
         if action.nargs == 0:
             # Option takes no argument, output: -s, --long
             parts.extend(action.option_strings)

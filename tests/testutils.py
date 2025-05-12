@@ -4,22 +4,23 @@ Copyright (c) Reuben Thomas 2023.
 Released under the GPL version 3, or (at your option) any later version.
 """
 
-import os
-import sys
-import subprocess
-import re
 import difflib
+import os
+import re
 import shutil
+import subprocess
+import sys
 from contextlib import ExitStack
-from pathlib import Path
 from dataclasses import dataclass
+from pathlib import Path
+from typing import Any, Callable, Iterator, Optional, Union
 from unittest.mock import patch
-from typing import Any, Callable, List, Iterator, Optional, Union
 from warnings import warn
 
 import pytest
 from pytest import CaptureFixture, mark, param
 from wand.image import Image  # type: ignore
+
 
 if sys.version_info[:2] >= (3, 11):
     from contextlib import chdir
@@ -46,12 +47,12 @@ class GeneratedInput:
 @dataclass
 class Case:
     name: str
-    args: List[str]
+    args: list[str]
     input: Union[GeneratedInput, str]
     error: Optional[int] = None
 
 
-def remove_creation_date(lines: List[str]) -> List[str]:
+def remove_creation_date(lines: list[str]) -> list[str]:
     return [l for l in lines if not re.match(r"(% )?%%CreationDate", l)]
 
 
@@ -124,7 +125,7 @@ def compare_strings(
 
 
 def file_test(
-    function: Callable[[List[str]], None],
+    function: Callable[[list[str]], None],
     case: Case,
     fixture_dir: Path,
     capsys: CaptureFixture[str],
@@ -188,7 +189,7 @@ def file_test(
                 expected_stderr,
             )
         if not (correct_output and correct_stderr):
-            bad_results: List[str] = []
+            bad_results: list[str] = []
             if not correct_output:
                 bad_results.append("output")
             if not correct_stderr:

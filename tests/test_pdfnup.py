@@ -5,12 +5,13 @@ Released under the GPL version 3, or (at your option) any later version.
 """
 
 from pathlib import Path
-from typing import List, Callable
+from typing import Callable
 
+from psutils.command.psnup import psnup
 from pytest import CaptureFixture
 
-from testutils import file_test, make_tests, Case
-from psutils.command.psnup import psnup
+from testutils import Case, file_test, make_tests
+
 
 pytestmark = make_tests(
     psnup,
@@ -24,7 +25,7 @@ pytestmark = make_tests(
 
 
 def test_pdfnup(
-    function: Callable[[List[str]], None],
+    function: Callable[[list[str]], None],
     case: Case,
     fixture_dir: Path,
     capsys: CaptureFixture[str],

@@ -4,9 +4,9 @@ Copyright (c) Reuben Thomas 2023.
 Released under the GPL version 3, or (at your option) any later version.
 """
 
-from pathlib import Path
 import re
-from typing import List, Tuple, Union, Type, IO
+from pathlib import Path
+from typing import IO, Type, Union
 
 from pypdf import PdfReader as PdfReaderBase
 from pypdf._utils import StrByteType
@@ -46,8 +46,8 @@ class PsReader:  # pylint: disable=too-many-instance-attributes,too-few-public-m
         self.endsetup: int = 0
         self.procset_pos: range = range(0, 0)  # pstops procset location
         self.num_pages: int = 0
-        self.sizeheaders: List[int] = []
-        self.pageptr: List[int] = []
+        self.sizeheaders: list[int] = []
+        self.pageptr: list[int] = []
         self.size = None
         self.size_guessed = False
 
@@ -142,7 +142,7 @@ class PsReader:  # pylint: disable=too-many-instance-attributes,too-few-public-m
             self.endsetup = self.pageptr[0]
 
     # Return comment keyword and value if `line' is a DSC comment
-    def comment(self, line: bytes) -> Union[Tuple[bytes, bytes], Tuple[None, None]]:
+    def comment(self, line: bytes) -> Union[tuple[bytes, bytes], tuple[None, None]]:
         m = re.match(b"%%([^:]+):?\\s+?(.*\\S?)\\s*$", line)
         return (m[1], m[2]) if m else (None, None)
 

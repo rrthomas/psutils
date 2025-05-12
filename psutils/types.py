@@ -5,7 +5,7 @@ Released under the GPL version 3, or (at your option) any later version.
 """
 
 from dataclasses import dataclass
-from typing import List, NamedTuple
+from typing import NamedTuple
 
 from .warnings import die
 
@@ -53,12 +53,12 @@ class PageList:
     def __init__(
         self,
         total_pages: int,
-        pagerange: List[Range],
+        pagerange: list[Range],
         reverse: bool,
         odd: bool,
         even: bool,
     ) -> None:
-        self.pages: List[int] = []
+        self.pages: list[int] = []
         for range_ in pagerange:
             inc = -1 if range_.end < range_.start else 1
             currentpg = range_.start

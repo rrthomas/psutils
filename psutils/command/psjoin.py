@@ -9,13 +9,11 @@ import os
 import re
 import sys
 import warnings
-from typing import List
 
-from pypdf import PdfReader, PdfWriter
 import puremagic
-
 from psutils.argparse import HelpFormatter, add_version_argument
 from psutils.warnings import die, simple_warning
+from pypdf import PdfReader, PdfWriter
 
 
 def get_parser() -> argparse.ArgumentParser:
@@ -259,7 +257,7 @@ showpage\n""".encode(
     sys.stdout.buffer.write(f"\n%%Pages: {total_pages}\n%%EOF".encode("utf-8"))
 
 
-def normalize_types(types: List[str]) -> List[str]:
+def normalize_types(types: list[str]) -> list[str]:
     normalized_types = []
     for t in types:
         if t == ".eps":
@@ -269,7 +267,7 @@ def normalize_types(types: List[str]) -> List[str]:
     return normalized_types
 
 
-def psjoin(argv: List[str] = sys.argv[1:]) -> None:
+def psjoin(argv: list[str] = sys.argv[1:]) -> None:
     args = get_parser().parse_intermixed_args(argv)
 
     # Check types of files

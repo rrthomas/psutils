@@ -5,16 +5,16 @@ Released under the GPL version 3, or (at your option) any later version.
 """
 
 import os
-import subprocess
 import re
-from typing import List, Optional
+import subprocess
+from typing import Optional
 
 from .types import Rectangle
 from .warnings import die
 
 
 # Get the size of the given paper, or the default paper if no argument given.
-def paper(cmd: List[str], silent: bool = False) -> Optional[str]:
+def paper(cmd: list[str], silent: bool = False) -> Optional[str]:
     cmd.insert(0, "paper")
     try:
         out = subprocess.check_output(

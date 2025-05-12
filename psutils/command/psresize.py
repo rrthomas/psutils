@@ -7,7 +7,6 @@ Released under the GPL version 3, or (at your option) any later version.
 import argparse
 import sys
 import warnings
-from typing import List
 
 from psutils.argparse import HelpFormatter, add_basic_arguments
 from psutils.command.psnup import psnup
@@ -51,7 +50,7 @@ pstops(1) for more details.
 
 
 # pylint: disable=dangerous-default-value
-def psresize(argv: List[str] = sys.argv[1:]) -> None:
+def psresize(argv: list[str] = sys.argv[1:]) -> None:
     args = get_parser().parse_intermixed_args(argv)
 
     # Resize pages

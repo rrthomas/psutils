@@ -4,14 +4,15 @@ Copyright (c) Reuben Thomas 2023.
 Released under the GPL version 3, or (at your option) any later version.
 """
 
-from pathlib import Path
 from itertools import combinations
-from typing import Callable, List, Iterable
+from pathlib import Path
+from typing import Callable, Iterable
 
+from psutils.command.epsffit import epsffit
 from pytest import CaptureFixture
 
-from testutils import file_test, make_tests, Case
-from psutils.command.epsffit import epsffit
+from testutils import Case, file_test, make_tests
+
 
 OPTIONS = ["aspect", "center", "maximize", "rotate"]
 
@@ -63,7 +64,7 @@ pytestmark = make_tests(
 
 # pylint: disable=similarities
 def test_epsffit(
-    function: Callable[[List[str]], None],
+    function: Callable[[list[str]], None],
     case: Case,
     fixture_dir: Path,
     capsys: CaptureFixture[str],

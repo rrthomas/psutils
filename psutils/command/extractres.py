@@ -9,7 +9,7 @@ import os
 import re
 import sys
 import warnings
-from typing import Dict, List, Optional, IO
+from typing import IO, Optional
 
 from psutils.argparse import HelpFormatter, add_basic_arguments
 from psutils.io import setup_input_and_output
@@ -40,7 +40,7 @@ def get_parser() -> argparse.ArgumentParser:
 
 
 # pylint: disable=dangerous-default-value
-def extractres(argv: List[str] = sys.argv[1:]) -> None:
+def extractres(argv: list[str] = sys.argv[1:]) -> None:
     args = get_parser().parse_intermixed_args(argv)
 
     with setup_input_and_output(args.infile, args.outfile) as (
@@ -61,11 +61,11 @@ def extractres(argv: List[str] = sys.argv[1:]) -> None:
             return types.get(comment, None)
 
         # Extract resources
-        resources: Dict[bytes, List[bytes]] = {}  # resources included
-        merge: Dict[bytes, bool] = {}  # resources extracted this time
-        prolog: List[bytes] = []
-        body: List[bytes] = []
-        output: Optional[List[bytes]] = prolog
+        resources: dict[bytes, list[bytes]] = {}  # resources included
+        merge: dict[bytes, bool] = {}  # resources extracted this time
+        prolog: list[bytes] = []
+        body: list[bytes] = []
+        output: Optional[list[bytes]] = prolog
         output_stream: Optional[IO[bytes]] = None
 
         for line in infile:

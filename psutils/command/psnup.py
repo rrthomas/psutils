@@ -9,14 +9,14 @@ import re
 import sys
 import warnings
 from copy import copy
-from typing import Any, List, Optional, Sequence, Tuple, Union
+from typing import Any, Optional, Sequence, Union
 
 from psutils.argparse import (
     HelpFormatter,
     PaperContext,
     add_basic_arguments,
-    add_paper_arguments,
     add_draw_argument,
+    add_paper_arguments,
     parsespecs,
 )
 from psutils.io import setup_input_and_output
@@ -39,7 +39,7 @@ def parsenup(s: str) -> int:
 class ToggleAction(argparse.Action):
     def __init__(
         self,
-        option_strings: List[str],
+        option_strings: list[str],
         dest: str,
         nargs: Optional[str] = None,
         default: bool = False,
@@ -59,7 +59,7 @@ class ToggleAction(argparse.Action):
         setattr(namespace, self.dest, not getattr(namespace, self.dest))
 
 
-def get_parser() -> Tuple[argparse.ArgumentParser, PaperContext]:
+def get_parser() -> tuple[argparse.ArgumentParser, PaperContext]:
     # Command-line arguments
     parser = argparse.ArgumentParser(
         description="Put multiple pages of a PostScript document on to one page.",
@@ -152,7 +152,7 @@ def get_parser_manpages() -> argparse.ArgumentParser:
 
 # FIXME: Move calculation logic into DocumentTransform class.
 # pylint: disable=dangerous-default-value
-def psnup(argv: List[str] = sys.argv[1:]) -> None:
+def psnup(argv: list[str] = sys.argv[1:]) -> None:
     parser, paper_context = get_parser()
     args = parser.parse_intermixed_args(argv)
     size: Optional[Rectangle] = None
@@ -218,7 +218,7 @@ def psnup(argv: List[str] = sys.argv[1:]) -> None:
         # and dividend.
         # There is probably a much more efficient method of doing this, but the
         # numbers involved are small.
-        def nextdiv(n: int, m: int) -> Tuple[int, int]:
+        def nextdiv(n: int, m: int) -> tuple[int, int]:
             while n < m:
                 n += 1
                 if m % n == 0:

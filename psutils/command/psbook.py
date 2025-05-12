@@ -7,7 +7,6 @@ Released under the GPL version 3, or (at your option) any later version.
 import argparse
 import sys
 import warnings
-from typing import List
 
 from psutils.argparse import (
     HelpFormatter,
@@ -52,7 +51,7 @@ otherwise, a multiple of 4""",
 
 
 # pylint: disable=dangerous-default-value
-def psbook(argv: List[str] = sys.argv[1:]) -> None:
+def psbook(argv: list[str] = sys.argv[1:]) -> None:
     args = get_parser().parse_intermixed_args(argv)
 
     if args.signature > 1 and args.signature % 4 != 0:

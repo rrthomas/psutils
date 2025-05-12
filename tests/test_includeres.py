@@ -5,12 +5,13 @@ Released under the GPL version 3, or (at your option) any later version.
 """
 
 from pathlib import Path
-from typing import Callable, List
+from typing import Callable
 
-from pytest import mark, CaptureFixture
-
-from testutils import file_test, make_tests, Case
 from psutils.command.includeres import includeres
+from pytest import CaptureFixture, mark
+
+from testutils import Case, file_test, make_tests
+
 
 FIXTURE_DIR = Path(__file__).parent.resolve() / "test-files"
 
@@ -32,7 +33,7 @@ pytestmark = make_tests(
 )
 # pylint: disable=similarities
 def test_includeres(
-    function: Callable[[List[str]], None],
+    function: Callable[[list[str]], None],
     case: Case,
     fixture_dir: Path,
     capsys: CaptureFixture[str],

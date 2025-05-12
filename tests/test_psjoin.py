@@ -6,15 +6,16 @@ Released under the GPL version 3, or (at your option) any later version.
 
 from contextlib import redirect_stdout
 from pathlib import Path
-from typing import List
 
-from testutils import make_tests, file_test, Case, GeneratedInput
 from psutils.command.psjoin import psjoin
+
+from testutils import Case, GeneratedInput, file_test, make_tests
+
 
 FIXTURE_DIR = Path(__file__).parent.resolve() / "test-files"
 
 
-def psjoin_to_file(args: List[str]) -> None:
+def psjoin_to_file(args: list[str]) -> None:
     output_file = args.pop()
     args.append(args[-1])
     with open(output_file, "w", encoding="utf-8") as f:

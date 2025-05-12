@@ -5,11 +5,11 @@ Released under the GPL version 3, or (at your option) any later version.
 """
 
 import io
-import sys
 import shutil
+import sys
 from abc import ABC, abstractmethod
 from contextlib import contextmanager
-from typing import List, Optional, Union, Iterator, IO
+from typing import IO, Iterator, Optional, Union
 from warnings import warn
 
 from pypdf import PdfWriter, Transformation
@@ -17,8 +17,8 @@ from pypdf.annotations import PolyLine
 
 from .argparse import parserange
 from .io import setup_input_and_output
-from .readers import PsReader, PdfReader, document_reader
-from .types import Rectangle, Range, Offset, PageSpec, PageList
+from .readers import PdfReader, PsReader, document_reader
+from .types import Offset, PageList, PageSpec, Range, Rectangle
 from .warnings import die
 
 
@@ -31,7 +31,7 @@ def page_index_to_page_number(
 class DocumentTransform(ABC):
     def __init__(self) -> None:
         self.in_size: Optional[Rectangle]
-        self.specs: List[List[PageSpec]]
+        self.specs: list[list[PageSpec]]
 
     @abstractmethod
     def pages(self) -> int:
@@ -50,7 +50,7 @@ class DocumentTransform(ABC):
         self,
         page_list: PageList,
         outputpage: int,
-        page_specs: List[PageSpec],
+        page_specs: list[PageSpec],
         maxpage: int,
         modulo: int,
         pagebase: int,
@@ -63,7 +63,7 @@ class DocumentTransform(ABC):
 
     def transform_pages(
         self,
-        pagerange: Optional[List[Range]],
+        pagerange: Optional[list[Range]],
         flipping: bool,
         reverse: bool,
         odd: bool,
@@ -82,7 +82,7 @@ class DocumentTransform(ABC):
             return n
 
         def transform_pages(
-            pagerange: Optional[List[Range]], odd: bool, even: bool, reverse: bool
+            pagerange: Optional[list[Range]], odd: bool, even: bool, reverse: bool
         ) -> None:
             outputpage = 0
             # If no page range given, select all pages
@@ -178,7 +178,7 @@ end"""
         outfile: IO[bytes],
         size: Optional[Rectangle],
         in_size: Optional[Rectangle],
-        specs: List[List[PageSpec]],
+        specs: list[list[PageSpec]],
         draw: float,
         in_size_guessed: bool,
     ):
@@ -258,7 +258,7 @@ end"""
         self,
         page_list: PageList,
         outputpage: int,
-        page_specs: List[PageSpec],
+        page_specs: list[PageSpec],
         maxpage: int,
         modulo: int,
         pagebase: int,
@@ -348,7 +348,7 @@ end"""
     # Copy input file from current position up to new position to output file,
     # ignoring the lines starting at something ignorelist points to.
     # Updates ignorelist.
-    def fcopy(self, upto: int, ignorelist: List[int]) -> None:
+    def fcopy(self, upto: int, ignorelist: list[int]) -> None:
         here = self.reader.infile.tell()
         while len(ignorelist) > 0 and ignorelist[0] < upto:
             while len(ignorelist) > 0 and ignorelist[0] < here:
@@ -375,7 +375,7 @@ class PdfTransform(DocumentTransform):
         outfile: IO[bytes],
         size: Optional[Rectangle],
         in_size: Optional[Rectangle],
-        specs: List[List[PageSpec]],
+        specs: list[list[PageSpec]],
         draw: float,
     ):
         super().__init__()
@@ -406,7 +406,7 @@ class PdfTransform(DocumentTransform):
         self,
         page_list: PageList,
         outputpage: int,
-        page_specs: List[PageSpec],
+        page_specs: list[PageSpec],
         maxpage: int,
         modulo: int,
         pagebase: int,
@@ -498,7 +498,7 @@ def document_transform(
     outfile: IO[bytes],
     size: Optional[Rectangle],
     in_size: Optional[Rectangle],
-    specs: List[List[PageSpec]],
+    specs: list[list[PageSpec]],
     draw: float,
     in_size_guessed: bool,
 ) -> Union[PdfTransform, PsTransform]:
@@ -515,7 +515,7 @@ def file_transform(
     outfile_name: str,
     size: Optional[Rectangle],
     in_size: Optional[Rectangle],
-    specs: List[List[PageSpec]],
+    specs: list[list[PageSpec]],
     draw: float,
     in_size_guessed: bool,
 ) -> Iterator[Union[PdfTransform, PsTransform]]:
