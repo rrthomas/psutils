@@ -7,8 +7,9 @@ Released under the GPL version 3, or (at your option) any later version.
 import io
 import os
 import sys
+from collections.abc import Iterator
 from contextlib import contextmanager
-from typing import IO, Iterator, Optional
+from typing import IO, Optional
 
 import puremagic
 

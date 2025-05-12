@@ -8,8 +8,9 @@ import io
 import shutil
 import sys
 from abc import ABC, abstractmethod
+from collections.abc import Iterator
 from contextlib import contextmanager
-from typing import IO, Iterator, Optional, Union
+from typing import IO, Optional, Union
 from warnings import warn
 
 from pypdf import PdfWriter, Transformation

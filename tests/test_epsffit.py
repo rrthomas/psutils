@@ -4,9 +4,10 @@ Copyright (c) Reuben Thomas 2023.
 Released under the GPL version 3, or (at your option) any later version.
 """
 
+from collections.abc import Iterable
 from itertools import combinations
 from pathlib import Path
-from typing import Callable, Iterable
+from typing import Callable
 
 from psutils.command.epsffit import epsffit
 from pytest import CaptureFixture

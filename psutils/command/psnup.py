@@ -8,8 +8,9 @@ import argparse
 import re
 import sys
 import warnings
+from collections.abc import Sequence
 from copy import copy
-from typing import Any, Optional, Sequence, Union
+from typing import Any, Optional, Union
 
 from psutils.argparse import (
     HelpFormatter,

@@ -10,10 +10,11 @@ import re
 import shutil
 import subprocess
 import sys
+from collections.abc import Iterator
 from contextlib import ExitStack
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Any, Callable, Iterator, Optional, Union
+from typing import Any, Callable, Optional, Union
 from unittest.mock import patch
 from warnings import warn
 
