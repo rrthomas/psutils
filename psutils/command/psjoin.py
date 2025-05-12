@@ -1,5 +1,5 @@
-"""
-psjoin command.
+"""psjoin command.
+
 Copyright (c) Reuben Thomas 2023.
 Released under the GPL version 3, or (at your option) any later version.
 """
@@ -11,9 +11,10 @@ import sys
 import warnings
 
 import puremagic
+from pypdf import PdfReader, PdfWriter
+
 from psutils.argparse import HelpFormatter, add_version_argument
 from psutils.warnings import die, simple_warning
-from pypdf import PdfReader, PdfWriter
 
 
 def get_parser() -> argparse.ArgumentParser:

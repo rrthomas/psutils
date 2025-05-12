@@ -1,15 +1,16 @@
-"""
-extractres tests.
+"""extractres tests.
+
 Copyright (c) Reuben Thomas 2023.
 Released under the GPL version 3, or (at your option) any later version.
 """
 
 from pathlib import Path
 
-from pytest import mark, CaptureFixture
-
-from testutils import file_test, compare_text_files, Case, GeneratedInput
 from psutils.command.extractres import extractres
+from pytest import CaptureFixture, mark
+
+from testutils import Case, GeneratedInput, compare_text_files, file_test
+
 
 FIXTURE_DIR = Path(__file__).parent.resolve() / "test-files"
 

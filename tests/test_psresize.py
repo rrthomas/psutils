@@ -1,13 +1,15 @@
-"""
-psresize tests.
+"""psresize tests.
+
 Copyright (c) Reuben Thomas 2023.
 Released under the GPL version 3, or (at your option) any later version.
 """
 
 from pathlib import Path
 
-from testutils import file_test, make_tests, Case, GeneratedInput
 from psutils.command.psresize import psresize
+
+from testutils import Case, GeneratedInput, file_test, make_tests
+
 
 pytestmark = make_tests(
     psresize,

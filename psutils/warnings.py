@@ -1,12 +1,12 @@
-"""
-PSUtils warning and error routines.
+"""PSUtils warning and error routines.
+
 Copyright (c) Reuben Thomas 2023.
 Released under the GPL version 3, or (at your option) any later version.
 """
 
 import sys
+from typing import Callable, NoReturn, Optional, TextIO, Type, Union
 from warnings import warn
-from typing import Callable, Optional, Union, Type, NoReturn, TextIO
 
 
 # Error messages

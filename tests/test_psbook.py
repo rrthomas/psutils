@@ -1,13 +1,15 @@
-"""
-psbook tests.
+"""psbook tests.
+
 Copyright (c) Reuben Thomas 2023.
 Released under the GPL version 3, or (at your option) any later version.
 """
 
 from pathlib import Path
 
-from testutils import file_test, make_tests, Case, GeneratedInput
 from psutils.command.psbook import psbook
+
+from testutils import Case, GeneratedInput, file_test, make_tests
+
 
 pytestmark = make_tests(
     psbook,
