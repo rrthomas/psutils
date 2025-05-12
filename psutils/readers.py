@@ -6,7 +6,7 @@ Released under the GPL version 3, or (at your option) any later version.
 
 import re
 from pathlib import Path
-from typing import IO, Type, Union
+from typing import IO, Union
 
 from pypdf import PdfReader as PdfReaderBase
 from pypdf._utils import StrByteType
@@ -148,7 +148,7 @@ class PsReader:  # pylint: disable=too-many-instance-attributes,too-few-public-m
 
 
 def document_reader(file: IO[bytes], file_type: str) -> Union[PdfReader, PsReader]:
-    constructor: Union[Type[PdfReader], Type[PsReader]]
+    constructor: Union[type[PdfReader], type[PsReader]]
     if file_type in (".ps", ".eps"):
         constructor = PsReader
     elif file_type == ".pdf":

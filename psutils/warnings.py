@@ -5,7 +5,7 @@ Released under the GPL version 3, or (at your option) any later version.
 """
 
 import sys
-from typing import Callable, NoReturn, Optional, TextIO, Type, Union
+from typing import Callable, NoReturn, Optional, TextIO, Union
 from warnings import warn
 
 
@@ -13,7 +13,7 @@ from warnings import warn
 def simple_warning(prog: str) -> Callable[..., None]:
     def _warning(  # pylint: disable=too-many-arguments
         message: Union[Warning, str],
-        category: Type[Warning],  # pylint: disable=unused-argument
+        category: type[Warning],  # pylint: disable=unused-argument
         filename: str,  # pylint: disable=unused-argument
         lineno: int,  # pylint: disable=unused-argument
         file: Optional[TextIO] = sys.stderr,
