@@ -8,9 +8,9 @@ import os
 from pathlib import Path
 from unittest import mock
 
-from psutils.command.pstops import pstops
-
 from testutils import Case, GeneratedInput, file_test, make_tests
+
+from psutils.command.pstops import pstops
 
 
 pytestmark = make_tests(

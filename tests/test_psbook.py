@@ -6,9 +6,9 @@ Released under the GPL version 3, or (at your option) any later version.
 
 from pathlib import Path
 
-from psutils.command.psbook import psbook
-
 from testutils import Case, GeneratedInput, file_test, make_tests
+
+from psutils.command.psbook import psbook
 
 
 pytestmark = make_tests(

@@ -86,7 +86,6 @@ def get_parser() -> argparse.ArgumentParser:
     return parser
 
 
-# pylint: disable=dangerous-default-value
 def epsffit(argv: list[str] = sys.argv[1:]) -> None:
     args = get_parser().parse_intermixed_args(argv)
 

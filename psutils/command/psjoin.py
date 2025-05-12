@@ -92,7 +92,7 @@ def join_ps(args: argparse.Namespace) -> None:
         for i, file in enumerate(args.file):
             try:
                 input_ = open(file, "rb")
-            except IOError as e:
+            except OSError as e:
                 die(f"can't open file `{file}': {e}")
             with input_:
                 in_comment = True
@@ -187,7 +187,7 @@ def join_ps(args: argparse.Namespace) -> None:
 
         try:
             input_ = open(file, "rb")
-        except IOError as e:
+        except OSError as e:
             die(f"can't open file `{file[i]}': {e}")
         with input_:
             for line in input_:
@@ -221,9 +221,7 @@ def join_ps(args: argparse.Namespace) -> None:
                         file_pages += 1
                         total_pages += 1
                         sys.stdout.buffer.write(
-                            f"\n%%Page: ({i}-{file_pages}) {total_pages}\n".encode(
-                                "utf-8"
-                            )
+                            f"\n%%Page: ({i}-{file_pages}) {total_pages}\n".encode()
                         )
                         if i not in prolog or prolog[i] != prolog[prolog_inx]:
                             sys.stdout.buffer.write(save)
@@ -243,9 +241,7 @@ def join_ps(args: argparse.Namespace) -> None:
 
 %%Page: ({i}-E) {total_pages}
 % psjoin: empty page inserted to force even pages
-showpage\n""".encode(
-                    "utf-8"
-                )
+showpage\n""".encode()
             )
 
         if i in trailer and saved:
@@ -255,7 +251,7 @@ showpage\n""".encode(
 
     sys.stdout.buffer.write(b"\n%%Trailer\n")
     sys.stdout.buffer.write(trailer[prolog_inx])
-    sys.stdout.buffer.write(f"\n%%Pages: {total_pages}\n%%EOF".encode("utf-8"))
+    sys.stdout.buffer.write(f"\n%%Pages: {total_pages}\n%%EOF".encode())
 
 
 def normalize_types(types: list[str]) -> list[str]:

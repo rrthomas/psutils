@@ -49,7 +49,6 @@ pstops(1) for more details.
     return parser
 
 
-# pylint: disable=dangerous-default-value
 def psresize(argv: list[str] = sys.argv[1:]) -> None:
     args = get_parser().parse_intermixed_args(argv)
 

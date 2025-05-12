@@ -1,14 +1,14 @@
-"""
-setup.py for psutils
-"""
+"""setup.py for psutils"""
 
 import subprocess
+
 from build_manpages.build_manpages import (  # type: ignore
     build_manpages,
-    get_install_cmd,
     get_build_py_cmd,
+    get_install_cmd,
 )
 from setuptools import setup
+
 
 setup(
     cmdclass={

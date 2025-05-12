@@ -9,10 +9,10 @@ from itertools import combinations
 from pathlib import Path
 from typing import Callable
 
-from psutils.command.epsffit import epsffit
 from pytest import CaptureFixture
-
 from testutils import Case, file_test, make_tests
+
+from psutils.command.epsffit import epsffit
 
 
 OPTIONS = ["aspect", "center", "maximize", "rotate"]
@@ -63,7 +63,6 @@ pytestmark = make_tests(
 )
 
 
-# pylint: disable=similarities
 def test_epsffit(
     function: Callable[[list[str]], None],
     case: Case,

@@ -7,9 +7,9 @@ Released under the GPL version 3, or (at your option) any later version.
 from contextlib import redirect_stdout
 from pathlib import Path
 
-from psutils.command.psjoin import psjoin
-
 from testutils import Case, GeneratedInput, file_test, make_tests
+
+from psutils.command.psjoin import psjoin
 
 
 FIXTURE_DIR = Path(__file__).parent.resolve() / "test-files"

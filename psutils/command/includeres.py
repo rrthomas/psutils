@@ -30,7 +30,6 @@ def get_parser() -> argparse.ArgumentParser:
     return parser
 
 
-# pylint: disable=dangerous-default-value
 def includeres(argv: list[str] = sys.argv[1:]) -> None:
     args = get_parser().parse_intermixed_args(argv)
 
@@ -53,7 +52,7 @@ def includeres(argv: list[str] = sys.argv[1:]) -> None:
                 try:
                     with open(fullname, "rb") as f:
                         outfile.write(f.read())
-                except IOError:
+                except OSError:
                     outfile.write(
                         f'%%IncludeResource: {b" ".join([resource_type, *res]).decode()}\n'.encode()
                     )

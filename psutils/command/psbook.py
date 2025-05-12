@@ -50,7 +50,6 @@ otherwise, a multiple of 4""",
     return parser
 
 
-# pylint: disable=dangerous-default-value
 def psbook(argv: list[str] = sys.argv[1:]) -> None:
     args = get_parser().parse_intermixed_args(argv)
 

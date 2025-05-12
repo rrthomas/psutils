@@ -39,7 +39,6 @@ def get_parser() -> argparse.ArgumentParser:
     return parser
 
 
-# pylint: disable=dangerous-default-value
 def extractres(argv: list[str] = sys.argv[1:]) -> None:
     args = get_parser().parse_intermixed_args(argv)
 
@@ -68,6 +67,7 @@ def extractres(argv: list[str] = sys.argv[1:]) -> None:
         output: Optional[list[bytes]] = prolog
         output_stream: Optional[IO[bytes]] = None
 
+        saveout = None
         for line in infile:
             if re.match(b"%%Begin(Resource|Font|ProcSet):", line):
                 comment, *res = line.split()  # look at resource type
@@ -85,7 +85,7 @@ def extractres(argv: list[str] = sys.argv[1:]) -> None:
                     if not os.path.exists(name):
                         try:
                             output_stream = open(name, "wb")
-                        except IOError:
+                        except OSError:
                             die("can't write file `$name'", 2)
                         resources[name] = []
                         merge[name] = args.merge
@@ -96,9 +96,8 @@ def extractres(argv: list[str] = sys.argv[1:]) -> None:
                         output = None
                 elif merge.get(name):
                     try:
-                        # pylint: disable=consider-using-with
                         output_stream = open(name, "a+b")
-                    except IOError:
+                    except OSError:
                         die("can't append to file `$name'", 2)
                     resources[name] = []
                     output = resources[name]

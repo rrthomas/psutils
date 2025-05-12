@@ -24,7 +24,7 @@ from wand.image import Image  # type: ignore
 
 
 if sys.version_info[:2] >= (3, 11):
-    from contextlib import chdir
+    from contextlib import chdir  # pyright: ignore
 else:
     from contextlib import contextmanager
 
@@ -76,19 +76,19 @@ def compare_text_files(
             with capsys.disabled():
                 sys.stdout.writelines(diff)
         return len(diff) == 0
-    return False
 
 
 def image_to_bytes(image_file: os.PathLike[str]) -> bytes:
     with Image(filename=image_file) as image:
         bytestr = b""
         # FIXME: If comparison fails, save images that differ for debugging
-        for i, frame in enumerate(image.sequence):  # pylint: disable=unused-variable
+        for i, frame in enumerate(image.sequence):
             frame_img = Image(image=frame)
-            bytestr += frame_img.make_blob("pnm")
+            blob = frame_img.make_blob("pnm")
+            assert blob is not None or type(blob) is bytes
+            bytestr += blob
             # frame_img.save(filename=f"{image_file}-{i}.pnm")
         return bytestr
-    return b""
 
 
 def compare_image_files(

@@ -26,7 +26,7 @@ def paper(cmd: list[str], silent: bool = False) -> Optional[str]:
         return out.rstrip()
     except subprocess.CalledProcessError:
         return None
-    except:  # pylint: disable=bare-except
+    except Exception:
         die("could not run `paper' command")
 
 

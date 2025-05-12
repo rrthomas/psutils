@@ -11,13 +11,13 @@ from warnings import warn
 
 # Error messages
 def simple_warning(prog: str) -> Callable[..., None]:
-    def _warning(  # pylint: disable=too-many-arguments
+    def _warning(
         message: Union[Warning, str],
-        category: type[Warning],  # pylint: disable=unused-argument
-        filename: str,  # pylint: disable=unused-argument
-        lineno: int,  # pylint: disable=unused-argument
+        category: type[Warning],
+        filename: str,
+        lineno: int,
         file: Optional[TextIO] = sys.stderr,
-        line: Optional[str] = None,  # pylint: disable=unused-argument
+        line: Optional[str] = None,
     ) -> None:
         print(f"\n{prog}: {message}", file=file or sys.stderr)
 

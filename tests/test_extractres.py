@@ -6,10 +6,10 @@ Released under the GPL version 3, or (at your option) any later version.
 
 from pathlib import Path
 
-from psutils.command.extractres import extractres
 from pytest import CaptureFixture, mark
-
 from testutils import Case, GeneratedInput, compare_text_files, file_test
+
+from psutils.command.extractres import extractres
 
 
 FIXTURE_DIR = Path(__file__).parent.resolve() / "test-files"
@@ -21,7 +21,6 @@ FIXTURE_DIR = Path(__file__).parent.resolve() / "test-files"
     FIXTURE_DIR / "extractres" / "sample" / "a2ps-black+white-Prolog2.01-expected.ps",
 )
 
-# pylint: disable=similarities
 def test_extractres(
     capsys: CaptureFixture[str],
     datafiles: Path,

@@ -7,10 +7,10 @@ Released under the GPL version 3, or (at your option) any later version.
 from pathlib import Path
 from typing import Callable
 
-from psutils.command.includeres import includeres
 from pytest import CaptureFixture, mark
-
 from testutils import Case, file_test, make_tests
+
+from psutils.command.includeres import includeres
 
 
 FIXTURE_DIR = Path(__file__).parent.resolve() / "test-files"
@@ -31,7 +31,6 @@ pytestmark = make_tests(
     FIXTURE_DIR / "includeres" / "sample" / "a2ps-a2ps-hdr2.02.ps",
     FIXTURE_DIR / "includeres" / "sample" / "a2ps-black+white-Prolog2.01.ps",
 )
-# pylint: disable=similarities
 def test_includeres(
     function: Callable[[list[str]], None],
     case: Case,

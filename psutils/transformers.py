@@ -136,7 +136,7 @@ class DocumentTransform(ABC):
 
 
 # FIXME: Extract PsWriter.
-class PsTransform(DocumentTransform):  # pylint: disable=too-many-instance-attributes
+class PsTransform(DocumentTransform):
     # PStoPS procset
     # Wrap showpage, erasepage and copypage in our own versions.
     # Nullify paper size operators.
@@ -213,7 +213,7 @@ end"""
             self.fcopy(self.reader.pagescmt, ignorelist)
             try:
                 _ = self.reader.infile.readline()
-            except IOError:
+            except OSError:
                 die("I/O error in header", 2)
             if self.size is not None:
                 if self.in_size_guessed:
@@ -276,7 +276,7 @@ end"""
                     line = self.reader.infile.readline()
                     keyword, _ = self.reader.comment(line)
                     assert keyword == b"Page"
-                except IOError:
+                except OSError:
                     die(f"I/O error seeking page {pagenum}", 2)
             if self.use_procset:
                 self.write("userdict/PStoPSsaved save put")
@@ -321,13 +321,13 @@ end"""
                 while True:
                     try:
                         line = self.reader.infile.readline()
-                    except IOError:
+                    except OSError:
                         die(f"I/O error reading page setup {outputpage}", 2)
                     if line.startswith(b"PStoPSxform"):
                         break
                     try:
                         self.write(line.decode())
-                    except IOError:
+                    except OSError:
                         die(f"I/O error writing page setup {outputpage}", 2)
             if not self.reader.procset_pos and self.use_procset:
                 self.write("PStoPSxform concat")
@@ -358,14 +358,14 @@ end"""
                 self.fcopy(ignorelist[0], [])
             try:
                 self.reader.infile.readline()
-            except IOError:
+            except OSError:
                 die("I/O error", 2)
             ignorelist.pop(0)
             here = self.reader.infile.tell()
 
         try:
             self.outfile.write(self.reader.infile.read(upto - here))
-        except IOError:
+        except OSError:
             die("I/O error", 2)
 
 
@@ -417,7 +417,7 @@ class PdfTransform(DocumentTransform):
             page_specs[0], maxpage, modulo, pagebase
         )
         real_page = page_list.real_page(page_number)
-        if (  # pylint: disable=too-many-boolean-expressions
+        if (
             len(page_specs) == 1
             and not page_specs[0].has_transform()
             and page_number < page_list.num_pages()

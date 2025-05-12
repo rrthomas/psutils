@@ -38,7 +38,7 @@ size_keywords = (
 
 
 # FIXME: Store lists of lines, not file offsets.
-class PsReader:  # pylint: disable=too-many-instance-attributes,too-few-public-methods
+class PsReader:
     def __init__(self, infile: IO[bytes]) -> None:
         self.infile = infile
         self.headerpos: int = 0

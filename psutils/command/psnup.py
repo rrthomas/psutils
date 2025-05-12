@@ -152,7 +152,6 @@ def get_parser_manpages() -> argparse.ArgumentParser:
 
 
 # FIXME: Move calculation logic into DocumentTransform class.
-# pylint: disable=dangerous-default-value
 def psnup(argv: list[str] = sys.argv[1:]) -> None:
     parser, paper_context = get_parser()
     args = parser.parse_intermixed_args(argv)
@@ -237,9 +236,9 @@ def psnup(argv: list[str] = sys.argv[1:]) -> None:
         # combinations of width*height in both normal and rotated form, and
         # minimise the wasted space.
         best = args.tolerance
-        horiz: float
-        vert: float
-        rotate: bool
+        horiz = 0.0
+        vert = 0.0
+        rotate = False
 
         def reduce_waste(
             hor: float, ver: float, iwid: float, ihgt: float, rot: bool

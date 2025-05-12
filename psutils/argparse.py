@@ -42,7 +42,7 @@ def parsepaper(paper_size: str) -> Optional[Rectangle]:
                 height = dimension(height_text)
                 size = Rectangle(width, height)
         return size
-    except:  # pylint: disable=bare-except
+    except Exception:
         die(f"paper size '{paper_size}' unknown")
 
 
@@ -63,7 +63,7 @@ def dimension(s: str) -> float:
     return float(m[1]) * units[m[2]]
 
 
-class PaperContext:  # pylint: disable=too-few-public-methods
+class PaperContext:
     def __init__(self, size: Optional[Rectangle] = None) -> None:
         if size is None:
             # Run get_paper_size at run-time, so we have already set up the

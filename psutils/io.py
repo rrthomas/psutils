@@ -25,7 +25,7 @@ def setup_input_and_output(
     if infile_name is not None:
         try:
             infile = open(infile_name, "rb")
-        except IOError:
+        except OSError:
             die(f"cannot open input file {infile_name}")
     else:
         infile = os.fdopen(sys.stdin.fileno(), "rb", closefd=False)
@@ -41,7 +41,7 @@ def setup_input_and_output(
     if outfile_name is not None:
         try:
             outfile = open(outfile_name, "wb")
-        except IOError:
+        except OSError:
             die(f"cannot open output file {outfile_name}")
     else:
         outfile = os.fdopen(sys.stdout.fileno(), "wb", closefd=False)

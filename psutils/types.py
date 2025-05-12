@@ -26,7 +26,9 @@ class Range:
     text: str
 
 
-Offset = NamedTuple("Offset", [("x", float), ("y", float)])
+class Offset(NamedTuple):
+    x: float
+    y: float
 
 
 @dataclass
