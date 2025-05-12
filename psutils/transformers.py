@@ -423,6 +423,7 @@ class PdfTransform(DocumentTransform):
             and page_number < page_list.num_pages()
             and 0 <= real_page < len(self.reader.pages)
             and self.draw == 0
+            and self.size == self.in_size
             and (
                 self.in_size.width is None
                 or (

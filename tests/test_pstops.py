@@ -49,6 +49,11 @@ pytestmark = make_tests(
         1,
     ),
     Case(
+        "output-size",
+        ["-pA4"],
+        GeneratedInput("a5", 1),
+    ),
+    Case(
         "texlive",
         ["-pa4", "--specs", "2:0L@.7(21cm,0)+1L@.7(21cm,14.85cm)"],
         GeneratedInput("a4", 11),
