@@ -194,7 +194,7 @@ VERSION = importlib.metadata.version("psutils")
 
 VERSION_BANNER = f"""\
 %(prog)s {VERSION}
-Copyright (c) Reuben Thomas 2023-2024.
+Copyright (c) Reuben Thomas 2023-2025.
 Licence GPLv3+: GNU GPL version 3 or later <https://gnu.org/licenses/gpl.html>.
 This is free software: you are free to change and redistribute it.
 There is NO WARRANTY, to the extent permitted by law.
