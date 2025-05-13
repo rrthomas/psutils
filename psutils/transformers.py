@@ -1,6 +1,6 @@
 """PSUtils document transformer classes.
 
-Copyright (c) Reuben Thomas 2023.
+Copyright (c) Reuben Thomas 2023-2025.
 Released under the GPL version 3, or (at your option) any later version.
 """
 
@@ -226,6 +226,8 @@ end"""
                 )
             pagesperspec = len(self.specs)
             self.write(f"%%Pages: {int(maxpage / modulo) * pagesperspec} 0")
+        elif self.size is not None:
+            warn("could not find document header, so cannot set output paper size")
         self.fcopy(self.reader.headerpos, ignorelist)
         if self.use_procset:
             self.write(f"%%BeginProcSet: PStoPS 1 15\n{self.procset}")
