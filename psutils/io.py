@@ -35,7 +35,8 @@ def setup_input_and_output(
     file_type = puremagic.from_string(data)
 
     # Slurp infile into a seekable BytesIO
-    infile = io.BytesIO(data + infile.read())
+    seekable_infile = io.BytesIO(data + infile.read())
+    infile.close()
 
     # Set up output
     if outfile_name is not None:
@@ -48,7 +49,7 @@ def setup_input_and_output(
 
     # Context manager
     try:
-        yield infile, file_type, outfile
+        yield seekable_infile, file_type, outfile
     finally:
-        infile.close()
+        seekable_infile.close()
         outfile.close()

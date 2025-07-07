@@ -83,6 +83,8 @@ def extractres(argv: list[str] = sys.argv[1:]) -> None:
                         + b"\n"
                     )
                     if not os.path.exists(name):
+                        if output_stream is not None:
+                            output_stream.close()
                         try:
                             output_stream = open(name, "wb")
                         except OSError:
@@ -95,6 +97,8 @@ def extractres(argv: list[str] = sys.argv[1:]) -> None:
                             output_stream.close()
                         output = None
                 elif merge.get(name):
+                    if output_stream is not None:
+                        output_stream.close()
                     try:
                         output_stream = open(name, "a+b")
                     except OSError:
@@ -114,6 +118,9 @@ def extractres(argv: list[str] = sys.argv[1:]) -> None:
                 output = body
             if output is not None:
                 output.append(line)
+
+        if output_stream is not None:
+            output_stream.close()
 
         outfile.writelines(prolog)
         outfile.writelines(body)
