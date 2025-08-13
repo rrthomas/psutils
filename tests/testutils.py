@@ -1,6 +1,6 @@
 """psutils tests utility routines.
 
-Copyright (c) Reuben Thomas 2023.
+Copyright (c) Reuben Thomas 2023-2025.
 Released under the GPL version 3, or (at your option) any later version.
 """
 
@@ -10,32 +10,17 @@ import re
 import shutil
 import subprocess
 import sys
-from collections.abc import Iterator
-from contextlib import ExitStack
+from collections.abc import Callable
+from contextlib import ExitStack, chdir
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Any, Callable, Optional, Union
+from typing import Any
 from unittest.mock import patch
 from warnings import warn
 
 import pytest
 from pytest import CaptureFixture, mark, param
 from wand.image import Image  # type: ignore
-
-
-if sys.version_info[:2] >= (3, 11):
-    from contextlib import chdir  # pyright: ignore
-else:
-    from contextlib import contextmanager
-
-    @contextmanager
-    def chdir(path: os.PathLike[str]) -> Iterator[None]:
-        old_dir = os.getcwd()
-        os.chdir(path)
-        try:
-            yield
-        finally:
-            os.chdir(old_dir)
 
 
 @dataclass
@@ -49,8 +34,8 @@ class GeneratedInput:
 class Case:
     name: str
     args: list[str]
-    input: Union[GeneratedInput, str]
-    error: Optional[int] = None
+    input: GeneratedInput | str
+    error: int | None = None
 
 
 def remove_creation_date(lines: list[str]) -> list[str]:
@@ -229,7 +214,7 @@ def make_tests(
 # Requires a2ps and ps2pdf
 # Simply writes a large page number on each page
 def make_test_input(
-    paper: str, pages: int, file: Path, border: Optional[int] = 1
+    paper: str, pages: int, file: Path, border: int | None = 1
 ) -> None:
     # Configuration
     lines_per_page = 4

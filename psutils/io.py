@@ -1,6 +1,6 @@
 """PSUtils I/O utilities.
 
-Copyright (c) Reuben Thomas 2023.
+Copyright (c) Reuben Thomas 2023-2025.
 Released under the GPL version 3, or (at your option) any later version.
 """
 
@@ -9,7 +9,7 @@ import os
 import sys
 from collections.abc import Iterator
 from contextlib import contextmanager
-from typing import IO, Optional
+from typing import IO
 
 import puremagic
 
@@ -18,10 +18,10 @@ from .warnings import die
 
 @contextmanager
 def setup_input_and_output(
-    infile_name: Optional[str], outfile_name: Optional[str]
+    infile_name: str | None, outfile_name: str | None
 ) -> Iterator[tuple[IO[bytes], str, IO[bytes]]]:
     # Set up input
-    infile: Optional[IO[bytes]] = None
+    infile: IO[bytes] | None = None
     if infile_name is not None:
         try:
             infile = open(infile_name, "rb")

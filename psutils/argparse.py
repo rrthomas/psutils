@@ -1,13 +1,14 @@
 """PSUtils argparse type parsers.
 
-Copyright (c) Reuben Thomas 2023.
+Copyright (c) Reuben Thomas 2023-2025.
 Released under the GPL version 3, or (at your option) any later version.
 """
 
 import argparse
 import importlib.metadata
 import re
-from typing import Callable, NoReturn, Optional
+from collections.abc import Callable
+from typing import NoReturn
 
 from .libpaper import get_paper_size
 from .types import Offset, PageSpec, Range, Rectangle
@@ -32,7 +33,7 @@ def parserange(ranges_text: str) -> list[Range]:
     return ranges
 
 
-def parsepaper(paper_size: str) -> Optional[Rectangle]:
+def parsepaper(paper_size: str) -> Rectangle | None:
     try:
         size = get_paper_size(paper_size)
         if size is None:
@@ -64,7 +65,7 @@ def dimension(s: str) -> float:
 
 
 class PaperContext:
-    def __init__(self, size: Optional[Rectangle] = None) -> None:
+    def __init__(self, size: Rectangle | None = None) -> None:
         if size is None:
             # Run get_paper_size at run-time, so we have already set up the
             # warning handler.

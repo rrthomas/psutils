@@ -1,12 +1,12 @@
 """PSUtils document reader classes.
 
-Copyright (c) Reuben Thomas 2023.
+Copyright (c) Reuben Thomas 2023-2025.
 Released under the GPL version 3, or (at your option) any later version.
 """
 
 import re
 from pathlib import Path
-from typing import IO, Union
+from typing import IO
 
 from pypdf import PdfReader as PdfReaderBase
 from pypdf._utils import StrByteType
@@ -18,9 +18,9 @@ from .warnings import die
 class PdfReader(PdfReaderBase):
     def __init__(
         self,
-        stream: Union[StrByteType, Path],
+        stream: StrByteType | Path,
         strict: bool = False,
-        password: Union[str, bytes, None] = None,
+        password: str | bytes | None = None,
     ) -> None:
         super().__init__(stream, strict, password)
         assert len(self.pages) > 0
@@ -142,13 +142,13 @@ class PsReader:
             self.endsetup = self.pageptr[0]
 
     # Return comment keyword and value if `line' is a DSC comment
-    def comment(self, line: bytes) -> Union[tuple[bytes, bytes], tuple[None, None]]:
+    def comment(self, line: bytes) -> tuple[bytes, bytes] | tuple[None, None]:
         m = re.match(b"%%([^:]+):?\\s+?(.*\\S?)\\s*$", line)
         return (m[1], m[2]) if m else (None, None)
 
 
-def document_reader(file: IO[bytes], file_type: str) -> Union[PdfReader, PsReader]:
-    constructor: Union[type[PdfReader], type[PsReader]]
+def document_reader(file: IO[bytes], file_type: str) -> PdfReader | PsReader:
+    constructor: type[PdfReader] | type[PsReader]
     if file_type in (".ps", ".eps"):
         constructor = PsReader
     elif file_type == ".pdf":

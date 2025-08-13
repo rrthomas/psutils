@@ -1,6 +1,6 @@
 """psnup command.
 
-Copyright (c) Reuben Thomas 2023.
+Copyright (c) Reuben Thomas 2023-2025.
 Released under the GPL version 3, or (at your option) any later version.
 """
 
@@ -10,7 +10,7 @@ import sys
 import warnings
 from collections.abc import Sequence
 from copy import copy
-from typing import Any, Optional, Union
+from typing import Any
 
 from psutils.argparse import (
     HelpFormatter,
@@ -42,7 +42,7 @@ class ToggleAction(argparse.Action):
         self,
         option_strings: list[str],
         dest: str,
-        nargs: Optional[str] = None,
+        nargs: str | None = None,
         default: bool = False,
         **kwargs: Any,
     ) -> None:
@@ -54,8 +54,8 @@ class ToggleAction(argparse.Action):
         self,
         parser: argparse.ArgumentParser,
         namespace: argparse.Namespace,
-        values: Union[str, Sequence[Any], None],
-        option_string: Optional[str] = None,
+        values: str | Sequence[Any] | None,
+        option_string: str | None = None,
     ) -> None:
         setattr(namespace, self.dest, not getattr(namespace, self.dest))
 
@@ -155,8 +155,8 @@ def get_parser_manpages() -> argparse.ArgumentParser:
 def psnup(argv: list[str] = sys.argv[1:]) -> None:
     parser, paper_context = get_parser()
     args = parser.parse_intermixed_args(argv)
-    size: Optional[Rectangle] = None
-    in_size: Optional[Rectangle] = None
+    size: Rectangle | None = None
+    in_size: Rectangle | None = None
 
     with setup_input_and_output(
         args.infile,

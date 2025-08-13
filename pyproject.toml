@@ -8,7 +8,7 @@ authors = [
 ]
 readme = "README.md"
 urls = {Homepage = "https://github.com/rrthomas/psutils"}
-requires-python = ">= 3.9"
+requires-python = ">= 3.12"
 dependencies = [
     "puremagic >= 1.26",
     "pypdf >= 4.3.0",
@@ -38,7 +38,6 @@ test = [
 [build-system]
 requires = [
     "argparse-manpage[setuptools] >= 4.2",
-    "setuptools >= 60; python_version >= \"3.12\"",
     "puremagic >= 1.26",
     "pypdf >= 4.3.0",
 ]

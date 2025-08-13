@@ -10,7 +10,7 @@ import sys
 from abc import ABC, abstractmethod
 from collections.abc import Iterator
 from contextlib import contextmanager
-from typing import IO, Optional, Union
+from typing import IO
 from warnings import warn
 
 from pypdf import PdfWriter, Transformation
@@ -31,7 +31,7 @@ def page_index_to_page_number(
 
 class DocumentTransform(ABC):
     def __init__(self) -> None:
-        self.in_size: Optional[Rectangle]
+        self.in_size: Rectangle | None
         self.specs: list[list[PageSpec]]
 
     @abstractmethod
@@ -64,7 +64,7 @@ class DocumentTransform(ABC):
 
     def transform_pages(
         self,
-        pagerange: Optional[list[Range]],
+        pagerange: list[Range] | None,
         flipping: bool,
         reverse: bool,
         odd: bool,
@@ -83,7 +83,7 @@ class DocumentTransform(ABC):
             return n
 
         def transform_pages(
-            pagerange: Optional[list[Range]], odd: bool, even: bool, reverse: bool
+            pagerange: list[Range] | None, odd: bool, even: bool, reverse: bool
         ) -> None:
             outputpage = 0
             # If no page range given, select all pages
@@ -177,8 +177,8 @@ end"""
         self,
         reader: PsReader,
         outfile: IO[bytes],
-        size: Optional[Rectangle],
-        in_size: Optional[Rectangle],
+        size: Rectangle | None,
+        in_size: Rectangle | None,
         specs: list[list[PageSpec]],
         draw: float,
         in_size_guessed: bool,
@@ -376,8 +376,8 @@ class PdfTransform(DocumentTransform):
         self,
         reader: PdfReader,
         outfile: IO[bytes],
-        size: Optional[Rectangle],
-        in_size: Optional[Rectangle],
+        size: Rectangle | None,
+        in_size: Rectangle | None,
         specs: list[list[PageSpec]],
         draw: float,
     ):
@@ -498,14 +498,14 @@ class PdfTransform(DocumentTransform):
 
 
 def document_transform(
-    indoc: Union[PdfReader, PsReader],
+    indoc: PdfReader | PsReader,
     outfile: IO[bytes],
-    size: Optional[Rectangle],
-    in_size: Optional[Rectangle],
+    size: Rectangle | None,
+    in_size: Rectangle | None,
     specs: list[list[PageSpec]],
     draw: float,
     in_size_guessed: bool,
-) -> Union[PdfTransform, PsTransform]:
+) -> PdfTransform | PsTransform:
     if isinstance(indoc, PsReader):
         return PsTransform(indoc, outfile, size, in_size, specs, draw, in_size_guessed)
     if isinstance(indoc, PdfReader):
@@ -517,12 +517,12 @@ def document_transform(
 def file_transform(
     infile_name: str,
     outfile_name: str,
-    size: Optional[Rectangle],
-    in_size: Optional[Rectangle],
+    size: Rectangle | None,
+    in_size: Rectangle | None,
     specs: list[list[PageSpec]],
     draw: float,
     in_size_guessed: bool,
-) -> Iterator[Union[PdfTransform, PsTransform]]:
+) -> Iterator[PdfTransform | PsTransform]:
     with setup_input_and_output(infile_name, outfile_name) as (
         infile,
         file_type,

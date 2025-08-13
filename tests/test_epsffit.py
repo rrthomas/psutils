@@ -4,10 +4,9 @@ Copyright (c) Reuben Thomas 2023.
 Released under the GPL version 3, or (at your option) any later version.
 """
 
-from collections.abc import Iterable
+from collections.abc import Callable, Iterable
 from itertools import combinations
 from pathlib import Path
-from typing import Callable
 
 from pytest import CaptureFixture
 from testutils import Case, file_test, make_tests

@@ -1,6 +1,6 @@
 """extractres command.
 
-Copyright (c) Reuben Thomas 2023.
+Copyright (c) Reuben Thomas 2023-2025.
 Released under the GPL version 3, or (at your option) any later version.
 """
 
@@ -9,7 +9,7 @@ import os
 import re
 import sys
 import warnings
-from typing import IO, Optional
+from typing import IO
 
 from psutils.argparse import HelpFormatter, add_basic_arguments
 from psutils.io import setup_input_and_output
@@ -51,7 +51,7 @@ def extractres(argv: list[str] = sys.argv[1:]) -> None:
             die(f"incompatible file type `{args.infile}'")
 
         # Resource types
-        def get_type(comment: bytes) -> Optional[bytes]:
+        def get_type(comment: bytes) -> bytes | None:
             types = {
                 b"%%BeginFile:": b"file",
                 b"%%BeginProcSet:": b"procset",
@@ -64,8 +64,8 @@ def extractres(argv: list[str] = sys.argv[1:]) -> None:
         merge: dict[bytes, bool] = {}  # resources extracted this time
         prolog: list[bytes] = []
         body: list[bytes] = []
-        output: Optional[list[bytes]] = prolog
-        output_stream: Optional[IO[bytes]] = None
+        output: list[bytes] | None = prolog
+        output_stream: IO[bytes] | None = None
 
         saveout = None
         for line in infile:

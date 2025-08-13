@@ -1,11 +1,11 @@
 """pdfnup tests.
 
-Copyright (c) Reuben Thomas 2023.
+Copyright (c) Reuben Thomas 2023-2025.
 Released under the GPL version 3, or (at your option) any later version.
 """
 
+from collections.abc import Callable
 from pathlib import Path
-from typing import Callable
 
 from pytest import CaptureFixture
 from testutils import Case, file_test, make_tests
