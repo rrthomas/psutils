@@ -1,16 +1,19 @@
 # Makefile for PSUtils
 #
-# Copyright (C) Reuben Thomas 2012-2023
+# Copyright (C) Reuben Thomas 2012-2025
 # See COPYING for license
 
 test:
 	tox
 
+build:
+	python -m build
+
 dist:
 	git diff --exit-code && \
 	rm -rf ./dist && \
 	mkdir dist && \
-	python -m build
+	$(MAKE) build
 
 release-pypi:
 	twine upload dist/*

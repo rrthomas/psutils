@@ -43,8 +43,8 @@ Unfortunately, `pip` cannot install libpaper for you, but you might be able to i
 PSUtils requires Python 3.12 or later, a handful of Python libraries (listed
 in `pyproject.toml`, and automatically installed by the build procedure).
 
-In the source directory: `python -m build` (requires the `build` package to
-be installed).
+In the source directory: `make build` (requires the `build` Python package
+to be installed).
 
 Note that to use the scripts before installing them, you need to run them
 as Python modules; for example:
