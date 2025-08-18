@@ -40,7 +40,7 @@ Unfortunately, `pip` cannot install libpaper for you, but you might be able to i
 
 ### Installation from source or git
 
-PSUtils requires Python 3.9 or later, a handful of Python libraries (listed
+PSUtils requires Python 3.12 or later, a handful of Python libraries (listed
 in `pyproject.toml`, and automatically installed by the build procedure).
 
 In the source directory: `python -m build` (requires the `build` package to
