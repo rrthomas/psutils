@@ -1,6 +1,6 @@
 """psjoin command.
 
-Copyright (c) Reuben Thomas 2023.
+Copyright (c) Reuben Thomas 2023-2025.
 Released under the GPL version 3, or (at your option) any later version.
 """
 
@@ -9,20 +9,21 @@ import os
 import re
 import sys
 import warnings
+from typing import IO
 
-import puremagic
 from pypdf import PdfReader, PdfWriter
 
 from psutils.argparse import HelpFormatter, add_version_argument
+from psutils.io import setup_inputs_and_output
 from psutils.warnings import die, simple_warning
 
 
 def get_parser() -> argparse.ArgumentParser:
     # Command-line arguments
     parser = argparse.ArgumentParser(
-        description="Concatenate PDF or PostScript documents.",
+        description="Concatenate PDF or PostScript documents to standard output.",
         formatter_class=HelpFormatter,
-        usage="%(prog)s [OPTION...] FILE...",
+        usage="%(prog)s [OPTION...] [FILE...]",
         add_help=False,
         epilog="""
 The --save and --nostrip options only apply to PostScript files.
@@ -51,7 +52,7 @@ The --save and --nostrip options only apply to PostScript files.
     parser.add_argument(
         "file",
         metavar="FILE",
-        nargs="+",
+        nargs="*",
         help="`-' or no FILE argument means standard input",
     )
 
@@ -59,22 +60,26 @@ The --save and --nostrip options only apply to PostScript files.
 
 
 # FIXME: Move the logic for merging PdfReader documents into library.
-def join_pdf(args: argparse.Namespace) -> None:
+def join_pdf(
+    args: argparse.Namespace, infiles: list[IO[bytes]], outfile: IO[bytes]
+) -> None:
     # Merge input files
     out_pdf = PdfWriter()
-    for file in args.file:
+    for file in infiles:
         in_pdf = PdfReader(file)
         out_pdf.append(in_pdf)
         if args.even and len(in_pdf.pages) % 2 == 1:
             out_pdf.add_blank_page()
 
     # Write output
-    out_pdf.write(sys.stdout.buffer)
+    out_pdf.write(outfile)
     sys.stdout.buffer.flush()
 
 
 # FIXME: Move the logic for merging PsReader documents into library.
-def join_ps(args: argparse.Namespace) -> None:
+def join_ps(
+    args: argparse.Namespace, infiles: list[IO[bytes]], outfile: IO[bytes]
+) -> None:
     save = b"save %psjoin\n"
     restore = b"restore %psjoin\n"
 
@@ -89,51 +94,46 @@ def join_ps(args: argparse.Namespace) -> None:
         trailer[prolog_inx] = b"% psjoin: don't strip\n"
         comments[prolog_inx] = b""
     else:
-        for i, file in enumerate(args.file):
-            try:
-                input_ = open(file, "rb")
-            except OSError as e:
-                die(f"can't open file `{file}': {e}")
-            with input_:
-                in_comment = True
-                in_prolog = True
-                in_trailer = False
-                comments[i] = b""
-                prolog[i] = b""
-                trailer[i] = b""
-                pages[i] = 0
-                for line in input_:
-                    if line.startswith(b"%%BeginDocument"):
-                        while not input_.readline().startswith(b"%%EndDocument"):
-                            pass
+        for i, file in enumerate(infiles):
+            in_comment = True
+            in_prolog = True
+            in_trailer = False
+            comments[i] = b""
+            prolog[i] = b""
+            trailer[i] = b""
+            pages[i] = 0
+            for line in file:
+                if line.startswith(b"%%BeginDocument"):
+                    while not file.readline().startswith(b"%%EndDocument"):
+                        pass
 
-                    if in_comment:
-                        if (
-                            line.startswith(b"%!PS-Adobe-")
-                            or line.startswith(b"%%Title")
-                            or line.startswith(b"%%Pages")
-                            or line.startswith(b"%%Creator")
-                        ):
-                            continue
-                        if line.startswith(b"%%EndComments"):
-                            in_comment = False
-                        comments[i] += line
+                if in_comment:
+                    if (
+                        line.startswith(b"%!PS-Adobe-")
+                        or line.startswith(b"%%Title")
+                        or line.startswith(b"%%Pages")
+                        or line.startswith(b"%%Creator")
+                    ):
                         continue
-                    if in_prolog:
-                        if line.startswith(b"%%Page:"):
-                            in_prolog = False
-                        else:
-                            prolog[i] += line
-                            continue
-
-                    if line.startswith(b"%%Trailer"):
-                        in_trailer = True
-                    if in_trailer:
-                        trailer[i] += line
-                        continue
-
+                    if line.startswith(b"%%EndComments"):
+                        in_comment = False
+                    comments[i] += line
+                    continue
+                if in_prolog:
                     if line.startswith(b"%%Page:"):
-                        pages[i] += 1
+                        in_prolog = False
+                    else:
+                        prolog[i] += line
+                        continue
+
+                if line.startswith(b"%%Trailer"):
+                    in_trailer = True
+                if in_trailer:
+                    trailer[i] += line
+                    continue
+
+                if line.startswith(b"%%Page:"):
+                    pages[i] += 1
 
             if prolog[i]:
                 for j in range(i):
@@ -267,19 +267,21 @@ def normalize_types(types: list[str]) -> list[str]:
 def psjoin(argv: list[str] = sys.argv[1:]) -> None:
     args = get_parser().parse_intermixed_args(argv)
 
-    # Check types of files
-    types = list(map(puremagic.from_file, args.file))
-    types = normalize_types(types)
-    if not all(t == types[0] for t in types):
-        die("files are not all of the same type")
+    with setup_inputs_and_output(args.file, "-") as (typed_infiles, outfile):
+        # Check file types are all the same
+        infiles = [infile[0] for infile in typed_infiles]
+        types = [infile[1] for infile in typed_infiles]
+        if not all(t == types[0] for t in types):
+            die("files are not all of the same type")
+        file_type = types[0]
 
-    # Process the files
-    if types[0] == ".pdf":
-        join_pdf(args)
-    elif types[0] == ".ps":
-        join_ps(args)
-    else:
-        die(f"unknown file type `{types[0]}'")
+        # Process the files
+        if file_type == ".pdf":
+            join_pdf(args, infiles, outfile)
+        elif file_type in (".ps", ".eps"):
+            join_ps(args, infiles, outfile)
+        else:
+            die(f"unknown file type `{file_type}'")
 
 
 if __name__ == "__main__":
