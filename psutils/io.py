@@ -22,7 +22,7 @@ def setup_input_and_output(
 ) -> Iterator[tuple[IO[bytes], str, IO[bytes]]]:
     # Set up input
     infile: IO[bytes] | None = None
-    if infile_name is None or infile_name == '-':
+    if infile_name is None or infile_name == "-":
         infile = os.fdopen(sys.stdin.fileno(), "rb", closefd=False)
     else:
         try:
@@ -39,7 +39,7 @@ def setup_input_and_output(
     infile.close()
 
     # Set up output
-    if outfile_name is None or outfile_name == '-':
+    if outfile_name is None or outfile_name == "-":
         outfile = os.fdopen(sys.stdout.fileno(), "wb", closefd=False)
     else:
         try:
