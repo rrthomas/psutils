@@ -27,16 +27,16 @@ software needs to be configured to produce DSC-conformant PostScript.
 
 The easiest way to install PSUtils is from PyPI, the Python Package Index:
 
-`pip install psutils`
+`pipx install psutils`
 
-(Note the PyPI package name!)
+(You may first need to install [pipx](https://pipx.pypa.io).)
 
 PSUtils requires libpaper, which allows named paper sizes to be used and
 configured:
 
 libpaper: https://github.com/rrthomas/libpaper
 
-Unfortunately, `pip` cannot install libpaper for you, but you might be able
+Unfortunately, `pipx` cannot install libpaper for you, but you might be able
 to install it with `brew` or from other package managers. Otherwise, you can
 install libpaper from source (see the link above).
 
