@@ -30,4 +30,4 @@ loc:
 	cloc psutils
 	cloc tests/*.py
 
-.PHONY:	dist
+.PHONY:	dist build
