@@ -22,13 +22,13 @@ def setup_input_and_output(
 ) -> Iterator[tuple[IO[bytes], str, IO[bytes]]]:
     # Set up input
     infile: IO[bytes] | None = None
-    if infile_name is not None:
+    if infile_name is None or infile_name == '-':
+        infile = os.fdopen(sys.stdin.fileno(), "rb", closefd=False)
+    else:
         try:
             infile = open(infile_name, "rb")
         except OSError:
             die(f"cannot open input file {infile_name}")
-    else:
-        infile = os.fdopen(sys.stdin.fileno(), "rb", closefd=False)
 
     # Find MIME type of input
     data = infile.read(16)
@@ -39,13 +39,13 @@ def setup_input_and_output(
     infile.close()
 
     # Set up output
-    if outfile_name is not None:
+    if outfile_name is None or outfile_name == '-':
+        outfile = os.fdopen(sys.stdout.fileno(), "wb", closefd=False)
+    else:
         try:
             outfile = open(outfile_name, "wb")
         except OSError:
             die(f"cannot open output file {outfile_name}")
-    else:
-        outfile = os.fdopen(sys.stdout.fileno(), "wb", closefd=False)
 
     # Context manager
     try:

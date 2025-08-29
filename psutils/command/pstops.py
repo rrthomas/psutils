@@ -108,9 +108,9 @@ def pstops(argv: list[str] = sys.argv[1:]) -> None:
     # Get specs if we don't have them yet
     if args.specs is None:
         if args.infile is None:
-            parser.print_help()
-            sys.exit(1)
-        args.specs = args.infile
+            args.specs = '-'
+        else:
+            args.specs = args.infile
         try:
             parsespecs(args.specs, paper_context, err_function=spec_exception)
             args.infile = args.outfile
