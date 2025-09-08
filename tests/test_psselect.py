@@ -1,6 +1,6 @@
 """psselect tests.
 
-Copyright (c) Reuben Thomas 2023.
+Copyright (c) Reuben Thomas 2023-2025.
 Released under the GPL version 3, or (at your option) any later version.
 """
 
@@ -61,6 +61,21 @@ pytestmark = make_tests(
         "individual-pages-and-dash-p",
         ["-p1,3,5,2,4,6,8-10,19"],
         GeneratedInput("a4", 20),
+    ),
+    Case(
+        "range-open-start",
+        ["-p-5"],
+        GeneratedInput("a4", 20),
+    ),
+    Case(
+        "range-open-end",
+        ["-p16-"],
+        GeneratedInput("a4", 20),
+    ),
+    Case(
+        "range-open-start-and-end",
+        ["-p-"],
+        GeneratedInput("a4", 3),
     ),
     Case(
         "invalid-pagerange",

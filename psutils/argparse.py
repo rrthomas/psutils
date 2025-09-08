@@ -21,7 +21,7 @@ def parserange(ranges_text: str) -> list[Range]:
     for range_text in ranges_text.split(","):
         range_ = Range(0, 0, range_text)
         if range_.text != "_":
-            m = re.match(r"(_?\d+)?(?:(-)(_?\d+))?$", range_.text)
+            m = re.match(r"(_?\d+)?(?:(-)(_?\d+)?)?$", range_.text)
             if not m:
                 die(f"`{range_.text}' is not a page range")
             start = m[1] or "1"
