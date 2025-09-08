@@ -65,19 +65,19 @@ def get_parser() -> argparse.ArgumentParser:
     )
     parser.add_argument(
         "flly",
-        metavar="LLX",
+        metavar="LLY",
         type=paper_context.dimension,
         help="y coordinate of lower left corner of the box",
     )
     parser.add_argument(
         "furx",
-        metavar="LLX",
+        metavar="URX",
         type=paper_context.dimension,
         help="x coordinate of upper right corner of the box",
     )
     parser.add_argument(
         "fury",
-        metavar="LLX",
+        metavar="URY",
         type=paper_context.dimension,
         help="y coordinate of upper right corner of the box",
     )
