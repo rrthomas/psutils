@@ -5,7 +5,6 @@ Released under the GPL version 3, or (at your option) any later version.
 """
 
 import re
-from pathlib import Path
 from typing import IO
 
 from pypdf import PdfReader as PdfReaderBase
@@ -18,7 +17,7 @@ from .warnings import die
 class PdfReader(PdfReaderBase):
     def __init__(
         self,
-        stream: StrByteType | Path,
+        stream: StrByteType,
         strict: bool = False,
         password: str | bytes | None = None,
     ) -> None:
