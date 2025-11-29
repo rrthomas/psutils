@@ -11,7 +11,7 @@ urls = {Homepage = "https://github.com/rrthomas/psutils"}
 requires-python = ">= 3.12"
 dependencies = [
     "puremagic >= 1.26",
-    "pypdf >= 4.3.0",
+    "pymupdf",
 ]
 classifiers = [
     "Environment :: Console",
@@ -39,7 +39,7 @@ test = [
 requires = [
     "argparse-manpage[setuptools] >= 4.2",
     "puremagic >= 1.26",
-    "pypdf >= 4.3.0",
+    "pymupdf",
 ]
 
 [tool.build_manpages]

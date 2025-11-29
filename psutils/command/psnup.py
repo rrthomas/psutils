@@ -208,7 +208,7 @@ def psnup(argv: list[str] = sys.argv[1:]) -> None:
                 in_size = paper_size
         if size is None:
             die("output page size not set, and could not get default paper size")
-        assert(in_size)
+        assert in_size
 
         # Take account of flip
         if args.flip:
@@ -281,9 +281,10 @@ def psnup(argv: list[str] = sys.argv[1:]) -> None:
         )
 
         # Page centring shifts
-        hshift, vshift = (ppwid / horiz - in_size.width * scale) / 2, (
-            pphgt / vert - in_size.height * scale
-        ) / 2
+        hshift, vshift = (
+            (ppwid / horiz - in_size.width * scale) / 2,
+            (pphgt / vert - in_size.height * scale) / 2,
+        )
 
         # Construct specification list
         spec_list = []
@@ -303,12 +304,12 @@ def psnup(argv: list[str] = sys.argv[1:]) -> None:
                 xoff = args.margin + across * ppwid / horiz + hshift
             yoff = args.margin + up * pphgt / vert + vshift
             spec_list.append(
-                f'{page}{"L" if rotate else ""}@{scale:f}({xoff:f},{yoff:f})'
+                f"{page}{'L' if rotate else ''}@{scale:f}({xoff:f},{yoff:f})"
             )
 
         # Rearrange pages
         specs, modulo, flipped = parsespecs(
-            f'{args.nup}:{"+".join(spec_list)}', paper_context
+            f"{args.nup}:{'+'.join(spec_list)}", paper_context
         )
         transform = document_transform(
             doc, outfile, size, orig_in_size, specs, args.draw, in_size_guessed
