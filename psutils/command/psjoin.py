@@ -11,7 +11,7 @@ import sys
 import warnings
 from typing import IO
 
-from pypdf import PdfReader, PdfWriter
+from pymupdf import Document
 
 from psutils.argparse import HelpFormatter, add_version_argument
 from psutils.io import setup_inputs_and_output
@@ -64,15 +64,15 @@ def join_pdf(
     args: argparse.Namespace, infiles: list[IO[bytes]], outfile: IO[bytes]
 ) -> None:
     # Merge input files
-    out_pdf = PdfWriter()
+    out_pdf = Document()
     for file in infiles:
-        in_pdf = PdfReader(file)
-        out_pdf.append(in_pdf)
-        if args.even and len(in_pdf.pages) % 2 == 1:
-            out_pdf.add_blank_page()
+        in_pdf = Document(stream=file)
+        out_pdf.insert_pdf(in_pdf)
+        if args.even and in_pdf.page_count % 2 == 1:
+            out_pdf.new_page()
 
     # Write output
-    out_pdf.write(outfile)
+    outfile.write(out_pdf.convert_to_pdf())
     sys.stdout.buffer.flush()
 
 

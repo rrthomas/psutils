@@ -7,23 +7,20 @@ Released under the GPL version 3, or (at your option) any later version.
 import re
 from typing import IO
 
-from pypdf import PdfReader as PdfReaderBase
-from pypdf._utils import StrByteType
+from pymupdf import Document
 
 from .types import Rectangle
 from .warnings import die
 
 
-class PdfReader(PdfReaderBase):
+class PdfReader(Document):
     def __init__(
         self,
-        stream: StrByteType,
-        strict: bool = False,
-        password: str | bytes | None = None,
+        stream: IO[bytes],
     ) -> None:
-        super().__init__(stream, strict, password)
-        assert len(self.pages) > 0
-        mediabox = self.pages[0].mediabox
+        super().__init__(stream=stream)
+        assert self.page_count > 0
+        mediabox = self[0].mediabox
         self.size = Rectangle(mediabox.width, mediabox.height)
         self.size_guessed = False
 

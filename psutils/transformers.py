@@ -4,7 +4,6 @@ Copyright (c) Reuben Thomas 2023-2025.
 Released under the GPL version 3, or (at your option) any later version.
 """
 
-import io
 import shutil
 import sys
 from abc import ABC, abstractmethod
@@ -13,8 +12,7 @@ from contextlib import contextmanager
 from typing import IO
 from warnings import warn
 
-from pypdf import PdfWriter, Transformation
-from pypdf.annotations import PolyLine
+from pymupdf import Document, Identity, Matrix
 
 from .argparse import parserange
 from .io import setup_input_and_output
@@ -384,7 +382,7 @@ class PdfTransform(DocumentTransform):
         super().__init__()
         self.outfile = outfile
         self.reader = reader
-        self.writer = PdfWriter()
+        self.writer = Document()
         self.draw = draw
         self.specs = specs
 
@@ -392,12 +390,12 @@ class PdfTransform(DocumentTransform):
             in_size = reader.size
         if size is None:
             size = in_size
-
+        assert size is not None
         self.size = size
         self.in_size = in_size
 
     def pages(self) -> int:
-        return len(self.reader.pages)
+        return self.reader.page_count
 
     def write_header(self, maxpage: int, modulo: int) -> None:
         pass
@@ -423,78 +421,67 @@ class PdfTransform(DocumentTransform):
             len(page_specs) == 1
             and not page_specs[0].has_transform()
             and page_number < page_list.num_pages()
-            and 0 <= real_page < len(self.reader.pages)
+            and 0 <= real_page < self.reader.page_count
             and self.draw == 0
             and self.size == self.in_size
             and (
                 self.in_size.width is None
                 or (
-                    self.in_size.width == self.reader.pages[real_page].mediabox.width
-                    and self.in_size.height
-                    == self.reader.pages[real_page].mediabox.height
+                    self.in_size.width == self.reader[real_page].mediabox.width
+                    and self.in_size.height == self.reader[real_page].mediabox.height
                 )
             )
         ):
-            self.writer.add_page(self.reader.pages[real_page])
+            self.writer.insert_pdf(self.reader, from_page=real_page, to_page=real_page)
         else:
             # Add a blank page of the correct size to the end of the document
-            outpdf_page = self.writer.add_blank_page(self.size.width, self.size.height)
+            outpdf_page = self.writer.new_page(-1, self.size.width, self.size.height)
             for spec in page_specs:
                 page_number = page_index_to_page_number(spec, maxpage, modulo, pagebase)
                 real_page = page_list.real_page(page_number)
-                if page_number < page_list.num_pages() and 0 <= real_page < len(
-                    self.reader.pages
+                if (
+                    page_number < page_list.num_pages()
+                    and 0 <= real_page < self.reader.page_count
                 ):
                     # Calculate input page transformation
-                    t = Transformation()
+                    t = Matrix(Identity)
+                    mbox = self.reader[real_page].mediabox
                     if spec.hflip:
-                        t = t.transform(
-                            Transformation((-1, 0, 0, 1, self.in_size.width, 0))
-                        )
+                        t.concat(t, Matrix(-1, 0, 0, 1, self.in_size.width, 0))
                     elif spec.vflip:
-                        t = t.transform(
-                            Transformation((1, 0, 0, -1, 0, self.in_size.height))
-                        )
+                        t.concat(t, Matrix(1, 0, 0, -1, 0, self.in_size.height))
                     if spec.rotate != 0:
-                        t = t.rotate(spec.rotate % 360)
+                        t.prerotate(spec.rotate % 360)
                     if spec.scale != 1.0:
-                        t = t.scale(spec.scale, spec.scale)
+                        t.prescale(spec.scale, spec.scale)
                     if spec.off != Offset(0.0, 0.0):
-                        t = t.translate(spec.off.x, spec.off.y)
+                        # (t.prerotate applies translation according to original axes)
+                        t.e += spec.off.x
+                        t.f += spec.off.y
+                    # Transform input page mediabox
+                    t.concat(t, outpdf_page.transformation_matrix)
+                    mbox.transform(t)
                     # Merge input page into the output document
-                    outpdf_page.merge_transformed_page(self.reader.pages[real_page], t)
-                    if self.draw > 0:  # FIXME: draw the line at the requested width
-                        mediabox = self.reader.pages[real_page].mediabox
-                        line = PolyLine(
-                            vertices=[
-                                (
-                                    mediabox.left + spec.off.x,
-                                    mediabox.bottom + spec.off.y,
-                                ),
-                                (mediabox.left + spec.off.x, mediabox.top + spec.off.y),
-                                (
-                                    mediabox.right + spec.off.x,
-                                    mediabox.top + spec.off.y,
-                                ),
-                                (
-                                    mediabox.right + spec.off.x,
-                                    mediabox.bottom + spec.off.y,
-                                ),
-                                (
-                                    mediabox.left + spec.off.x,
-                                    mediabox.bottom + spec.off.y,
-                                ),
-                            ],
-                        )
-                        self.writer.add_annotation(outpdf_page, line)
+                    # FIXME: use Document.insert_pdf when outputting only
+                    # one page per page with only rotation. Otherwise, use
+                    # Document.bake() to get annotations & fields.
+                    outpdf_page.show_pdf_page(
+                        mbox, self.reader, real_page, rotate=spec.rotate % 360
+                    )
+                    if self.draw > 0:
+                        line = [
+                            (int(mbox.x0), int(mbox.y1)),
+                            (int(mbox.x0), int(mbox.y0)),
+                            (int(mbox.x1), int(mbox.y0)),
+                            (int(mbox.x1), int(mbox.y1)),
+                            (int(mbox.x0), int(mbox.y1)),
+                        ]
+                        outpdf_page.draw_polyline(line, width=self.draw)
 
     def finalize(self) -> None:
-        # PyPDF seeks, so write to a buffer first in case outfile is stdout.
-        buf = io.BytesIO()
-        self.writer.write(buf)
-        buf.seek(0)
-        self.outfile.write(buf.read())
+        self.outfile.write(self.writer.convert_to_pdf())
         self.outfile.flush()
+        self.writer.close()
 
 
 def document_transform(
