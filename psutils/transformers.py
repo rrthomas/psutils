@@ -515,8 +515,8 @@ def document_transform(
 
 @contextmanager
 def file_transform(
-    infile_name: str,
-    outfile_name: str,
+    infile_name: str | None,
+    outfile_name: str | None,
     size: Rectangle | None,
     in_size: Rectangle | None,
     specs: list[list[PageSpec]],
