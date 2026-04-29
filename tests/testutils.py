@@ -144,7 +144,7 @@ def file_test(
     with chdir(datafiles):
         correct_output = True
         if case.error is None:
-            with patch("sys.argv", patched_argv):
+            with patch("sys.argv", patched_argv), patch.object(sys.modules['__main__'], '__spec__', None):
                 function(full_args)
             if regenerate_expected:
                 shutil.copyfile(output_file, expected_file.with_suffix(file_type))
@@ -160,7 +160,7 @@ def file_test(
                 )
         else:
             with pytest.raises(SystemExit) as e:
-                with patch("sys.argv", patched_argv):
+                with patch("sys.argv", patched_argv), patch.object(sys.modules['__main__'], '__spec__', None):
                     function(full_args)
             assert e.value.code == case.error
         if regenerate_expected:
