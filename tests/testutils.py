@@ -144,7 +144,10 @@ def file_test(
     with chdir(datafiles):
         correct_output = True
         if case.error is None:
-            with patch("sys.argv", patched_argv):
+            with (
+                patch("sys.argv", patched_argv),
+                patch.object(sys.modules["__main__"], "__spec__", new=None),
+            ):
                 function(full_args)
             if regenerate_expected:
                 shutil.copyfile(output_file, expected_file.with_suffix(file_type))
@@ -160,7 +163,10 @@ def file_test(
                 )
         else:
             with pytest.raises(SystemExit) as e:
-                with patch("sys.argv", patched_argv):
+                with (
+                    patch("sys.argv", patched_argv),
+                    patch.object(sys.modules["__main__"], "__spec__", new=None),
+                ):
                     function(full_args)
             assert e.value.code == case.error
         if regenerate_expected:
@@ -213,9 +219,7 @@ def make_tests(
 # Make a test PostScript or PDF file of a given number of pages
 # Requires a2ps and ps2pdf
 # Simply writes a large page number on each page
-def make_test_input(
-    paper: str, pages: int, file: Path, border: int | None = 1
-) -> None:
+def make_test_input(paper: str, pages: int, file: Path, border: int | None = 1) -> None:
     # Configuration
     lines_per_page = 4
 
