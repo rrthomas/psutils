@@ -6,32 +6,24 @@ jobs:
   build:
     strategy:
       matrix:
-        os: [ubuntu-latest, macos-latest]
+        os: [ubuntu-26.04, macos-latest]
     runs-on: ${{ matrix.os }}
     steps:
     - uses: actions/checkout@v7
     - name: Install dependencies (Ubuntu)
-      if: ${{ matrix.os == 'ubuntu-latest' }}
-      run: sudo apt-get -y install python3 help2man imagemagick
+      if: ${{ matrix.os == 'ubuntu-26.04' }}
+      run: sudo apt-get -y install python3 tox help2man imagemagick libpaper-dev
     - name: Install dependencies (macOS)
       if: ${{ matrix.os == 'macos-latest' }}
       run: |
         brew install libpaper tox imagemagick ghostscript
         # Prepend optional brew binary directories to PATH
         echo "$(brew --prefix)/opt/imagemagick/bin:$(brew --prefix)/opt/python/libexec/bin" >> $GITHUB_PATH
-    - name: Install libpaper from source
-      if: ${{ matrix.os == 'ubuntu-latest' }}
-      run: |
-        git clone https://github.com/rrthomas/libpaper.git ~/libpaper
-        cd ~/libpaper && ./bootstrap && ./configure --quiet --enable-silent-rules && sudo make install
-        if test ${{ matrix.os }} = ubuntu-latest; then sudo ldconfig; fi
-        paper --version
     - name: Build
       run: |
         if [ "$RUNNER_OS" = "macOS" ]; then
           export MAGICK_HOME="$(brew --prefix)/opt/imagemagick/"
           tox --skip-missing-interpreters -e py314
         else
-          pip install tox
           tox --skip-missing-interpreters
         fi
