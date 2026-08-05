@@ -32,5 +32,5 @@ def filename(*components: bytes) -> bytes:  # make filename for resource in 'com
         name += c_str.encode()
     name = os.path.basename(name)  # drop directories
     if name == b"":
-        die(f'filename not found for resource {b" ".join(components).decode()}', 2)
+        die(f"filename not found for resource {b' '.join(components).decode()}", 2)
     return name

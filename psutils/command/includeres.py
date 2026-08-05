@@ -54,7 +54,7 @@ def includeres(argv: list[str] = sys.argv[1:]) -> None:
                         outfile.write(f.read())
                 except OSError:
                     outfile.write(
-                        f'%%IncludeResource: {b" ".join([resource_type, *res]).decode()}\n'.encode()
+                        f"%%IncludeResource: {b' '.join([resource_type, *res]).decode()}\n".encode()
                     )
                     warn(f"resource `{name.decode()}' not found")
             else:
