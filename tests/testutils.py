@@ -1,6 +1,6 @@
 """psutils tests utility routines.
 
-Copyright (c) Reuben Thomas 2023-2025.
+Copyright (c) Reuben Thomas 2023-2026.
 Released under the GPL version 3, or (at your option) any later version.
 """
 
@@ -120,6 +120,7 @@ def file_test(
     regenerate_input: bool,
     regenerate_expected: bool,
 ) -> None:
+    os.environ["PAPERSIZE"] = "A4"
     module_name = function.__name__
     expected_file = fixture_dir / module_name / case.name / "expected"
     expected_stderr = (

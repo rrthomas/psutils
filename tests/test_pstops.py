@@ -4,9 +4,7 @@ Copyright (c) Reuben Thomas 2023.
 Released under the GPL version 3, or (at your option) any later version.
 """
 
-import os
 from pathlib import Path
-from unittest import mock
 
 from testutils import Case, GeneratedInput, file_test, make_tests
 
@@ -72,5 +70,4 @@ pytestmark = make_tests(
         GeneratedInput("a4", 20),
     ),
 )
-with mock.patch.dict(os.environ, {"PAPERSIZE": "A4"}):
-    test_pstops = file_test
+test_pstops = file_test
