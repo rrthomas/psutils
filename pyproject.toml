@@ -31,13 +31,22 @@ pstops = "psutils.command.pstops:pstops"
 
 [project.optional-dependencies]
 test = [
+    "pyright",
     "pytest-datafiles",
+    "ruff",
+    "setuptools",
+    "tox",
+    "types-colorama",
+    "types-mock",
+    "types-Pillow",
+    "types-setuptools",
     "Wand",
 ]
 
 [build-system]
 requires = [
     "argparse-manpage[setuptools] >= 4.2",
+    "build",
     "puremagic >= 1.26",
     "pypdf >= 4.3.0",
 ]
@@ -65,3 +74,16 @@ lines-after-imports = 2
 
 [tool.ruff.lint.pydocstyle]
 convention = "google"
+
+[tool.tox]
+env_list = ["3.12", "3.13", "3.14"]
+
+[tool.tox.env_run_base]
+description = "Run tests under {base_python}"
+commands = [
+    ["pyright", "psutils", "tests/*.py", "setup.py"],
+    ["ruff", "check", "psutils", "tests", "setup.py"],
+    ["ruff", "format", "--exit-non-zero-on-format"],
+    ["pytest", "-Wdefault", "{posargs}"],
+]
+extras = ["test"]
