@@ -59,7 +59,7 @@ def psresize(argv: list[str] = sys.argv[1:]) -> None:
     if args.width:
         cmd.extend(["--width", args.width])
     if args.height:
-        cmd.extend(["--width", args.height])
+        cmd.extend(["--height", args.height])
     if args.inwidth:
         cmd.extend(["--inwidth", args.inwidth])
     if args.inheight:
